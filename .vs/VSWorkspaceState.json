@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\logged_in_admin",
+    "\\src\\logged_in_admin\\payroll",
+    "\\src\\logged_in_admin\\payroll\\payrolls",
+    "\\src\\shared",
+    "\\src\\shared\\functions",
+    "\\src\\shared\\functions\\number-input"
+  ],
+  "SelectedNode": "\\src\\shared\\functions\\number-input\\NumberInput.scss",
+  "PreviewInSolutionExplorer": false
+}

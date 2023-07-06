@@ -1,0 +1,116 @@
+.view-employee-payroll-page {
+  .go-back-text {
+    cursor: pointer;
+  }
+  .payment-details {
+    .salary-details,
+    .bonus-details,
+    .deductions-details {
+      padding-bottom: 20px;
+      margin-bottom: 10px;
+    }
+
+    .dropdown {
+      padding: 10px;
+      border-radius: $border-radius;
+      text-align: center;
+      input,
+      select {
+        margin-bottom: 10px;
+        min-width: 200px;
+      }
+    }
+
+    .payment-item {
+      .label {
+        font-weight: $font-weight-heading;
+        text-transform: capitalize;
+        margin: 0;
+        margin-bottom: 5px;
+
+        .amount {
+          font-size: 0.8rem;
+          color: $primary-color;
+          margin-left: 10px;
+        }
+      }
+
+      .inputs {
+        display: flex;
+        flex-wrap: wrap;
+
+        .hours,
+        .rate,
+        .fixed-amount {
+          display: inline;
+          position: relative;
+          border: 1px solid $border-color;
+          border-radius: $border-radius;
+          min-width: 250px;
+
+          &::after {
+            content: "";
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: $grey-color;
+            font-weight: $font-weight-subheading;
+          }
+
+          input {
+            max-width: calc(100% - 50px);
+            border: none;
+            outline: none;
+          }
+        }
+
+        .hours {
+          &::after {
+            content: "hours";
+          }
+        }
+
+        .fixed-amount {
+          &::after {
+            content: "$";
+          }
+        }
+
+        .rate {
+          &::after {
+            content: "rate";
+          }
+        }
+
+        .icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          &:hover {
+            cursor: pointer;
+            color: $danger-color;
+          }
+        }
+      }
+    }
+  }
+
+  .bank-account-details,
+  .payment-summary {
+    .section-heading {
+      margin-bottom: 10px;
+    }
+    table {
+      margin-top: 10px;
+      td {
+        padding: 5px 0;
+      }
+      .item {
+        text-transform: capitalize;
+        font-weight: $font-weight-subheading;
+      }
+    }
+  }
+}

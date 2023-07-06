@@ -1,0 +1,53 @@
+.snackbar {
+  display: flex;
+  justify-content: space-between;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  visibility: visible;
+  min-width: 300px;
+  text-align: center;
+  border-radius: $border-radius;
+  z-index: 9999;
+  bottom: 30px;
+  background-color: $success-color;
+  color: $white-color;
+  padding: 0.5em 0.8em;
+  font-size: 1rem;
+  font-weight: $font-weight-heading;
+
+  visibility: visible !important;
+  -webkit-animation: fadein 0.5s;
+  animation: fadein 0.5s;
+
+  &.default {
+    background-color: $black-color;
+  }
+  &.primary {
+    background-color: $secondary-color;
+  }
+  &.success {
+    background-color: #000c37;
+  }
+  &.warning {
+    background-color: $warning-color;
+  }
+  &.danger {
+    background-color: $danger-color;
+  }
+
+  .close-btn {
+    border: 0;
+    background-color: transparent;
+    outline: none;
+    color: $white-color;
+    margin-left: 10px;
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  .content {
+    text-align: left;
+  }
+}

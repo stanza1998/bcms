@@ -1,0 +1,164 @@
+.payroll-page {
+  .payroll-list {
+    .payroll-item {
+      border-radius: $border-radius;
+      margin-bottom: 15px;
+      transition: border 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+      background-color: $muted-color;
+
+      &:hover {
+        box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+        background-color: $hover-color;
+        cursor: pointer;
+      }
+
+      &.draft {
+        border-left: 3px solid $danger-color;
+
+        .status .value:before {
+          background-color: $danger-color;
+        }
+      }
+
+      &.completed {
+        border-left: 3px solid $success-color;
+
+        .status .value:before {
+          background-color: $success-color;
+        }
+      }
+
+      &.in-progress {
+        border-left: 3px solid $warning-color;
+
+        .status .value:before {
+          background-color: $warning-color;
+        }
+      }
+
+      .body {
+        padding-top: 5px;
+        padding-bottom:5px;
+
+        &>div {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .title {
+          font-size: 1.1rem;
+          font-weight: 600;
+          margin: 0;
+        }
+
+        .status,
+        .amount,
+        .deadline {
+          p {
+            margin: 0;
+          }
+          .label {
+            font-size: 0.8rem;
+            font-weight: $font-weight-heading;
+            color: $grey-color !important;
+          }
+
+          .value {
+            font-size: $fontsize;
+            font-weight: $font-weight-heading;
+            text-transform: capitalize;
+          }
+        }
+
+        .status {
+          .value {
+            position: relative;
+
+            &:before {
+              content: "";
+              position: absolute;
+              top: 50%;
+              transform: translateY(-50%);
+              left: -10px;
+              height: 10px;
+              width: 10px;
+              border-radius: 4px;
+            }
+          }
+        }
+
+        .more {
+          position: relative;
+
+          .icon-btn {
+            margin-left: auto;
+            margin-right: 0;
+            padding: 5px 10px;
+            background-color: transparent;
+            border: none;
+            outline: none;
+            color: $primary-color;
+
+            &:hover {
+              cursor: pointer;
+              color: red;
+            }
+          }
+
+          .dropdown {
+            padding: 0;
+            border-radius: $border-radius;
+            overflow: hidden;
+
+            .menu {
+              list-style: none;
+              margin: 0%;
+              padding: 1px;
+              display: flex;
+            }
+
+            .menu-item {
+              transition: all 0.3s ease-in-out;
+              padding: 8px 10px;
+              font-size: $fontsize;
+              text-transform: none;
+              color: $primary-color;
+
+              &:hover {
+                cursor: pointer;
+                text-decoration: underline;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.kit-dropdown {
+  .icon {
+    height: 20px;
+    width: 20px;
+    line-height: 20px;
+    text-align: center;
+    border-radius: 10px;
+
+    &--muted {
+      background-color: $primary-color;
+      color: $white-color;
+    }
+
+    &--warning {
+      background-color: $warning-color;
+      color: $white-color;
+    }
+
+    &--success {
+      background-color: $success-color;
+      color: $white-color;
+    }
+  }
+}

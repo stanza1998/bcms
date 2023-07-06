@@ -1,0 +1,52 @@
+.payroll-approval-dialog {
+  .approval-item {
+    .approval-input {
+      display: flex;
+
+      .item {
+        border: 1px solid $border-color;
+        border-radius: $border-radius;
+        width: 100%;
+        height: min-content;
+
+        &::after {
+          content: "";
+          position: absolute;
+          right: 5px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: $grey-color;
+        }
+
+        input {
+          border: none;
+          outline: none;
+        }
+
+        select {
+          border: none;
+          outline: none;
+        }
+      }
+
+      .icon {
+        display: flex;
+        margin-top: 5px;
+        justify-content: center;
+
+        &:hover {
+          cursor: pointer;
+          color: $danger-color;
+        }
+      }
+    }
+  }
+
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    border: none;
+  }
+}

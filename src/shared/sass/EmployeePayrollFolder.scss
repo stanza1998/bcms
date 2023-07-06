@@ -1,0 +1,128 @@
+.folder-page {
+  .folder-card-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    width: inherit !important;
+
+    .folder-file {
+      width: 140px;
+      height: 140px;
+      position: relative;
+
+      &:hover {
+        .folder-image {
+          img {
+            transform: scale(1.1);
+          }
+        }
+      }
+
+      .folder-image {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        align-items: center;
+
+        img {
+          transition: transform 0.2s;
+        }
+      }
+
+      .edit-icon {
+        position: absolute;
+        bottom: 0.8rem;
+        right: 0.4rem;
+        padding: 0.4rem;
+        display: grid;
+        place-items: center;
+        border-radius: 50% !important;
+        color: inherit;
+        border: 0px transparent;
+        cursor: pointer;
+        border: 2px solid #fff;
+        transition: border 0.3s ease, box-shadow 0.3s ease;
+
+        &:hover {
+          border: 2px solid $primary-color;
+          background-color: $hover-color;
+          cursor: pointer;
+        }
+      }
+
+      .actions {
+        display: flex;
+        justify-content: flex-end;
+
+        .folder-actions {
+          display: flex;
+          align-items: center;
+          justify-content: right;
+          cursor: pointer;
+          padding: 2px;
+          margin-top: 1px;
+          border-radius: 2px;
+          transition: all 0.3s ease-out;
+          background-color: rgba(255, 2, 2, 0.103);
+          color: red;
+
+          &:hover {
+            background-color: #ff00002d;
+          }
+        }
+      }
+    }
+
+    .folder-title {
+      text-align: center;
+
+      h4 {
+        margin-block-start: 0.8em;
+        margin-block-end: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-transform: capitalize;
+      }
+
+      span {
+        margin-block-start: 0em;
+        font-size: 0.8rem;
+      }
+    }
+  }
+
+
+  .dropdown-input {
+    display: flex;
+    align-items: center;
+    border: 1px solid $grey-color;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+
+    #name {
+      font-size: 1.2rem;
+      width: 90%;
+      border: 0;
+      outline: none;
+    }
+
+    .update-name {
+      background-color: transparent;
+      border-radius: 2px;
+      transition: all 0.3s;
+      padding: 0.2rem;
+
+      &:hover {
+        color: $white-color;
+      }
+    }
+
+    &:hover {
+      border: 1px solid grey;
+    }
+  }
+}

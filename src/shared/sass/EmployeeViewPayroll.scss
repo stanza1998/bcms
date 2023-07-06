@@ -1,0 +1,109 @@
+.employee-not-found-page {
+  .go-back-text {
+    cursor: pointer;
+  }
+}
+
+.view-payroll-page {
+  .employee-list {
+    .employee-item {
+      padding-top: 3px;
+      padding-bottom: 3px;
+
+      .position-relative {
+        position: relative;
+      }
+
+      &.excluded {
+        border-left: 4px solid $grey-color;
+      }
+
+      &:hover {
+        cursor: pointer;
+      }
+
+      .employee,
+      .position,
+      .salary_grade,
+      .net_income {
+        p {
+          margin: 0;
+        }
+
+        .label {
+          font-size: $fontsize;
+          font-weight: $font-weight-heading;
+          color: $grey-color;
+        }
+
+        .value {
+          font-size: $fontsize-large;
+          font-weight: $font-weight-heading;
+          text-transform: capitalize;
+        }
+      }
+
+      .more {
+        position: absolute;
+        right: 0px;
+        top: 50%;
+        transform: translateY(-50%);
+
+        .icon {
+          color: $white-color;
+          transition: all 0.3s ease-in-out;
+          background-color: $grey-color;
+          border-radius: 50%;
+          padding: 2px;
+
+          &.expanded {
+            transform: rotate(180deg);
+            background-color: $primary-color;
+          }
+        }
+      }
+
+      .summary {
+        max-height: 0;
+        overflow: hidden;
+        transition: all 0.3s ease-in-out;
+        overflow-y: auto;
+
+        &.expanded {
+          max-height: 600px;
+        }
+
+        .label {
+          font-size: $fontsize;
+          font-weight: $font-weight-subheading;
+          color: $grey-color;
+          margin-top: 15px;
+          margin-bottom: 10px;
+        }
+
+        table {
+          border: $border-color solid 1px;
+          border-radius: $border-radius;
+          overflow: hidden;
+          margin: 0;
+          background-color: $muted-color;
+
+          td {
+            font-weight: $font-weight-subheading;
+          }
+
+          td.gap {
+            height: 10px !important;
+            padding: 0 !important;
+            background-color: transparent !important;
+            border: 0 !important;
+          }
+        }
+      }
+
+      .footer {
+        margin-bottom: 0;
+      }
+    }
+  }
+}

@@ -1,0 +1,280 @@
+.invoice-page {
+  .invoice-card {
+    border-radius: $border-radius;
+    -webkit-animation: fadein 0.5s;
+    animation: fadein 0.5s;
+
+    @keyframes fadein {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    &:hover {
+      cursor: pointer;
+    }
+
+    .position-relative {
+      position: relative;
+    }
+
+    &.Unpaid {
+      border-top: 3px solid $danger-color;
+
+      .status .value:before {
+        background-color: $danger-color;
+      }
+    }
+
+    &.Partially {
+      border-top: 3px solid $warning-color;
+
+      .status .value::before {
+        background-color: $warning-color;
+      }
+    }
+
+    &.Paid {
+      border-top: 3px solid $success-color;
+
+      .status .value:before {
+        background-color: $success-color;
+      }
+    }
+
+    .body {
+
+      .name,
+      .status,
+      .amount,
+      .dates {
+        p {
+          margin: 0;
+        }
+
+        .label {
+          font-size: 0.8rem;
+          font-weight: $font-weight-heading;
+          color: $grey-color;
+        }
+
+        .value {
+          font-size: $fontsize-large;
+          font-weight: $font-weight-heading;
+          text-transform: capitalize;
+        }
+      }
+
+      .status {
+        .value {
+          position: relative;
+
+          &:before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            left: -10px;
+            height: 8px;
+            width: 8px;
+            border-radius: 4px;
+          }
+        }
+      }
+    }
+  }
+
+  .invoice-list {
+    .invoice-item {
+      border-radius: $border-radius;
+      padding-top: 0px;
+      padding-bottom: 0px;
+      box-shadow: 0 5px 15px rgb(0 0 0 / 8%);
+      background-color: $white-color;
+      -webkit-animation: fadein 0.5s;
+      animation: fadein 0.5s;
+
+      @keyframes fadein {
+        from {
+          opacity: 0;
+        }
+
+        to {
+          opacity: 1;
+        }
+      }
+
+      &:hover {
+        cursor: pointer;
+      }
+
+      .position-relative {
+        position: relative;
+      }
+
+      &.Unpaid {
+        border-left: 3px solid $danger-color;
+      }
+
+      &.Partially {
+        border-left: 3px solid $warning-color;
+      }
+
+      &.Paid {
+        border-left: 3px solid $success-color;
+      }
+
+      .body {
+        padding-top: 2px;
+        padding-bottom: 2px;
+
+        &>div {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .title {
+          font-size: 1.1rem;
+          font-weight: 600;
+          margin: 0;
+        }
+
+        .data,
+        .status {
+          p {
+            margin: 0;
+          }
+
+          .label {
+            font-size: 0.8rem;
+            font-weight: $font-weight-heading;
+            color: $grey-color;
+          }
+
+          .value {
+            font-size: $fontsize-large;
+            font-weight: $font-weight-heading;
+            text-transform: capitalize;
+          }
+        }
+
+        .status {
+          .value {
+            position: relative;
+
+            &:before {
+              content: "";
+              position: absolute;
+              top: 50%;
+              transform: translateY(-50%);
+              left: -10px;
+              height: 10px;
+              width: 10px;
+              border-radius: 4px;
+            }
+          }
+
+          &.pending {
+            .value {
+              &:before {
+                background-color: $danger-color;
+              }
+            }
+          }
+
+          &.seen {
+            .value {
+              &:before {
+                background-color: $success-color;
+              }
+            }
+          }
+        }
+      }
+
+      .more {
+        position: absolute;
+        right: 0px;
+        top: 50%;
+        transform: translateY(-50%);
+
+        .icon {
+          color: $white-color;
+          transition: all 0.3s ease-in-out;
+          background-color: $grey-color;
+          border-radius: 50%;
+          padding: 2px;
+
+          &.expanded {
+            transform: rotate(180deg);
+            background-color: $primary-color;
+          }
+        }
+      }
+    }
+
+    .summary {
+      max-height: 0;
+      overflow: hidden;
+      transition: all 0.3s ease-in-out;
+      overflow-y: auto;
+
+      &.expanded {
+        max-height: 600px;
+      }
+
+      .label {
+        font-size: $fontsize;
+        font-weight: $font-weight-heading;
+        color: $grey-color;
+        margin-top: 15px;
+        margin-bottom: 10px;
+      }
+
+      table {
+        border: $border-color solid 1px;
+        border-radius: $border-radius;
+        overflow: hidden;
+        margin: 0;
+        background-color: $muted-color;
+
+        td {
+          font-weight: $font-weight-heading;
+        }
+
+        td.gap {
+          height: 10px !important;
+          padding: 0 !important;
+          background-color: transparent !important;
+          border: 0 !important;
+        }
+      }
+    }
+
+    .summary-footer {
+      .footer-button {
+        background-color: $primary-color;
+        color: $white-color;
+      }
+
+      .footer-button-delete {
+        background-color: $danger-color;
+        color: $white-color;
+      }
+    }
+  }
+}
+
+.invoice-offcanvas-view {
+  background-color: $grey-color;
+  color: $white-color;
+
+  H3 {
+    border-bottom: 4px solid $white-color;
+  }
+}

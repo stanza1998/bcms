@@ -1,0 +1,209 @@
+.payroll-steps {
+  .stage {
+    background-color: #fff;
+
+    .title {
+      font-size: $fontsize-large;
+      font-weight: $font-weight-heading;
+      text-transform: capitalize;
+      margin: 4px;
+    }
+
+    .step {
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s ease-in-out;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: $border-radius;
+      margin: 0 5px;
+      box-shadow: 0 5px 15px rgb(0 0 0 / 8%);
+      min-height: auto;
+      height: 45px;
+      transition: border 0.3s ease, box-shadow 0.3s ease;
+
+      &:hover {
+        box-shadow: 0 1rem 1rem rgba(0, 0, 0, 0.1);
+        background-color: $hover-color;
+        cursor: pointer;
+      }
+
+      &.active {
+        border-bottom: 3px solid $tertiary-color;
+        background-color: $hover-color;
+      }
+
+      &.complete {
+        border-bottom: 3px solid $primary-color;
+        color: $primary-color;
+      }
+
+      &:hover {
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgb(0 0 0 / 15%);
+      }
+
+      .icon {
+        top: 5px;
+        right: 5px;
+        border-radius: 50%;
+        border-color: $white-color;
+        text-align: center;
+        line-height: 0px;
+
+        &.close {
+          background-color: $warning-color;
+          color: $white-color;
+        }
+
+        &.check {
+          background-color: $primary-color;
+          color: $white-color;
+        }
+      }
+
+      .step-button {
+        padding: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+      }
+    }
+  }
+
+
+}
+
+.view-payroll-page {
+  .employee-list {
+    .employee-item {
+      padding-top: 5px;
+      padding-bottom: 5px;
+      border-radius: $border-radius;
+      box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+      background-color: $muted-color;
+
+      &:hover {
+        box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+        background-color: $hover-color;
+        cursor: pointer;
+      }
+
+      .position-relative {
+        position: relative;
+      }
+
+      &.uk-card-included {
+        border-left: 3px solid $primary-color;
+      }
+
+      &.uk-card-excluded {
+        border-left: 3px solid $tertiary-color;
+      }
+
+      &:hover {
+        cursor: pointer;
+      }
+
+      .employee,
+      .position,
+      .salary_grade,
+      .net_income {
+        p {
+          margin: 0;
+        }
+
+        .label {
+          font-size: $fontsize;
+          font-weight: $font-weight-subheading;
+          color: $grey-color;
+        }
+
+        .value {
+          font-size: $subtitle;
+          font-weight: $font-weight-subheading;
+          text-transform: capitalize;
+        }
+      }
+
+      .more {
+        position: absolute;
+        right: 0px;
+        top: 50%;
+        transform: translateY(-50%);
+
+        .icon {
+          color: $white-color;
+          transition: all 0.3s ease-in-out;
+          background-color: $grey-color;
+          border-radius: 50%;
+          padding: 2px;
+
+          &.expanded {
+            transform: rotate(180deg);
+            background-color: $primary-color;
+          }
+        }
+      }
+
+      .summary {
+        max-height: 0;
+        overflow: hidden;
+        transition: all 0.3s ease-in-out;
+        overflow-y: auto;
+
+        &.expanded {
+          max-height: 600px;
+        }
+
+        .label {
+          font-size: $title;
+          font-weight: $font-weight-subheading;
+          color: $grey-color;
+          margin-top: 15px;
+          margin-bottom: 10px;
+        }
+
+        table {
+          border: $border-color solid 1px;
+          border-radius: $border-radius;
+          overflow: hidden;
+          margin: 0;
+          background-color: $muted-color;
+
+          td {
+            font-weight: $font-weight-subheading;
+          }
+
+          td.gap {
+            height: 10px !important;
+            padding: 0 !important;
+            background-color: transparent !important;
+            border: 0 !important;
+          }
+        }
+      }
+
+      .footer {
+        margin-bottom: 0;
+
+        & .completed {
+          color: grey;
+
+          &:hover {
+            text-decoration: none;
+          }
+        }
+
+        .footer-button {
+          background-color: $primary-color;
+          color: $white-color;
+        }
+
+        .footer-button-delete {
+          background-color: $danger-color;
+          color: $white-color;
+        }
+      }
+    }
+  }
+}

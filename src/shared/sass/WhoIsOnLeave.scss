@@ -1,0 +1,30 @@
+.who-is-on-leave-section {
+  margin-bottom: 4em;
+
+  .leave-table {
+    p {
+      margin: 0;
+    }
+
+    .table-body {
+      .row {
+        &:hover {
+          cursor: pointer;
+        }
+      }
+
+      .reason-row {
+        td {
+          padding: 2em;
+          padding-bottom: 3em;
+          background-color: $muted-color;
+
+          .label {
+            font-weight: $font-weight-heading;
+            margin-bottom: 10px;
+          }
+        }
+      }
+    }
+  }
+}

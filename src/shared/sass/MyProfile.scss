@@ -1,0 +1,74 @@
+.my-profile-section {
+  margin-bottom: 4em;
+
+  .profile-card {
+    padding: 20px;
+    border-radius: $border-radius;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    background-color: $muted-color;
+
+    &:hover {
+      box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+      background-color: $hover-color;
+      cursor: pointer;
+    }
+
+    .type {
+      font-weight: $font-weight-heading;
+      font-size: $body-fontsize;
+      color: $black-color;
+    }
+
+    .days {
+      display: flex;
+      margin-top: 1em;
+
+      p {
+        margin: 0;
+      }
+
+      .days-taken,
+      .days-left {
+        width: 50%;
+
+        .title {
+          font-size: $body-fontsize;
+          font-weight: $font-weight-heading;
+          text-align: center;
+          text-transform: uppercase;
+        }
+
+        .value {
+          font-size: $fontsize;
+          text-align: center;
+          font-weight: $font-weight-heading;
+          padding: 15px 25px;
+          border-radius: $border-radius;
+        }
+      }
+
+      .days-taken {
+        .title {
+          color: $primary-color;
+        }
+
+        .value {
+          background-color: #eaf0f9;
+          color: $primary-color;
+          margin-right: 10px;
+        }
+      }
+
+      .days-left {
+        .title {
+          color: $danger-color;
+        }
+
+        .value {
+          background-color: #fbd2d3;
+          color: $danger-color;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,103 @@
+.create-invoice-page {
+  .company-details {
+    .company {
+      justify-content: space-between;
+    }
+  }
+  .customer {
+    margin-top: 2px !important;
+    .customer-label {
+      display: block;
+      text-transform: capitalize;
+      font-weight: 600;
+      text-align: center;
+      margin-top: 10px;
+    }
+  }
+  .logo-label {
+    border: 1px dotted $grey-color;
+
+    .thumbnail {
+      position: relative;
+      overflow: hidden;
+      min-height: 100px;
+      text-align: center;
+
+      img {
+        max-height: 150px;
+      }
+
+      .tools {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        border-radius: 50%;
+        height: 150px;
+        width: 150px;
+        background-color: rgba($color: white, $alpha: 0.8);
+        padding: 20px;
+        z-index: 10;
+        cursor: pointer;
+
+        &.uploading {
+          border: 1px;
+          animation: anime;
+          animation-duration: 1.5s;
+          animation-iteration-count: infinite;
+          animation-timing-function: ease;
+
+          span {
+            color: $primary-color;
+          }
+        }
+
+        .thumbnail-label {
+          display: block;
+          text-transform: capitalize;
+          font-weight: 600;
+          text-align: center;
+          margin-top: 10px;
+        }
+        input {
+          display: none;
+        }
+      }
+    }
+  }
+  .invoice-table {
+    margin: 2px 0px;
+    .table-caption {
+      display: block;
+      text-transform: capitalize;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+    .table-header {
+      background-color: #eaf0f9;
+      tr {
+        input {
+          font-weight: bold !important;
+        }
+
+        select {
+          font-weight: bold !important;
+        }
+      }
+    }
+    .trash-icon {
+      &:hover {
+        cursor: pointer;
+        color: red;
+      }
+    }
+  }
+  .totals {
+    border-top: 1px solid #eaf0f9;
+  }
+}

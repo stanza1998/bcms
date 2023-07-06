@@ -1,0 +1,111 @@
+.employee-page {
+  padding-top: 10px;
+
+  .footer {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .employee-tab {
+    position: relative;
+    border-radius: $border-radius;
+    border: 2px solid $border-color;
+    transition: all ease-in-out 0.3s;
+    padding: 8px;
+
+    &.active {
+      background-color: $white-color;
+      border: 2px solid $primary-color;
+      box-shadow: 0px 0px 10px 0px rgba(46, 106, 195, 0.3);
+
+      .title,
+      .description {
+        color: $primary-color;
+      }
+
+      .icon {
+        transform: scale(1);
+      }
+    }
+
+    &:hover {
+      background-color: $white-color;
+      border: 2px solid transparent;
+      box-shadow: 0px 0px 10px 0px rgba(46, 106, 195, 0.3);
+      cursor: pointer;
+    }
+
+    .icon {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: $primary-color;
+      color: $white-color;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 20px;
+      transform: scale(0);
+      transition: all ease-in-out 0.3s;
+    }
+
+    .title {
+      font-size: $fontsize-large;
+      font-weight: $font-weight-heading;
+      margin: 0;
+    }
+
+    .description {
+      font-size: $fontsize;
+      margin: 0;
+    }
+  }
+
+  .tax-rate-item {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+
+    .position-relative {
+      position: relative;
+    }
+
+    &:hover {
+      cursor: pointer;
+    }
+
+    .tax-rate,
+    .base-rate,
+    .percentage {
+      p {
+        margin: 0;
+      }
+
+      .label {
+        font-size: 0.8rem;
+        font-weight: $font-weight-heading;
+        color: $grey-color;
+      }
+
+      .value {
+        font-size: $fontsize-large;
+        font-weight: $font-weight-heading;
+        text-transform: capitalize;
+      }
+    }
+
+    .remove {
+      position: absolute;
+      right: 0px;
+      top: 50%;
+      transform: translateY(-50%);
+
+      .icon {
+        color: $danger-color;
+        border-radius: 50%;
+        padding: 4px;
+      }
+    }
+  }
+}

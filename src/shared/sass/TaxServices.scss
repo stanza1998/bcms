@@ -1,0 +1,144 @@
+.tax-page {
+  .tax-tab {
+    position: relative;
+    border-radius: $border-radius;
+    border: 2px solid $border-color;
+    transition: all ease-in-out 0.3s;
+
+    &.active {
+      background-color: $white-color;
+      border: 2px solid $primary-color;
+      box-shadow: 0px 0px 10px 0px rgba(46, 106, 195, 0.3);
+
+      .title,
+      .description {
+        color: $primary-color;
+      }
+
+      .icon {
+        transform: scale(1);
+      }
+    }
+
+    &:hover {
+      background-color: $white-color;
+      border: 2px solid transparent;
+      box-shadow: 0px 0px 10px 0px rgba(46, 106, 195, 0.3);
+      cursor: pointer;
+    }
+
+    .icon {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: $primary-color;
+      color: $white-color;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 25px;
+      transform: scale(0);
+      transition: all ease-in-out 0.3s;
+    }
+
+    .title {
+      font-size: $fontsize-large;
+      font-weight: $font-weight-subheading;
+      margin: 0;
+    }
+
+    .description {
+      font-size: $fontsize;
+      margin: 0;
+    }
+  }
+
+  .tax-rate-item {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+    border-radius: $border-radius;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    background-color: $muted-color;
+
+    &:hover {
+      box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+      background-color: $hover-color;
+      cursor: pointer;
+    }
+
+    .position-relative {
+      position: relative;
+    }
+
+    &:hover {
+      cursor: pointer;
+    }
+
+    .tax-rate,
+    .base-rate,
+    .percentage {
+      p {
+        margin: 0;
+      }
+
+      .label {
+        font-size: 0.8rem;
+        font-weight: $font-weight-heading;
+        color: $grey-color;
+      }
+
+      .value {
+        font-size: $fontsize-large;
+        font-weight: $font-weight-subheading;
+        text-transform: capitalize;
+      }
+    }
+
+    .more {
+      position: relative;
+      right: 0px;
+
+      .icon-btn {
+        margin-left: auto;
+        margin-right: 0;
+        padding: 5px 10px;
+        background-color: transparent;
+        border: none;
+        outline: none;
+        color: $primary-color;
+
+        &:hover {
+          cursor: pointer;
+        }
+      }
+
+      .dropdown {
+        padding: 0;
+        border-radius: $border-radius;
+        overflow: hidden;
+
+        .menu {
+          list-style: none;
+          margin: 0%;
+          padding: 1px;
+          display: flex;
+        }
+
+        .menu-item {
+          transition: all 0.3s ease-in-out;
+          padding: 8px 10px;
+          font-size: $fontsize;
+          text-transform: none;
+          color: $primary-color;
+
+          &:hover {
+            cursor: pointer;
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  }
+}

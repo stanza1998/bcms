@@ -1,0 +1,27 @@
+.profile-comp {
+  .center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: $muted-color;
+    padding: 2em 1em;
+    margin-bottom: 2em;
+
+    .profile {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 50%;
+      height: 5em;
+      width: 5em;
+      background-color: $primary-color;
+      transition: all 0.3s ease-in-out;
+
+      span {
+        h2 {
+          color: #fff;
+        }
+      }
+    }
+  }
+}

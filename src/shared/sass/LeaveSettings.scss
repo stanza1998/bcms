@@ -1,0 +1,93 @@
+.leave-settings-page {
+  .common-leaves {
+    margin-bottom: 4em;
+  }
+
+  .department-leaves {
+    .department-name {
+      font-size: 1rem;
+      font-weight: $font-weight-heading;
+    }
+  }
+
+  .add-leave-card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+
+    button {
+      color: $primary-color;
+      border: 0;
+      padding: 0;
+      background-color: transparent;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
+
+  .leave-card {
+    padding: 20px;
+    border-radius: $border-radius;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    background-color: $muted-color;
+
+    &:hover {
+      box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+      background-color: $hover-color;
+      cursor: pointer;
+    }
+
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin-bottom: 1em;
+
+      .type {
+        font-size: 0.85rem;
+        font-weight: $font-weight-heading;
+        color: $primary-color;
+        margin: 0;
+      }
+
+      .remove {
+        color: $danger-btn;
+        border: 0;
+        padding: 0;
+        background-color: transparent;
+
+        &:hover {
+          cursor: pointer;
+        }
+      }
+    }
+
+    .no-of-days {
+      display: flex;
+      align-items: center;
+      border-radius: 5px;
+      background-color: $muted-color;
+      padding: 0.8em;
+
+      span {
+        font-size: 1em;
+        text-transform: uppercase;
+        font-weight: $font-weight-heading;
+        color: $black-color;
+      }
+
+      input {
+        font-size: 1.3rem;
+        text-transform: uppercase;
+        border: 0;
+        background-color: transparent;
+        padding: 0em;
+        width: 100%;
+        outline: none;
+      }
+    }
+  }
+}

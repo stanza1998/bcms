@@ -1,0 +1,47 @@
+.sign-in-page {
+  height: 100vh;
+
+  .uk-container {
+    .uk-card {
+      border-radius: 12px;
+      box-shadow: 1px 0px 11px 5px rgba(0, 0, 0, 0.6);
+      -webkit-box-shadow: 1px 0px 11px 5px rgba(0, 0, 0, 0.6);
+      -moz-box-shadow: 1px 0px 11px 5px rgba(0, 0, 0, 0.6);
+      left: 25%;
+      background: rgba(255, 255, 255, 0.03);
+      // border: solid white 3px;
+      overflow: hidden;
+      position: absolute;
+      top: 50%;
+      -webkit-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+
+      .uk-card-title {
+        font-size: 2.25rem;
+        font-weight: 700;
+        text-transform: capitalize;
+        line-height: 1.4;
+        margin-top: 0.5rem;
+        margin-bottom: 2rem;
+
+        .text-color {
+          color: #3616e9;
+        }
+      }
+
+      .icon-button {
+        border: none;
+        background: transparent;
+
+        svg {
+          margin-top: 25px;
+          cursor: pointer;
+        }
+      }
+
+      button {
+        background-color: $primary-color;
+      }
+    }
+  }
+}

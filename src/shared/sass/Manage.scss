@@ -1,0 +1,14 @@
+.manage {
+    .uk-card {
+        background-color: $muted-color;
+        border-radius: 6px;
+        color: $primary-color;
+        border-bottom: 5px solid $hover-color;
+    }
+
+    .uk-card:hover {
+        background-color: $hover-color;
+        border-radius: 6px;
+
+    }
+}

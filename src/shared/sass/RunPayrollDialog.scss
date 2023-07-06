@@ -1,0 +1,51 @@
+.run-payroll-dialog {
+  .uk-modal-header {
+    display: flow-root;
+    padding: 1px 15px;
+    background: #fff;
+    border-bottom: none !important;
+  }
+
+  .uk-modal-body {
+    display: flow-root;
+    padding: 15px;
+  }
+
+  .icon {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border-color: $white-color;
+    text-align: center;
+    line-height: 15px;
+
+    svg {
+      font-weight: 600;
+    }
+
+    &.pending {
+      background-color: $warning-color;
+      color: $white-color;
+    }
+
+    &.approved {
+      background-color: $primary-color;
+      color: $white-color;
+    }
+
+    &.rejected {
+      background-color: $danger-color;
+      color: $white-color;
+    }
+  }
+
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+}

@@ -1,0 +1,84 @@
+// Variables
+$button-border-radius: 2px;
+$border-radius: 0.25rem;
+$border-radius-large: 3px;
+
+// Font sizes
+$title: 1.8rem;
+$subtitle: 1.1rem;
+
+$fontsize-large: 0.9rem;
+$fontsize: 0.7rem;
+
+$body-fontsize: 0.9rem;
+
+$mobile-title: 1.2rem;
+$mobile-subtitle: 0.9rem;
+
+$font-weight-heading: 600;
+$font-weight-subheading: 400;
+
+$line-height: 1.5em;
+
+// Margins
+$margin-1: 7em;
+$margin-2: 5em;
+$margin-3: 0.5em;
+
+// Colors
+$primary-color: #01aced;
+$secondary-color: #1b115f;
+$white-color: #fff;
+$grey-color: #b0b0b0;
+// $primary-color: #36c;
+// $secondary-color: #2e6ac3;
+// $white-color: #fff;
+// $grey-color: #a9a9ab;
+
+$darker-secondary-color: #4365ae;
+$dark-grey-color: #666;
+$light-grey-color: #ccc;
+$black-color: #1d1e1f;
+
+$muted-color: #f8f8fa;
+$light-bg: #efefef;
+$hover-color: #fcfcfc;
+$drawer-color: #222;
+
+$tertiary-color: #0077c6;
+
+// Button colors
+$secondary-btn: #2e6ac3;
+$secondary-btn-hover: #2e6ac3;
+$danger-btn: #ed1c24;
+$danger-btn-hover: #ed1c24;
+
+$success-color: #32d296;
+$danger-color: #ed1c24;
+$warning-color: #faa05a;
+
+$border-color: #f0f0f0;
+
+// Font Family
+$muli: "Muli";
+$playfair: "Playfair Display";
+
+$body-font: $muli;
+$heading-font: $playfair;
+
+$link-font: "Rubik", sans-serif;
+
+// Icon Font
+$fontAwesome5Brands: "Font Awesome 5 Brands";
+$fontAwesome5Pro: "Font Awesome 5 Pro";
+
+// Responsive Variables
+$extraBig-device: "only screen and (min-width: 1600px)";
+$laptop-device: "only screen and (min-width: 1200px) and (max-width: 1599px)";
+$desktop-device: "only screen and (min-width: 992px) and (max-width: 1199px)";
+$tablet-device: "only screen and (min-width: 768px) and (max-width: 991px)";
+$large-mobile: "only screen and (max-width: 767px)";
+$small-mobile: "only screen and (max-width: 575px)";
+$extra-small-mobile: "only screen and (max-width: 479px)";
+
+$drawer-width: 220px;

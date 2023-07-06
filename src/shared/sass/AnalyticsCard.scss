@@ -1,0 +1,21 @@
+.analytic-card {
+    box-shadow: 0 10px 30px 1px rgba(0, 0, 0, 0.06);
+
+    .uk-flex {
+        display: flex;
+        justify-content: space-between;
+
+        .title {
+            font-size: 1.8rem;
+            color: $black-color;
+            font-weight: 600;
+        }
+    }
+
+    .total {
+        font-size: 1.5rem;
+        line-height: 1.4;
+        font-weight: $font-weight-heading;
+        color: $black-color;
+    }
+}

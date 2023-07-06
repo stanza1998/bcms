@@ -1,0 +1,40 @@
+.dashboard {
+  .title {
+    font-weight: $font-weight-heading;
+    margin-bottom: 2px;
+    color: $black-color;
+    text-transform: uppercase;
+    font-size: 20px;
+  }
+
+  .red-line {
+    width: 80px;
+    height: 5px;
+    margin: 0px 0 5px 0;
+    background-color: $secondary-color;
+  }
+
+  .uk-card {
+    border-radius: $border-radius;
+    border-bottom: 3px solid $tertiary-color;
+    padding: 20px;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    background-color: $muted-color;
+
+    &:hover {
+      background-color: $hover-color;
+    }
+
+    p {
+      font-weight: 600;
+      font-size: $fontsize;
+      text-transform: uppercase;
+    }
+
+    h3 {
+      color: $black-color;
+      font-weight: 700;
+      font-size: 60px;
+    }
+  }
+}

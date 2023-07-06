@@ -1,0 +1,112 @@
+.payroll-dialog {
+  .payroll-tabs {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+
+    .payroll-tab {
+      position: relative;
+      transition: all ease-in-out 0.3s;
+
+      .tab-item {
+        border: 3px solid $border-color;
+        border-radius: $border-radius;
+        display: flex;
+        padding: 5px;
+        transition: all 0.3s ease-in-out;
+        font-size: $fontsize;
+        font-weight: $font-weight-heading;
+
+        .stage-no {
+          margin: 0 10px;
+        }
+
+        &:not(:first-child) {
+          margin-left: 10px;
+        }
+
+        &.active {
+          background-color: $primary-color;
+          color: $black-color;
+        }
+
+        &.complete {
+          background-color: $tertiary-color;
+          color: $white-color;
+
+          .icon {
+            transform: scale(1);
+          }
+        }
+
+        .icon {
+          position: absolute;
+          top: 5px;
+          right: 5px;
+          background-color: $primary-color;
+          color: $white-color;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          border-color: $white-color;
+          text-align: center;
+          line-height: 15px;
+          transform: scale(0);
+          transition: all ease-in-out 0.3s;
+        }
+      }
+    }
+  }
+
+  .approval-item {
+    .approval-input {
+      display: flex;
+
+      .item {
+        border: 1px solid $border-color;
+        border-radius: $border-radius;
+        min-width: 200px;
+        height: min-content;
+
+        &::after {
+          content: "";
+          position: absolute;
+          right: 5px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: $grey-color;
+          font-weight: $font-weight-heading;
+        }
+
+        input {
+          border: none;
+          outline: none;
+        }
+
+        select {
+          border: none;
+          outline: none;
+        }
+      }
+
+      .icon {
+        display: flex;
+        margin-top: 5px;
+        justify-content: center;
+
+        &:hover {
+          cursor: pointer;
+          color: $danger-color;
+        }
+      }
+    }
+  }
+
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+}

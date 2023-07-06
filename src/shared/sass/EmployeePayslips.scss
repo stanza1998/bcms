@@ -1,0 +1,55 @@
+.view-payroll-page {
+  .pay-slips {
+    .slip-item {
+      padding-top: 10px;
+      padding-bottom: 10px;
+
+      .position-relative {
+        position: relative;
+      }
+
+      &.excluded {
+        border-left: 4px solid $grey-color;
+      }
+
+      &:hover {
+        cursor: pointer;
+      }
+
+      .slip,
+      .position,
+      .salary_grade,
+      .net_income {
+        p {
+          margin: 0;
+        }
+
+        .label {
+          font-size: 0.8rem;
+          font-weight: $font-weight-heading;
+          color: $grey-color;
+        }
+
+        .value {
+          font-size: $fontsize-large;
+          font-weight: $font-weight-heading;
+          text-transform: capitalize;
+        }
+      }
+
+      .more {
+        position: absolute;
+        right: 0px;
+        top: 50%;
+        transform: translateY(-50%);
+
+        .icon {
+          color: $primary-color;
+          transition: all 0.3s ease-in-out;
+          border-radius: 50%;
+          padding: 2px;
+        }
+      }
+    }
+  }
+}

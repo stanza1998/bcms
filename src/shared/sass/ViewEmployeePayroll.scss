@@ -1,0 +1,149 @@
+.view-employee-payroll-page {
+  .go-back-text {
+    cursor: pointer;
+  }
+
+  .payment-details {
+
+    .salary-details,
+    .bonus-details,
+    .deductions-details {
+      padding-bottom: 20px;
+      margin-bottom: 10px;
+      overflow: visible;
+      border-radius: $border-radius;
+      box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+      background-color: $muted-color;
+
+      &:hover {
+        box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+        background-color: $hover-color;
+        cursor: pointer;
+      }
+    }
+
+    .dropdown {
+      padding: 10px;
+      border-radius: $border-radius;
+      text-align: center;
+
+      input,
+      select {
+        margin-bottom: 10px;
+        min-width: 200px;
+      }
+    }
+
+    .payment-item {
+      .label {
+        font-weight: $font-weight-subheading;
+        text-transform: capitalize;
+        margin: 0;
+        margin-bottom: 5px;
+
+        .amount {
+          font-size: 0.8rem;
+          color: $primary-color;
+          margin-left: 10px;
+        }
+      }
+
+      .checkdel {
+        display: flex !important;
+        padding-top: 25px;
+
+        .checkbox {
+          border-radius: 2px;
+
+          span {
+            font-size: 10px;
+            margin-left: 8px !important;
+            color: blue;
+          }
+        }
+
+        .icon {
+          &:hover {
+            cursor: pointer;
+            color: $danger-color;
+          }
+        }
+      }
+
+      .inputs {
+
+        .hours,
+        .rate,
+        .fixed-amount {
+          border: 1px solid $border-color;
+          border-radius: $border-radius;
+
+          &::after {
+            content: "";
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: $grey-color;
+            font-weight: $font-weight-subheading;
+          }
+
+          input {
+            border: none;
+            outline: none;
+          }
+
+          select {
+            height: 30px !important;
+          }
+        }
+
+        .hours {
+          &::after {
+            content: "hours";
+          }
+        }
+
+        .rate {
+          &::after {
+            content: "rate";
+          }
+        }
+      }
+
+      .dropdown-select {
+        overflow: hidden !important;
+        min-width: min-content !important;
+
+        .title {
+          font-weight: 700 !important;
+        }
+
+        .description {
+          color: blue !important;
+          font-style: italic !important;
+        }
+      }
+    }
+  }
+
+  .bank-account-details,
+  .payment-summary {
+    .section-heading {
+      margin-bottom: 10px;
+    }
+
+    table {
+      margin-top: 10px;
+
+      td {
+        padding: 5px 0;
+      }
+
+      .item {
+        text-transform: capitalize;
+        font-weight: $font-weight-subheading;
+      }
+    }
+  }
+}

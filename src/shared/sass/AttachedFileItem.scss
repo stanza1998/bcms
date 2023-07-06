@@ -1,0 +1,65 @@
+.file-item {
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  &:hover,
+  &:active,
+  &:focus {
+    .controls {
+      display: block !important;
+    }
+  }
+  .controls {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    display: none !important;
+    background-color: $white-color;
+    padding: 0.5em 1em;
+    button {
+      padding: 0;
+      outline: none;
+      border: 0;
+      background-color: transparent;
+      color: $secondary-btn;
+      transition: 0.3s all ease-out;
+      &:hover {
+        cursor: pointer;
+        color: $secondary-btn-hover;
+      }
+      &.delete {
+        color: $danger-btn;
+        &:hover {
+          color: $danger-btn-hover;
+        }
+      }
+    }
+  }
+  .upload-progress-bar {
+    position: absolute;
+    bottom: 0;
+    height: 4px;
+    width: 100%;
+    left: 0;
+    right: 0;
+    background-color: $grey-color;
+    .progress {
+      position: absolute;
+      background-color: $warning-color;
+      height: 100%;
+      width: 40%;
+      animation: upload 1s ease infinite;
+    }
+  }
+}
+
+@keyframes upload {
+  0% {
+    left: 0;
+  }
+  100% {
+    left: 100%;
+  }
+}

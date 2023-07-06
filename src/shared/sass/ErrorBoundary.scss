@@ -1,0 +1,19 @@
+.error-boundary {
+  .title {
+    display: inline;
+    font-size: 15px;
+  }
+  button {
+    display: inline;
+    color: blue;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 5px 10px;
+    margin-left: 20px;
+    transition: 0.3s all ease;
+    &:hover {
+      background-color: blue;
+      color: white;
+    }
+  }
+}

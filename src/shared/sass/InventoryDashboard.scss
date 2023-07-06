@@ -1,0 +1,22 @@
+.inventory {
+    .dash-card {
+        background-color: $primary-color;
+        border-radius: 8px;
+        color: white;
+    }
+
+    .uk-card-title {
+        color: white;
+    }
+
+    .uk-card-dash {
+        border-radius: $border-radius;
+        padding: 20px;
+        box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+        background-color: $muted-color;
+
+        &:hover {
+            background-color: $hover-color;
+        }
+    }
+}

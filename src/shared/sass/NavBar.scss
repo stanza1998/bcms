@@ -1,0 +1,82 @@
+.sticky {
+  nav {
+    background-color: #000c37 !important;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.02), 0 1px 10px rgba(0, 0, 0, 0.08);
+
+    .uk-navbar-right {
+      a,
+      .user-profile {
+        color: #fff;
+        min-height: 60px;
+
+        &:hover {
+          color: $primary-color;
+        }
+      }
+    }
+  }
+}
+
+.user-profile {
+  background-color: transparent;
+  border: 0;
+  outline: none;
+
+  .profile {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    height: 3.5em;
+    width: 3.5em;
+    background-color: #fff;
+    transition: all 0.3s ease-in-out;
+
+    span {
+      h3 {
+        color: #000c37;
+      }
+    }
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+}
+
+.profile-dropdown-container {
+  padding: 0em;
+
+  .profile-dropdown {
+    padding: 0;
+
+    li {
+      margin: 0;
+
+      button {
+        display: flex;
+        align-items: center;
+        margin: 0;
+        padding: 0.5em 1em;
+        width: 100%;
+        background-color: transparent;
+        border: 0;
+        outline: none;
+        min-height: auto !important;
+        transition: all 0.3s ease-in-out;
+
+        &:hover {
+          background-color: $light-bg;
+          color: #fff;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}
+
+@media screen and (min-width: 967px) {
+  .navbar-right {
+    margin-right: 2em;
+  }
+}

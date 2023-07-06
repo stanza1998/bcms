@@ -1,0 +1,100 @@
+.my-applications-section {
+  margin-bottom: 4em;
+
+  .tabs {
+    margin-top: 0 !important;
+  }
+
+  .request-card {
+    border-radius: $border-radius;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    background-color: $muted-color;
+
+    &:hover {
+      box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+      background-color: $hover-color;
+      cursor: pointer;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .user {
+      padding: 20px;
+      background-color: $muted-color;
+      margin-bottom: 10px;
+
+      .name {
+        font-size: 1.2rem;
+        font-weight: $font-weight-heading;
+        margin: 0;
+      }
+
+      .role {
+        font-size: 0.9rem;
+        color: $grey-color;
+      }
+    }
+
+    .leave-type {
+      background-color: $muted-color;
+      width: fit-content;
+      padding: 10px 20px;
+      border-radius: 10px;
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 4px;
+        display: inline-block;
+        margin-right: 10px;
+      }
+
+      p {
+        font-weight: $font-weight-heading;
+        display: inline;
+      }
+
+      &.sick-leave,
+      &.unpaid-leave {
+        background-color: #fbd2d3;
+
+        .dot {
+          background-color: $danger-color;
+        }
+      }
+
+      &.casual-leave {
+        background-color: #feeddf;
+
+        .dot {
+          background-color: $warning-color;
+        }
+      }
+    }
+
+    .leave-date {
+      margin-top: 10px;
+      margin-bottom: 10px;
+
+      span {
+        font-weight: $font-weight-heading;
+      }
+    }
+
+    .reason {
+      margin-top: 10px;
+      margin-bottom: 10px;
+
+      span {
+        font-weight: $font-weight-heading;
+      }
+    }
+
+    .footer {
+      margin-top: 20px;
+    }
+  }
+}

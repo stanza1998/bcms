@@ -1,0 +1,178 @@
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  font-size: $body-fontsize;
+  margin: 0;
+  background-color: $white-color;
+  font-family: $muli;
+}
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Prevent modal from snapping page to top.
+body.modal-open {
+  overflow: visible;
+}
+
+code {
+  font-family: $muli;
+}
+
+.uk-offcanvas-bar-light {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -270px;
+  width: 270px;
+  padding: 20px 20px;
+  background: $grey-color;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.uk-offcanvas-bar-animation {
+  transition: left 0.3s ease-out;
+}
+
+@media (min-width: 960px) {
+  .uk-offcanvas-bar-light {
+    left: -350px;
+    width: 350px;
+    padding: 40px 40px;
+  }
+}
+
+.uk-offcanvas-flip .uk-offcanvas-bar-light {
+  left: auto;
+  right: -270px;
+}
+
+.uk-offcanvas-flip .uk-offcanvas-bar-animation {
+  transition-property: right;
+}
+
+.uk-offcanvas-flip .uk-open>.uk-offcanvas-bar-light {
+  left: auto;
+  right: 0;
+}
+
+@media (min-width: 960px) {
+  .uk-offcanvas-flip .uk-offcanvas-bar-light {
+    right: -350px;
+  }
+}
+
+.uk-offcanvas-flip .uk-offcanvas-reveal .uk-offcanvas-bar-light {
+  left: auto;
+  right: 0;
+}
+
+.uk-offcanvas-reveal .uk-offcanvas-bar-light {
+  left: 0;
+}
+
+.uk-open>.uk-offcanvas-bar-light {
+  left: 0;
+}
+
+.uk-section-muted {
+  background-color: $light-bg;
+}
+
+.uk-button {
+  padding: 0em 1em;
+  line-height: 2.2em;
+  border: 0;
+  font-weight: $font-weight-heading;
+  transition: 0.3s all ease-in-out;
+
+  &.secondary {
+    background-color: inherit;
+    color: $secondary-btn;
+
+    &:hover {
+      background-color: $secondary-btn;
+      color: $white-color;
+    }
+  }
+
+  &.primary {
+    color: $white-color;
+    background-color: $primary-color;
+
+    &:hover {
+      background-color: $secondary-btn-hover;
+      color: $white-color;
+    }
+  }
+
+  &.danger {
+    color: $white-color;
+    background-color: $danger-color;
+
+    &:hover {
+      background-color: $danger-btn-hover;
+      color: $white-color;
+    }
+  }
+
+  &.text {
+    padding: 0 !important;
+    background-color: inherit !important;
+    color: $secondary-btn;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &.text-danger {
+    padding: 0 !important;
+    background-color: inherit !important;
+    color: $danger-btn;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Scrollbar
+*> ::-webkit-scrollbar {
+  width: 0.6em !important;
+  height: 0.6em !important;
+}
+
+*> ::-webkit-scrollbar-track {
+  box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
+}
+
+*> ::-webkit-scrollbar-thumb {
+  background-color: $grey-color;
+  outline: none;
+  border-radius: $border-radius;
+}
+
+@media (min-width: 960px) {
+  .uk-section {
+    padding-top: 40px;
+    padding-bottom: 70px;
+  }
+}
+
+.uk-section {
+  display: flow-root;
+  box-sizing: border-box;
+  padding-top: 20px;
+  padding-bottom: 10px;
+}
