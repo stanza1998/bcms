@@ -70,7 +70,7 @@ const ADMIN_DRAWER = () => {
         </li>
 
         <li className="list-item uk-parent">
-          <NavLink to={`finance`} className="navlink">
+          <NavLink to={`accounting`} className="navlink">
             <span className="uk-margin-small-right">
               <MoneyIcon style={{ fontSize: "16px" }} />
             </span>
@@ -79,7 +79,10 @@ const ADMIN_DRAWER = () => {
           </NavLink>
           <ul className="uk-nav-sub">
             <li>
-              <NavLink to={`finance/finance-overview`} className="navlink">
+              <NavLink
+                to={`accounting/accounting-overview`}
+                className="navlink"
+              >
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>

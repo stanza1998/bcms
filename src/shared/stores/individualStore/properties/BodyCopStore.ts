@@ -1,7 +1,7 @@
-import AppStore from "../AppStore";
+import AppStore from "../../AppStore";
 import { runInAction } from "mobx";
-import Store from "../Store";
-import BodyCop, { IBodyCop } from "../../models/bcms/BodyCorperate";
+import Store from "../../Store";
+import BodyCop, { IBodyCop } from "../../../models/bcms/BodyCorperate";
 
 export default class BodyCopStore extends Store<IBodyCop, BodyCop> {
     items = new Map<string, BodyCop>();

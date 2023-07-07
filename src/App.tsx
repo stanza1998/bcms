@@ -27,6 +27,8 @@ import Settings from "./logged_in_admin/profiles/Settings";
 import Departments from "./logged_in_admin/team/departments/Departments";
 import Employees from "./logged_in_admin/team/employees/Employees";
 import { Meetings } from "./logged_in_admin/bcms/meetings/Meetings";
+import { UnitYear } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/UnitYear";
+import { UnitMonth } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/UnitMonth";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -44,13 +46,10 @@ const ADMIN_USER_ROUTES = () => {
         <Route path="c" element={<PrivateLoggedIn />}>
           <Route path={`dashboard`} element={<Dashboard />} />
 
-     
           <Route
             path={`communication/com-overview`}
             element={<Communication />}
           />
-
-        
 
           <Route path={`meetings/meetings-overview`} element={<Meetings />} />
 
@@ -65,17 +64,29 @@ const ADMIN_USER_ROUTES = () => {
           />
 
           <Route path={`body/body-corperate`} element={<BodyCorperates />} />
-          <Route path={`body/body-corperate/:id`} element={<ViewUnit />} />
           <Route
-            path={`/c/body/body-corperate/unitInfo/:id`}
+            path={`body/body-corperate/:propertyId`}
+            element={<ViewUnit />}
+          />
+          <Route
+            path={`/c/body/body-corperate/:propertyId/:id`}
             element={<UnitInfor />}
+          />
+
+          <Route
+            path={`/c/body/body-corperate/:propertyId/:id/:yearId`}
+            element={<UnitYear />}
+          />
+          <Route
+            path={`/c/body/body-corperate/:propertyId/:id/:yearId/:monthId`}
+            element={<UnitMonth />}
           />
 
           <Route path={`body/owners`} element={<Owners />} />
 
           <Route path={`admin/employees`} element={<Employees />} />
           <Route path={`admin/departments`} element={<Departments />} />
-        
+
           <Route path={`admin/appearance`} element={<AppearanceSettings />} />
           <Route path={`settings`} element={<Settings />} />
           <Route path={`FAQ`} element={<FAQ />} />
@@ -112,13 +123,11 @@ const EMPLOYEE_USER_ROUTES = () => {
         <Route path="c" element={<PrivateLoggedIn />}>
           <Route path={`dashboard`} element={<Dashboard />} />
 
-        
           <Route
             path={`communication/com-overview`}
             element={<Communication />}
           />
 
-   
           <Route path={`meetings/meetings-overview`} element={<Meetings />} />
 
           <Route

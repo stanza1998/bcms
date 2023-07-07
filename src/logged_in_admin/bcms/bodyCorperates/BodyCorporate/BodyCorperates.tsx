@@ -28,8 +28,8 @@ export const BodyCorperates = observer(() => {
     showModalFromId(DIALOG_NAMES.BODY.BODY_CORPORATE_DIALOG);
   };
 
-  const viewUnit = (id: string) => {
-    navigate(`/c/body/body-corperate/${id}`);
+  const viewUnit = (propertyId: string) => {
+    navigate(`/c/body/body-corperate/${propertyId}`);
   };
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export const BodyCorperates = observer(() => {
                     type="button"
                     onClick={onCreate}
                   >
-                    Add Body Corporate
+                    Add Property
                   </button>
                 </div>
               </div>

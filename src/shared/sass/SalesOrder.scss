@@ -26,4 +26,13 @@
     opacity: 0; /* Initially hide the hov div */
     transition: opacity 0.9s ease-in-out, transform 0.9s ease-in-out;
   }
+
+  .folders {
+    transition: transform 0.3s ease;
+  }
+
+  .folders:hover {
+    transform: scale(0.9);
+    cursor: pointer;
+  }
 }

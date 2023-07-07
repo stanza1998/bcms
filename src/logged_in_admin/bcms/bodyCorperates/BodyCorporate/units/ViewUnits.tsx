@@ -17,8 +17,9 @@ import Loading from "../../../../../shared/components/Loading";
 
 export const ViewUnit = observer(() => {
   const { store, api, ui } = useAppContext();
-  const { id } = useParams();
+  const { propertyId } = useParams();
   const navigate = useNavigate();
+
 
   const [viewBody, setBody] = useState<IBodyCop | undefined>({
     ...defaultBodyCop,
@@ -26,18 +27,18 @@ export const ViewUnit = observer(() => {
 
   useEffect(() => {
     const getData = async () => {
-      if (!id) {
+      if (!propertyId) {
         window.alert("Cannot find ");
       } else {
         await api.body.body.getAll();
-        const unit = store.bodyCorperate.bodyCop.getById(id);
+        const unit = store.bodyCorperate.bodyCop.getById(propertyId);
         setBody(unit?.asJson);
         await api.auth.loadAll();
         await api.body.unit.getAll();
       }
     };
     getData();
-  }, [api.auth, api.body.body, api.body.unit, id, store.bodyCorperate.bodyCop]);
+  }, [api.auth, api.body.body, api.body.unit, propertyId, store.bodyCorperate.bodyCop]);
 
   const back = () => {
     navigate("/c/body/body-corperate");
@@ -108,7 +109,7 @@ export const ViewUnit = observer(() => {
   };
 
   const unitInfo = (id: string) => {
-    navigate(`/c/body/body-corperate/unitInfo/${id}`);
+    navigate(`/c/body/body-corperate/${propertyId}/${id}`);
   };
 
   //filter

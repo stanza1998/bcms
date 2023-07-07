@@ -9,6 +9,8 @@ const DIALOG_NAMES = {
     BODY_CORPORATE_DIALOG: "body-corporate-dialog",
     BODY_UNIT_DIALOG: "body-unit-dialog",
     UNIT_OWNER_DIALOG: "unit-owner-dialog",
+    FINANCIAL_YEAR: "financial-year",
+    FINANCIAL_MONTH: "financial-month",
   },
 };
 
