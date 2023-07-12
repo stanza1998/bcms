@@ -89,6 +89,40 @@ const ADMIN_DRAWER = () => {
                 Overview
               </NavLink>
             </li>
+            <li>
+              <NavLink
+                to={`accounting/invoices`}
+                className="navlink"
+              >
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Invoices
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to={`accounting/recuring-invoices`}
+                className="navlink"
+              >
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Recuring Invoices
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to={`accounting/expense-tracking`}
+                className="navlink"
+              >
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Expense Tracking
+              </NavLink>
+            </li>
+
           </ul>
         </li>
         <li className="list-item uk-parent">

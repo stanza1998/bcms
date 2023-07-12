@@ -4,12 +4,27 @@ import AppStore from "../../stores/AppStore";
 export const defaultBodyCop: IBodyCop = {
     id: "",
     BodyCopName: "",
-   
+    location: "",
+    bankName: "",
+    accountName: "",
+    accountNumber: "",
+    branchName: "",
+    branchCode: "",
+    accountStyle: "",
+    swift: ""
 };
 
 export interface IBodyCop {
     id: string;
     BodyCopName: string;
+    location: string;
+    bankName: string;
+    accountName:string;
+    accountNumber: string;
+    branchName: string;
+    branchCode: string;
+    accountStyle: string;
+    swift: string;
 
 }
 

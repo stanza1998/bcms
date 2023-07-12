@@ -1,4 +1,5 @@
 import AppStore from "../AppStore";
+import InvoiceStore from "../individualStore/invoice/InvoiceStore";
 import FinancialMonthStore from "../individualStore/months/FinancialMonth";
 import BodyCopStore from "../individualStore/properties/BodyCopStore";
 import UnitStore from "../individualStore/properties/UnitStore";
@@ -9,11 +10,13 @@ export default class BodyCorporateStore {
   unit: UnitStore;
   financialYear: FinancialYearStore;
   financialMonth: FinancialMonthStore;
+  invoice: InvoiceStore;
 
   constructor(store: AppStore) {
     this.bodyCop = new BodyCopStore(store);
     this.unit = new UnitStore(store);
     this.financialYear = new FinancialYearStore(store);
     this.financialMonth = new FinancialMonthStore(store);
+    this.invoice = new InvoiceStore(store);
   }
 }

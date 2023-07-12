@@ -20,7 +20,6 @@ export const ViewUnit = observer(() => {
   const { propertyId } = useParams();
   const navigate = useNavigate();
 
-
   const [viewBody, setBody] = useState<IBodyCop | undefined>({
     ...defaultBodyCop,
   });
@@ -33,12 +32,11 @@ export const ViewUnit = observer(() => {
         await api.body.body.getAll();
         const unit = store.bodyCorperate.bodyCop.getById(propertyId);
         setBody(unit?.asJson);
-        await api.auth.loadAll();
         await api.body.unit.getAll();
       }
     };
     getData();
-  }, [api.auth, api.body.body, api.body.unit, propertyId, store.bodyCorperate.bodyCop]);
+  }, [api.body.body, api.body.unit, propertyId, store.bodyCorperate.bodyCop]);
 
   const back = () => {
     navigate("/c/body/body-corperate");
@@ -225,7 +223,7 @@ export const ViewUnit = observer(() => {
         </div>
       )}
 
-       <Modal modalId={DIALOG_NAMES.BODY.BODY_UNIT_DIALOG}>
+      <Modal modalId={DIALOG_NAMES.BODY.BODY_UNIT_DIALOG}>
         <div className="uk-modal-dialog uk-modal-body margin-auto-vertical">
           <button
             className="uk-modal-close-default"
@@ -311,7 +309,7 @@ export const ViewUnit = observer(() => {
             </div>
           </div>
         </div>
-      </Modal> 
+      </Modal>
     </div>
   );
 });

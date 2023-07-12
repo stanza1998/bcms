@@ -11,6 +11,8 @@ const DIALOG_NAMES = {
     UNIT_OWNER_DIALOG: "unit-owner-dialog",
     FINANCIAL_YEAR: "financial-year",
     FINANCIAL_MONTH: "financial-month",
+    CREATE_INVOICE: "invoice-invoice",
+    VIEW_INVOICE: "invoice-view"
   },
 };
 

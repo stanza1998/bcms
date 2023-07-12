@@ -5,6 +5,7 @@ import DepartmentApi from "./DepartmentApi";
 import UserApi from "./UserApi";
 import SystemSettingsApi from "./SystemSettingsApi";
 import BodyCorpetaApi from "./BodyCorperate";
+import InvoiceApi from "./bodyCorperate/InvoiceApi";
 
 export default class AppApi {
   // private mailUri = "https://unicomms.app/php/payroll.php?";
@@ -21,6 +22,7 @@ export default class AppApi {
   auth: UserApi;
   body: BodyCorpetaApi;
 
+
   namibianRegion: unknown;
 
   // settings
@@ -31,5 +33,6 @@ export default class AppApi {
     this.auth = new UserApi(this, this.store);
     this.settings = new SystemSettingsApi(this, store);
     this.body = new BodyCorpetaApi(this, store);
+   
   }
 }

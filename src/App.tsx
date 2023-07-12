@@ -29,6 +29,10 @@ import Employees from "./logged_in_admin/team/employees/Employees";
 import { Meetings } from "./logged_in_admin/bcms/meetings/Meetings";
 import { UnitYear } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/UnitYear";
 import { UnitMonth } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/UnitMonth";
+import { Invoices } from "./logged_in_admin/bcms/accounting/invoices/Invoices";
+import { RecurringInvoices } from "./logged_in_admin/bcms/accounting/recuring-invoices/RecuringInvoices";
+import { ExpenseTracking } from "./logged_in_admin/bcms/accounting/expense-tracking/ExpenseTracking";
+import { VerifyInvoice } from "./logged_in_admin/bcms/accounting/invoices/VerifyInvoice";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -62,6 +66,15 @@ const ADMIN_USER_ROUTES = () => {
             path={`accounting/accounting-overview`}
             element={<Accounting />}
           />
+          <Route path={`accounting/invoices`} element={<Invoices />} />
+          <Route
+            path={`accounting/recuring-invoices`}
+            element={<RecurringInvoices />}
+          />
+          <Route
+            path={`accounting/expense-tracking`}
+            element={<ExpenseTracking />}
+          />
 
           <Route path={`body/body-corperate`} element={<BodyCorperates />} />
           <Route
@@ -80,6 +93,11 @@ const ADMIN_USER_ROUTES = () => {
           <Route
             path={`/c/body/body-corperate/:propertyId/:id/:yearId/:monthId`}
             element={<UnitMonth />}
+          />
+
+          <Route
+            path={`/c/body/body-corperate/:propertyId/:id/:yearId/:monthId/:invoiceId`}
+            element={<VerifyInvoice />}
           />
 
           <Route path={`body/owners`} element={<Owners />} />

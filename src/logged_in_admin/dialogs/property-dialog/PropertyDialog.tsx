@@ -3,17 +3,18 @@ import { FormEvent, useEffect, useState } from "react";
 import { useAppContext } from "../../../shared/functions/Context";
 import { hideModalFromId } from "../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../Dialogs";
-import { IBodyCop, defaultBodyCop } from "../../../shared/models/bcms/BodyCorperate";
+import {
+  IBodyCop,
+  defaultBodyCop,
+} from "../../../shared/models/bcms/BodyCorperate";
 
 export const PropertyDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
 
-
   const [body, setBodyCop] = useState<IBodyCop>({
     ...defaultBodyCop,
   });
-
 
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -50,11 +51,16 @@ export const PropertyDialog = observer(() => {
     hideModalFromId(DIALOG_NAMES.BODY.BODY_CORPORATE_DIALOG);
   };
 
+  const onClear = () => {
+    store.bodyCorperate.bodyCop.clearSelected();
+  };
+
   useEffect(() => {
-    if (store.bodyCorperate.bodyCop.selected) setBodyCop(store.bodyCorperate.bodyCop.selected);
+    if (store.bodyCorperate.bodyCop.selected)
+      setBodyCop(store.bodyCorperate.bodyCop.selected);
     else setBodyCop({ ...defaultBodyCop });
 
-    return () => { };
+    return () => {};
   }, [store.bodyCorperate.bodyCop.selected]);
 
   return (
@@ -63,9 +69,10 @@ export const PropertyDialog = observer(() => {
         className="uk-modal-close-default"
         type="button"
         data-uk-close
+        onClick={onClear}
       ></button>
 
-      <h3 className="uk-modal-title">body</h3>
+      <h3 className="uk-modal-title">Property</h3>
       <div className="dialog-content uk-position-relative">
         <div className="reponse-form">
           <form className="uk-form-stacked" onSubmit={onSave}>
@@ -86,6 +93,142 @@ export const PropertyDialog = observer(() => {
                 />
               </div>
             </div>
+            <div className="uk-margin">
+              <label className="uk-form-label" htmlFor="form-stacked-text">
+                Property Location
+              </label>
+              <div className="uk-form-controls">
+                <input
+                  className="uk-input uk-form-small"
+                  type="text"
+                  placeholder="Location"
+                  value={body.location}
+                  onChange={(e) =>
+                    setBodyCop({ ...body, location: e.target.value })
+                  }
+         
+                />
+              </div>
+            </div>
+            <div className="uk-margin">
+              <label className="uk-form-label" htmlFor="form-stacked-text">
+                Bank Name
+              </label>
+              <div className="uk-form-controls">
+                <input
+                  className="uk-input uk-form-small"
+                  type="text"
+                  placeholder="Bank Name"
+                  value={body.bankName}
+                  onChange={(e) =>
+                    setBodyCop({ ...body, bankName: e.target.value })
+                  }
+           
+                />
+              </div>
+            </div>
+            <div className="uk-margin">
+              <label className="uk-form-label" htmlFor="form-stacked-text">
+                Account Name
+              </label>
+              <div className="uk-form-controls">
+                <input
+                  className="uk-input uk-form-small"
+                  type="text"
+                  placeholder="Account Name"
+                  value={body.accountName}
+                  onChange={(e) =>
+                    setBodyCop({ ...body, accountName: e.target.value })
+                  }
+                
+                />
+              </div>
+            </div>
+            <div className="uk-margin">
+              <label className="uk-form-label" htmlFor="form-stacked-text">
+                Account Number
+              </label>
+              <div className="uk-form-controls">
+                <input
+                  className="uk-input uk-form-small"
+                  type="text"
+                  placeholder="Account Number"
+                  value={body.accountNumber}
+                  onChange={(e) =>
+                    setBodyCop({ ...body, accountNumber: e.target.value })
+                  }
+                  
+                />
+              </div>
+            </div>
+            <div className="uk-margin">
+              <label className="uk-form-label" htmlFor="form-stacked-text">
+                Branch Name
+              </label>
+              <div className="uk-form-controls">
+                <input
+                  className="uk-input uk-form-small"
+                  type="text"
+                  placeholder="Branch Name"
+                  value={body.branchName}
+                  onChange={(e) =>
+                    setBodyCop({ ...body, branchName: e.target.value })
+                  }
+                  
+                />
+              </div>
+            </div>
+            <div className="uk-margin">
+              <label className="uk-form-label" htmlFor="form-stacked-text">
+                Branch Code
+              </label>
+              <div className="uk-form-controls">
+                <input
+                  className="uk-input uk-form-small"
+                  type="text"
+                  placeholder="Branch Code"
+                  value={body.branchCode}
+                  onChange={(e) =>
+                    setBodyCop({ ...body, branchCode: e.target.value })
+                  }
+                  
+                />
+              </div>
+            </div>
+            <div className="uk-margin">
+              <label className="uk-form-label" htmlFor="form-stacked-text">
+                Account Style
+              </label>
+              <div className="uk-form-controls">
+                <input
+                  className="uk-input uk-form-small"
+                  type="text"
+                  placeholder="Account Style"
+                  value={body.accountStyle}
+                  onChange={(e) =>
+                    setBodyCop({ ...body, accountStyle: e.target.value })
+                  }
+                  
+                />
+              </div>
+            </div>
+            <div className="uk-margin">
+              <label className="uk-form-label" htmlFor="form-stacked-text">
+                SWIFT
+              </label>
+              <div className="uk-form-controls">
+                <input
+                  className="uk-input uk-form-small"
+                  type="text"
+                  placeholder="SWIFT"
+                  value={body.swift}
+                  onChange={(e) =>
+                    setBodyCop({ ...body, swift: e.target.value })
+                  }
+                  
+                />
+              </div>
+            </div>
             <div className="footer uk-margin">
               <button className="uk-button secondary uk-modal-close">
                 Cancel
@@ -101,5 +244,3 @@ export const PropertyDialog = observer(() => {
     </div>
   );
 });
-
-

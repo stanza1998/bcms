@@ -267,7 +267,22 @@ const Dashboard = () => {
                 fontWeight: "400",
               }}
             >
-              Levies
+              Invoices
+            </p>
+          </div>
+        </div>
+        <div>
+          <div className="uk-card uk-card-primary uk-card-body">
+            <h3 className="uk-card-title">0</h3>
+            <p
+              style={{
+                textTransform: "uppercase",
+                color: "black",
+                fontSize: "14px",
+                fontWeight: "400",
+              }}
+            >
+              Expenses
             </p>
           </div>
         </div>
@@ -283,21 +298,6 @@ const Dashboard = () => {
               }}
             >
               Outstanding Payments
-            </p>
-          </div>
-        </div>
-        <div>
-          <div className="uk-card uk-card-primary uk-card-body">
-            <h3 className="uk-card-title">0</h3>
-            <p
-              style={{
-                textTransform: "uppercase",
-                color: "black",
-                fontSize: "14px",
-                fontWeight: "400",
-              }}
-            >
-              Special Assessments
             </p>
           </div>
         </div>
