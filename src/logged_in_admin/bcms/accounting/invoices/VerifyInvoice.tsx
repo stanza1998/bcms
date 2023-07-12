@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   IInvoice,
+  IService,
   defaultInvoice,
 } from "../../../../shared/models/invoices/Invoices";
 import {
@@ -20,6 +21,14 @@ import {
   defaultFinancialYear,
 } from "../../../../shared/models/yearModels/FinancialYear";
 import Loading from "../../../../shared/components/Loading";
+import { SuccessfulAction } from "../../../../shared/models/Snackbar";
+import { db } from "../../../../shared/database/FirebaseConfig";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+
+interface ServiceDetails {
+  description: string;
+  price: number;
+}
 
 export const VerifyInvoice = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -36,6 +45,13 @@ export const VerifyInvoice = observer(() => {
   const [invoice, setInvoice] = useState<IInvoice | undefined>({
     ...defaultInvoice,
   });
+
+  const data = async () => {
+    if (invoiceId) {
+      const invoice = store.bodyCorperate.invoice.getById(invoiceId);
+      setInvoice(invoice?.asJson);
+    }
+  };
 
   useEffect(() => {
     const data = async () => {
@@ -59,12 +75,12 @@ export const VerifyInvoice = observer(() => {
   const [unit, setUnit] = useState<IUnit | undefined>({
     ...defaultUnit,
   });
-  const [year, setYear] = useState<IFinancialYear | undefined>({
-    ...defaultFinancialYear,
-  });
-  const [month, setMonth] = useState<IFinancialMonth | undefined>({
-    ...defaultFinancialMonth,
-  });
+  // const [year, setYear] = useState<IFinancialYear | undefined>({
+  //   ...defaultFinancialYear,
+  // });
+  // const [month, setMonth] = useState<IFinancialMonth | undefined>({
+  //   ...defaultFinancialMonth,
+  // });
 
   useEffect(() => {
     const data = async () => {
@@ -74,10 +90,10 @@ export const VerifyInvoice = observer(() => {
         setBody(property?.asJson);
         const unit = store.bodyCorperate.unit.getById(id || "");
         setUnit(unit?.asJson);
-        const month = store.bodyCorperate.financialMonth.getById(yearId || "");
-        setMonth(month?.asJson);
-        const year = store.bodyCorperate.financialYear.getById(monthId || "");
-        setYear(year?.asJson);
+        // const month = store.bodyCorperate.financialMonth.getById(yearId || "");
+        // setMonth(month?.asJson);
+        // const year = store.bodyCorperate.financialYear.getById(monthId || "");
+        // setYear(year?.asJson);
         await api.auth.loadAll();
       }
     };
@@ -96,6 +112,159 @@ export const VerifyInvoice = observer(() => {
     yearId,
   ]);
 
+  //editing
+  const [show, setShow] = useState(false);
+
+  const showEdit = () => {
+    setShow(true);
+  };
+  const hideEdit = () => {
+    setShow(false);
+  };
+
+  //update due Date
+  const currentDate1 = new Date().toISOString().slice(0, 10);
+
+  const [newDate, setNewDate] = useState("");
+  const [dateLoader, setDateLoader] = useState(false);
+
+  const updateMaterial = async () => {
+    if (invoiceId) {
+      setDateLoader(true);
+      const docRef = doc(db, "Invoices", invoiceId);
+      const docSnap = await getDoc(docRef);
+      await updateDoc(docRef, { dueDate: newDate });
+      data();
+      SuccessfulAction(ui);
+      setDateLoader(false);
+    } else {
+      console.log("Material document does not exist");
+      return null;
+    }
+  };
+
+  //update details
+  const [updatedDetails, setUpdatedDetails] = useState<IService[]>([]);
+
+  const [description, setDescription] = useState("");
+
+  const [price, setPrice] = useState(0);
+
+  const addDetails = () => {
+    // Create a new object with the retrieved values
+    const newDetail: ServiceDetails = {
+      description: description,
+      price: price,
+    };
+    // Update the state by adding the new detail to the existing details array
+    setUpdatedDetails((prevDetails) => [...prevDetails, newDetail]);
+    // Reset the input fields to their initial states
+    setDescription("");
+    setPrice(0);
+  };
+
+  const totalPriceAmended = invoice?.serviceId.reduce(
+    (total, service) => total + service.price,
+    0
+  );
+  // amend total Price
+  const [pricesUpdate, setPriceUpdate] = useState(false);
+  const updatePrice = async () => {
+    if (invoiceId) {
+      setPriceUpdate(true);
+      const docRef = doc(db, "Invoices", invoiceId);
+      const docSnap = await getDoc(docRef);
+      await updateDoc(docRef, { totalDue: totalPriceAmended });
+      data();
+      SuccessfulAction(ui);
+      setPriceUpdate(false);
+    } else {
+      console.log("Material document does not exist");
+      return null;
+    }
+  };
+
+  const [detailsLoader, setDetailsLoader] = useState(false);
+  const AddNewDetails = async () => {
+    if (invoiceId) {
+      setDetailsLoader(true);
+      const docRef = doc(db, "Invoices", invoiceId);
+
+      try {
+        // Fetch the existing services array from the document
+        const docSnap = await getDoc(docRef);
+        const existingServices = docSnap.data()?.serviceId || [];
+
+        // Combine the existing services array with the new services array
+        const updatedServices = [...updatedDetails, ...existingServices];
+
+        // Update the document with the updated services array
+        await updateDoc(docRef, { serviceId: updatedServices });
+
+        // Perform any other necessary actions after a successful update
+
+        data();
+        setUpdatedDetails([]);
+        SuccessfulAction(ui);
+      } catch (error) {
+        console.log("Error updating document:", error);
+      }
+
+      setDetailsLoader(false);
+    } else {
+      console.log("Material document does not exist");
+      return null;
+    }
+  };
+
+  const [removeLoader, setReomveLoader] = useState(false);
+  const removeService = async (indexToRemove: number) => {
+    if (invoiceId) {
+      setReomveLoader(true);
+      const docRef = doc(db, "Invoices", invoiceId);
+
+      try {
+        // Fetch the existing services array from the document
+        const docSnap = await getDoc(docRef);
+        const existingServices = docSnap.data()?.serviceId || [];
+
+        // Remove the service at the specified index
+        existingServices.splice(indexToRemove, 1);
+
+        // Update the document with the updated services array
+        await updateDoc(docRef, { serviceId: existingServices });
+        // Perform any other necessary actions after a successful update
+        data();
+        SuccessfulAction(ui);
+      } catch (error) {
+        console.log("Error updating document:", error);
+      }
+
+      setReomveLoader(false);
+    } else {
+      console.log("Material document does not exist");
+      return null;
+    }
+  };
+
+  //verifying invoice
+  const [verificationLoader, setVerificationLoader] = useState(false);
+  const verifyInvoice = async () => {
+    if (invoiceId) {
+      setVerificationLoader(true);
+      const docRef = doc(db, "Invoices", invoiceId);
+      const docSnap = await getDoc(docRef);
+      await updateDoc(docRef, { verified: true });
+      data();
+      SuccessfulAction(ui);
+      setVerificationLoader(false);
+    } else {
+      console.log("Material document does not exist");
+      return null;
+    }
+  };
+
+  //laader
   const [loaderS, setLoaderS] = useState(true);
 
   setTimeout(() => {
@@ -107,20 +276,70 @@ export const VerifyInvoice = observer(() => {
       {loaderS ? (
         <Loading />
       ) : (
-        <div className="uk-container uk-container-large">
+        <div
+          className="uk-container uk-container-large"
+          style={{
+            marginBottom: "10rem",
+            border: "solid grey 3px",
+            padding: "20px",
+            margin: "30px",
+            borderRadius: "6px",
+          }}
+        >
           <div className="section-toolbar uk-margin">
             <h4 className="section-heading uk-heading">
               {invoice?.invoiceNumber}
             </h4>
             <div className="controls">
               <div className="uk-inline">
-                <button
-                  className="uk-button primary uk-margin-right"
-                  type="button"
-                  style={{ background: "green" }}
-                >
-                  Verify
-                </button>
+                {show === true && (
+                  <button
+                    className="uk-button primary uk-margin-right"
+                    type="button"
+                    style={{ background: "red" }}
+                    onClick={hideEdit}
+                  >
+                    Close
+                  </button>
+                )}
+                {show === false && (
+                  <>
+                    {invoice?.verified === false && (
+                      <button
+                        className="uk-button primary uk-margin-right"
+                        type="button"
+                        style={{ background: "#000c37" }}
+                        onClick={showEdit}
+                      >
+                        Edit
+                      </button>
+                    )}
+                  </>
+                )}
+                {invoice?.verified === false && (
+                  <button
+                    className="uk-button primary uk-margin-right"
+                    type="button"
+                    style={{ background: "green" }}
+                    onClick={verifyInvoice}
+                  >
+                    {verificationLoader ? (
+                      <>Verifying invoice</>
+                    ) : (
+                      <>Verify Invoice</>
+                    )}
+                  </button>
+                )}
+                {invoice?.verified === true && (
+                  <button
+                    className="uk-button primary uk-margin-right"
+                    type="button"
+                    style={{ background: "orange" }}
+                    // onClick={verifyInvoice}
+                  >
+                    Confirm POP upload
+                  </button>
+                )}
                 <button
                   onClick={back}
                   className="uk-button primary"
@@ -142,21 +361,9 @@ export const VerifyInvoice = observer(() => {
                     <p
                       style={{ textTransform: "capitalize", fontWeight: "800" }}
                     >
-                      {viewBody?.BodyCopName}
-                    </p>
-                    <p
-                      style={{ textTransform: "capitalize", fontWeight: "800" }}
-                    >
-                      {viewBody?.location}
-                    </p>
-                    <p
-                      style={{ textTransform: "capitalize", fontWeight: "800" }}
-                    >
-                      Unit {unit?.unitName}
-                    </p>
-                    <p
-                      style={{ textTransform: "capitalize", fontWeight: "800" }}
-                    >
+                      {viewBody?.BodyCopName} <br />
+                      {viewBody?.location} <br />
+                      Unit {unit?.unitName} <br />
                       {store.user.all
                         .filter((u) => u.asJson.uid === unit?.ownerId)
                         .map((u) => {
@@ -179,56 +386,185 @@ export const VerifyInvoice = observer(() => {
                       style={{ textTransform: "capitalize", fontWeight: "800" }}
                     >
                       {" "}
-                      Number: {invoice?.invoiceNumber}
-                    </p>
-                    <p
-                      className="uk-text-right"
-                      style={{ textTransform: "capitalize", fontWeight: "800" }}
-                    >
-                      {" "}
-                      Date: {invoice?.dateIssued}
-                    </p>
-                    <p
-                      className="uk-text-right"
-                      style={{ textTransform: "capitalize", fontWeight: "800" }}
-                    >
-                      {" "}
-                      Due Date: {invoice?.dueDate}
-                    </p>
-                    <p
-                      className="uk-text-right"
-                      style={{ textTransform: "capitalize", fontWeight: "800" }}
-                    >
-                      {" "}
+                      Number: {invoice?.invoiceNumber} <br />
+                      Date: {invoice?.dateIssued} <br />
+                      Due Date: {invoice?.dueDate} <br />
                       Total Due: N$ {invoice?.totalDue.toFixed(2)}
                     </p>
                   </div>
                 </div>
               </div>
+              {show === true && (
+                <div>
+                  <div>
+                    <label htmlFor="">Adjust Due</label> <br /> <br />
+                    <input
+                      type="date"
+                      className="uk-input uk-form-small uk-margin-right"
+                      style={{ width: "50%" }}
+                      min={currentDate1}
+                      onChange={(e) => setNewDate(e.target.value)}
+                    />
+                    <button
+                      className="uk-button primary"
+                      onClick={updateMaterial}
+                    >
+                      {dateLoader ? <>Updating due date....</> : <>Update</>}
+                    </button>
+                  </div>{" "}
+                  <br />
+                  <label htmlFor="">Add Details</label> <br /> <br />
+                  <input
+                    type="text"
+                    className="uk-input uk-form-small uk-margin-right"
+                    placeholder="Description"
+                    style={{ width: "50%" }}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                  <input
+                    type="number"
+                    style={{ width: "45%" }}
+                    className="uk-input uk-form-small uk-margin-left"
+                    placeholder="Price"
+                    value={price}
+                    onChange={(e) => setPrice(Number(e.target.value))}
+                  />
+                  <button
+                    className="uk-button primary uk-margin"
+                    onClick={addDetails}
+                  >
+                    Add to List
+                  </button>
+                  <br />
+                  Total Due: N$ {totalPriceAmended?.toFixed(2)} <br />
+                  {totalPriceAmended !== invoice?.totalDue && (
+                    <>
+                      <br />
+                      <button
+                        style={{ background: "red" }}
+                        className="uk-button primary"
+                        onClick={updatePrice}
+                      >
+                        {pricesUpdate ? (
+                          <>Updating price...</>
+                        ) : (
+                          <>Please Update Price</>
+                        )}
+                      </button>
+
+                      <p style={{ color: "red" }}>Total Due is not updated</p>
+                    </>
+                  )}
+                  <br />
+                  {updatedDetails.length > 0 && (
+                    <>
+                      <table className="uk-table uk-table-small uk-table-divider">
+                        <thead>
+                          <tr>
+                            <th>Description</th>
+                            <th className="uk-text-center">Price</th>
+                            <th className="uk-text-right">Total Price</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {updatedDetails.map((details, index) => (
+                            <tr key={index}>
+                              <td style={{ textTransform: "uppercase" }}>
+                                {details.description}
+                              </td>
+                              <td className="uk-text-center">
+                                N$ {details.price.toFixed(2)}
+                              </td>
+                              <td className="uk-text-right">
+                                N$ {details.price.toFixed(2)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      <br />
+                      <button
+                        className="uk-button primary"
+                        onClick={AddNewDetails}
+                      >
+                        {detailsLoader ? (
+                          <>Adding new service details...</>
+                        ) : (
+                          <>Add new Service Details</>
+                        )}
+                      </button>
+                      <hr />
+                    </>
+                  )}
+                </div>
+              )}
               <table className="uk-table uk-table-small uk-table-divider">
                 <thead>
                   <tr>
                     <th>Description</th>
                     <th className="uk-text-center">Price</th>
                     <th className="uk-text-right">Total Price</th>
+                    {show === true && <td className="uk-text-right">Action</td>}
                   </tr>
                 </thead>
                 <tbody>
                   {invoice?.serviceId.map((details, index) => (
                     <tr key={index}>
-                      <td>{details.description}</td>
+                      <td style={{ textTransform: "uppercase" }}>
+                        {details.description}
+                      </td>
                       <td className="uk-text-center">
                         N$ {details.price.toFixed(2)}
                       </td>
                       <td className="uk-text-right">
                         N$ {details.price.toFixed(2)}
                       </td>
+                      {show === true && (
+                        <td className="uk-text-right">
+                          <button
+                            className="uk-button primary"
+                            style={{ background: "red" }}
+                            onClick={() => removeService(index)}
+                          >
+                            {removeLoader ? <>removing...</> : <>Remove</>}
+                          </button>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           </div>
+          <hr />
+          <div className="section-toolbar uk-margin">
+            <div className="section-heading uk-heading">
+              <div>
+                {viewBody?.bankName} <br />
+                Account Name : {viewBody?.accountName} <br />
+                Account Number : {viewBody?.accountNumber} <br />
+                Branch : {viewBody?.branchName} <br />
+                Branch Code : {viewBody?.branchCode} <br />
+                Account Style : {viewBody?.accountStyle} <br />
+                SWIFT : {viewBody?.swift}
+              </div>
+            </div>
+            <div className="controls">
+              <div className="uk-inline">
+                <div className="uk-text-right">
+                  Total Discount: N$0.00 <br />
+                  Total Exclusive: N${invoice?.totalDue.toFixed(2)} <br />
+                  Total VAT: N$0.00
+                  <br />
+                  <hr />
+                  Sub Total: N${invoice?.totalDue.toFixed(2)}
+                  <hr />
+                </div>
+              </div>
+            </div>
+          </div>
+          <hr />
         </div>
       )}
     </div>

@@ -527,6 +527,7 @@ const Invoicing = observer(() => {
       serviceId: details,
       pop: "",
       confirmed: false,
+      verified: false,
     };
 
     const docRef = doc(collection(db, "Invoices"));
@@ -571,20 +572,21 @@ const Invoicing = observer(() => {
   };
 
   // verify invoice
-  const verifyInvoice = (invoiceId:string) => {
-    navigate(`/c/body/body-corperate/${propertyId}/${id}/${yearId}/${monthId}/${invoiceId}`);
+  const verifyInvoice = (invoiceId: string) => {
+    navigate(
+      `/c/body/body-corperate/${propertyId}/${id}/${yearId}/${monthId}/${invoiceId}`
+    );
   };
-
-
-  
 
   return (
     <div>
       <div className="section-toolbar uk-margin">
-        <h4
+        <h5
           className="section-heading uk-heading"
           style={{ textTransform: "uppercase" }}
-        ></h4>
+        >
+          Invoicing
+        </h5>
         <div className="controls">
           <div className="uk-inline">
             <button
@@ -598,7 +600,7 @@ const Invoicing = observer(() => {
         </div>
       </div>
 
-      <div className="uk-margin uk-grid-small uk-child-width-auto uk-grid">
+      <div className="uk-margin uk-grid-small uk-child-width-auto uk-grid uk-margin-left">
         <button className="uk-button primary uk-margin-right" onClick={pending}>
           Pending
         </button>
@@ -653,7 +655,14 @@ const Invoicing = observer(() => {
                   </td>
                   {/* <td>{invoice.asJson.dateIssued.}</td> */}
                   <td>{invoice.asJson.dueDate}</td>
-                  <td>waiting for verificatrion</td>
+                  <td>
+                    {invoice.asJson.verified === false && (
+                      <>Waiting for verification</>
+                    )}
+                    {invoice.asJson.verified === true && (
+                      <>Wating for POP confirmation</>
+                    )}
+                  </td>
                   <td>
                     <button
                       className="uk-button primary uk-margin-right"
@@ -661,13 +670,24 @@ const Invoicing = observer(() => {
                     >
                       View More
                     </button>
-                    <button
-                      className="uk-button primary"
-                      style={{ background: "green" }}
-                      onClick={()=>verifyInvoice(invoice.asJson.invoiceId)}
-                    >
-                      Verify
-                    </button>
+                    {invoice.asJson.verified === false && (
+                      <button
+                        className="uk-button primary"
+                        style={{ background: "green" }}
+                        onClick={() => verifyInvoice(invoice.asJson.invoiceId)}
+                      >
+                        Verify
+                      </button>
+                    )}
+                    {invoice.asJson.verified === true && (
+                      <button
+                        className="uk-button primary"
+                        style={{ background: "orange" }}
+                        onClick={() => verifyInvoice(invoice.asJson.invoiceId)}
+                      >
+                        Confirm POP upload
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -964,7 +984,13 @@ const Invoicing = observer(() => {
                 <tbody>
                   {inv.serviceId.map((det, index) => (
                     <tr key={index}>
-                      <td style={{ fontSize: "13px", fontWeight: "600" }}>
+                      <td
+                        style={{
+                          fontSize: "13px",
+                          fontWeight: "600",
+                          textTransform: "uppercase",
+                        }}
+                      >
                         {det.description}
                       </td>
                       <td

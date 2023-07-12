@@ -362,7 +362,13 @@ export const Invoices = observer(() => {
             <tbody>
               {invoiceView?.serviceId.map((det, index) => (
                 <tr key={index}>
-                  <td style={{ fontSize: "13px", fontWeight: "600" }}>
+                  <td
+                    style={{
+                      fontSize: "13px",
+                      fontWeight: "600",
+                      textTransform: "uppercase",
+                    }}
+                  >
                     {det.description}
                   </td>
                   <td
