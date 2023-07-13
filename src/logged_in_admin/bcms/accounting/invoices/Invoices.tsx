@@ -21,9 +21,11 @@ import {
   IFinancialYear,
   defaultFinancialYear,
 } from "../../../../shared/models/yearModels/FinancialYear";
+import { useNavigate } from "react-router-dom";
 
 export const Invoices = observer(() => {
   const { store, api } = useAppContext();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getData = async () => {
@@ -36,6 +38,7 @@ export const Invoices = observer(() => {
     };
     getData();
   }, [
+    api.auth,
     api.body.body,
     api.body.financialMonth,
     api.body.financialYear,
@@ -53,14 +56,68 @@ export const Invoices = observer(() => {
     setPropertyId(pid);
   };
 
-  const invoices = store.bodyCorperate.invoice.all
-    .filter((inv) => {
-      if (propertyId === "") return inv.asJson;
-      else return inv.asJson.propertyId === propertyId;
-    })
-    .map((inv) => {
-      return inv.asJson;
-    });
+  const [yearFinancial, setYearFinancial] = useState("");
+  const [monthFinancial, setMonthFinancial] = useState("");
+
+  // const invoices = store.bodyCorperate.invoice.all
+  //   .filter((inv) => {
+  //     if (propertyId === "") return inv.asJson;
+  //     else if (yearFinancial !== "")
+  //       return (
+  //         inv.asJson.yearId === yearFinancial &&
+  //         inv.asJson.propertyId === propertyId
+  //       );
+  //     else if (monthFinancial !== "")
+  //       return (
+  //         inv.asJson.monthId === monthFinancial &&
+  //         inv.asJson.propertyId === propertyId
+  //       );
+  //     else
+  //       return (
+  //         inv.asJson.yearId === yearFinancial &&
+  //         inv.asJson.monthId === monthFinancial &&
+  //         inv.asJson.propertyId === propertyId
+  //       );
+  //   })
+  //   .map((inv) => {
+  //     return inv.asJson;
+  //   });
+
+  const invoices = store.bodyCorperate.invoice.all;
+  let filteredInvoices = invoices;
+
+  // Step 1: Show all invoices
+
+  // No additional code is required for this step since the invoices are initially stored in `filteredInvoices`.
+
+  // Step 2: Filter by year
+
+  if (yearFinancial !== "") {
+    filteredInvoices = filteredInvoices.filter(
+      (inv) => inv.asJson.yearId === yearFinancial
+    );
+  }
+
+  // Step 3: Filter by month for the selected year
+
+  if (monthFinancial !== "") {
+    filteredInvoices = filteredInvoices.filter(
+      (inv) => inv.asJson.monthId === monthFinancial
+    );
+  }
+
+  // Step 4: Filter by property ID for the selected year and month
+
+  if (propertyId !== "") {
+    filteredInvoices = filteredInvoices.filter(
+      (inv) => inv.asJson.propertyId === propertyId
+    );
+  }
+
+  // Extract the 'asJson' property for the filtered invoices
+  const result = filteredInvoices.map((inv) => inv.asJson);
+
+
 
   const [invoiceView, setInvoiceView] = useState<IInvoice | undefined>({
     ...defaultInvoice,
@@ -75,6 +132,7 @@ export const Invoices = observer(() => {
   const [year, setYear] = useState<IFinancialYear | undefined>({
     ...defaultFinancialYear,
   });
+
   const [month, setMonth] = useState<IFinancialMonth | undefined>({
     ...defaultFinancialMonth,
   });
@@ -103,7 +161,19 @@ export const Invoices = observer(() => {
 
   //unit data
 
-  const getData = async () => {};
+  const verifyInvoice = (
+    invoiceId: string,
+    propertyId: string,
+    id: string,
+    yearId: string,
+    monthId: string
+  ) => {
+    navigate(
+      `/c/body/body-corperate/${propertyId}/${id}/${yearId}/${monthId}/${invoiceId}/accounting-view`
+    );
+  };
+
+  //
 
   return (
     <div className="uk-section leave-analytics-page">
@@ -115,6 +185,48 @@ export const Invoices = observer(() => {
           </div>
         </div>
         <div>
+          <select
+            name=""
+            className="uk-input uk-form-small uk-margin-right"
+            id=""
+            style={{ width: "40%" }}
+            onChange={(e) => setYearFinancial(e.target.value)}
+          >
+            <option value="">Filter by Financial Year</option>
+            {store.bodyCorperate.financialYear.all.map((year) => (
+              <option value={year.asJson.id}>{year.asJson.year}</option>
+            ))}
+          </select>
+
+          <select
+            name=""
+            className="uk-input uk-form-small uk-margin-left"
+            id=""
+            style={{ width: "40%" }}
+            onChange={(e) => setMonthFinancial(e.target.value)}
+          >
+            <option value="">Filter by Financial Month</option>
+            {store.bodyCorperate.financialMonth.all
+              .filter((month) => month.asJson.yearId === yearFinancial)
+              .map((month) => (
+                <option value={month.asJson.id}>
+                  {month.asJson.month === 1 && <>JAN</>}
+                  {month.asJson.month === 2 && <>FEB</>}
+                  {month.asJson.month === 3 && <>MAR</>}
+                  {month.asJson.month === 4 && <>APR</>}
+                  {month.asJson.month === 5 && <>MAY</>}
+                  {month.asJson.month === 6 && <>JUN</>}
+                  {month.asJson.month === 7 && <>JUL</>}
+                  {month.asJson.month === 8 && <>AUG</>}
+                  {month.asJson.month === 9 && <>SEP</>}
+                  {month.asJson.month === 10 && <>OCT</>}
+                  {month.asJson.month === 11 && <>NOV</>}
+                  {month.asJson.month === 12 && <>DEC</>}
+                </option>
+              ))}
+          </select>
+          <br />
+          <br />
           <div
             className="uk-position-relative uk-visible-toggle uk-light"
             data-uk-slider
@@ -162,26 +274,25 @@ export const Invoices = observer(() => {
             ></a>
           </div>
         </div>
+
         <table className="uk-table uk-table-divider uk-table-small">
           <thead>
             <tr>
               <th>Invoice Number</th>
-              <th>Date Issued</th>
-              <th>Due Date</th>
               <th>Property</th>
               <th>Unit</th>
               <th>Financial Year</th>
               <th>Financial Month</th>
+              <th>Verification</th>
+              <th>POP confirmation</th>
               {/* <th>Total Due</th> */}
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {invoices.map((inv) => (
+            {result.map((inv) => (
               <tr key={inv.invoiceId}>
                 <td>{inv.invoiceNumber}</td>
-                <td>{inv.dateIssued}</td>
-                <td>{inv.dueDate}</td>
                 <td>
                   {store.bodyCorperate.bodyCop.all
                     .filter((pro) => pro.asJson.id === inv.propertyId)
@@ -221,7 +332,26 @@ export const Invoices = observer(() => {
                       if (pro.asJson.month === 12) return "DEC";
                     })}
                 </td>
-                {/* <td>N$ {inv.totalDue.toFixed(2)}</td> */}
+                <td>
+                  {inv.verified === false && (
+                    <span style={{ color: "orange" }}>
+                      waiting for verification
+                    </span>
+                  )}
+                  {inv.verified === true && (
+                    <span style={{ color: "green" }}>verified</span>
+                  )}
+                </td>
+                <td>
+                  {inv.confirmed === false && (
+                    <span style={{ color: "orange" }}>
+                      waiting for confirmation
+                    </span>
+                  )}
+                  {inv.confirmed === true && (
+                    <span style={{ color: "green" }}>confirmed</span>
+                  )}
+                </td>
                 <td>
                   <button
                     onClick={() =>
@@ -233,16 +363,31 @@ export const Invoices = observer(() => {
                         inv.yearId
                       )
                     }
-                    className="uk-button primary"
+                    className="uk-button primary uk-margin-right"
                   >
                     More
+                  </button>
+                  <button
+                    onClick={() =>
+                      verifyInvoice(
+                        inv.invoiceId,
+                        inv.propertyId,
+                        inv.unitId,
+                        inv.monthId,
+                        inv.yearId
+                      )
+                    }
+                    style={{ background: "green" }}
+                    className="uk-button primary"
+                  >
+                    Invoice
                   </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {invoices.map((inv) => inv).length === 0 && <p>No invoices</p>}
+        {result.map((inv) => inv).length === 0 && <p>No invoices</p>}
       </div>
       <Modal modalId={DIALOG_NAMES.BODY.VIEW_INVOICE}>
         <div

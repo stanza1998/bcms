@@ -33,6 +33,9 @@ import { Invoices } from "./logged_in_admin/bcms/accounting/invoices/Invoices";
 import { RecurringInvoices } from "./logged_in_admin/bcms/accounting/recuring-invoices/RecuringInvoices";
 import { ExpenseTracking } from "./logged_in_admin/bcms/accounting/expense-tracking/ExpenseTracking";
 import { VerifyInvoice } from "./logged_in_admin/bcms/accounting/invoices/VerifyInvoice";
+import { ViewInvoice } from "./logged_in_admin/bcms/accounting/invoices/ViewInvoice";
+import { OwnerInvoices } from "./logged_in_admin/bcms/owner-accounts/invoices/OwnerInvoices";
+import { OwnerViewInvoice } from "./logged_in_admin/bcms/owner-accounts/invoices/OwnerViewInvoice";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -99,6 +102,10 @@ const ADMIN_USER_ROUTES = () => {
             path={`/c/body/body-corperate/:propertyId/:id/:yearId/:monthId/:invoiceId`}
             element={<VerifyInvoice />}
           />
+          <Route
+            path={`/c/body/body-corperate/:propertyId/:id/:yearId/:monthId/:invoiceId/accounting-view`}
+            element={<ViewInvoice />}
+          />
 
           <Route path={`body/owners`} element={<Owners />} />
 
@@ -126,6 +133,11 @@ const OWNER_ROUTES = () => {
           <Route path="*" element={<Navigate to="dashboard" />} />
           <Route path="*" element={<Navigate to="dashboard" />} />
           <Route path={`unit/owner-units`} element={<OwnerAccount />} />
+          <Route path={`finance/invoices-view`} element={<OwnerInvoices />} />
+          <Route
+            path={`/c/finance/invoices-view/:propertyId/:id/:yearId/:monthId/:invoiceId`}
+            element={<OwnerViewInvoice />}
+          />
         </Route>
         <Route path="/" element={<SignIn />} />
         <Route path="/*" element={<Navigate to="/" />} />

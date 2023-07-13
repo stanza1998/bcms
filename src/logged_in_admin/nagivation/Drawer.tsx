@@ -90,10 +90,7 @@ const ADMIN_DRAWER = () => {
               </NavLink>
             </li>
             <li>
-              <NavLink
-                to={`accounting/invoices`}
-                className="navlink"
-              >
+              <NavLink to={`accounting/invoices`} className="navlink">
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
@@ -101,10 +98,7 @@ const ADMIN_DRAWER = () => {
               </NavLink>
             </li>
             <li>
-              <NavLink
-                to={`accounting/recuring-invoices`}
-                className="navlink"
-              >
+              <NavLink to={`accounting/recuring-invoices`} className="navlink">
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
@@ -112,17 +106,13 @@ const ADMIN_DRAWER = () => {
               </NavLink>
             </li>
             <li>
-              <NavLink
-                to={`accounting/expense-tracking`}
-                className="navlink"
-              >
+              <NavLink to={`accounting/expense-tracking`} className="navlink">
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
                 Expense Tracking
               </NavLink>
             </li>
-
           </ul>
         </li>
         <li className="list-item uk-parent">
@@ -281,7 +271,7 @@ const OWNER_DRAWER = () => {
             <span className="uk-margin-small-right">
               <ApartmentIcon style={{ fontSize: "16px" }} />
             </span>
-            Units
+            My Properties
             <span className="down-arrow" data-uk-icon="chevron-down" />
           </NavLink>
           <ul className="uk-nav-sub">
@@ -290,7 +280,26 @@ const OWNER_DRAWER = () => {
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
-                My Properties
+                My Units
+              </NavLink>
+            </li>
+          </ul>
+        </li>
+        <li className="list-item uk-parent">
+          <NavLink to={`finanace`} className="navlink">
+            <span className="uk-margin-small-right">
+              <MoneyIcon style={{ fontSize: "16px" }} />
+            </span>
+            Finances
+            <span className="down-arrow" data-uk-icon="chevron-down" />
+          </NavLink>
+          <ul className="uk-nav-sub">
+            <li>
+              <NavLink to={`finance/invoices-view`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Invoices
               </NavLink>
             </li>
           </ul>

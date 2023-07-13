@@ -30,7 +30,7 @@ interface ServiceDetails {
   price: number;
 }
 
-export const VerifyInvoice = observer(() => {
+export const ViewInvoice = observer(() => {
   const { store, api, ui } = useAppContext();
   const { propertyId, id, yearId, monthId, invoiceId } = useParams();
   const navigate = useNavigate();
@@ -64,7 +64,7 @@ export const VerifyInvoice = observer(() => {
   }, [invoiceId, store.bodyCorperate.invoice]);
 
   const back = () => {
-    navigate(`/c/body/body-corperate/${propertyId}/${id}/${yearId}/${monthId}`);
+    navigate("/c/accounting/invoices");
   };
 
   //
@@ -112,8 +112,6 @@ export const VerifyInvoice = observer(() => {
     yearId,
   ]);
 
-
-  
   //editing
   const [show, setShow] = useState(false);
 

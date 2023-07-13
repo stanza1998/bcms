@@ -133,12 +133,13 @@ export const ViewUnit = observer(() => {
       ) : (
         <div className="uk-container uk-container-large">
           <div className="section-toolbar uk-margin">
-            <h4
+            <p
               className="section-heading uk-heading"
-              style={{ textTransform: "uppercase" }}
+              style={{ textTransform: "uppercase", cursor: "pointer" }}
+              onClick={back}
             >
               {viewBody?.BodyCopName}
-            </h4>
+            </p>
             <div className="controls">
               <div className="uk-inline">
                 <button

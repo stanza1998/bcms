@@ -168,6 +168,16 @@ export const UnitYear = observer(() => {
     setLoaderS(false);
   }, 1000);
 
+  const backToYear = () => {
+    navigate(`/c/body/body-corperate/${propertyId}/${id}`);
+  };
+  const backToUnit = () => {
+    navigate(`/c/body/body-corperate/${propertyId}`);
+  };
+  const backToProperty = () => {
+    navigate(`/c/body/body-corperate`);
+  };
+
   return (
     <div className="uk-section leave-analytics-page sales-order">
       {laoderS ? (
@@ -175,14 +185,25 @@ export const UnitYear = observer(() => {
       ) : (
         <div className="uk-container uk-container-large">
           <div className="section-toolbar uk-margin">
-            <h4
+            <p
               className="section-heading uk-heading"
               style={{ textTransform: "uppercase" }}
             >
-              {property?.BodyCopName} / Unit {info?.unitName}
-              {" / Financial Records / "}
-              {year?.year}
-            </h4>
+              <span onClick={backToProperty} style={{ cursor: "pointer" }}>
+                {" "}
+                {property?.BodyCopName}{" "}
+              </span>{" "}
+              /{" "}
+              <span onClick={backToUnit} style={{ cursor: "pointer" }}>
+                {" "}
+                Unit {info?.unitName}{" "}
+              </span>{" "}
+              / <span> Financial Records / </span>
+              <span onClick={backToYear} style={{ cursor: "pointer" }}>
+                {" "}
+                {year?.year}{" "}
+              </span>
+            </p>
             <div className="controls">
               <div className="uk-inline">
                 {savedMonths.length < 12 && (

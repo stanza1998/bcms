@@ -103,10 +103,6 @@ export const UnitMonth = observer(() => {
     getData();
   }, [api.auth, monthId, store.bodyCorperate.financialMonth]);
 
-  const back = () => {
-    navigate(`/c/body/body-corperate/${propertyId}/${id}/${yearId}`);
-  };
-
   const [laoderS, setLoaderS] = useState(true);
 
   setTimeout(() => {
@@ -120,6 +116,20 @@ export const UnitMonth = observer(() => {
     setActiveTab(tabName);
   };
 
+  // navigate tabls
+  const back = () => {
+    navigate(`/c/body/body-corperate/${propertyId}/${id}/${yearId}`);
+  };
+  const backToYear = () => {
+    navigate(`/c/body/body-corperate/${propertyId}/${id}`);
+  };
+  const backToUnit = () => {
+    navigate(`/c/body/body-corperate/${propertyId}`);
+  };
+  const backToProperty = () => {
+    navigate(`/c/body/body-corperate`);
+  };
+
   return (
     <div className="uk-section leave-analytics-page">
       {laoderS ? (
@@ -127,24 +137,40 @@ export const UnitMonth = observer(() => {
       ) : (
         <div className="uk-container uk-container-large">
           <div className="section-toolbar uk-margin">
-            <h4
+            <p
               className="section-heading uk-heading"
               style={{ textTransform: "uppercase" }}
             >
-              {property?.BodyCopName} / Unit {info?.unitName} / Financial
-              Records / {year?.year} / {month?.month === 1 && <>JAN</>}
-              {month?.month === 2 && <>FEB</>}
-              {month?.month === 3 && <>MAR</>}
-              {month?.month === 4 && <>APR</>}
-              {month?.month === 5 && <>MAY</>}
-              {month?.month === 6 && <>JUN</>}
-              {month?.month === 7 && <>JUL</>}
-              {month?.month === 8 && <>AUG</>}
-              {month?.month === 9 && <>SEP</>}
-              {month?.month === 10 && <>OCT</>}
-              {month?.month === 11 && <>NOV</>}
-              {month?.month === 12 && <>DEC</>}
-            </h4>
+              <span onClick={backToProperty} style={{ cursor: "pointer" }}>
+                {" "}
+                {property?.BodyCopName}{" "}
+              </span>{" "}
+              /{" "}
+              <span onClick={backToUnit} style={{ cursor: "pointer" }}>
+                {" "}
+                Unit {info?.unitName}{" "}
+              </span>{" "}
+              / <span> Financial Records / </span>
+              <span onClick={backToYear} style={{ cursor: "pointer" }}>
+                {" "}
+                {year?.year}{" "}
+              </span>{" "}
+              /
+              <span onClick={back} style={{ cursor: "pointer" }}>
+                {month?.month === 1 && <>JAN</>}
+                {month?.month === 2 && <>FEB</>}
+                {month?.month === 3 && <>MAR</>}
+                {month?.month === 4 && <>APR</>}
+                {month?.month === 5 && <>MAY</>}
+                {month?.month === 6 && <>JUN</>}
+                {month?.month === 7 && <>JUL</>}
+                {month?.month === 8 && <>AUG</>}
+                {month?.month === 9 && <>SEP</>}
+                {month?.month === 10 && <>OCT</>}
+                {month?.month === 11 && <>NOV</>}
+                {month?.month === 12 && <>DEC</>}
+              </span>
+            </p>
             <div className="controls">
               <div className="uk-inline">
                 <button
@@ -619,7 +645,8 @@ const Invoicing = observer(() => {
               <th>Year</th>
               <th>Month</th>
               <th>Due Date</th>
-              <th>Status</th>
+              <th>Verification status</th>
+              <th>Confirm POP Upload</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -653,14 +680,26 @@ const Invoicing = observer(() => {
                     {month?.month === 11 && <>NOV</>}
                     {month?.month === 12 && <>DEC</>}
                   </td>
-                  {/* <td>{invoice.asJson.dateIssued.}</td> */}
-                  <td>{invoice.asJson.dueDate}</td>
+                  <td>{invoice.asJson.dateIssued}</td>
+
                   <td>
                     {invoice.asJson.verified === false && (
-                      <>Waiting for verification</>
+                      <span style={{ color: "orange" }}>
+                        waiting for verification
+                      </span>
                     )}
                     {invoice.asJson.verified === true && (
-                      <>Wating for POP confirmation</>
+                      <span style={{ color: "green" }}>verified</span>
+                    )}
+                  </td>
+                  <td>
+                    {invoice.asJson.confirmed === false && (
+                      <span style={{ color: "orange" }}>
+                        waiting for confirmation
+                      </span>
+                    )}
+                    {invoice.asJson.confirmed === true && (
+                      <span style={{ color: "green" }}>POP confirmed</span>
                     )}
                   </td>
                   <td>
