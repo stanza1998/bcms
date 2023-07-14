@@ -117,8 +117,6 @@ export const Invoices = observer(() => {
   // Extract the 'asJson' property for the filtered invoices
   const result = filteredInvoices.map((inv) => inv.asJson);
 
-
-
   const [invoiceView, setInvoiceView] = useState<IInvoice | undefined>({
     ...defaultInvoice,
   });
@@ -382,6 +380,17 @@ export const Invoices = observer(() => {
                   >
                     Invoice
                   </button>
+                </td>
+                <td>
+                  {inv.pop && (
+                    <a target="blank" href={inv.pop}>
+                      <span
+                        data-uk-tooltip="view POP"
+                        style={{ color: "green" }}
+                        data-uk-icon="icon: file-text; ratio: 1"
+                      ></span>
+                    </a>
+                  )}
                 </td>
               </tr>
             ))}

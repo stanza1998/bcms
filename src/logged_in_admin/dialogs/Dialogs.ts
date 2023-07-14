@@ -13,7 +13,9 @@ const DIALOG_NAMES = {
     FINANCIAL_MONTH: "financial-month",
     CREATE_INVOICE: "invoice-invoice",
     VIEW_INVOICE: "invoice-view",
+    RECURING_INVOICE: "invoice-recording",
     OWNER_UNIT_VIEW: "unit-owner-unit-view",
+    OWNER_UPLOAD_POP: "owner-upload-pop",
   },
 };
 

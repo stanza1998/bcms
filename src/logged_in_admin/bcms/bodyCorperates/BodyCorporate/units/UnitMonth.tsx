@@ -644,7 +644,6 @@ const Invoicing = observer(() => {
               <th>Invoice Number</th>
               <th>Year</th>
               <th>Month</th>
-              <th>Due Date</th>
               <th>Verification status</th>
               <th>Confirm POP Upload</th>
               <th>Action</th>
@@ -680,8 +679,6 @@ const Invoicing = observer(() => {
                     {month?.month === 11 && <>NOV</>}
                     {month?.month === 12 && <>DEC</>}
                   </td>
-                  <td>{invoice.asJson.dateIssued}</td>
-
                   <td>
                     {invoice.asJson.verified === false && (
                       <span style={{ color: "orange" }}>
@@ -719,13 +716,28 @@ const Invoicing = observer(() => {
                       </button>
                     )}
                     {invoice.asJson.verified === true && (
-                      <button
-                        className="uk-button primary"
-                        style={{ background: "orange" }}
-                        onClick={() => verifyInvoice(invoice.asJson.invoiceId)}
-                      >
-                        Confirm POP upload
-                      </button>
+                      <>
+                        <button
+                          className="uk-button primary"
+                          style={{ background: "orange" }}
+                          onClick={() =>
+                            verifyInvoice(invoice.asJson.invoiceId)
+                          }
+                        >
+                          View Invoice
+                        </button>
+                      </>
+                    )}
+                  </td>
+                  <td>
+                    {invoice.asJson.pop && (
+                      <a target="blank" href={invoice.asJson.pop}>
+                        <span
+                          data-uk-tooltip="view POP"
+                          style={{ color: "green" }}
+                          data-uk-icon="icon: file-text; ratio: 1"
+                        ></span>
+                      </a>
                     )}
                   </td>
                 </tr>

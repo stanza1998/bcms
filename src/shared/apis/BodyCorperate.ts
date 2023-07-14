@@ -7,6 +7,7 @@ import UnitApi from "./bodyCorperate/UnitApi";
 import FinancialYearApi from "./bodyCorperate/FinancialYearApi";
 import FinancialMonthApi from "./bodyCorperate/FinancialMonth";
 import InvoiceApi from "./bodyCorperate/InvoiceApi";
+import RecuringInvoiceApi from "./bodyCorperate/RecuringInvoice";
 
 export default class BodyCorpetaApi {
   private BodyCoperateDB = collection(db, "BodyCoperate");
@@ -14,12 +15,14 @@ export default class BodyCorpetaApi {
   private FinacialYearDB = collection(db, "FinacialYear");
   private FinacialMonthDB = collection(db, "FinacialMonth");
   private InvoiceDB = collection(db, "Invoices");
+  private RecuringInvoiceDB = collection(db, "RecuringInvoices");
 
   body: BodyCopApi;
   unit: UnitApi;
   financialYear: FinancialYearApi;
   financialMonth: FinancialMonthApi;
   invoice: InvoiceApi;
+  recuringInvoice: RecuringInvoiceApi;
 
   constructor(api: AppApi, store: AppStore) {
     this.body = new BodyCopApi(api, store, this.BodyCoperateDB);
@@ -31,5 +34,10 @@ export default class BodyCorpetaApi {
       this.FinacialMonthDB
     );
     this.invoice = new InvoiceApi(api, store, this.InvoiceDB);
+    this.recuringInvoice = new RecuringInvoiceApi(
+      api,
+      store,
+      this.RecuringInvoiceDB
+    );
   }
 }

@@ -32,10 +32,11 @@ import { UnitMonth } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/u
 import { Invoices } from "./logged_in_admin/bcms/accounting/invoices/Invoices";
 import { RecurringInvoices } from "./logged_in_admin/bcms/accounting/recuring-invoices/RecuringInvoices";
 import { ExpenseTracking } from "./logged_in_admin/bcms/accounting/expense-tracking/ExpenseTracking";
-import { VerifyInvoice } from "./logged_in_admin/bcms/accounting/invoices/VerifyInvoice";
-import { ViewInvoice } from "./logged_in_admin/bcms/accounting/invoices/ViewInvoice";
+
 import { OwnerInvoices } from "./logged_in_admin/bcms/owner-accounts/invoices/OwnerInvoices";
 import { OwnerViewInvoice } from "./logged_in_admin/bcms/owner-accounts/invoices/OwnerViewInvoice";
+import { VerifyInvoice } from "./logged_in_admin/bcms/accounting/invoices/VerifyInvoice";
+import { ViewInvoice } from "./logged_in_admin/bcms/accounting/invoices/ViewInvoice";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));

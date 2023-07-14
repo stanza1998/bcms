@@ -36,7 +36,7 @@ import { IInvoice } from "../../models/invoices/Invoices";
       return unsubscribe;
     }
   
-    async getFinancialYear(id: string) {
+    async getInvoice(id: string) {
       const docSnap = await getDoc(doc(this.collectionRef, id));
       if (docSnap.exists()) {
         const body = { ...docSnap.data(), invoiceId: docSnap.id } as IInvoice;

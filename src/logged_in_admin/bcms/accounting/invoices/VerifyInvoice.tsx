@@ -1,29 +1,17 @@
 import { observer } from "mobx-react-lite";
-import { useAppContext } from "../../../../shared/functions/Context";
+
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import {
-  IInvoice,
-  IService,
-  defaultInvoice,
-} from "../../../../shared/models/invoices/Invoices";
-import {
-  IBodyCop,
-  defaultBodyCop,
-} from "../../../../shared/models/bcms/BodyCorperate";
+
+
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { useAppContext } from "../../../../shared/functions/Context";
+import { IInvoice, IService, defaultInvoice } from "../../../../shared/models/invoices/Invoices";
+import { IBodyCop, defaultBodyCop } from "../../../../shared/models/bcms/BodyCorperate";
 import { IUnit, defaultUnit } from "../../../../shared/models/bcms/Units";
-import {
-  IFinancialMonth,
-  defaultFinancialMonth,
-} from "../../../../shared/models/monthModels/FinancialMonth";
-import {
-  IFinancialYear,
-  defaultFinancialYear,
-} from "../../../../shared/models/yearModels/FinancialYear";
 import Loading from "../../../../shared/components/Loading";
 import { SuccessfulAction } from "../../../../shared/models/Snackbar";
 import { db } from "../../../../shared/database/FirebaseConfig";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 interface ServiceDetails {
   description: string;
@@ -75,12 +63,6 @@ export const VerifyInvoice = observer(() => {
   const [unit, setUnit] = useState<IUnit | undefined>({
     ...defaultUnit,
   });
-  // const [year, setYear] = useState<IFinancialYear | undefined>({
-  //   ...defaultFinancialYear,
-  // });
-  // const [month, setMonth] = useState<IFinancialMonth | undefined>({
-  //   ...defaultFinancialMonth,
-  // });
 
   useEffect(() => {
     const data = async () => {
@@ -90,10 +72,6 @@ export const VerifyInvoice = observer(() => {
         setBody(property?.asJson);
         const unit = store.bodyCorperate.unit.getById(id || "");
         setUnit(unit?.asJson);
-        // const month = store.bodyCorperate.financialMonth.getById(yearId || "");
-        // setMonth(month?.asJson);
-        // const year = store.bodyCorperate.financialYear.getById(monthId || "");
-        // setYear(year?.asJson);
         await api.auth.loadAll();
       }
     };
@@ -112,8 +90,6 @@ export const VerifyInvoice = observer(() => {
     yearId,
   ]);
 
-
-  
   //editing
   const [show, setShow] = useState(false);
 
@@ -266,6 +242,32 @@ export const VerifyInvoice = observer(() => {
     }
   };
 
+  //confirmation loader
+  const [confirmInvoiceLoader, setConfirmInvoiceLoader] = useState(false);
+  const confirmInvoice = async () => {
+    if (invoiceId) {
+      setConfirmInvoiceLoader(true);
+      if (invoice?.pop) {
+        const docRef = doc(db, "Invoices", invoiceId);
+        const docSnap = await getDoc(docRef);
+        await updateDoc(docRef, { confirmed: true });
+        data();
+        SuccessfulAction(ui);
+        setConfirmInvoiceLoader(false);
+      } else if (invoice?.pop === "") {
+        ui.snackbar.load({
+          id: Date.now(),
+          message: "POP not uploaded.",
+          type: "danger",
+        });
+        setConfirmInvoiceLoader(false);
+      }
+    } else {
+      console.log("Material document does not exist");
+      return null;
+    }
+  };
+
   //laader
   const [loaderS, setLoaderS] = useState(true);
 
@@ -292,64 +294,75 @@ export const VerifyInvoice = observer(() => {
             <h4 className="section-heading uk-heading">
               {invoice?.invoiceNumber}
             </h4>
-            <div className="controls">
-              <div className="uk-inline">
-                {show === true && (
-                  <button
-                    className="uk-button primary uk-margin-right"
-                    type="button"
-                    style={{ background: "red" }}
-                    onClick={hideEdit}
-                  >
-                    Close
-                  </button>
-                )}
-                {show === false && (
-                  <>
-                    {invoice?.verified === false && (
+            <div className="uk-inline">
+              {show === true && (
+                <button
+                  className="uk-button primary uk-margin-right"
+                  type="button"
+                  style={{ background: "red" }}
+                  onClick={hideEdit}
+                >
+                  Close
+                </button>
+              )}
+              {show === false && (
+                <>
+                  {invoice?.verified === false && (
+                    <button
+                      className="uk-button primary uk-margin-right"
+                      type="button"
+                      style={{ background: "#000c37" }}
+                      onClick={showEdit}
+                    >
+                      Edit
+                    </button>
+                  )}
+                </>
+              )}
+              {invoice?.verified === false && (
+                <button
+                  className="uk-button primary uk-margin-right"
+                  type="button"
+                  style={{ background: "green" }}
+                  onClick={verifyInvoice}
+                >
+                  {verificationLoader ? (
+                    <>Verifying invoice</>
+                  ) : (
+                    <>Verify Invoice</>
+                  )}
+                </button>
+              )}
+              {invoice?.verified === true && (
+                <>
+                  {invoice.confirmed === false && (
+                    <>
                       <button
                         className="uk-button primary uk-margin-right"
                         type="button"
-                        style={{ background: "#000c37" }}
-                        onClick={showEdit}
+                        style={{ background: "orange" }}
+                        onClick={confirmInvoice}
                       >
-                        Edit
+                        {confirmInvoiceLoader ? (
+                          <>confirming...</>
+                        ) : (
+                          <>Confirm Invoice</>
+                        )}
                       </button>
-                    )}
-                  </>
-                )}
-                {invoice?.verified === false && (
-                  <button
-                    className="uk-button primary uk-margin-right"
-                    type="button"
-                    style={{ background: "green" }}
-                    onClick={verifyInvoice}
-                  >
-                    {verificationLoader ? (
-                      <>Verifying invoice</>
-                    ) : (
-                      <>Verify Invoice</>
-                    )}
-                  </button>
-                )}
-                {invoice?.verified === true && (
-                  <button
-                    className="uk-button primary uk-margin-right"
-                    type="button"
-                    style={{ background: "orange" }}
-                    // onClick={verifyInvoice}
-                  >
-                    Confirm POP upload
-                  </button>
-                )}
-                <button
-                  onClick={back}
-                  className="uk-button primary"
-                  type="button"
-                >
-                  Back
-                </button>
-              </div>
+                    </>
+                  )}
+                  {invoice.confirmed === true && (
+                    <p>Invoice successfully paid</p>
+                  )}
+                </>
+              )}
+              <button
+                onClick={back}
+                className="uk-button primary"
+                type="button"
+              >
+                Back
+              </button>
             </div>
           </div>
           <div className="uk-section">

@@ -1,29 +1,16 @@
 import { observer } from "mobx-react-lite";
-import { useAppContext } from "../../../../shared/functions/Context";
+
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import {
-  IInvoice,
-  IService,
-  defaultInvoice,
-} from "../../../../shared/models/invoices/Invoices";
-import {
-  IBodyCop,
-  defaultBodyCop,
-} from "../../../../shared/models/bcms/BodyCorperate";
-import { IUnit, defaultUnit } from "../../../../shared/models/bcms/Units";
-import {
-  IFinancialMonth,
-  defaultFinancialMonth,
-} from "../../../../shared/models/monthModels/FinancialMonth";
-import {
-  IFinancialYear,
-  defaultFinancialYear,
-} from "../../../../shared/models/yearModels/FinancialYear";
-import Loading from "../../../../shared/components/Loading";
-import { SuccessfulAction } from "../../../../shared/models/Snackbar";
-import { db } from "../../../../shared/database/FirebaseConfig";
+
 import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { useAppContext } from "../../../../shared/functions/Context";
+import { IInvoice, IService, defaultInvoice } from "../../../../shared/models/invoices/Invoices";
+import { IBodyCop, defaultBodyCop } from "../../../../shared/models/bcms/BodyCorperate";
+import { IUnit, defaultUnit } from "../../../../shared/models/bcms/Units";
+import { db } from "../../../../shared/database/FirebaseConfig";
+import { SuccessfulAction } from "../../../../shared/models/Snackbar";
+import Loading from "../../../../shared/components/Loading";
 
 interface ServiceDetails {
   description: string;
@@ -264,6 +251,32 @@ export const ViewInvoice = observer(() => {
     }
   };
 
+  //confirm invoice
+  const [confirmInvoiceLoader, setConfirmInvoiceLoader] = useState(false);
+  const confirmInvoice = async () => {
+    if (invoiceId) {
+      setConfirmInvoiceLoader(true);
+      if (invoice?.pop) {
+        const docRef = doc(db, "Invoices", invoiceId);
+        const docSnap = await getDoc(docRef);
+        await updateDoc(docRef, { confirmed: true });
+        data();
+        SuccessfulAction(ui);
+        setConfirmInvoiceLoader(false);
+      } else if (invoice?.pop === "") {
+        ui.snackbar.load({
+          id: Date.now(),
+          message: "POP not uploaded.",
+          type: "danger",
+        });
+        setConfirmInvoiceLoader(false);
+      }
+    } else {
+      console.log("Material document does not exist");
+      return null;
+    }
+  };
+
   //laader
   const [loaderS, setLoaderS] = useState(true);
 
@@ -331,14 +344,27 @@ export const ViewInvoice = observer(() => {
                   </button>
                 )}
                 {invoice?.verified === true && (
-                  <button
-                    className="uk-button primary uk-margin-right"
-                    type="button"
-                    style={{ background: "orange" }}
-                    // onClick={verifyInvoice}
-                  >
-                    Confirm POP upload
-                  </button>
+                  <>
+                    {invoice.confirmed === false && (
+                      <>
+                        <button
+                          className="uk-button primary uk-margin-right"
+                          type="button"
+                          style={{ background: "orange" }}
+                          onClick={confirmInvoice}
+                        >
+                          {confirmInvoiceLoader ? (
+                            <>confirming...</>
+                          ) : (
+                            <>Confirm Invoice</>
+                          )}
+                        </button>
+                      </>
+                    )}
+                    {invoice.confirmed === true && (
+                      <p>Invoice successfully paid</p>
+                    )}
+                  </>
                 )}
                 <button
                   onClick={back}

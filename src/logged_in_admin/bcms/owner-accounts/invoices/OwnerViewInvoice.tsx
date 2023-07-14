@@ -24,11 +24,6 @@ import Loading from "../../../../shared/components/Loading";
 export const OwnerViewInvoice = observer(() => {
   const { store, api } = useAppContext();
   const { propertyId, id, yearId, monthId, invoiceId } = useParams();
-  console.log("🚀invoiceId: ", invoiceId);
-  console.log("🚀monthId: ", monthId);
-  console.log("🚀yearId: ", yearId);
-  console.log("🚀id: ", id);
-  console.log("🚀propertyId: ", propertyId);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -92,6 +87,9 @@ export const OwnerViewInvoice = observer(() => {
   }, [
     api.auth,
     api.body.body,
+    api.body.financialMonth,
+    api.body.financialYear,
+    api.body.invoice,
     api.body.unit,
     id,
     monthId,
