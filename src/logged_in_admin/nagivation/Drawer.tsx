@@ -302,6 +302,14 @@ const OWNER_DRAWER = () => {
                 Invoices
               </NavLink>
             </li>
+            <li>
+              <NavLink to={`finance/recuring-invoices-view`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Recuring Invoices
+              </NavLink>
+            </li>
           </ul>
         </li>
       </ul>

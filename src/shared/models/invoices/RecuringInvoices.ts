@@ -8,6 +8,7 @@ export interface IService {
 export interface IPOP {
   pop: string;
   confirmed: boolean;
+  date: string;
 }
 
 export interface IPaymentDates {
@@ -20,12 +21,13 @@ export interface IRecuringInvoice {
   propertyId: string;
   unitId: string;
   invoiceNumber: string;
-  dateIssued: string;
+  dateIssued: number;
   totalPayment: number;
   services: IService[];
   pop: IPOP[];
   verified: boolean;
   terminate: boolean;
+  dayOfMonth: number;
 }
 
 export const defaultRecuringInvoice: IRecuringInvoice = {
@@ -33,12 +35,14 @@ export const defaultRecuringInvoice: IRecuringInvoice = {
   propertyId: "",
   unitId: "",
   invoiceNumber: "",
-  dateIssued: "",
+  dateIssued: Date.now(),
   totalPayment: 0,
   services: [],
   pop: [],
+
   verified: false,
   terminate: false,
+  dayOfMonth: 0,
 };
 
 export default class RecuringInvoiceModel {

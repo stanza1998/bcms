@@ -1,9 +1,9 @@
 import { observer } from "mobx-react-lite";
-import { useAppContext } from "../../../shared/functions/Context";
+import { useAppContext } from "../../../../shared/functions/Context";
 import { useEffect } from "react";
-import showModalFromId from "../../../shared/functions/ModalShow";
-import DIALOG_NAMES from "../../dialogs/Dialogs";
-import Modal from "../../../shared/components/Modal";
+import showModalFromId from "../../../../shared/functions/ModalShow";
+import DIALOG_NAMES from "../../../dialogs/Dialogs";
+import Modal from "../../../../shared/components/Modal";
 
 export const OwnerAccount = observer(() => {
   const { store, api, ui } = useAppContext();

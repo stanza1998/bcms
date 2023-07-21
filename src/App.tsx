@@ -22,7 +22,7 @@ import { BodyCorperates } from "./logged_in_admin/bcms/bodyCorperates/BodyCorpor
 import Owners from "./logged_in_admin/bcms/bodyCorperates/Owners";
 import { ViewUnit } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/ViewUnits";
 import { UnitInfor } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/UnitInfo";
-import { OwnerAccount } from "./logged_in_admin/bcms/owner-accounts/OwnerAccounts";
+import { OwnerAccount } from "./logged_in_admin/bcms/owner-accounts/invoices/OwnerAccounts";
 import Settings from "./logged_in_admin/profiles/Settings";
 import Departments from "./logged_in_admin/team/departments/Departments";
 import Employees from "./logged_in_admin/team/employees/Employees";
@@ -37,6 +37,7 @@ import { OwnerInvoices } from "./logged_in_admin/bcms/owner-accounts/invoices/Ow
 import { OwnerViewInvoice } from "./logged_in_admin/bcms/owner-accounts/invoices/OwnerViewInvoice";
 import { VerifyInvoice } from "./logged_in_admin/bcms/accounting/invoices/VerifyInvoice";
 import { ViewInvoice } from "./logged_in_admin/bcms/accounting/invoices/ViewInvoice";
+import { OwnerRecuringInvoices } from "./logged_in_admin/bcms/owner-accounts/recuring-invoices/OwnerRecuringInvoices";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -138,6 +139,10 @@ const OWNER_ROUTES = () => {
           <Route
             path={`/c/finance/invoices-view/:propertyId/:id/:yearId/:monthId/:invoiceId`}
             element={<OwnerViewInvoice />}
+          />
+          <Route
+            path={`finance/recuring-invoices-view`}
+            element={<OwnerRecuringInvoices />}
           />
         </Route>
         <Route path="/" element={<SignIn />} />

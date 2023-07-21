@@ -8,6 +8,12 @@ import {
   defaultRecuringInvoice,
 } from "../../../shared/models/invoices/RecuringInvoices";
 
+interface ServiceDetails {
+  description: string;
+  price: number;
+  total: number;
+}
+
 export const RecuringInvoicesDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
@@ -15,6 +21,55 @@ export const RecuringInvoicesDialog = observer(() => {
   const [recuringInovice, setInvoice] = useState<IRecuringInvoice>({
     ...defaultRecuringInvoice,
   });
+
+  // generate invoice number
+
+  const [invoiceNumber, setInvoiceNumber] = useState("");
+
+  useEffect(() => {
+    // Generate the invoice number
+    const generateInvoiceNumber = () => {
+      const randomNumber = Math.floor(Math.random() * 10000); // Generate a random number between 0 and 9999
+      const formattedNumber = randomNumber.toString().padStart(4, "0"); // Pad the number with leading zeros if necessary
+      const generatedInvoiceNumber = `INV000${formattedNumber}`; // Add the prefix "INV" to the number
+      setInvoiceNumber(generatedInvoiceNumber); // Update the state with the generated invoice number
+    };
+
+    generateInvoiceNumber(); // Generate the invoice number when the component mounts
+
+    // Clean up the effect (optional)
+    return () => {
+      // Any cleanup code if necessary
+    };
+  }, []);
+
+  const [details, setDetails] = useState<ServiceDetails[]>([]);
+  const totalPrice = details.reduce((sum, detail) => sum + detail.price, 0);
+
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState(0);
+  const [total, setTotal] = useState(0);
+
+  const addDetails = () => {
+    // Create a new object with the retrieved values
+    const newDetail: ServiceDetails = {
+      description: description,
+      price: price,
+      total: total,
+    };
+
+    // Update the state by adding the new detail to the existing details array
+    setDetails((prevDetails) => [...prevDetails, newDetail]);
+    // Reset the input fields to their initial states
+    setDescription("");
+    setPrice(0);
+    setTotal(0);
+  };
+
+  const totalAmount = details.reduce(
+    (sum, details) => (sum += details.price),
+    0
+  );
 
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,6 +87,10 @@ export const RecuringInvoicesDialog = observer(() => {
           type: "success",
         });
       } else {
+        const total = totalAmount; // Set your desired default year here
+        recuringInovice.totalPayment = total;
+        recuringInovice.services = details;
+        recuringInovice.invoiceNumber = invoiceNumber;
         await api.body.recuringInvoice.create(recuringInovice);
         ui.snackbar.load({
           id: Date.now(),
@@ -49,6 +108,8 @@ export const RecuringInvoicesDialog = observer(() => {
 
     store.bodyCorperate.recuringInvoice.clearSelected();
     setLoading(false);
+    store.bodyCorperate.recuringInvoice.clearSelected();
+    setDetails([]);
     hideModalFromId(DIALOG_NAMES.BODY.RECURING_INVOICE);
   };
 
@@ -77,6 +138,10 @@ export const RecuringInvoicesDialog = observer(() => {
   const handleBodySelectChange = (event: any) => {
     const { value } = event.target;
     setSelectedBodyId(value);
+    setInvoice({
+      ...recuringInovice,
+      propertyId: event.target.value,
+    });
   };
 
   return (
@@ -99,22 +164,33 @@ export const RecuringInvoicesDialog = observer(() => {
             data-uk-grid
           >
             <div>
-              <div className="uk-card uk-card-default uk-card-body" style={{borderRadius:"10px"}}>
+              <div
+                className="uk-card uk-card-default uk-card-body"
+                style={{ borderRadius: "10px" }}
+              >
                 <input
                   type="text"
                   className="uk-input"
                   style={{ width: "50%" }}
                   placeholder="Description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                 />
                 <input
                   type="number"
                   className="uk-input uk-margin-left"
                   style={{ width: "46%" }}
                   placeholder="Price"
+                  value={price}
+                  onChange={(e) => setPrice(Number(e.target.value))}
                 />
-                <button className="uk-button primary uk-margin">
+                <button
+                  className="uk-button primary uk-margin"
+                  onClick={addDetails}
+                >
                   Add to Services
                 </button>
+                <h4>Total Amount: N$ {totalAmount.toFixed(2)}</h4>
                 <table className="uk-table uk-table-small uk-table-divider">
                   <thead>
                     <tr>
@@ -124,11 +200,17 @@ export const RecuringInvoicesDialog = observer(() => {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td></td>
-                      <td className=""></td>
-                      <td className="uk-text-right"></td>
-                    </tr>
+                    {details.map((details, index: number) => (
+                      <tr key={index}>
+                        <td style={{ textTransform: "uppercase" }}>
+                          {details.description}
+                        </td>
+                        <td className="">N$ {details.price.toFixed(2)}</td>
+                        <td className="uk-text-right">
+                          N$ {details.price.toFixed(2)}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -170,7 +252,19 @@ export const RecuringInvoicesDialog = observer(() => {
                       Unit
                     </label>
                     <div className="uk-form-controls">
-                      <select name="" id="" className="uk-input">
+                      <select
+                        name=""
+                        id=""
+                        className="uk-input"
+                        value={recuringInovice.unitId} // Assuming you store the day in the state variable dayOfMonth
+                        onChange={(e) =>
+                          setInvoice({
+                            ...recuringInovice,
+                            unitId: e.target.value,
+                          })
+                        }
+                        required
+                      >
                         <option value="">Select Unit</option>
                         {store.bodyCorperate.unit.all
                           .filter(
@@ -190,22 +284,30 @@ export const RecuringInvoicesDialog = observer(() => {
                       className="uk-form-label"
                       htmlFor="form-stacked-text"
                     >
-                      Total Amount Per given schedule
+                      Date to Auto send invoice to owner
                     </label>
                     <div className="uk-form-controls">
-                      <input
-                        className="uk-input "
-                        type="text"
-                        placeholder="Total Amount"
-                        value={recuringInovice.invoiceNumber}
+                      <select
+                        className="uk-select"
+                        value={recuringInovice.dayOfMonth} // Assuming you store the day in the state variable dayOfMonth
                         onChange={(e) =>
                           setInvoice({
                             ...recuringInovice,
-                            invoiceNumber: e.target.value,
+                            dayOfMonth: Number(e.target.value),
                           })
                         }
                         required
-                      />
+                      >
+                        <option value="">Select Day of the Month</option>
+                        {Array.from(
+                          { length: 31 },
+                          (_, index) => index + 1
+                        ).map((day) => (
+                          <option key={day} value={day}>
+                            {day}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>
@@ -213,7 +315,7 @@ export const RecuringInvoicesDialog = observer(() => {
                   <button className="uk-button secondary uk-modal-close">
                     Cancel
                   </button>
-                  <button className="uk-button primary" type="submit" disabled>
+                  <button className="uk-button primary" type="submit">
                     Save
                     {loading && <div data-uk-spinner="ratio: .5"></div>}
                   </button>

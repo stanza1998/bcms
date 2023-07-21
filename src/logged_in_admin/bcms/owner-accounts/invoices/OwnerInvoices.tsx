@@ -180,54 +180,53 @@ export const OwnerInvoices = observer(() => {
             className="section-heading uk-heading"
             style={{ textTransform: "uppercase" }}
           >
-            My Invoices. Current Date: {currentDate.toLocaleString()}
+            My Invoices
           </h4>
-          <div className="controls">
-            <div className="uk-inline uk-margin-right">
-              <select
-                name=""
-                className="uk-input uk-form-small "
-                id=""
-                onChange={(e) => setFinancialYear(e.target.value)}
-              >
-                <option value="">filter by year</option>
-                {store.bodyCorperate.financialYear.all.map((year) => (
-                  <option value={year.asJson.id} key={year.asJson.id}>
-                    {year.asJson.year}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="controls">Date: {currentDate.toLocaleString()}</div>
+        </div>
+        <div className="uk-inline uk-margin-right">
+          <select
+            name=""
+            className="uk-input uk-form-small "
+            id=""
+            onChange={(e) => setFinancialYear(e.target.value)}
+          >
+            <option value="">filter by year</option>
+            {store.bodyCorperate.financialYear.all.map((year) => (
+              <option value={year.asJson.id} key={year.asJson.id}>
+                {year.asJson.year}
+              </option>
+            ))}
+          </select>
+        </div>
 
-            <div className="uk-inline">
-              <select
-                name=""
-                className="uk-input uk-form-small"
-                id=""
-                onChange={(e) => setFinancialMonth(e.target.value)}
-              >
-                <option value="">filter by month</option>
-                {store.bodyCorperate.financialMonth.all
-                  .filter((month) => month.asJson.yearId === financialYear)
-                  .map((month) => (
-                    <option value={month.asJson.id}>
-                      {month.asJson.month === 1 && <>JAN</>}
-                      {month.asJson.month === 2 && <>FEB</>}
-                      {month.asJson.month === 3 && <>MAR</>}
-                      {month.asJson.month === 4 && <>APR</>}
-                      {month.asJson.month === 5 && <>MAY</>}
-                      {month.asJson.month === 6 && <>JUN</>}
-                      {month.asJson.month === 7 && <>JUL</>}
-                      {month.asJson.month === 8 && <>AUG</>}
-                      {month.asJson.month === 9 && <>SEP</>}
-                      {month.asJson.month === 10 && <>OCT</>}
-                      {month.asJson.month === 11 && <>NOV</>}
-                      {month.asJson.month === 12 && <>DEC</>}
-                    </option>
-                  ))}
-              </select>
-            </div>
-          </div>
+        <div className="uk-inline uk-margin">
+          <select
+            name=""
+            className="uk-input uk-form-small"
+            id=""
+            onChange={(e) => setFinancialMonth(e.target.value)}
+          >
+            <option value="">filter by month</option>
+            {store.bodyCorperate.financialMonth.all
+              .filter((month) => month.asJson.yearId === financialYear)
+              .map((month) => (
+                <option value={month.asJson.id}>
+                  {month.asJson.month === 1 && <>JAN</>}
+                  {month.asJson.month === 2 && <>FEB</>}
+                  {month.asJson.month === 3 && <>MAR</>}
+                  {month.asJson.month === 4 && <>APR</>}
+                  {month.asJson.month === 5 && <>MAY</>}
+                  {month.asJson.month === 6 && <>JUN</>}
+                  {month.asJson.month === 7 && <>JUL</>}
+                  {month.asJson.month === 8 && <>AUG</>}
+                  {month.asJson.month === 9 && <>SEP</>}
+                  {month.asJson.month === 10 && <>OCT</>}
+                  {month.asJson.month === 11 && <>NOV</>}
+                  {month.asJson.month === 12 && <>DEC</>}
+                </option>
+              ))}
+          </select>
         </div>
         <div className="uk-overflow-auto">
           <table className="uk-table uk-table-divider uk-table-small uk-table-responsive">

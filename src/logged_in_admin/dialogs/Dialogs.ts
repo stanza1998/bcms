@@ -16,6 +16,9 @@ const DIALOG_NAMES = {
     RECURING_INVOICE: "invoice-recording",
     OWNER_UNIT_VIEW: "unit-owner-unit-view",
     OWNER_UPLOAD_POP: "owner-upload-pop",
+    VIEW_POP_DETAILS: "view-pop-details",
+    VIEW_SERVICE_DETAILS: "view-service-details",
+    VIEW_RCURRING_INVOICE: "view-recurring-invoices",
   },
 };
 
