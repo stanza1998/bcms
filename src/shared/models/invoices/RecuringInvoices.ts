@@ -9,6 +9,7 @@ export interface IPOP {
   pop: string;
   confirmed: boolean;
   date: string;
+  deletable: true;
 }
 
 export interface IPaymentDates {

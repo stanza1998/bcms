@@ -12,6 +12,9 @@ import {
 } from "../../../../shared/models/invoices/RecuringInvoices";
 import Loading from "../../../../shared/components/Loading";
 import { IUnit, defaultUnit } from "../../../../shared/models/bcms/Units";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../../../shared/database/FirebaseConfig";
+import { SuccessfulAction } from "../../../../shared/models/Snackbar";
 
 export const RecurringInvoices = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -57,6 +60,79 @@ export const RecurringInvoices = observer(() => {
     const unit = store.bodyCorperate.unit.getById(unitId);
     _setUnit(unit?.asJson);
     showModalFromId(DIALOG_NAMES.BODY.VIEW_RCURRING_INVOICE);
+  };
+
+  //pop
+
+  const onViewPOPPanel = (invId: string) => {
+    const invoice = store.bodyCorperate.recuringInvoice.getById(invId);
+    setInv(invoice?.asJson);
+    showModalFromId(DIALOG_NAMES.OWNER.UPLOAD_RECURING_POP);
+  };
+
+  const myInvoices = store.bodyCorperate.recuringInvoice.all.map((inv) => {
+    return inv;
+  });
+
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth() + 1; // JavaScript months are zero-based (0 to 11).
+  const currentYear = currentDate.getFullYear();
+
+  // const isCurrentMonthUploaded = myInvoices.some((pop) =>
+  //   pop.asJson.pop.some((popEntry) => {
+  //     const entryDate = new Date(popEntry.date);
+  //     const entryMonth = entryDate.getMonth() + 1;
+  //     const entryYear = entryDate.getFullYear();
+  //     return entryYear === currentYear && entryMonth === currentMonth;
+  //   })
+  // );
+  const isCurrentMonthUploaded = myInvoices.some(
+    (pop) =>
+      pop.asJson.invoiceId === inv?.invoiceId &&
+      pop.asJson.pop.some((popEntry) => {
+        const entryDate = new Date(popEntry.date);
+        const entryMonth = entryDate.getMonth() + 1;
+        const entryYear = entryDate.getFullYear();
+        return entryYear === currentYear && entryMonth === currentMonth;
+      })
+  );
+
+  //confirm POP
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const confirmPOP = async (index: number) => {
+    if (inv?.invoiceId) {
+      setIsLoading(true);
+      const docRef = doc(db, "RecuringInvoices", inv?.invoiceId);
+
+      // Fetch the document
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        // Get the data of the document
+        const data = docSnap.data();
+
+        // Find the item in the 'pop' array with the given index
+        const popArray = data.pop;
+        const popItem = popArray[index];
+
+        if (popItem) {
+          // Update the 'confirmed' field to true
+          popItem.confirmed = true;
+
+          // Write the changes back to Firestore
+          await updateDoc(docRef, {
+            pop: popArray,
+          });
+          SuccessfulAction(ui);
+        } else {
+          console.log("Invalid index provided or 'pop' array is empty.");
+        }
+      } else {
+        console.log("Document does not exist.");
+      }
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -108,7 +184,12 @@ export const RecurringInvoices = observer(() => {
                 </td>
                 <td>N$ {item.totalPayment.toFixed(2)}</td>
                 <td className="uk-text-right">
-                  <button className="uk-button primary">View POP's</button>
+                  <button
+                    className="uk-button primary"
+                    onClick={() => onViewPOPPanel(item.invoiceId)}
+                  >
+                    View POP's
+                  </button>
                 </td>
                 <td className="uk-text-right">
                   <button
@@ -328,6 +409,111 @@ export const RecurringInvoices = observer(() => {
               <hr />
             </div>
           </div>
+        </div>
+      </Modal>
+      <Modal modalId={DIALOG_NAMES.OWNER.UPLOAD_RECURING_POP}>
+        <div
+          className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical staff-dialog"
+          style={{ width: "100%" }}
+        >
+          <button
+            className="uk-modal-close-default"
+            type="button"
+            data-uk-close
+          ></button>
+          {isLoading && (
+            <span
+              className="uk-margin-small-right"
+              data-uk-spinner="ratio: 1"
+            ></span>
+          )}
+          <h3 className="uk-modal-title">POP Panel {inv?.invoiceNumber}</h3>
+          {isCurrentMonthUploaded ? (
+            <p style={{ color: "green" }}>Current month pop is uploaded.</p>
+          ) : (
+            <p style={{ color: "red" }}>Current month pop is not uploaded.</p>
+          )}
+
+          <table className="uk-table uk-table-divider uk-table-small">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>POP</th>
+                <th>Confirmation</th>
+                <th className="uk-text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {myInvoices
+                .filter((pop) => pop.asJson.invoiceId === inv?.invoiceId)
+                .map((pop) =>
+                  pop.asJson.pop
+                    .filter((pop) => !pop.deletable)
+                    .map((popEntry, index: number) => {
+                      return (
+                        <tr key={index}>
+                          <td>{index}</td>
+                          <td>{popEntry.date}</td>
+                          <td>
+                            <a target="_blank" href={popEntry.pop}>
+                              view
+                            </a>
+                          </td>
+                          <td>
+                            {popEntry.confirmed === false && (
+                              <span
+                                style={{ color: "red", fontSize: "1.5rem" }}
+                                className="uk-margin-small-right"
+                              >
+                                😠
+                              </span>
+                            )}
+                            {popEntry.confirmed === true && (
+                              <span
+                                style={{ color: "green", fontSize: "1.5rem" }}
+                                className="uk-margin-small-right"
+                              >
+                                😀
+                              </span>
+                            )}
+                          </td>
+                          <td className="uk-text-right">
+                            {popEntry.confirmed === true && (
+                              <span
+                                className="uk-button uk-button-default"
+                                data-uk-tooltip="POP Confirmed"
+                                style={{ color: "grey" }}
+                                data-uk-icon="play"
+                              ></span>
+                            )}
+                            {popEntry.confirmed === false && (
+                              <div
+                                className="uk-button uk-button-default"
+                                data-uk-tooltip="Confirm POP"
+                                onClick={() => confirmPOP(index)}
+                              >
+                                <span
+                                  style={{ color: "green" }}
+                                  data-uk-icon="play"
+                                ></span>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
+                )}
+            </tbody>
+          </table>
+          {myInvoices
+            .filter((pop) => pop.asJson.invoiceId === inv?.invoiceId)
+            .map(
+              (pop) =>
+                pop.asJson.pop.map((pop, index) => pop).length === 0 && (
+                  <p>No POP's uploaded for Invoice {inv?.invoiceNumber}</p>
+                )
+            )}
         </div>
       </Modal>
     </div>

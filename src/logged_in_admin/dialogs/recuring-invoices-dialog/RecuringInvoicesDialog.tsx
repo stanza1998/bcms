@@ -190,7 +190,9 @@ export const RecuringInvoicesDialog = observer(() => {
                 >
                   Add to Services
                 </button>
-                <h4>Total Amount: N$ {totalAmount.toFixed(2)}</h4>
+                <h4 className="uk-modal-title">
+                  Total Amount: N$ {totalAmount.toFixed(2)}
+                </h4>
                 <table className="uk-table uk-table-small uk-table-divider">
                   <thead>
                     <tr>
@@ -215,7 +217,7 @@ export const RecuringInvoicesDialog = observer(() => {
                 </table>
               </div>
             </div>
-            <div>
+            <div style={{ borderRadius: "10px" }}>
               <form className="uk-form-stacked" onSubmit={onSave}>
                 <div className="uk-card uk-card-default uk-card-body">
                   <div className="uk-margin">
