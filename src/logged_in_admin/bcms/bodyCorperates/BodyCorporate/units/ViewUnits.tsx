@@ -14,11 +14,21 @@ import showModalFromId, {
 } from "../../../../../shared/functions/ModalShow";
 import { UnitCard } from "./UnitCard";
 import Loading from "../../../../../shared/components/Loading";
+import { collection, doc, setDoc, addDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../../../../shared/database/FirebaseConfig";
+import {
+  FailedAction,
+  SuccessfulAction,
+} from "../../../../../shared/models/Snackbar";
+import { IInvoice } from "../../../../../shared/models/invoices/Invoices";
+import unitIcon from "./assets/unit.svg";
+import GridViewIcon from "@mui/icons-material/GridView";
 
 export const ViewUnit = observer(() => {
   const { store, api, ui } = useAppContext();
   const { propertyId } = useParams();
   const navigate = useNavigate();
+  const [newDate, setNewDate] = useState("");
 
   const [viewBody, setBody] = useState<IBodyCop | undefined>({
     ...defaultBodyCop,
@@ -33,10 +43,28 @@ export const ViewUnit = observer(() => {
         const unit = store.bodyCorperate.bodyCop.getById(propertyId);
         setBody(unit?.asJson);
         await api.body.unit.getAll();
+        await api.body.invoice.getAll();
+        await api.auth.loadAll();
       }
     };
     getData();
-  }, [api.body.body, api.body.unit, propertyId, store.bodyCorperate.bodyCop]);
+  }, [api.auth, api.body.body, api.body.invoice, api.body.unit, propertyId, store.bodyCorperate.bodyCop]);
+
+  const [masterInvoices, setMasterInvoices] = useState<IInvoice[]>([]);
+
+  useEffect(() => {
+    const getData = () => {
+      const masterInvoices = store.bodyCorperate.invoice.all
+        .filter((inv) => inv.asJson.propertyId === propertyId)
+        .map((inv) => {
+          return inv.asJson;
+        });
+      setMasterInvoices(masterInvoices);
+    };
+    getData();
+  }, [propertyId, store.bodyCorperate.invoice.all]);
+
+  console.log("🚀 masterInvoices:", masterInvoices);
 
   const back = () => {
     navigate("/c/body/body-corperate");
@@ -106,10 +134,6 @@ export const ViewUnit = observer(() => {
     resetMaterial();
   };
 
-  const unitInfo = (id: string) => {
-    navigate(`/c/body/body-corperate/${propertyId}/${id}`);
-  };
-
   //filter
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -122,9 +146,64 @@ export const ViewUnit = observer(() => {
     .filter((unit) => unit.asJson.unitName.toString().includes(searchQuery))
     .sort((a, b) => a.asJson.unitName - b.asJson.unitName);
 
+  const [loadingF, setLoadingF] = useState(false);
+
+  const generateInvoiceNumber = () => {
+    const randomNumber = Math.floor(Math.random() * 10000); // Generate a random number between 0 and 9999
+    const formattedNumber = randomNumber.toString().padStart(4, "0"); // Pad the number with leading zeros if necessary
+    const generatedInvoiceNumber = `INV000${formattedNumber}`; // Add the prefix "INV" to the number
+    return generatedInvoiceNumber;
+  };
+
+  const currentDate = new Date();
+
+  //duplicate function
+  const onDupicate = () => {
+    showModalFromId(DIALOG_NAMES.BODY.VIEW_INVOICE);
+  };
+
+  const duplicated = async () => {
+    if (masterInvoices.length > 0) {
+      try {
+        setLoadingF(true);
+        const copiedInvoicesCollection = collection(db, "CopiedInvoices");
+
+        for (const masterInvoice of masterInvoices) {
+          try {
+            const copiedInvoice = { ...masterInvoice };
+            copiedInvoice.invoiceNumber = generateInvoiceNumber();
+            copiedInvoice.dueDate = newDate;
+            copiedInvoice.dateIssued = currentDate.toLocaleString();
+            const newInvoiceRef = doc(copiedInvoicesCollection);
+            await setDoc(newInvoiceRef, copiedInvoice);
+            const generatedDocId = newInvoiceRef.id;
+            copiedInvoice.invoiceId = generatedDocId;
+            await updateDoc(newInvoiceRef, { invoiceId: generatedDocId });
+            console.log("Invoice duplicated and saved:", copiedInvoice);
+          } catch (error) {
+            console.log("Error duplicating invoice:", error);
+            FailedAction(ui);
+          }
+        }
+        setLoadingF(false);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      alert("No master invoices");
+    }
+    hideModalFromId(DIALOG_NAMES.BODY.VIEW_INVOICE);
+    navigate("/c/body/body-corperate");
+    window.location.reload();
+  };
+
   setTimeout(() => {
     setLoadingS(false);
   }, 1000);
+
+  const unitInfo = (id: string) => {
+    navigate(`/c/body/body-corperate/${propertyId}/${id}`);
+  };
 
   return (
     <div className="uk-section leave-analytics-page sales-ViewUnit sales-order">
@@ -142,6 +221,15 @@ export const ViewUnit = observer(() => {
             </p>
             <div className="controls">
               <div className="uk-inline">
+                <span
+                  // onClick={duplicated}
+                  onClick={onDupicate}
+                  data-uk-tooltip="Generate unit-specific invoices from the master invoice for the current month"
+                  style={{ cursor: "pointer" }}
+                  data-uk-icon="copy"
+                  className="uk-margin-right"
+                ></span>
+
                 <button
                   className="uk-button primary uk-margin-right"
                   type="button"
@@ -162,6 +250,7 @@ export const ViewUnit = observer(() => {
           </div>
           <div>
             {/* Search Input */}
+            {loadingF && <h1>Loading...</h1>}
             <input
               type="text"
               name=""
@@ -175,50 +264,79 @@ export const ViewUnit = observer(() => {
 
             {/* Units */}
             <div
-              className="uk-child-width-1-3@m uk-grid-small uk-grid-match"
-              data-uk-grid
+              className="uk-card uk-card-default uk-card-body uk-width-1-1@m"
+              style={{
+                backgroundImage: `url(${unitIcon})`,
+                backgroundPosition: "right",
+                backgroundSize: "35%",
+                backgroundRepeat: "no-repeat",
+              }}
             >
-              {filteredUnits.map((unit) => (
-                <div key={unit.asJson.id} style={{ cursor: "pointer" }}>
-                  <div className="uk-card uk-card-default uk-card-body">
-                    <div className="uk-text-right hov">
-                      <UnitCard key={unit.asJson.id} unit={unit.asJson} />
-                    </div>
-                    <div
-                      onClick={() => unitInfo(unit.asJson.id)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <h3
-                        style={{
-                          fontWeight: "700",
-                          color: "grey",
-                          textTransform: "uppercase",
-                          fontSize: "12px",
-                        }}
-                        className="uk-card-title"
-                      >
-                        Unit {unit.asJson.unitName}
-                      </h3>
-                      <h3
-                        style={{
-                          fontWeight: "700",
-                          color: "grey",
-                          textTransform: "uppercase",
-                          fontSize: "12px",
-                        }}
-                        className="uk-card-title"
-                      >
-                        Owner:{" "}
+              <table className="uk-table uk-table-divider">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Units</th>
+                    <th>Owner Name</th>
+                    <th>Owner Email</th>
+                    <th>Owner Phone</th>
+                    <th className="uk-text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredUnits.map((unit, index) => (
+                    <tr key={unit.asJson.id}>
+                      <td>{index+1}</td>
+                      <td>Unit {unit.asJson.unitName}</td>
+                      <td>
                         {store.user.all
                           .filter(
                             (user) => user.asJson.uid === unit.asJson.ownerId
                           )
                           .map((user) => user.firstName + " " + user.lastName)}
-                      </h3>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                      </td>
+                      <td>
+                        {store.user.all
+                          .filter(
+                            (user) => user.asJson.uid === unit.asJson.ownerId
+                          )
+                          .map((user) => user.firstName)}
+                      </td>
+                      <td>
+                        {store.user.all
+                          .filter(
+                            (user) => user.asJson.uid === unit.asJson.ownerId
+                          )
+                          .map((user) => {
+                            return "+264" + user.cellphone;
+                          })}
+                      </td>
+                      <td className="uk-text-right">
+                        <span
+                          style={{
+                            background: "#000c37",
+                            color: "white",
+                            paddingLeft: "16px",
+                            paddingRight: "20px",
+                            paddingTop: "2px",
+                            paddingBottom: "6px",
+                            borderRadius: "2rem",
+                          }}
+                        >
+                          <UnitCard key={unit.asJson.id} unit={unit.asJson} />
+                          <span
+                            onClick={() => unitInfo(unit.asJson.id)}
+                            style={{ cursor: "pointer" }}
+                          >
+                            {" "}
+                            <GridViewIcon />{" "}
+                          </span>
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -307,6 +425,63 @@ export const ViewUnit = observer(() => {
                   </div>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      </Modal>
+      <Modal modalId={DIALOG_NAMES.BODY.VIEW_INVOICE}>
+        <div
+          className="uk-modal-dialog uk-modal-body margin-auto-vertical"
+          style={{ width: "100%" }}
+        >
+          <button
+            className="uk-modal-close-default"
+            type="button"
+            data-uk-close
+            onClick={clear}
+          ></button>
+          <h3 className="uk-modal-title">
+            Duplicate{" "}
+            {store.bodyCorperate.bodyCop.all
+              .filter((prop) => prop.asJson.id === propertyId)
+              .map((prop) => {
+                return prop.asJson.BodyCopName;
+              })}{" "}
+            invoices from master invoices of each unit below.
+          </h3>
+          {loadingF && <div data-uk-spinner></div>}
+          <div className="uk-child-width-expand@s" data-uk-grid>
+            <div className="uk-grid-item-match">
+              <div>
+                <h4 className="uk-modal-title">Units</h4>
+                {store.bodyCorperate.unit.all
+                  .filter((unit) => unit.asJson.bodyCopId === propertyId)
+                  .map((unit) => (
+                    <ul
+                      className="uk-list uk-list-striped uk-list-small"
+                      key={unit.asJson.id}
+                    >
+                      <li>Unit {unit.asJson.unitName}</li>
+                    </ul>
+                  ))}
+              </div>
+            </div>
+            <div>
+              <h4 className="uk-modal-title">Set New Due Date</h4>
+              <input
+                type="date"
+                className="uk-input "
+                value={newDate}
+                onChange={(e) => setNewDate(e.target.value)}
+              />
+              <button
+                onClick={duplicated}
+                disabled={loadingF}
+                style={{ backgroundColor: loadingF ? "grey" : "" }}
+                className="uk-button primary uk-margin"
+              >
+                Duplicate
+              </button>
             </div>
           </div>
         </div>

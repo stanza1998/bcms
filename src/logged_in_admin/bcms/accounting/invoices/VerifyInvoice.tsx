@@ -3,15 +3,22 @@ import { observer } from "mobx-react-lite";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useAppContext } from "../../../../shared/functions/Context";
-import { IInvoice, IService, defaultInvoice } from "../../../../shared/models/invoices/Invoices";
-import { IBodyCop, defaultBodyCop } from "../../../../shared/models/bcms/BodyCorperate";
+import {
+  IInvoice,
+  IService,
+  defaultInvoice,
+} from "../../../../shared/models/invoices/Invoices";
+import {
+  IBodyCop,
+  defaultBodyCop,
+} from "../../../../shared/models/bcms/BodyCorperate";
 import { IUnit, defaultUnit } from "../../../../shared/models/bcms/Units";
 import Loading from "../../../../shared/components/Loading";
 import { SuccessfulAction } from "../../../../shared/models/Snackbar";
 import { db } from "../../../../shared/database/FirebaseConfig";
+import React from "react";
 
 interface ServiceDetails {
   description: string;
@@ -52,7 +59,7 @@ export const VerifyInvoice = observer(() => {
   }, [invoiceId, store.bodyCorperate.invoice]);
 
   const back = () => {
-    navigate(`/c/body/body-corperate/${propertyId}/${id}/${yearId}/${monthId}`);
+    navigate(`/c/body/body-corperate/${propertyId}/${id}/${yearId}/`);
   };
 
   //
@@ -226,6 +233,19 @@ export const VerifyInvoice = observer(() => {
   };
 
   //verifying invoice
+
+  const message = `We kindly request you to access the
+   invoice for your property, ${viewBody?.BodyCopName}, Unit ${unit?.unitName} ,
+    through our secure system. The invoice number for this transaction is ${invoice?.invoiceNumber}. 
+    To do so, please log in to your account using the link provided. 
+    Your prompt attention to this matter is greatly appreciated. 
+    Should you require any further assistance, please do not hesitate to contact us. 
+    Thank you. <a href="http://localhost:3000/">Login Now<a/>`;
+
+  const subject = "Invoice ";
+  const to = "stanzanarib@gmail.com";
+  const name = "Stanza Narib";
+
   const [verificationLoader, setVerificationLoader] = useState(false);
   const verifyInvoice = async () => {
     if (invoiceId) {
@@ -233,6 +253,8 @@ export const VerifyInvoice = observer(() => {
       const docRef = doc(db, "Invoices", invoiceId);
       const docSnap = await getDoc(docRef);
       await updateDoc(docRef, { verified: true });
+      // send email notification
+      // await api.mail.sendMail(name, to, subject, message, "");
       data();
       SuccessfulAction(ui);
       setVerificationLoader(false);
@@ -242,33 +264,7 @@ export const VerifyInvoice = observer(() => {
     }
   };
 
-  //confirmation loader
-  const [confirmInvoiceLoader, setConfirmInvoiceLoader] = useState(false);
-  const confirmInvoice = async () => {
-    if (invoiceId) {
-      setConfirmInvoiceLoader(true);
-      if (invoice?.pop) {
-        const docRef = doc(db, "Invoices", invoiceId);
-        const docSnap = await getDoc(docRef);
-        await updateDoc(docRef, { confirmed: true });
-        data();
-        SuccessfulAction(ui);
-        setConfirmInvoiceLoader(false);
-      } else if (invoice?.pop === "") {
-        ui.snackbar.load({
-          id: Date.now(),
-          message: "POP not uploaded.",
-          type: "danger",
-        });
-        setConfirmInvoiceLoader(false);
-      }
-    } else {
-      console.log("Material document does not exist");
-      return null;
-    }
-  };
-
-  //laader
+ 
   const [loaderS, setLoaderS] = useState(true);
 
   setTimeout(() => {
@@ -307,16 +303,14 @@ export const VerifyInvoice = observer(() => {
               )}
               {show === false && (
                 <>
-                  {invoice?.verified === false && (
-                    <button
-                      className="uk-button primary uk-margin-right"
-                      type="button"
-                      style={{ background: "#000c37" }}
-                      onClick={showEdit}
-                    >
-                      Edit
-                    </button>
-                  )}
+                  <button
+                    className="uk-button primary uk-margin-right"
+                    type="button"
+                    style={{ background: "#000c37" }}
+                    onClick={showEdit}
+                  >
+                    Edit
+                  </button>
                 </>
               )}
               {invoice?.verified === false && (
@@ -337,7 +331,7 @@ export const VerifyInvoice = observer(() => {
                 <>
                   {invoice.confirmed === false && (
                     <>
-                      <button
+                      {/* <button
                         className="uk-button primary uk-margin-right"
                         type="button"
                         style={{ background: "orange" }}
@@ -348,7 +342,7 @@ export const VerifyInvoice = observer(() => {
                         ) : (
                           <>Confirm Invoice</>
                         )}
-                      </button>
+                      </button> */}
                     </>
                   )}
                   {invoice.confirmed === true && (

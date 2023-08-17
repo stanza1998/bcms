@@ -1,7 +1,8 @@
+import { observer } from "mobx-react-lite";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-const Main = () => {
+const Main = observer(() => {
   const navigate = useNavigate();
 
   const signUp = () => {
@@ -11,6 +12,10 @@ const Main = () => {
   const signIn = () => {
     navigate("/sign-in");
   };
+
+  
+
+
 
   return (
     <div>
@@ -29,6 +34,6 @@ const Main = () => {
       </div>
     </div>
   );
-};
+});
 
 export default Main;

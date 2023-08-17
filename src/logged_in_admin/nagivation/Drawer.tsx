@@ -97,20 +97,20 @@ const ADMIN_DRAWER = () => {
                 Invoices
               </NavLink>
             </li>
-            <li>
+            {/* <li>
               <NavLink to={`accounting/recuring-invoices`} className="navlink">
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
                 Recuring Invoices
               </NavLink>
-            </li>
+            </li> */}
             <li>
               <NavLink to={`accounting/expense-tracking`} className="navlink">
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
-                Expense Tracking
+                Tracking
               </NavLink>
             </li>
           </ul>
@@ -302,14 +302,14 @@ const OWNER_DRAWER = () => {
                 Invoices
               </NavLink>
             </li>
-            <li>
+            {/* <li>
               <NavLink to={`finance/recuring-invoices-view`} className="navlink">
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
                 Recuring Invoices
               </NavLink>
-            </li>
+            </li> */}
           </ul>
         </li>
       </ul>

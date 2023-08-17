@@ -439,20 +439,34 @@ export const OwnerRecuringInvoices = observer(() => {
                         <td>
                           {popEntry.confirmed === false && (
                             <span
-                              style={{ color: "red", fontSize: "1.5rem" }}
+                              style={{
+                                background: "red",
+                                color: "white",
+                                paddingLeft: "10px",
+                                paddingRight: "10px",
+                                paddingTop: "2px",
+                                paddingBottom: "2px",
+                                borderRadius: "2rem",
+                              }}
                               className="uk-margin-small-right"
-                            
                             >
-                              😠
+                              not confirmed
                             </span>
                           )}
                           {popEntry.confirmed === true && (
                             <span
-                              style={{ color: "green", fontSize: "1.5rem" }}
+                              style={{
+                                background: "green",
+                                color: "white",
+                                paddingLeft: "10px",
+                                paddingRight: "10px",
+                                paddingTop: "2px",
+                                paddingBottom: "2px",
+                                borderRadius: "2rem",
+                              }}
                               className="uk-margin-small-right"
-                          
                             >
-                              😀
+                              confirmed
                             </span>
                           )}
                         </td>

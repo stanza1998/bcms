@@ -1,7 +1,7 @@
 import { makeAutoObservable, toJS } from "mobx";
 import AppStore from "../../stores/AppStore";
 
-export const defaultInvoice: IInvoice = {
+export const defaultCopiedInvoice: ICopiedInvoice = {
   invoiceId: "",
   propertyId: "",
   unitId: "",
@@ -17,7 +17,7 @@ export const defaultInvoice: IInvoice = {
   confirmed: false,
   verified: false,
   reminder: false,
-  reminderDate: ""
+  reminderDate: "",
 };
 
 export interface IService {
@@ -25,7 +25,7 @@ export interface IService {
   price: number;
 }
 
-export interface IInvoice {
+export interface ICopiedInvoice {
   invoiceId: string;
   propertyId: string;
   unitId: string;
@@ -44,15 +44,15 @@ export interface IInvoice {
   reminderDate: string;
 }
 
-export default class InvoiceModel {
-  private invoice: IInvoice;
+export default class CopiedInvoiceModel {
+  private invoice: ICopiedInvoice;
 
-  constructor(private store: AppStore, invoice: IInvoice) {
+  constructor(private store: AppStore, invoice: ICopiedInvoice) {
     makeAutoObservable(this);
     this.invoice = invoice;
   }
 
-  get asJson(): IInvoice {
+  get asJson(): ICopiedInvoice {
     return toJS(this.invoice);
   }
 }

@@ -71,6 +71,31 @@ export const RecuringInvoicesDialog = observer(() => {
     0
   );
 
+  const prop = store.bodyCorperate.bodyCop.all
+    .filter((body) => body.asJson.id === recuringInovice.propertyId)
+    .map((body) => {
+      return body.asJson.BodyCopName;
+    });
+  const uni = store.bodyCorperate.unit.all
+    .filter((body) => body.asJson.id === recuringInovice.unitId)
+    .map((body) => {
+      return body.asJson.unitName;
+    });
+
+  const message = `We kindly request you to access the
+   invoice for your property, ${prop}, Unit ${uni} ,
+    through our secure system. The invoice number for this transaction is ${invoiceNumber}. 
+    To do so, please log in to your account using the link provided. 
+    Your prompt attention to this matter is greatly appreciated. 
+    Should you require any further assistance, please do not hesitate to contact us. 
+    Thank you. <a href="http://localhost:3000/">Login Now<a/>`;
+
+  const subject = "Recuring Invoice ";
+  const to = "stanzanarib@gmail.com";
+  const name = "Stanza Narib";
+
+  const currentDate = new Date();
+
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -91,6 +116,7 @@ export const RecuringInvoicesDialog = observer(() => {
         recuringInovice.totalPayment = total;
         recuringInovice.services = details;
         recuringInovice.invoiceNumber = invoiceNumber;
+        recuringInovice.dateIssued = currentDate.toLocaleDateString();
         await api.body.recuringInvoice.create(recuringInovice);
         ui.snackbar.load({
           id: Date.now(),
@@ -111,6 +137,7 @@ export const RecuringInvoicesDialog = observer(() => {
     store.bodyCorperate.recuringInvoice.clearSelected();
     setDetails([]);
     hideModalFromId(DIALOG_NAMES.BODY.RECURING_INVOICE);
+    await api.mail.sendMail(name, to, subject, message, "");
   };
 
   const onClear = () => {
@@ -286,7 +313,7 @@ export const RecuringInvoicesDialog = observer(() => {
                       className="uk-form-label"
                       htmlFor="form-stacked-text"
                     >
-                      Date to Auto send invoice to owner
+                      Monthly payment date.
                     </label>
                     <div className="uk-form-controls">
                       <select

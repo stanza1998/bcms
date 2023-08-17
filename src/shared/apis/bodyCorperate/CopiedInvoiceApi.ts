@@ -3,15 +3,16 @@ import {
   deleteDoc,
   doc,
   getDoc,
+  getDocs,
   onSnapshot,
   query,
   setDoc,
 } from "firebase/firestore";
 import AppApi from "../AppApi";
 import AppStore from "../../stores/AppStore";
-import { IInvoice } from "../../models/invoices/Invoices";
+import { ICopiedInvoice } from "../../models/invoices/CopyInvoices";
 
-export default class InvoiceApi {
+export default class CopiedInvoiceApi {
   collectionRef: CollectionReference;
   constructor(
     private api: AppApi,
@@ -25,34 +26,40 @@ export default class InvoiceApi {
     const q = query(this.collectionRef);
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const items: IInvoice[] = [];
+      const items: ICopiedInvoice[] = [];
       querySnapshot.forEach((doc) => {
-        items.push({ invoiceId: doc.id, ...doc.data() } as IInvoice);
+        items.push({ invoiceId: doc.id, ...doc.data() } as ICopiedInvoice);
       });
 
-      this.store.bodyCorperate.invoice.load(items);
+      this.store.bodyCorperate.copiedInvoices.load(items);
     });
 
     return unsubscribe;
   }
 
+
+
+
   async getInvoice(id: string) {
     const docSnap = await getDoc(doc(this.collectionRef, id));
     if (docSnap.exists()) {
-      const body = { ...docSnap.data(), invoiceId: docSnap.id } as IInvoice;
-      await this.store.bodyCorperate.invoice.load([body]);
+      const body = {
+        ...docSnap.data(),
+        invoiceId: docSnap.id,
+      } as ICopiedInvoice;
+      await this.store.bodyCorperate.copiedInvoices.load([body]);
       return body;
     } else return undefined;
   }
 
-  async create(data: IInvoice) {
+  async create(data: ICopiedInvoice) {
     const docRef = doc(this.collectionRef);
     data.invoiceId = docRef.id;
     await setDoc(docRef, data, { merge: true });
     return data;
   }
 
-  async update(invoice: IInvoice) {
+  async update(invoice: ICopiedInvoice) {
     await setDoc(doc(this.collectionRef, invoice.invoiceId), invoice, {
       merge: true,
     });
@@ -62,10 +69,10 @@ export default class InvoiceApi {
   async delete(id: string) {
     const docRef = doc(this.collectionRef, id);
     await deleteDoc(docRef);
-    this.store.bodyCorperate.invoice.remove(id);
+    this.store.bodyCorperate.copiedInvoices.remove(id);
   }
 
-  // async scheduleReminderEmail(invoice: IInvoice) {
+  // async scheduleReminderEmail(invoice: ICopiedInvoice) {
   //   const { reminderDate } = invoice;
 
   //   if (reminderDate) {
@@ -85,7 +92,7 @@ export default class InvoiceApi {
   //         // };
 
   //         // Call the email-sending function (make sure you have set up nodemailer or another email library)
-  //         await 
+  //         await
 
   //         // After sending the email, you can choose to cancel the scheduled task
   //         // (optional if you want to send the reminder only once)

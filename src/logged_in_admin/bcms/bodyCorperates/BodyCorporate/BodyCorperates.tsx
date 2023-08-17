@@ -9,6 +9,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { CorporateCard } from "./CorporateCard";
 import Loading from "../../../../shared/components/Loading";
 import { PropertyDialog } from "../../../dialogs/property-dialog/PropertyDialog";
+import houseSvg from "./assets/house.svg";
 
 export const BodyCorperates = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -26,10 +27,6 @@ export const BodyCorperates = observer(() => {
 
   const onCreate = () => {
     showModalFromId(DIALOG_NAMES.BODY.BODY_CORPORATE_DIALOG);
-  };
-
-  const viewUnit = (propertyId: string) => {
-    navigate(`/c/body/body-corperate/${propertyId}`);
   };
 
   useEffect(() => {
@@ -84,39 +81,71 @@ export const BodyCorperates = observer(() => {
                 value={searchQuery}
                 onChange={handleSearchChange}
               />
-
               <div
-                className="uk-child-width-1-3@m uk-grid-small uk-grid-match"
-                data-uk-grid
+                className="uk-card uk-card-default uk-card-body uk-width-1-1@m"
+                style={{
+                  backgroundImage: `url(${houseSvg})`,
+                  backgroundPosition: "right",
+                  backgroundSize: "45%",
+                  backgroundRepeat: "no-repeat",
+                }}
               >
-                {filteredBodies.map((body) => (
-                  <div key={body.asJson.id}>
-                    <div className="uk-card uk-card-default uk-card-body">
-                      <div className="uk-text-right hov">
-                        <CorporateCard
-                          key={body.asJson.id}
-                          body={body.asJson}
-                        />
-                      </div>
-                      <div
-                        onClick={() => viewUnit(body.asJson.id)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <p>Body Corporate Name</p>
-                        <h3
-                          style={{
-                            fontWeight: "600",
-                            color: "grey",
-                            textTransform: "uppercase",
-                          }}
-                          className="uk-card-title"
-                        >
-                          {body.asJson.BodyCopName}
-                        </h3>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                <table className="uk-table uk-table uk-table-divider">
+                  <thead>
+                    <tr>
+                      <th>Index</th>
+                      <th>Name</th>
+                      <th>Location</th>
+                      <th>Bank Name</th>
+                      <th>Branch Name</th>
+                      <th>Branch Code</th>
+
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredBodies.map((props, index) => (
+                      <tr key={props.asJson.id}>
+                        <td>
+                          <span>{index}</span>{" "}
+                        </td>
+                        <td>
+                          <span>{props.asJson.BodyCopName}</span>{" "}
+                        </td>
+                        <td>
+                          <span>{props.asJson.location}</span>{" "}
+                        </td>
+                        <td>
+                          <span>{props.asJson.bankName}</span>{" "}
+                        </td>
+                        <td>
+                          <span>{props.asJson.branchName}</span>{" "}
+                        </td>
+                        <td>
+                          <span>{props.asJson.branchCode}</span>{" "}
+                        </td>
+                        <td style={{ zIndex: "-1" }}>
+                          <span
+                            style={{
+                              background: "#000c37",
+                              color: "white",
+                              paddingLeft: "16px",
+                              paddingRight: "0px",
+                              paddingTop: "2px",
+                              paddingBottom: "6px",
+                              borderRadius: "2rem",
+                            }}
+                          >
+                            <CorporateCard
+                              key={props.asJson.id}
+                              body={props.asJson}
+                            />
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>

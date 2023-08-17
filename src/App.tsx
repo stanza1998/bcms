@@ -27,8 +27,8 @@ import Settings from "./logged_in_admin/profiles/Settings";
 import Departments from "./logged_in_admin/team/departments/Departments";
 import Employees from "./logged_in_admin/team/employees/Employees";
 import { Meetings } from "./logged_in_admin/bcms/meetings/Meetings";
-import { UnitYear } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/UnitYear";
-import { UnitMonth } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/UnitMonth";
+// import { UnitYear } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/UnitYear";
+// import { UnitMonth } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/UnitMonth";
 import { Invoices } from "./logged_in_admin/bcms/accounting/invoices/Invoices";
 import { RecurringInvoices } from "./logged_in_admin/bcms/accounting/recuring-invoices/RecuringInvoices";
 import { ExpenseTracking } from "./logged_in_admin/bcms/accounting/expense-tracking/ExpenseTracking";
@@ -38,6 +38,8 @@ import { OwnerViewInvoice } from "./logged_in_admin/bcms/owner-accounts/invoices
 import { VerifyInvoice } from "./logged_in_admin/bcms/accounting/invoices/VerifyInvoice";
 import { ViewInvoice } from "./logged_in_admin/bcms/accounting/invoices/ViewInvoice";
 import { OwnerRecuringInvoices } from "./logged_in_admin/bcms/owner-accounts/recuring-invoices/OwnerRecuringInvoices";
+import { UnitDetails } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/UnitDetails";
+import { CopiedInvoices } from "./logged_in_admin/bcms/accounting/invoices/CopiedInvoices";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -93,19 +95,19 @@ const ADMIN_USER_ROUTES = () => {
 
           <Route
             path={`/c/body/body-corperate/:propertyId/:id/:yearId`}
-            element={<UnitYear />}
+            element={<UnitDetails />}
           />
           <Route
-            path={`/c/body/body-corperate/:propertyId/:id/:yearId/:monthId`}
-            element={<UnitMonth />}
+            path={`/c/body/body-corperate/copied/:propertyId/:id/:yearId/:invoiceId`}
+            element={<CopiedInvoices />}
           />
 
           <Route
-            path={`/c/body/body-corperate/:propertyId/:id/:yearId/:monthId/:invoiceId`}
+            path={`/c/body/body-corperate/:propertyId/:id/:yearId/:invoiceId`}
             element={<VerifyInvoice />}
           />
           <Route
-            path={`/c/body/body-corperate/:propertyId/:id/:yearId/:monthId/:invoiceId/accounting-view`}
+            path={`/c/body/body-corperate/:propertyId/:id/:yearId/:invoiceId/accounting-view`}
             element={<ViewInvoice />}
           />
 

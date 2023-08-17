@@ -22,7 +22,7 @@ export interface IRecuringInvoice {
   propertyId: string;
   unitId: string;
   invoiceNumber: string;
-  dateIssued: number;
+  dateIssued: string;
   totalPayment: number;
   services: IService[];
   pop: IPOP[];
@@ -36,7 +36,7 @@ export const defaultRecuringInvoice: IRecuringInvoice = {
   propertyId: "",
   unitId: "",
   invoiceNumber: "",
-  dateIssued: Date.now(),
+  dateIssued: "",
   totalPayment: 0,
   services: [],
   pop: [],

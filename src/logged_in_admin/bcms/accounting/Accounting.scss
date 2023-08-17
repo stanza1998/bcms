@@ -1,0 +1,21 @@
+.accounting {
+  .uk-card {
+    border-radius: 5px;
+    background-color: #000c37;
+  }
+  .uk-card-extra {
+    border-radius: 5px;
+    background-color: lightgrey;
+  }
+  .uk-card-title {
+    text-transform: uppercase;
+    font-weight: 700;
+    color: white;
+    font-size: 14px;
+  }
+  .uk-value {
+    font-size: 12px;
+    font-weight: 800;
+    color: white;
+  }
+}

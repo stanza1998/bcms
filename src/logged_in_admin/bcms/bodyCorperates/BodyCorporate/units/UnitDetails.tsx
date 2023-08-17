@@ -1,125 +1,70 @@
 import { observer } from "mobx-react-lite";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAppContext } from "../../../../../shared/functions/Context";
 import { useEffect, useState } from "react";
-import { IUnit, defaultUnit } from "../../../../../shared/models/bcms/Units";
-import { useNavigate, useParams } from "react-router-dom";
-import {
-  IFinancialYear,
-  defaultFinancialYear,
-} from "../../../../../shared/models/yearModels/FinancialYear";
-import {
-  IFinancialMonth,
-  defaultFinancialMonth,
-} from "../../../../../shared/models/monthModels/FinancialMonth";
-import Loading from "../../../../../shared/components/Loading";
-import folder from "./assets/folder (3).png";
 import {
   IBodyCop,
   defaultBodyCop,
 } from "../../../../../shared/models/bcms/BodyCorperate";
+import { IUnit, defaultUnit } from "../../../../../shared/models/bcms/Units";
+import {
+  IFinancialYear,
+  defaultFinancialYear,
+} from "../../../../../shared/models/yearModels/FinancialYear";
+import { Tab } from "../../../../../Tab";
 import showModalFromId, {
   hideModalFromId,
 } from "../../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../../../dialogs/Dialogs";
-import Modal from "../../../../../shared/components/Modal";
-import {
-  IInvoice,
-  defaultInvoice,
-} from "../../../../../shared/models/invoices/Invoices";
+import { IInvoice } from "../../../../../shared/models/invoices/Invoices";
 import { collection, doc, setDoc } from "firebase/firestore";
 import { db } from "../../../../../shared/database/FirebaseConfig";
 import { SuccessfulAction } from "../../../../../shared/models/Snackbar";
+import Modal from "../../../../../shared/components/Modal";
+import { IconButton } from "@mui/material";
+import { GridColDef } from "@mui/x-data-grid";
+import { ICopiedInvoice } from "../../../../../shared/models/invoices/CopyInvoices";
 
-export const UnitMonth = observer(() => {
-  const { store, api, ui } = useAppContext();
-  const { propertyId, id, yearId, monthId } = useParams();
+export const UnitDetails = observer(() => {
+  const { propertyId, id, yearId } = useParams();
   const navigate = useNavigate();
-
-  const [info, setInfo] = useState<IUnit | undefined>({
-    ...defaultUnit,
-  });
-
-  useEffect(() => {
-    const getData = async () => {
-      if (!id) {
-        window.alert("Cannot find ");
-      } else {
-        const unit = store.bodyCorperate.unit.getById(id);
-        setInfo(unit?.asJson);
-        await api.auth.loadAll();
-      }
-    };
-    getData();
-  }, [api.auth, api.body.body, api.body.unit, id, store.bodyCorperate.unit]);
+  const { store, api } = useAppContext();
 
   const [property, setProperty] = useState<IBodyCop | undefined>({
     ...defaultBodyCop,
   });
-
-  useEffect(() => {
-    const getData = async () => {
-      if (!propertyId) {
-        window.alert("Cannot find ");
-      } else {
-        const unit = store.bodyCorperate.bodyCop.getById(propertyId);
-        setProperty(unit?.asJson);
-        await api.auth.loadAll();
-      }
-    };
-    getData();
-  }, [api.auth, store.bodyCorperate.bodyCop, propertyId]);
-
+  const [info, setInfo] = useState<IUnit | undefined>({
+    ...defaultUnit,
+  });
   const [year, setYear] = useState<IFinancialYear | undefined>({
     ...defaultFinancialYear,
   });
 
   useEffect(() => {
     const getData = async () => {
-      if (!yearId) {
+      if (!propertyId || !id || !yearId) {
         window.alert("Cannot find ");
       } else {
-        const unit = store.bodyCorperate.financialYear.getById(yearId);
-        setYear(unit?.asJson);
+        const unit = store.bodyCorperate.bodyCop.getById(propertyId);
+        setProperty(unit?.asJson);
+        const info = store.bodyCorperate.unit.getById(id);
+        setInfo(info?.asJson);
+        const year = store.bodyCorperate.financialYear.getById(yearId);
+        setYear(year?.asJson);
         await api.auth.loadAll();
       }
     };
     getData();
-  }, [api.auth, store.bodyCorperate.financialYear, yearId]);
+  }, [
+    api.auth,
+    id,
+    propertyId,
+    store.bodyCorperate.bodyCop,
+    store.bodyCorperate.financialYear,
+    store.bodyCorperate.unit,
+    yearId,
+  ]);
 
-  const [month, setMonth] = useState<IFinancialMonth | undefined>({
-    ...defaultFinancialMonth,
-  });
-
-  useEffect(() => {
-    const getData = async () => {
-      if (!monthId) {
-        window.alert("Cannot find ");
-      } else {
-        const unit = store.bodyCorperate.financialMonth.getById(monthId);
-        setMonth(unit?.asJson);
-        await api.auth.loadAll();
-      }
-    };
-    getData();
-  }, [api.auth, monthId, store.bodyCorperate.financialMonth]);
-
-  const [laoderS, setLoaderS] = useState(true);
-
-  setTimeout(() => {
-    setLoaderS(false);
-  }, 1000);
-
-  //tabs
-  const [activeTab, setActiveTab] = useState("unitFinance");
-
-  const handleTabClick = (tabName: string) => {
-    setActiveTab(tabName);
-  };
-
-  // navigate tabls
-  const back = () => {
-    navigate(`/c/body/body-corperate/${propertyId}/${id}/${yearId}`);
-  };
   const backToYear = () => {
     navigate(`/c/body/body-corperate/${propertyId}/${id}`);
   };
@@ -130,287 +75,66 @@ export const UnitMonth = observer(() => {
     navigate(`/c/body/body-corperate`);
   };
 
+  //
+  const [activeTab, setActiveTab] = useState("Invoicing");
+
+  const handleTabClick = (tabLabel: string) => {
+    setActiveTab(tabLabel);
+  };
+
   return (
     <div className="uk-section leave-analytics-page">
-      {laoderS ? (
-        <Loading />
-      ) : (
-        <div className="uk-container uk-container-large">
-          <div className="section-toolbar uk-margin">
-            <p
-              className="section-heading uk-heading"
-              style={{ textTransform: "uppercase" }}
-            >
-              <span onClick={backToProperty} style={{ cursor: "pointer" }}>
-                {" "}
-                {property?.BodyCopName}{" "}
-              </span>{" "}
-              /{" "}
-              <span onClick={backToUnit} style={{ cursor: "pointer" }}>
-                {" "}
-                Unit {info?.unitName}{" "}
-              </span>{" "}
-              / <span> Financial Records / </span>
-              <span onClick={backToYear} style={{ cursor: "pointer" }}>
-                {" "}
-                {year?.year}{" "}
-              </span>{" "}
-              /
-              <span onClick={back} style={{ cursor: "pointer" }}>
-                {month?.month === 1 && <>JAN</>}
-                {month?.month === 2 && <>FEB</>}
-                {month?.month === 3 && <>MAR</>}
-                {month?.month === 4 && <>APR</>}
-                {month?.month === 5 && <>MAY</>}
-                {month?.month === 6 && <>JUN</>}
-                {month?.month === 7 && <>JUL</>}
-                {month?.month === 8 && <>AUG</>}
-                {month?.month === 9 && <>SEP</>}
-                {month?.month === 10 && <>OCT</>}
-                {month?.month === 11 && <>NOV</>}
-                {month?.month === 12 && <>DEC</>}
-              </span>
-            </p>
-            <div className="controls">
-              <div className="uk-inline">
-                <button
-                  onClick={back}
-                  className="uk-button primary"
-                  type="button"
-                >
-                  Back
-                </button>
-              </div>
+      <div className="uk-container uk-container-large">
+        <div className="section-toolbar uk-margin">
+          <p
+            className="section-heading uk-heading"
+            style={{ textTransform: "uppercase" }}
+          >
+            <span onClick={backToProperty} style={{ cursor: "pointer" }}>
+              {" "}
+              {property?.BodyCopName}{" "}
+            </span>{" "}
+            /{" "}
+            <span onClick={backToUnit} style={{ cursor: "pointer" }}>
+              {" "}
+              Unit {info?.unitName}{" "}
+            </span>{" "}
+            / <span> Financial Records / </span>
+            <span onClick={backToYear} style={{ cursor: "pointer" }}>
+              {" "}
+              {year?.year}{" "}
+            </span>
+          </p>
+          <div className="controls">
+            <div className="uk-inline">
+              <button
+                className="uk-button primary"
+                type="button"
+                onClick={backToYear}
+              >
+                back
+              </button>
             </div>
           </div>
+        </div>
+        <div className="uk-margin">
           <div>
-            <button
-              className={`uk-button primary uk-margin-right ${
-                activeTab === "unitFinance" ? "active" : ""
-              }`}
-              onClick={() => handleTabClick("unitFinance")}
-            >
-              Unit Finance Dashboard
-            </button>
-            <button
-              className={`uk-button primary uk-margin-right ${
-                activeTab === "invoicing" ? "active" : ""
-              }`}
-              onClick={() => handleTabClick("invoicing")}
-            >
-              Invoicing
-            </button>
-            <button
-              className={`uk-button primary uk-margin-right ${
-                activeTab === "expenseTracking" ? "active" : ""
-              }`}
-              onClick={() => handleTabClick("expenseTracking")}
-            >
-              Expense Tracking
-            </button>
-            <button
-              className={`uk-button primary uk-margin-right ${
-                activeTab === "audit" ? "active" : ""
-              }`}
-              onClick={() => handleTabClick("audit")}
-            >
-              Audit
-            </button>
-          </div>
-
-          <div className="uk-margin">
-            {activeTab === "unitFinance" && (
-              // Content for Unit Finance Dashboard tab
-              <div>
-                <UnitMiniDashboard />
-              </div>
-            )}
-
-            {activeTab === "invoicing" && (
-              // Content for Invoicing tab
-              <div>
-                <Invoicing />
-              </div>
-            )}
-
-            {activeTab === "expenseTracking" && (
-              // Content for Expense Tracking tab
-              <div>
-                <ExpenseTracking />
-              </div>
-            )}
-
-            {activeTab === "audit" && (
-              // Content for Audit tab
-              <div>
-                <Audit />
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-});
-
-const UnitMiniDashboard = observer(() => {
-  const { store, api, ui } = useAppContext();
-  const { propertyId, id, yearId, monthId } = useParams();
-
-  useEffect(() => {
-    const getData = async () => {
-      await api.body.invoice.getAll();
-    };
-    getData();
-  }, [api.body.invoice]);
-
-  const totalInvoices = store.bodyCorperate.invoice.all
-    .filter(
-      (inv) =>
-        inv.asJson.yearId === yearId &&
-        inv.asJson.monthId === monthId &&
-        inv.asJson.propertyId === propertyId &&
-        inv.asJson.unitId === id
-    )
-    .map((inv) => inv).length;
-
-  const totalNotPaid = store.bodyCorperate.invoice.all
-    .filter(
-      (inv) =>
-        inv.asJson.yearId === yearId &&
-        inv.asJson.monthId === monthId &&
-        inv.asJson.propertyId === propertyId &&
-        inv.asJson.unitId === id &&
-        inv.asJson.confirmed === false
-    )
-    .map((inv) => inv).length;
-
-  const totalPaid = store.bodyCorperate.invoice.all
-    .filter(
-      (inv) =>
-        inv.asJson.yearId === yearId &&
-        inv.asJson.monthId === monthId &&
-        inv.asJson.propertyId === propertyId &&
-        inv.asJson.unitId === id &&
-        inv.asJson.confirmed === true
-    )
-    .map((inv) => inv).length;
-
-  return (
-    <div className="dashboard">
-      <h3
-        style={{ textTransform: "uppercase", color: "grey", fontWeight: "600" }}
-      >
-        Unit Finance Dashboard
-      </h3>
-
-      <h5
-        style={{ textTransform: "uppercase", color: "grey", fontWeight: "500" }}
-      >
-        Invoicing
-      </h5>
-      <div
-        className="uk-child-width-1-3@m uk-grid-small uk-grid-match"
-        data-uk-grid
-      >
-        <div>
-          <div className="uk-card uk-card-primary uk-card-body">
-            <h3 className="uk-card-title">{totalInvoices}</h3>
-            <p
-              style={{
-                textTransform: "uppercase",
-                color: "black",
-                fontSize: "14px",
-                fontWeight: "400",
-              }}
-            >
-              Total Invoices
-            </p>
-          </div>
-        </div>
-        <div>
-          <div className="uk-card uk-card-primary uk-card-body">
-            <h3 className="uk-card-title">{totalNotPaid}</h3>
-            <p
-              style={{
-                textTransform: "uppercase",
-                color: "black",
-                fontSize: "14px",
-                fontWeight: "400",
-              }}
-            >
-              Outstanding Invoices
-            </p>
-          </div>
-        </div>
-        <div>
-          <div className="uk-card uk-card-primary uk-card-body">
-            <h3 className="uk-card-title">{totalPaid}</h3>
-            <p
-              style={{
-                textTransform: "uppercase",
-                color: "black",
-                fontSize: "14px",
-                fontWeight: "400",
-              }}
-            >
-              Paid Invoices
-            </p>
-          </div>
-        </div>
-      </div>
-      <h5
-        style={{ textTransform: "uppercase", color: "grey", fontWeight: "500" }}
-      >
-        Expense Tracking
-      </h5>
-      <div
-        className="uk-child-width-1-3@m uk-grid-small uk-grid-match"
-        data-uk-grid
-      >
-        <div>
-          <div className="uk-card uk-card-primary uk-card-body">
-            <h3 className="uk-card-title">0</h3>
-            <p
-              style={{
-                textTransform: "uppercase",
-                color: "black",
-                fontSize: "14px",
-                fontWeight: "400",
-              }}
-            >
-              Total Expenses
-            </p>
-          </div>
-        </div>
-        <div>
-          <div className="uk-card uk-card-primary uk-card-body">
-            <h3 className="uk-card-title">0</h3>
-            <p
-              style={{
-                textTransform: "uppercase",
-                color: "black",
-                fontSize: "14px",
-                fontWeight: "400",
-              }}
-            >
-              Expense Categories
-            </p>
-          </div>
-        </div>
-        <div>
-          <div className="uk-card uk-card-primary uk-card-body">
-            <h3 className="uk-card-title">0</h3>
-            <p
-              style={{
-                textTransform: "uppercase",
-                color: "black",
-                fontSize: "14px",
-                fontWeight: "400",
-              }}
-            >
-              Outstanding Payments
-            </p>
+            <div className="uk-margin">
+              <Tab
+                label="Invoicing Overview"
+                isActive={activeTab === "Invoicing"}
+                onClick={() => handleTabClick("Invoicing")}
+              />
+              <Tab
+                label="Expense Tracking Overview"
+                isActive={activeTab === "Expense"}
+                onClick={() => handleTabClick("Expense")}
+              />
+            </div>
+            <div className="tab-content">
+              {activeTab === "Invoicing" && <Invoicing />}
+              {activeTab === "Expense" && <Expense />}
+            </div>
           </div>
         </div>
       </div>
@@ -470,13 +194,10 @@ const Invoicing = observer(() => {
   const [year, setYear] = useState<IFinancialYear | undefined>({
     ...defaultFinancialYear,
   });
-  const [month, setMonth] = useState<IFinancialMonth | undefined>({
-    ...defaultFinancialMonth,
-  });
 
   useEffect(() => {
     const getData = async () => {
-      if (!propertyId || !id || !yearId || !monthId) {
+      if (!propertyId || !id || !yearId) {
         window.alert("Cannot find ");
       } else {
         await api.body.body.getAll();
@@ -484,8 +205,6 @@ const Invoicing = observer(() => {
         setBody(property?.asJson);
         const unit = store.bodyCorperate.unit.getById(id);
         setUnit(unit?.asJson);
-        const month = store.bodyCorperate.financialMonth.getById(monthId);
-        setMonth(month?.asJson);
         const year = store.bodyCorperate.financialYear.getById(yearId);
         setYear(year?.asJson);
         await api.body.unit.getAll();
@@ -499,7 +218,6 @@ const Invoicing = observer(() => {
     monthId,
     propertyId,
     store.bodyCorperate.bodyCop,
-    store.bodyCorperate.financialMonth,
     store.bodyCorperate.financialYear,
     store.bodyCorperate.unit,
     yearId,
@@ -544,7 +262,6 @@ const Invoicing = observer(() => {
       propertyId: propertyId || "",
       unitId: id || "",
       yearId: yearId || "",
-      monthId: monthId || "",
       invoiceNumber: invoiceNumber,
       dateIssued: currentDate.toLocaleString(),
       dueDate: selectedDate,
@@ -554,6 +271,9 @@ const Invoicing = observer(() => {
       pop: "",
       confirmed: false,
       verified: false,
+      monthId: "",
+      reminder: false,
+      reminderDate: "",
     };
 
     const docRef = doc(collection(db, "Invoices"));
@@ -566,15 +286,15 @@ const Invoicing = observer(() => {
     SuccessfulAction(ui);
   };
 
-  
   // get inivoice data
 
   useEffect(() => {
     const getInvoice = async () => {
       await api.body.invoice.getAll();
+      await api.body.copiedInvoice.getAll();
     };
     getInvoice();
-  }, [api.body.invoice]);
+  }, [api.body.copiedInvoice, api.body.invoice]);
 
   const [inv, setInv] = useState<IInvoice[]>([]);
 
@@ -589,21 +309,40 @@ const Invoicing = observer(() => {
     setInv(inv);
   };
 
-  const [status, setStatus] = useState(false);
+  const onViewInvoiceCopied = async (invoice: string) => {
+    const inv = store.bodyCorperate.copiedInvoices.all
+      .filter((inv) => inv.asJson.invoiceId === invoice)
+      .map((inv) => {
+        return inv.asJson;
+      });
 
-  const pending = () => {
-    setStatus(false);
+    showModalFromId(DIALOG_NAMES.BODY.VIEW_RCURRING_INVOICE);
+    setInv(inv);
   };
-  const paid = () => {
-    setStatus(true);
-  };
+
+  const [status, setStatus] = useState(false);
 
   // verify invoice
   const verifyInvoice = (invoiceId: string) => {
     navigate(
-      `/c/body/body-corperate/${propertyId}/${id}/${yearId}/${monthId}/${invoiceId}`
+      `/c/body/body-corperate/${propertyId}/${id}/${yearId}/${invoiceId}`
     );
   };
+  const verifyInvoiceCopied = (invoiceId: string) => {
+    navigate(
+      `/c/body/body-corperate/copied/${propertyId}/${id}/${yearId}/${invoiceId}`
+    );
+  };
+
+  const maxValue = store.bodyCorperate.invoice.all
+    .filter(
+      (invoice) =>
+        invoice.asJson.propertyId === propertyId &&
+        invoice.asJson.unitId === id &&
+        invoice.asJson.yearId === yearId &&
+        invoice.asJson.confirmed === status
+    )
+    .map((invoice) => invoice).length;
 
   return (
     <div>
@@ -612,42 +351,32 @@ const Invoicing = observer(() => {
           className="section-heading uk-heading"
           style={{ textTransform: "uppercase" }}
         >
-          Invoicing
+          Master Invoice
         </h5>
         <div className="controls">
           <div className="uk-inline">
             <button
               className="uk-button primary uk-text-left uk-align-left"
               onClick={createInvoice}
-              style={{ background: "#000c37" }}
+              disabled={maxValue === 1}
+              style={{ background: maxValue ? "grey" : "#000c37" }}
             >
-              Create Invoice
+              Create Master Invoice
             </button>
           </div>
         </div>
       </div>
-
-      <div className="uk-margin uk-grid-small uk-child-width-auto uk-grid uk-margin-left">
-        <button className="uk-button primary uk-margin-right" onClick={pending}>
-          Pending
-        </button>
-        <button className="uk-button primary" onClick={paid}>
-          Paid
-        </button>
-      </div>
-
-      <div>
+      <div className="uk-card uk-card-default uk-card-body uk-width-1-1@m">
         <table className="uk-table uk-table-small uk-table-divider">
           <thead>
             <tr>
-              <th>Property Name</th>
-              <th>Unit</th>
               <th>Invoice Number</th>
-              <th>Year</th>
-              <th>Month</th>
+              <th>Financial Year</th>
+              <th>Date Issued</th>
+              <th>Due Date</th>
               <th>Verification status</th>
-              <th>Confirm POP Upload</th>
-              <th>Action</th>
+              {/* <th>Confirm POP Upload</th> */}
+              <th className="uk-text-right">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -657,29 +386,14 @@ const Invoicing = observer(() => {
                   invoice.asJson.propertyId === propertyId &&
                   invoice.asJson.unitId === id &&
                   invoice.asJson.yearId === yearId &&
-                  invoice.asJson.monthId === monthId &&
                   invoice.asJson.confirmed === status
               )
               .map((invoice) => (
                 <tr key={invoice.asJson.invoiceId}>
-                  <td>{viewBody?.BodyCopName}</td>
-                  <td>{`Unit ${unit?.unitName}`}</td>
                   <td>{invoice.asJson.invoiceNumber}</td>
                   <td>{year?.year}</td>
-                  <td>
-                    {month?.month === 1 && <>JAN</>}
-                    {month?.month === 2 && <>FEB</>}
-                    {month?.month === 3 && <>MAR</>}
-                    {month?.month === 4 && <>APR</>}
-                    {month?.month === 5 && <>MAY</>}
-                    {month?.month === 6 && <>JUN</>}
-                    {month?.month === 7 && <>JUL</>}
-                    {month?.month === 8 && <>AUG</>}
-                    {month?.month === 9 && <>SEP</>}
-                    {month?.month === 10 && <>OCT</>}
-                    {month?.month === 11 && <>NOV</>}
-                    {month?.month === 12 && <>DEC</>}
-                  </td>
+                  <td>{invoice.asJson.dateIssued}</td>
+                  <td>{invoice.asJson.dueDate}</td>
                   <td>
                     {invoice.asJson.verified === false && (
                       <span style={{ color: "orange" }}>
@@ -690,17 +404,8 @@ const Invoicing = observer(() => {
                       <span style={{ color: "green" }}>verified</span>
                     )}
                   </td>
-                  <td>
-                    {invoice.asJson.confirmed === false && (
-                      <span style={{ color: "orange" }}>
-                        waiting for confirmation
-                      </span>
-                    )}
-                    {invoice.asJson.confirmed === true && (
-                      <span style={{ color: "green" }}>POP confirmed</span>
-                    )}
-                  </td>
-                  <td>
+
+                  <td className="uk-text-right">
                     <button
                       className="uk-button primary uk-margin-right"
                       onClick={() => onViewInvoice(invoice.asJson.invoiceId)}
@@ -730,16 +435,61 @@ const Invoicing = observer(() => {
                       </>
                     )}
                   </td>
-                  <td>
-                    {invoice.asJson.pop && (
-                      <a target="blank" href={invoice.asJson.pop}>
-                        <span
-                          data-uk-tooltip="view POP"
-                          style={{ color: "green" }}
-                          data-uk-icon="icon: file-text; ratio: 1"
-                        ></span>
-                      </a>
-                    )}
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
+      {/* copied invoices */}
+      <h6
+        className="section-heading uk-heading"
+        style={{ textTransform: "uppercase", fontWeight: "600" }}
+      >
+        Invoices
+      </h6>
+      <div className="uk-card uk-card-default uk-card-body uk-width-1-1@m">
+        <table className="uk-table uk-table-small uk-table-divider">
+          <thead>
+            <tr>
+              <th>Invoice Number</th>
+              <th>Financial Year</th>
+              <th>Date Issued</th>
+              <th>Due Date</th>
+              <th className="uk-text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {store.bodyCorperate.copiedInvoices.all
+              .sort(
+                (a, b) =>
+                  new Date(b.asJson.dateIssued).getTime() -
+                  new Date(a.asJson.dateIssued).getTime()
+              )
+              .filter((inv) => inv.asJson.unitId === id)
+              .map((invoice) => (
+                <tr key={invoice.asJson.invoiceId}>
+                  <td>{invoice.asJson.invoiceNumber}</td>
+                  <td>{year?.year}</td>
+                  <td>{invoice.asJson.dateIssued}</td>
+                  <td>{invoice.asJson.dueDate}</td>
+                  <td className="uk-text-right">
+                    <button
+                      className="uk-button primary uk-margin-right"
+                      onClick={() =>
+                        onViewInvoiceCopied(invoice.asJson.invoiceId)
+                      }
+                    >
+                      View More
+                    </button>
+                    <button
+                      className="uk-button primary"
+                      style={{ background: "orange" }}
+                      onClick={() =>
+                        verifyInvoiceCopied(invoice.asJson.invoiceId)
+                      }
+                    >
+                      View Invoice
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -915,8 +665,156 @@ const Invoicing = observer(() => {
           </div>
         </div>
       </Modal>
-
       <Modal modalId={DIALOG_NAMES.BODY.VIEW_INVOICE}>
+        <div
+          className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical"
+          style={{ width: "70%" }}
+        >
+          <button
+            className="uk-modal-close-default"
+            type="button"
+            data-uk-close
+          ></button>
+
+          {inv.map((inv) => (
+            <>
+              <h3 className="uk-modal-title">Invoice Details</h3>
+              <div
+                className="uk-child-width-1-2@m uk-grid-small uk-grid-match"
+                data-uk-grid
+              >
+                <div>
+                  <div className="uk-card-body">
+                    <p
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Property Name: {viewBody?.BodyCopName}
+                    </p>
+                    <p
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      location: {viewBody?.location}
+                    </p>
+
+                    <p
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Unit: {unit?.unitName}
+                    </p>
+                    <p
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Owner:{" "}
+                      {store.user.all
+                        .filter((u) => u.asJson.uid === unit?.ownerId)
+                        .map((u) => {
+                          return u.asJson.firstName + " " + u.asJson.lastName;
+                        })}
+                    </p>
+                  </div>
+                </div>
+                <div>
+                  <div className="uk-card-body">
+                    <p
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        textAlign: "end",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Invoice Number: {inv.invoiceNumber}
+                    </p>
+                    <p
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        textAlign: "end",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Date: {inv.dateIssued.toLocaleString()}
+                    </p>
+                    <p
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        textAlign: "end",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Due Date: {inv.dueDate}
+                    </p>
+                    <p
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        textAlign: "end",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      Total Due: N$ {inv.totalDue.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <table className="uk-table uk-table-small uk-table-divider">
+                <thead>
+                  <tr>
+                    <th>DESCRIPTION</th>
+                    <th className="uk-text-center">PRICE</th>
+                    <th className="uk-text-right">TOTAL PRICE</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {inv.serviceId.map((det, index) => (
+                    <tr key={index}>
+                      <td
+                        style={{
+                          fontSize: "13px",
+                          fontWeight: "600",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {det.description}
+                      </td>
+                      <td
+                        className="uk-text-center"
+                        style={{ fontSize: "13px", fontWeight: "600" }}
+                      >
+                        N$ {det.price.toFixed(2)}
+                      </td>
+                      <td
+                        className="uk-text-right"
+                        style={{ fontSize: "13px", fontWeight: "600" }}
+                      >
+                        N$ {det.price.toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          ))}
+        </div>
+      </Modal>
+      <Modal modalId={DIALOG_NAMES.BODY.VIEW_RCURRING_INVOICE}>
         <div
           className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical"
           style={{ width: "70%" }}
@@ -1069,17 +967,6 @@ const Invoicing = observer(() => {
   );
 });
 
-const ExpenseTracking = () => {
-  return (
-    <div>
-      <h4>Expense Tracking</h4>
-    </div>
-  );
-};
-const Audit = () => {
-  return (
-    <div>
-      <h4>Auditing</h4>
-    </div>
-  );
+const Expense = () => {
+  return <h1>Expense</h1>;
 };

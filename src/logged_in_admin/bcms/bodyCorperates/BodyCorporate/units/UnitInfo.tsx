@@ -169,7 +169,7 @@ export const UnitInfor = observer(() => {
                   {store.user.all
                     .filter((user) => user.uid === info?.ownerId)
                     .map((user) => {
-                      return user.cellphone;
+                      return "+264" + user.cellphone;
                     })}
                 </h3>
               </div>

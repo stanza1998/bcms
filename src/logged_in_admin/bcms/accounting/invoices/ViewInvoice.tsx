@@ -5,8 +5,15 @@ import { useEffect, useState } from "react";
 
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useAppContext } from "../../../../shared/functions/Context";
-import { IInvoice, IService, defaultInvoice } from "../../../../shared/models/invoices/Invoices";
-import { IBodyCop, defaultBodyCop } from "../../../../shared/models/bcms/BodyCorperate";
+import {
+  IInvoice,
+  IService,
+  defaultInvoice,
+} from "../../../../shared/models/invoices/Invoices";
+import {
+  IBodyCop,
+  defaultBodyCop,
+} from "../../../../shared/models/bcms/BodyCorperate";
 import { IUnit, defaultUnit } from "../../../../shared/models/bcms/Units";
 import { db } from "../../../../shared/database/FirebaseConfig";
 import { SuccessfulAction } from "../../../../shared/models/Snackbar";
@@ -347,7 +354,7 @@ export const ViewInvoice = observer(() => {
                   <>
                     {invoice.confirmed === false && (
                       <>
-                        <button
+                        {/* <button
                           className="uk-button primary uk-margin-right"
                           type="button"
                           style={{ background: "orange" }}
@@ -358,7 +365,7 @@ export const ViewInvoice = observer(() => {
                           ) : (
                             <>Confirm Invoice</>
                           )}
-                        </button>
+                        </button> */}
                       </>
                     )}
                     {invoice.confirmed === true && (

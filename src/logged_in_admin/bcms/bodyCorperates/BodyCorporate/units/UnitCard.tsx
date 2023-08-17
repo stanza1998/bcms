@@ -35,30 +35,25 @@ export const UnitCard = observer((props: IProps) => {
     showModalFromId(DIALOG_NAMES.BODY.BODY_UNIT_DIALOG);
   };
 
-  const unitInfo = (id: string) => {
-    navigate(`/c/body/body-corperate/unitInfo/${id}`);
-  };
+  // const unitInfo = (id: string) => {
+  //   navigate(`/c/body/body-corperate/${propertyId}/${id}`);
+  // };
 
   return (
     <>
-      {/* <span
-        className="uk-margin-right"
-        style={{ cursor: "pointer" }}
-
-        data-uk-icon="more"
-      ></span> */}
       <span
         onClick={onView}
         className="uk-margin-right"
         data-uk-icon="pencil"
         style={{ cursor: "pointer" }}
       ></span>
-      <span
+
+      {/* <span
         onClick={() => onDelete(unit.id)}
         className="uk-margin-right"
         style={{ cursor: "pointer" }}
         data-uk-icon="trash"
-      ></span>
+      ></span> */}
     </>
   );
 });

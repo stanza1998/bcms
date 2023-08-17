@@ -18,6 +18,9 @@ import { SuccessfulAction } from "../../../../shared/models/Snackbar";
 
 export const RecurringInvoices = observer(() => {
   const { store, api, ui } = useAppContext();
+  const [invNumber, setInvNumber] = useState("");
+  const [property, setInvProperty] = useState("");
+  const [unit, setUnit] = useState("");
 
   const onCreate = () => {
     showModalFromId(DIALOG_NAMES.BODY.RECURING_INVOICE);
@@ -47,6 +50,28 @@ export const RecurringInvoices = observer(() => {
   const invoices = store.bodyCorperate.recuringInvoice.all.map(
     (invoice) => invoice.asJson
   );
+
+  const filteredInvoices = invoices.filter((invoice) => {
+    // If all state variables are empty, display everything
+    if (!invNumber && !property && !unit) {
+      return true;
+    }
+
+    // Otherwise, apply the filter based on the state variables
+    if (invNumber && invoice.invoiceNumber.includes(invNumber)) {
+      return true;
+    }
+
+    if (property && invoice.propertyId === property) {
+      return true;
+    }
+
+    if (unit && invoice.unitId === unit) {
+      return true;
+    }
+
+    return false;
+  });
 
   const [inv, setInv] = useState<IRecuringInvoice | undefined>({
     ...defaultRecuringInvoice,
@@ -152,6 +177,43 @@ export const RecurringInvoices = observer(() => {
             </div>
           </div>
         </div>
+        <div>
+          <input
+            type="text"
+            className="uk-input uk-form-small uk-margin-right"
+            placeholder="Search by Invoice Number"
+            style={{ width: "30%" }}
+            onChange={(e) => setInvNumber(e.target.value)}
+          />
+          <select
+            className="uk-input uk-form-small uk-margin-right"
+            placeholder="Search by Property"
+            style={{ width: "30%" }}
+            onChange={(e) => setInvProperty(e.target.value)}
+          >
+            <option value="">Select Property</option>
+            {store.bodyCorperate.bodyCop.all.map((property) => (
+              <option value={property.asJson.id}>
+                {property.asJson.BodyCopName}
+              </option>
+            ))}
+          </select>
+          <select
+            className="uk-input uk-form-small "
+            placeholder="Search by Unit"
+            style={{ width: "30%" }}
+            onChange={(e) => setUnit(e.target.value)}
+          >
+            <option value="">Select unit</option>
+            {store.bodyCorperate.unit.all
+              .filter((unit) => unit.asJson.bodyCopId === property)
+              .map((unit) => (
+                <option value={unit.asJson.id}>
+                  Unit {unit.asJson.unitName}
+                </option>
+              ))}
+          </select>
+        </div>
         <table className="uk-table uk-table-divider uk-table-small">
           <thead>
             <tr>
@@ -164,7 +226,7 @@ export const RecurringInvoices = observer(() => {
             </tr>
           </thead>
           <tbody>
-            {invoices.map((item) => (
+            {filteredInvoices.map((item) => (
               <tr key={item.invoiceId}>
                 <td>{item.invoiceNumber}</td>
                 <td>
@@ -463,18 +525,34 @@ export const RecurringInvoices = observer(() => {
                           <td>
                             {popEntry.confirmed === false && (
                               <span
-                                style={{ color: "red", fontSize: "1.5rem" }}
+                                style={{
+                                  background: "red",
+                                  color: "white",
+                                  paddingLeft: "10px",
+                                  paddingRight: "10px",
+                                  paddingTop: "2px",
+                                  paddingBottom: "2px",
+                                  borderRadius: "2rem",
+                                }}
                                 className="uk-margin-small-right"
                               >
-                                😠
+                                not confirmed
                               </span>
                             )}
                             {popEntry.confirmed === true && (
                               <span
-                                style={{ color: "green", fontSize: "1.5rem" }}
+                                style={{
+                                  background: "green",
+                                  color: "white",
+                                  paddingLeft: "10px",
+                                  paddingRight: "10px",
+                                  paddingTop: "2px",
+                                  paddingBottom: "2px",
+                                  borderRadius: "2rem",
+                                }}
                                 className="uk-margin-small-right"
                               >
-                                😀
+                                confirmed
                               </span>
                             )}
                           </td>
