@@ -19,11 +19,12 @@ const DIALOG_NAMES = {
     VIEW_POP_DETAILS: "view-pop-details",
     VIEW_SERVICE_DETAILS: "view-service-details",
     VIEW_RCURRING_INVOICE: "view-recurring-invoices",
+    ALLOCATE_DIALOGS: "allocation-dialogs",
   },
 
-  OWNER:{
-    UPLOAD_RECURING_POP: "upload-recurring-POP"
-  }
+  OWNER: {
+    UPLOAD_RECURING_POP: "upload-recurring-POP",
+  },
 };
 
 export default DIALOG_NAMES;

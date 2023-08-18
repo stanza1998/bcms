@@ -2,16 +2,17 @@ import { makeAutoObservable, toJS } from "mobx";
 import AppStore from "../../stores/AppStore";
 
 export const defaultFNB: IFNB = {
-    id: "",
-    propertyId: "",
-    unitId: "",
-    date: "",
-    serviceFee: "",
-    amount: 0,
-    description: "",
-    references: "",
-    balance: 0,
-    chequeNumber: 0
+  id: "",
+  propertyId: "",
+  unitId: "",
+  date: "",
+  serviceFee: "",
+  amount: 0,
+  description: "",
+  references: "",
+  balance: 0,
+  chequeNumber: 0,
+  allocated: false
 };
 
 export interface IFNB {
@@ -25,6 +26,7 @@ export interface IFNB {
   references: string;
   balance: number;
   chequeNumber: number;
+  allocated: boolean;
 }
 
 export default class FNBModel {
