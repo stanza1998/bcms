@@ -10,6 +10,7 @@ import InvoiceApi from "./bodyCorperate/InvoiceApi";
 import RecuringInvoiceApi from "./bodyCorperate/RecuringInvoice";
 import CopiedInvoiceApi from "./bodyCorperate/CopiedInvoiceApi";
 import FNBApi from "./bodyCorperate/FNBApi";
+import NEDBANKApi from "./bodyCorperate/NEDBANKApi";
 
 export default class BodyCorpetaApi {
   private BodyCoperateDB = collection(db, "BodyCoperate");
@@ -20,6 +21,7 @@ export default class BodyCorpetaApi {
   private RecuringInvoiceDB = collection(db, "RecuringInvoices");
   private CopiedInvoiceDB = collection(db, "CopiedInvoices");
   private FNBDB = collection(db, "FnbStatements");
+  private NEDBANKBB = collection(db, "NedBankStatements");
 
   body: BodyCopApi;
   unit: UnitApi;
@@ -29,6 +31,7 @@ export default class BodyCorpetaApi {
   recuringInvoice: RecuringInvoiceApi;
   copiedInvoice: CopiedInvoiceApi;
   fnb: FNBApi;
+  nedbank: NEDBANKApi;
 
   constructor(api: AppApi, store: AppStore) {
     this.body = new BodyCopApi(api, store, this.BodyCoperateDB);
@@ -47,5 +50,6 @@ export default class BodyCorpetaApi {
     );
     this.fnb = new FNBApi(api, store, this.FNBDB);
     this.copiedInvoice = new CopiedInvoiceApi(api, store, this.CopiedInvoiceDB);
+    this.nedbank = new NEDBANKApi(api, store, this.NEDBANKBB);
   }
 }

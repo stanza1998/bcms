@@ -1,5 +1,6 @@
 import AppStore from "../AppStore";
 import FNBStore from "../individualStore/banks/FNBStore";
+import NEDBANKStore from "../individualStore/banks/NEDBANKStore";
 import CopiedInvoiceStore from "../individualStore/invoice/CopiedInvoiceStore";
 import InvoiceStore from "../individualStore/invoice/InvoiceStore";
 import RecuringInvoiceStore from "../individualStore/invoice/RecuringInvoice";
@@ -17,6 +18,7 @@ export default class BodyCorporateStore {
   recuringInvoice: RecuringInvoiceStore;
   copiedInvoices: CopiedInvoiceStore;
   fnb: FNBStore;
+  nedbank: NEDBANKStore;
 
   constructor(store: AppStore) {
     this.bodyCop = new BodyCopStore(store);
@@ -27,5 +29,6 @@ export default class BodyCorporateStore {
     this.recuringInvoice = new RecuringInvoiceStore(store);
     this.copiedInvoices = new CopiedInvoiceStore(store);
     this.fnb = new FNBStore(store);
+    this.nedbank = new NEDBANKStore(store);
   }
 }
