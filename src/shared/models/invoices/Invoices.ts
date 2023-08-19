@@ -17,7 +17,8 @@ export const defaultInvoice: IInvoice = {
   confirmed: false,
   verified: false,
   reminder: false,
-  reminderDate: ""
+  reminderDate: "",
+  totalPaid: 0,
 };
 
 export interface IService {
@@ -42,6 +43,7 @@ export interface IInvoice {
   verified: boolean;
   reminder: false;
   reminderDate: string;
+  totalPaid: number;
 }
 
 export default class InvoiceModel {

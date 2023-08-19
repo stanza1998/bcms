@@ -18,6 +18,7 @@ export const defaultCopiedInvoice: ICopiedInvoice = {
   verified: false,
   reminder: false,
   reminderDate: "",
+  totalPaid: 0,
 };
 
 export interface IService {
@@ -42,6 +43,7 @@ export interface ICopiedInvoice {
   verified: boolean;
   reminder: false;
   reminderDate: string;
+  totalPaid: number;
 }
 
 export default class CopiedInvoiceModel {

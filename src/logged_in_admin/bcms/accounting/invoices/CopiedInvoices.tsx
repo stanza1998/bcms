@@ -19,11 +19,10 @@ import Loading from "../../../../shared/components/Loading";
 import { SuccessfulAction } from "../../../../shared/models/Snackbar";
 import { db } from "../../../../shared/database/FirebaseConfig";
 import React from "react";
-
-interface ServiceDetails {
-  description: string;
-  price: number;
-}
+import {
+  ICopiedInvoice,
+  defaultCopiedInvoice,
+} from "../../../../shared/models/invoices/CopyInvoices";
 
 export const CopiedInvoices = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -32,19 +31,20 @@ export const CopiedInvoices = observer(() => {
 
   useEffect(() => {
     const getData = async () => {
-      await api.body.invoice.getAll();
+      await api.body.copiedInvoice.getAll();
     };
     getData();
-  }, [api.body.invoice]);
+  }, [api.body.copiedInvoice]);
 
-  const [invoice, setInvoice] = useState<IInvoice | undefined>({
-    ...defaultInvoice,
+  const [invoice, setInvoice] = useState<ICopiedInvoice | undefined>({
+    ...defaultCopiedInvoice,
   });
 
   useEffect(() => {
     const data = async () => {
       if (invoiceId) {
         const invoice = store.bodyCorperate.copiedInvoices.getById(invoiceId);
+        console.log("🚀 ~ data ~ invoice:", invoice?.asJson);
         setInvoice(invoice?.asJson);
       }
     };
@@ -92,7 +92,6 @@ export const CopiedInvoices = observer(() => {
 
   //editing
   const [show, setShow] = useState(false);
-
 
   const [loaderS, setLoaderS] = useState(true);
 

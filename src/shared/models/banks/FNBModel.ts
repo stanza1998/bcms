@@ -12,7 +12,9 @@ export const defaultFNB: IFNB = {
   references: "",
   balance: 0,
   chequeNumber: 0,
-  allocated: false
+  allocated: false,
+  invoiceNumber: "",
+  expenses: false,
 };
 
 export interface IFNB {
@@ -27,6 +29,8 @@ export interface IFNB {
   balance: number;
   chequeNumber: number;
   allocated: boolean;
+  invoiceNumber: string;
+  expenses: boolean;
 }
 
 export default class FNBModel {

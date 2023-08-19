@@ -2,23 +2,27 @@ import { observer } from "mobx-react-lite";
 import Papa from "papaparse";
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../../../shared/functions/Context";
-import { FailedAction } from "../../../../shared/models/Snackbar";
+import {
+  FailedAction,
+  SuccessfulAction,
+} from "../../../../shared/models/Snackbar";
 import { IFNB, defaultFNB } from "../../../../shared/models/banks/FNBModel";
 import { StatementTabs } from "./StatementsTab";
 import Loading from "../../../../shared/components/Loading";
 import { db } from "../../../../shared/database/FirebaseConfig";
-import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
-import showModalFromId from "../../../../shared/functions/ModalShow";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
+import showModalFromId, {
+  hideModalFromId,
+} from "../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../../dialogs/Dialogs";
 import Modal from "../../../../shared/components/Modal";
-import {
-  IInvoice,
-  defaultInvoice,
-} from "../../../../shared/models/invoices/Invoices";
-import {
-  ICopiedInvoice,
-  defaultCopiedInvoice,
-} from "../../../../shared/models/invoices/CopyInvoices";
+import { ICopiedInvoice } from "../../../../shared/models/invoices/CopyInvoices";
 
 type CSVRow = Array<string | undefined>;
 
@@ -121,6 +125,8 @@ const FNBUploadState = observer(() => {
         balance: parseFloat(transaction.Balance),
         chequeNumber: parseFloat(transaction["CHEQUE NUMBER"]),
         allocated: false,
+        invoiceNumber: "",
+        expenses: false,
       };
       try {
         setLoading(true);
@@ -215,8 +221,18 @@ const Allocatate = observer(() => {
   const [fnb, setFnb] = useState<IFNB | undefined>({ ...defaultFNB });
   const [loading, setLoading] = useState(false);
   const [unitId, setUnit] = useState("");
-  const [invoice, setInvoice] = useState<IInvoice[]>([]);
+  const [transactionId, setTransactionId] = useState("");
+  const [amount, setAmount] = useState(0);
+
   const [invoiceCopied, setInvoiceCopied] = useState<ICopiedInvoice[]>([]);
+
+  const getStatements = async () => {
+    await api.body.fnb.getAll();
+    await api.body.body.getAll();
+    await api.body.unit.getAll();
+    await api.body.invoice.getAll();
+    await api.body.copiedInvoice.getAll();
+  };
 
   useEffect(() => {
     const getStatements = async () => {
@@ -272,15 +288,97 @@ const Allocatate = observer(() => {
     setLoading(false);
   };
 
-  const onAllocate = (unitId: string) => {
+  const onAllocate = (
+    unitId: string,
+    transactionId: string,
+    amount: number
+  ) => {
     const invoicesCopied = store.bodyCorperate.copiedInvoices.all
       .filter((inv) => inv.asJson.unitId === unitId)
       .map((inv) => {
         return inv.asJson;
       });
-    setInvoiceCopied(invoicesCopied);
 
+    setInvoiceCopied(invoicesCopied);
+    setTransactionId(transactionId);
+    setAmount(amount);
     showModalFromId(DIALOG_NAMES.BODY.ALLOCATE_DIALOGS);
+  };
+
+  // 1. save unitId to transaction, 2. save invoice number to transaction
+  // 1. update invoice selected to confirm
+  const [isAllocating, setIsAllocating] = useState(false);
+
+  const updateStatement = async (
+    id: string,
+    invoiceNumber: string,
+    transactionId: string,
+    unitId: string,
+    amount: number
+  ) => {
+    try {
+      setIsAllocating(true);
+
+      const invoiceRef = doc(collection(db, "CopiedInvoices"), id);
+      const invoiceSnapshot = await getDoc(invoiceRef);
+      if (invoiceSnapshot.exists()) {
+        const invoiceData = invoiceSnapshot.data();
+        const existingTotalPaid = invoiceData.totalPaid || 0; // Default to 0 if totalPaid doesn't exist
+
+        const updatedTotalPaid = existingTotalPaid + amount;
+
+        await updateDoc(invoiceRef, { totalPaid: updatedTotalPaid });
+      } else {
+        console.log("Invoice not found.");
+        return; // Return early if the invoice doesn't exist
+      }
+
+      const fnbStatementsRef = doc(
+        collection(db, "FnbStatements"),
+        transactionId
+      );
+      const fnbStatementsSnapshot = await getDoc(fnbStatementsRef);
+      if (fnbStatementsSnapshot.exists()) {
+        await updateDoc(fnbStatementsRef, {
+          allocated: true,
+          unitId: unitId,
+          invoiceNumber: invoiceNumber,
+        });
+        setIsAllocating(false);
+        SuccessfulAction(ui);
+      } else {
+        console.log("FnbStatements document not found.");
+        FailedAction(ui);
+      }
+    } catch (error) {
+      console.log("🚀 ~error:", error);
+      FailedAction(ui);
+    } finally {
+      setIsAllocating(false);
+      getStatements();
+      setUnit("");
+      hideModalFromId(DIALOG_NAMES.BODY.ALLOCATE_DIALOGS);
+    }
+  };
+
+  //expense
+  const updateExpenses = async (amount: number, id: string) => {
+    if (amount > 0) {
+      FailedAction(ui);
+      return;
+    }
+    setIsAllocating(true);
+    const fnbStatementsRef = doc(collection(db, "FnbStatements"), id);
+    const invoiceSnapshot = await getDoc(fnbStatementsRef);
+    if (invoiceSnapshot.exists()) {
+      await updateDoc(fnbStatementsRef, { allocated: true, expenses: true });
+    } else {
+      console.log("Invoice not found.");
+      return; // Return early if the invoice doesn't exist
+    }
+    getStatements();
+    SuccessfulAction(ui);
+    setIsAllocating(false);
   };
 
   return (
@@ -290,7 +388,11 @@ const Allocatate = observer(() => {
       ) : (
         <div>
           <select
-            disabled={statementsForContraints.length > 0}
+            disabled={
+              statementsForContraints
+                .filter((st) => st.allocated === false)
+                .map((st) => st).length > 0
+            }
             name=""
             id=""
             className="uk-input uk-form-small"
@@ -302,7 +404,7 @@ const Allocatate = observer(() => {
               <option value={prop.asJson.id}>{prop.asJson.BodyCopName}</option>
             ))}
           </select>
-          {propertyId !== "" && statementsForContraints.length === 0 && (
+          {propertyId !== "" && (
             <button
               className="uk-button primary uk-margin-left"
               onClick={updateProperties}
@@ -315,6 +417,7 @@ const Allocatate = observer(() => {
                 })}
             </button>
           )}
+          {isAllocating && <div data-uk-spinner></div>}
 
           <div className="uk-margin">
             <table className="uk-table uk-table-divider uk-table-small">
@@ -323,6 +426,7 @@ const Allocatate = observer(() => {
                   <th>Date</th>
                   <th>Service Fee</th>
                   <th>Amount</th>
+                  <th>Reference</th>
                   <th>Description</th>
                   <th>Balance</th>
                   <th>Cheque Number</th>
@@ -332,55 +436,88 @@ const Allocatate = observer(() => {
                 </tr>
               </thead>
               <tbody>
-                {statements.map((st) => (
-                  <tr key={st.id}>
-                    <td>{st.date}</td>
-                    <td>{st.serviceFee}</td>
-                    <td>{st.amount}</td>
-                    <td style={{ whiteSpace: "pre-line" }}>{st.description}</td>
-                    <td>{st.balance}</td>
-                    <td>{st.chequeNumber}</td>
-                    <td>
-                      {store.bodyCorperate.bodyCop.all
-                        .filter((prop) => prop.asJson.id === st.propertyId)
-                        .map((prop) => {
-                          return prop.asJson.BodyCopName;
-                        })}
-                    </td>
-                    <td>
-                      <select
-                        name=""
-                        id=""
-                        className="uk-input uk-form-small"
-                        onChange={(e) => setUnit(e.target.value)}
-                      >
-                        <option value="">select unit</option>
-                        {store.bodyCorperate.unit.all
-                          .filter(
-                            (unit) => unit.asJson.bodyCopId === st.propertyId
-                          )
-                          .sort((a, b) => a.asJson.unitName - b.asJson.unitName)
-                          .map((unit) => (
-                            <option value={unit.asJson.id}>
-                              unit {unit.asJson.unitName}
-                            </option>
-                          ))}
-                      </select>
-                    </td>
-                    <td>
-                      <button
-                        disabled={unitId === ""}
-                        style={{
-                          backgroundColor: unitId === "" ? "grey" : "",
-                        }}
-                        className="uk-button primary"
-                        onClick={() => onAllocate(unitId)}
-                      >
-                        Allocate
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {statements
+                  .filter((st) => st.allocated === false)
+                  .map((st) => (
+                    <tr key={st.id}>
+                      <td>{st.date}</td>
+                      <td>{st.serviceFee}</td>
+                      <td>
+                        <span
+                          style={{
+                            background: st.amount < 0 ? "red" : "green",
+                            paddingLeft: "10px",
+                            paddingRight: "10px",
+                            paddingTop: "1px",
+                            paddingBottom: "1px",
+                            borderRadius: "11px",
+                            color: "white",
+                          }}
+                        >
+                          {st.amount}
+                        </span>
+                      </td>
+                      <td>{st.references}</td>
+                      <td style={{ whiteSpace: "pre-line" }}>
+                        {st.description}
+                      </td>
+                      <td>{st.balance}</td>
+                      <td>{st.chequeNumber}</td>
+                      <td>
+                        {store.bodyCorperate.bodyCop.all
+                          .filter((prop) => prop.asJson.id === st.propertyId)
+                          .map((prop) => {
+                            return prop.asJson.BodyCopName;
+                          })}
+                      </td>
+                      <td>
+                        <select
+                          name=""
+                          id=""
+                          className="uk-input uk-form-small"
+                          onChange={(e) => setUnit(e.target.value)}
+                        >
+                          <option value="">select unit</option>
+                          {store.bodyCorperate.unit.all
+                            .filter(
+                              (unit) => unit.asJson.bodyCopId === st.propertyId
+                            )
+                            .sort(
+                              (a, b) => a.asJson.unitName - b.asJson.unitName
+                            )
+                            .map((unit) => (
+                              <option value={unit.asJson.id}>
+                                unit {unit.asJson.unitName}
+                              </option>
+                            ))}
+                        </select>
+                      </td>
+                      <td>
+                        <button
+                          disabled={unitId === ""}
+                          style={{
+                            backgroundColor: unitId === "" ? "grey" : "",
+                          }}
+                          className="uk-button primary"
+                          onClick={() => onAllocate(unitId, st.id, st.amount)}
+                        >
+                          <span data-uk-icon="plus-circle"></span>
+                        </button>
+                        <button
+                          className="uk-button primary uk-margin-left"
+                          style={{
+                            background: st.propertyId === "" ? "grey" : "red",
+                          }}
+                        >
+                          <span
+                            style={{ color: "white" }}
+                            onClick={() => updateExpenses(st.amount, st.id)}
+                            data-uk-icon="minus-circle"
+                          ></span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
@@ -396,6 +533,7 @@ const Allocatate = observer(() => {
             type="button"
             data-uk-close
           ></button>
+          {isAllocating && <div data-uk-spinner></div>}
           <h4 className="uk-modal-title">
             UNIT{" "}
             {store.bodyCorperate.unit.all
@@ -404,34 +542,43 @@ const Allocatate = observer(() => {
                 return unit.asJson.unitName;
               })}{" "}
           </h4>
-          <button className="uk-button primary">Save Allocation</button>
           <table className="uk-table uk-table-divider uk-table-small">
             <thead>
               <tr>
-                <th>Select</th>
                 <th>Invoice Number</th>
                 <th>Date Created</th>
                 <th>Due Date</th>
                 <th>Total Due</th>
+                <th>Click Invoice</th>
               </tr>
             </thead>
             <tbody>
-              {invoiceCopied.map((inv) => (
-                <tr key={inv.invoiceId}>
-                  <td>
-                    <div className="uk-margin uk-grid-small uk-child-width-auto uk-grid">
-                      <label>
-                        <input className="uk-checkbox" type="checkbox" />
-                      </label>
-                    </div>
-                  </td>
-                  <td>{inv.invoiceNumber}</td>
-                  <td>{inv.dateIssued}</td>
-                  <td>{inv.dueDate}</td>
-                  <td>N$ {inv.totalDue.toFixed(2)}</td>
-                  <td></td>
-                </tr>
-              ))}
+              {invoiceCopied
+                .filter((inv) => inv.confirmed === false)
+                .map((inv) => (
+                  <tr key={inv.invoiceId}>
+                    <td>{inv.invoiceNumber}</td>
+                    <td>{inv.dateIssued}</td>
+                    <td>{inv.dueDate}</td>
+                    <td>N$ {inv.totalDue.toFixed(2)}</td>
+                    <td>
+                      <button
+                        className="uk-button primary"
+                        onClick={() =>
+                          updateStatement(
+                            inv.invoiceId,
+                            inv.invoiceNumber,
+                            transactionId,
+                            unitId,
+                            amount
+                          )
+                        }
+                      >
+                        Choose
+                      </button>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>

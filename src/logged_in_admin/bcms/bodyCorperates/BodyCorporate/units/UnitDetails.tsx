@@ -274,6 +274,7 @@ const Invoicing = observer(() => {
       monthId: "",
       reminder: false,
       reminderDate: "",
+      totalPaid: 0,
     };
 
     const docRef = doc(collection(db, "Invoices"));
@@ -373,7 +374,6 @@ const Invoicing = observer(() => {
               <th>Invoice Number</th>
               <th>Financial Year</th>
               <th>Date Issued</th>
-              <th>Due Date</th>
               <th>Verification status</th>
               {/* <th>Confirm POP Upload</th> */}
               <th className="uk-text-right">Action</th>
@@ -393,7 +393,6 @@ const Invoicing = observer(() => {
                   <td>{invoice.asJson.invoiceNumber}</td>
                   <td>{year?.year}</td>
                   <td>{invoice.asJson.dateIssued}</td>
-                  <td>{invoice.asJson.dueDate}</td>
                   <td>
                     {invoice.asJson.verified === false && (
                       <span style={{ color: "orange" }}>
@@ -512,7 +511,7 @@ const Invoicing = observer(() => {
           <div className="dialog-content uk-position-relative">
             <div className="reponse-form">
               <div className="uk-grid-small uk-child-width-1-1@m" data-uk-grid>
-                <div className="uk-width-1-5@m">
+                <div className="uk-width-1-4@m">
                   <div className="uk-margin">
                     <label className="uk-form-label">Property Name</label>
                     <div className="uk-form-controls">
@@ -526,7 +525,7 @@ const Invoicing = observer(() => {
                     </div>
                   </div>
                 </div>
-                <div className="uk-width-1-5@m">
+                <div className="uk-width-1-4@m">
                   <div className="uk-margin">
                     <label className="uk-form-label">Unit</label>
                     <div className="uk-form-controls">
@@ -539,7 +538,7 @@ const Invoicing = observer(() => {
                     </div>
                   </div>
                 </div>
-                <div className="uk-width-1-5@m">
+                <div className="uk-width-1-4@m">
                   <div className="uk-margin">
                     <label className="uk-form-label">Invoice Number</label>
                     <div className="uk-form-controls">
@@ -552,7 +551,7 @@ const Invoicing = observer(() => {
                     </div>
                   </div>
                 </div>
-                <div className="uk-width-1-5@m">
+                <div className="uk-width-1-4@m">
                   <div className="uk-margin">
                     <label className="uk-form-label">Date</label>
                     <div className="uk-form-controls">
@@ -567,21 +566,6 @@ const Invoicing = observer(() => {
                     </div>
                   </div>
                 </div>
-                <div className="uk-width-1-5@m">
-                  <div className="uk-margin">
-                    <label className="uk-form-label">Due Date</label>
-                    <div className="uk-form-controls">
-                      <input
-                        className="uk-input uk-form-small"
-                        type="date"
-                        min={currentDate1}
-                        value={selectedDate}
-                        onChange={handleDateChange}
-                      />
-                    </div>
-                  </div>
-                </div>
-
                 <h3 className="uk-modal-title">Total Due</h3>
                 <p style={{ fontWeight: "600" }}>N$ {totalPrice.toFixed(2)}</p>
 

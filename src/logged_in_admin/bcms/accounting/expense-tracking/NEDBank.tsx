@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useAppContext } from "../../../../shared/functions/Context";
 import Papa from "papaparse";
+import { observer } from "mobx-react-lite";
+import { StatementTabs } from "./StatementsTab";
 
 type CSVRow = Array<string | undefined>;
-
-
 
 interface NEDBankTransaction {
   "Transaction Date": string;
@@ -18,10 +18,44 @@ interface NEDBankTransaction {
 }
 
 export const NEDBANK = () => {
+  const [activeTab, setActiveTab] = useState("Invoicing");
+
+  const handleTabClick = (tabLabel: string) => {
+    setActiveTab(tabLabel);
+  };
+
+  return (
+    <div>
+      <div className="uk-margin">
+        <div>
+          <div className="uk-margin">
+            <StatementTabs
+              label="Upload Statement"
+              isActive={activeTab === "Invoicing"}
+              onClick={() => handleTabClick("Invoicing")}
+            />
+            <StatementTabs
+              label="Allocate Transactions"
+              isActive={activeTab === "Expense"}
+              onClick={() => handleTabClick("Expense")}
+            />
+          </div>
+          <div className="tab-content">
+            {activeTab === "Invoicing" && <UploadStatement />}
+            {activeTab === "Expense" && <Allocate />}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const UploadStatement = observer(() => {
   const { store, api } = useAppContext();
 
   const [csvData, setCSVData] = useState<CSVRow[]>([]);
   const [transactions, setTransactions] = useState<NEDBankTransaction[]>([]);
+  console.log("🚀 ~transactions:", transactions);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -30,15 +64,14 @@ export const NEDBANK = () => {
       Papa.parse(file, {
         complete: (result) => {
           const parsedData: CSVRow[] = result.data as CSVRow[];
-          setCSVData(parsedData);
+          setCSVData(parsedData.slice(16));
 
           //find
           const closingBalanceIndex = parsedData.findIndex((row) =>
             row.includes("* = inclusive of 15% VAT")
           );
 
-          const transactionsData = parsedData.slice(2, closingBalanceIndex);
-          // const transactionsData = parsedData.slice(2);
+          const transactionsData = parsedData.slice(17, closingBalanceIndex);
           const closingBalance = parsedData.slice(closingBalanceIndex)[0];
 
           const transactions: NEDBankTransaction[] = transactionsData.map(
@@ -77,27 +110,31 @@ export const NEDBANK = () => {
     <div>
       <input type="file" accept=".csv" onChange={handleFileUpload} />
 
-      <table className="uk-table uk-table-small uk-table-divider">
-        <thead>
-          <tr>
-            {csvData.length > 0 &&
-              csvData[0].map((header, index) => (
-                <tr key={index}>
-                  <th>{header}</th>
-                </tr>
-              ))}
-          </tr>
-        </thead>
-        <tbody>
-          {csvData.slice(1).map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              {row.map((cell, cellIndex) => (
-                <td key={cellIndex}>{cell} </td>
-              ))}
+      <div className="uk-margin">
+        <table className="uk-table uk-table-divider uk-table-small">
+          <thead>
+            <tr>
+              {csvData.length > 0 &&
+                csvData[0].map((header, index) => (
+                  <th key={index}>{header}</th>
+                ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {csvData.slice(1).map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {row.map((cell, cellIndex) => (
+                  <td key={cellIndex}>{cell} </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
-};
+});
+
+const Allocate = observer(() => {
+  return <></>;
+});
