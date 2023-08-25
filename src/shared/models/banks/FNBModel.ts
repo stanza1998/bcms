@@ -15,12 +15,18 @@ export const defaultFNB: IFNB = {
   allocated: false,
   invoiceNumber: "",
   expenses: false,
+  accountId: "",
+  supplierId: "",
+  transferId: ""
 };
 
 export interface IFNB {
   id: string;
   propertyId: string;
   unitId: string;
+  accountId: string;
+  supplierId: string;
+  transferId: string;
   date: string;
   serviceFee: string;
   amount: number;

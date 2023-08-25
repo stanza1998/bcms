@@ -7,6 +7,9 @@ import RecuringInvoiceStore from "../individualStore/invoice/RecuringInvoice";
 import FinancialMonthStore from "../individualStore/months/FinancialMonth";
 import BodyCopStore from "../individualStore/properties/BodyCopStore";
 import UnitStore from "../individualStore/properties/UnitStore";
+import AccountStore from "../individualStore/type/AccountStore";
+import SupplierStore from "../individualStore/type/SupplierStore";
+import TransferStore from "../individualStore/type/Transfer";
 import FinancialYearStore from "../individualStore/years/FinancialYear";
 
 export default class BodyCorporateStore {
@@ -19,6 +22,9 @@ export default class BodyCorporateStore {
   copiedInvoices: CopiedInvoiceStore;
   fnb: FNBStore;
   nedbank: NEDBANKStore;
+  supplier: SupplierStore;
+  transfer: TransferStore;
+  account: AccountStore;
 
   constructor(store: AppStore) {
     this.bodyCop = new BodyCopStore(store);
@@ -30,5 +36,8 @@ export default class BodyCorporateStore {
     this.copiedInvoices = new CopiedInvoiceStore(store);
     this.fnb = new FNBStore(store);
     this.nedbank = new NEDBANKStore(store);
+    this.supplier = new SupplierStore(store);
+    this.transfer = new TransferStore(store);
+    this.account = new AccountStore(store);
   }
 }

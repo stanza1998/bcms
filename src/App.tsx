@@ -40,6 +40,11 @@ import { ViewInvoice } from "./logged_in_admin/bcms/accounting/invoices/ViewInvo
 import { OwnerRecuringInvoices } from "./logged_in_admin/bcms/owner-accounts/recuring-invoices/OwnerRecuringInvoices";
 import { UnitDetails } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/UnitDetails";
 import { CopiedInvoices } from "./logged_in_admin/bcms/accounting/invoices/CopiedInvoices";
+import { Supplier } from "./logged_in_admin/bcms/Types/suppliers/Supplier";
+import { Account } from "./logged_in_admin/nagivation/Drawer";
+import { Transfer } from "./logged_in_admin/bcms/Types/transfers/Transfer";
+import { AccountType } from "./logged_in_admin/bcms/Types/accounts/Account";
+import { Statements } from "./logged_in_admin/bcms/accounting/statements/Statements";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -82,6 +87,13 @@ const ADMIN_USER_ROUTES = () => {
             path={`accounting/expense-tracking`}
             element={<ExpenseTracking />}
           />
+          <Route path={`accounting/statements`} element={<Statements />} />
+
+          
+
+          <Route path={`body/transfer`} element={<Transfer />} />
+          <Route path={`body/suppliers`} element={<Supplier />} />
+          <Route path={`body/accountType`} element={<AccountType />} />
 
           <Route path={`body/body-corperate`} element={<BodyCorperates />} />
           <Route

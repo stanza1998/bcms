@@ -5,8 +5,8 @@ import { Tab } from "../../../../Tab";
 import Papa from "papaparse";
 import { IFNB } from "../../../../shared/models/banks/FNBModel";
 import { FailedAction } from "../../../../shared/models/Snackbar";
-import { FNB } from "./FNB";
-import { NEDBANK } from "./NEDBank";
+import { FNB } from "./FNB/FNB";
+import { NEDBANK } from "./NEDBANK/NEDBank";
 
 export const ExpenseTracking = observer(() => {
   const { store, api, ui } = useAppContext();

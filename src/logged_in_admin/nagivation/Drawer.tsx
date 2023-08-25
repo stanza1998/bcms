@@ -66,6 +66,30 @@ const ADMIN_DRAWER = () => {
                 Properties
               </NavLink>
             </li>
+            <li>
+              <NavLink to={`body/suppliers`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Suppliers
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={`body/accountType`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Accounts
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={`body/transfer`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Transfer
+              </NavLink>
+            </li>
           </ul>
         </li>
 
@@ -111,6 +135,14 @@ const ADMIN_DRAWER = () => {
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
                 Tracking
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={`accounting/statements`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Statements
               </NavLink>
             </li>
           </ul>

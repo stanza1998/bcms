@@ -6,6 +6,7 @@ import {
   onSnapshot,
   query,
   setDoc,
+  where,
 } from "firebase/firestore";
 import AppApi from "../AppApi";
 import AppStore from "../../stores/AppStore";
@@ -35,6 +36,22 @@ export default class FNBApi {
 
     return unsubscribe;
   }
+
+  async getUnAllocatedStatements() {
+    const q = query(this.collectionRef, where("allocated", "==", false)); // Add a where condition
+  
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const items: IFNB[] = [];
+      querySnapshot.forEach((doc) => {
+        items.push({ id: doc.id, ...doc.data() } as IFNB);
+      });
+  
+      this.store.bodyCorperate.fnb.load(items);
+    });
+  
+    return unsubscribe;
+  }
+  
 
   async getFNB(id: string) {
     const docSnap = await getDoc(doc(this.collectionRef, id));

@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import { useAppContext } from "../../../../shared/functions/Context";
+import { useAppContext } from "../../../../../shared/functions/Context";
 import Papa from "papaparse";
 import { observer } from "mobx-react-lite";
-import { StatementTabs } from "./StatementsTab";
-import { INEDBANK } from "../../../../shared/models/banks/NEDBANK";
+import { StatementTabs } from "../Tabs/StatementsTab";
+import { INEDBANK } from "../../../../../shared/models/banks/NEDBANK";
 import {
   FailedAction,
   SuccessfulAction,
-} from "../../../../shared/models/Snackbar";
-import Loading from "../../../../shared/components/Loading";
+} from "../../../../../shared/models/Snackbar";
+import Loading from "../../../../../shared/components/Loading";
 
 type CSVRow = Array<string | undefined>;
 
