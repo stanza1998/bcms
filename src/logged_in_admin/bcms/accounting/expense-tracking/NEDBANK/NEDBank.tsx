@@ -9,10 +9,13 @@ import {
   SuccessfulAction,
 } from "../../../../../shared/models/Snackbar";
 import Loading from "../../../../../shared/components/Loading";
+import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
+import { db } from "../../../../../shared/database/FirebaseConfig";
+import { NEDBANKGrid } from "./NEDBANKGrid";
 
 type CSVRow = Array<string | undefined>;
 
-interface NEDBankTransaction {
+interface Transaction {
   "Transaction Date": string;
   "Value Date": string;
   "Transaction Reference No.": string;
@@ -60,7 +63,8 @@ const UploadStatement = observer(() => {
   const { store, api, ui } = useAppContext();
 
   const [csvData, setCSVData] = useState<CSVRow[]>([]);
-  const [transactions, setTransactions] = useState<NEDBankTransaction[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  console.log("🚀 transactions:", transactions);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -69,7 +73,7 @@ const UploadStatement = observer(() => {
       Papa.parse(file, {
         complete: (result) => {
           const parsedData: CSVRow[] = result.data as CSVRow[];
-          setCSVData(parsedData.slice(16));
+          setCSVData(parsedData);
 
           //find
           const closingBalanceIndex = parsedData.findIndex((row) =>
@@ -77,9 +81,15 @@ const UploadStatement = observer(() => {
           );
 
           const transactionsData = parsedData.slice(17, closingBalanceIndex);
-          const closingBalance = parsedData.slice(closingBalanceIndex)[0];
 
-          const transactions: NEDBankTransaction[] = transactionsData.map(
+          // Filter out rows with undefined values or all empty cells
+          const filteredTransactionsData = transactionsData.filter((row) =>
+            row.some((cell) => cell !== undefined && cell.trim() !== "")
+          );
+
+          const closingBalance = parsedData[closingBalanceIndex][0];
+
+          const transactions: Transaction[] = filteredTransactionsData.map(
             (data) => {
               const [
                 TransactionDate = "",
@@ -115,7 +125,17 @@ const UploadStatement = observer(() => {
 
   const saveStatement = () => {
     setLoading(true);
-    transactions.forEach(async function (transaction: NEDBankTransaction) {
+    transactions.forEach(async function (transaction: Transaction) {
+      const formattedCredit = transaction.Credit || "0";
+      const sanitizedCredit = formattedCredit.replace(/,/g, "");
+      const convertedCredit = parseFloat(sanitizedCredit);
+      const formattedDebit = transaction.Debit || "0";
+      const sanitizedDebit = formattedDebit.replace(/,/g, "");
+      const convertedDebit = parseFloat(sanitizedDebit);
+      const formattedBalance = transaction.Balance || "0";
+      const sanitizedBalance = formattedBalance.replace(/,/g, "");
+      const convertedBalance = parseFloat(sanitizedBalance);
+
       const saveUpload: INEDBANK = {
         id: "",
         propertyId: "",
@@ -124,23 +144,43 @@ const UploadStatement = observer(() => {
         valueDate: transaction["Value Date"],
         transactionReference: transaction["Transaction Reference No."],
         vatIndicator: transaction["*VAT Charge Indicator"],
-        debit: parseFloat(transaction.Debit),
-        credit: parseFloat(transaction.Credit),
-        balance: parseFloat(transaction.Balance),
+        debit: convertedDebit,
+        credit: convertedCredit,
+        balance: convertedBalance,
         allocated: false,
         invoiceNumber: "",
         expenses: false,
         description: transaction.Description,
+        accountId: "",
+        supplierId: "",
+        transferId: "",
+        rcp: "",
+        supplierInvoiceNumber: ""
       };
+      console.log(parseFloat(transaction.Debit));
+
       try {
         await api.body.nedbank.create(saveUpload);
-        SuccessfulAction(ui);
+        setTransactions([]);
+        setLoading(false);
       } catch (error) {
         FailedAction(ui);
+        setLoading(false);
       }
     });
-    setLoading(false);
   };
+
+  const statement = store.bodyCorperate.nedbank.all.filter(
+    (st) => st.asJson.allocated === false
+  );
+  const constraint = statement.length > 0;
+
+  useEffect(() => {
+    const getStatements = async () => {
+      await api.body.nedbank.getAll();
+    };
+    getStatements();
+  }, [api.body.nedbank]);
 
   return (
     <div>
@@ -166,13 +206,13 @@ const UploadStatement = observer(() => {
           </div>
           {transactions.map((trans) => trans).length > 0 && (
             <button
-              // disabled={constraint}
-              // style={{ background: constraint ? "grey" : "" }}
-              // data-uk-tooltip={
-              //   constraint
-              //     ? "please complete the allocation of statement uploaded"
-              //     : "save and allocate"
-              // }
+              disabled={constraint}
+              style={{ background: constraint ? "grey" : "" }}
+              data-uk-tooltip={
+                constraint
+                  ? "please complete the allocation of statement uploaded"
+                  : "save and allocate"
+              }
               className="uk-button primary"
               onClick={saveStatement}
             >
@@ -181,7 +221,7 @@ const UploadStatement = observer(() => {
           )}
 
           <div className="uk-margin">
-            <table className="uk-table uk-table-divider uk-table-small">
+            <table className="">
               <thead>
                 <tr>
                   {csvData.length > 0 &&
@@ -209,46 +249,97 @@ const UploadStatement = observer(() => {
 
 const Allocate = observer(() => {
   const { store, api } = useAppContext();
+  const [propertyId, setPropertyId] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const getDate = async () => {
+    const getStatements = async () => {
       await api.body.nedbank.getAll();
+      await api.body.body.getAll();
+      await api.body.copiedInvoice.getAll();
     };
-    getDate();
-  }, [api.body.nedbank]);
+    getStatements();
+  }, []);
+
+  const statements = store.bodyCorperate.nedbank.all.map((statements) => {
+    return statements.asJson;
+  });
+
+  const statementsForContraints = store.bodyCorperate.nedbank.all
+    .filter((st) => st.asJson.propertyId)
+    .map((statements) => {
+      return statements.asJson;
+    });
+
+  const updateProperties = async () => {
+    setLoading(true);
+    const statementsRef = collection(db, "NedBankStatements");
+
+    try {
+      const querySnapshot = await getDocs(statementsRef);
+
+      const updatePromises = querySnapshot.docs.map(async (docSnapshot) => {
+        const data = docSnapshot.data();
+
+        if (!data.allocated) {
+          // Update the document only if 'allocated' is false
+          const docRef = doc(db, "NedBankStatements", docSnapshot.id);
+          await updateDoc(docRef, { propertyId: propertyId });
+        }
+      });
+
+      await Promise.all(updatePromises);
+
+      console.log("Documents updated successfully.");
+    } catch (error) {
+      console.error("Error updating documents:", error);
+    }
+    setLoading(false);
+  };
 
   return (
     <div>
-      <div>
-        <table className="uk-table uk-table-divider uk-table-small">
-          <thead>
-            <tr>
-              <th>Transaction Date</th>
-              <th>Value Date</th>
-              <th>Transaction Reference No.</th>
-              <th>Description</th>
-              <th>*VAT Charge Indicator</th>
-              <th>Credit</th>
-              <th>Debit</th>
-              <th>Balance</th>
-            </tr>
-          </thead>
-          <tbody>
-            {store.bodyCorperate.nedbank.all.map((s) => (
-              <tr key={s.asJson.id}>
-                <td>{s.asJson.transactionDate}</td>
-                <td>{s.asJson.valueDate}</td>
-                <td>{s.asJson.transactionDate}</td>
-                <td>{s.asJson.description}</td>
-                <td>{s.asJson.vatIndicator}</td>
-                <td>{s.asJson.credit}</td>
-                <td>{s.asJson.debit}</td>
-                <td>{s.asJson.balance}</td>
-              </tr>
+      {loading ? (
+        <Loading />
+      ) : (
+        <div>
+          <select
+            disabled={
+              statementsForContraints
+                .filter((st) => st.allocated === false)
+                .map((st) => st).length > 0
+            }
+            name=""
+            id=""
+            className="uk-input uk-form-small"
+            onChange={(e) => setPropertyId(e.target.value)}
+            style={{ width: "30%" }}
+          >
+            <option value="">Select Property</option>
+            {store.bodyCorperate.bodyCop.all.map((prop) => (
+              <option value={prop.asJson.id}>{prop.asJson.BodyCopName}</option>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </select>
+          {propertyId !== "" && (
+            <button
+              className="uk-button primary uk-margin-left"
+              onClick={updateProperties}
+            >
+              Mark statement for{" "}
+              {store.bodyCorperate.bodyCop.all
+                .filter((prop) => prop.asJson.id === propertyId)
+                .map((prop) => {
+                  return prop.asJson.BodyCopName;
+                })}
+            </button>
+          )}
+          <br />
+          <br />
+          <NEDBANKGrid
+            data={statements.filter((st) => st.allocated === false)}
+          />
+        </div>
+      )}
     </div>
   );
 });

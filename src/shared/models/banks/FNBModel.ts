@@ -17,7 +17,9 @@ export const defaultFNB: IFNB = {
   expenses: false,
   accountId: "",
   supplierId: "",
-  transferId: ""
+  transferId: "",
+  rcp: "",
+  supplierInvoiceNumber: ""
 };
 
 export interface IFNB {
@@ -37,6 +39,8 @@ export interface IFNB {
   allocated: boolean;
   invoiceNumber: string;
   expenses: boolean;
+  rcp:string;
+  supplierInvoiceNumber:string;
 }
 
 export default class FNBModel {

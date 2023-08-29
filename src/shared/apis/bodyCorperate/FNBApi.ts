@@ -39,19 +39,41 @@ export default class FNBApi {
 
   async getUnAllocatedStatements() {
     const q = query(this.collectionRef, where("allocated", "==", false)); // Add a where condition
-  
+
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const items: IFNB[] = [];
       querySnapshot.forEach((doc) => {
         items.push({ id: doc.id, ...doc.data() } as IFNB);
       });
-  
+
       this.store.bodyCorperate.fnb.load(items);
     });
-  
+
     return unsubscribe;
   }
-  
+
+  async getCustomerRecord() {
+    const q = query(
+      this.collectionRef,
+      where("allocated", "==", true),
+      where("unitId", "!=", ""),
+      where("propertyId", "!=", ""),
+      where("accountId", "==", ""),
+      where("supplierId", "==", ""),
+      where("transferId", "==", "")
+    );
+
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const items: IFNB[] = [];
+      querySnapshot.forEach((doc) => {
+        items.push({ id: doc.id, ...doc.data() } as IFNB);
+      });
+
+      this.store.bodyCorperate.fnb.load(items);
+    });
+
+    return unsubscribe;
+  }
 
   async getFNB(id: string) {
     const docSnap = await getDoc(doc(this.collectionRef, id));

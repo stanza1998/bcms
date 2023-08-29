@@ -17,12 +17,20 @@ export const defaultnedbank: INEDBANK = {
   invoiceNumber: "",
   expenses: false,
   description: "",
+  accountId: "",
+  supplierId: "",
+  transferId: "",
+  rcp: "",
+  supplierInvoiceNumber: ""
 };
 
 export interface INEDBANK {
   id: string;
   propertyId: string;
+  accountId: string;
   unitId: string;
+  supplierId: string;
+  transferId: string;
   transactionDate: string;
   valueDate: string;
   description: string;
@@ -34,6 +42,8 @@ export interface INEDBANK {
   allocated: boolean;
   invoiceNumber: string;
   expenses: boolean;
+  rcp: string;
+  supplierInvoiceNumber:string;
 }
 
 export default class NEDBANKModel {

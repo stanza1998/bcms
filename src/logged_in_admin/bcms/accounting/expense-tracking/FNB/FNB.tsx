@@ -66,7 +66,7 @@ const FNBUploadState = observer(() => {
       Papa.parse(file, {
         complete: (result) => {
           const parsedData: CSVRow[] = result.data as CSVRow[];
-          setCSVData(parsedData.slice(2));
+          setCSVData(parsedData);
           const transactionsData = parsedData.slice(3);
           const transactions: Transaction[] = transactionsData.map((data) => {
             const [
@@ -97,6 +97,7 @@ const FNBUploadState = observer(() => {
   };
 
   const [loading, setLoading] = useState(false);
+
   const saveFNBStatement = () => {
     transactions.forEach(async (transaction: Transaction) => {
       const saveUpload: IFNB = {
@@ -116,6 +117,8 @@ const FNBUploadState = observer(() => {
         accountId: "",
         supplierId: "",
         transferId: "",
+        rcp: "",
+        supplierInvoiceNumber: ""
       };
       try {
         setLoading(true);
@@ -124,6 +127,7 @@ const FNBUploadState = observer(() => {
         setLoading(false);
       } catch (error) {
         FailedAction(error);
+        setLoading(false);
       }
     });
   };
@@ -179,7 +183,7 @@ const FNBUploadState = observer(() => {
           )}
 
           <div className="uk-margin">
-            <table className="uk-table uk-table-divider uk-table-small">
+            <table className="">
               <thead>
                 <tr>
                   {csvData.length > 0 &&
@@ -223,7 +227,6 @@ const Allocatate = observer(() => {
     return statements.asJson;
   });
 
-  
   const statementsForContraints = store.bodyCorperate.fnb.all
     .filter((st) => st.asJson.propertyId)
     .map((statements) => {
@@ -296,7 +299,6 @@ const Allocatate = observer(() => {
           <br />
           <FNBDataGrid
             data={statements.filter((st) => st.allocated === false)}
-            property={propertyId}
           />
         </div>
       )}

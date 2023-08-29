@@ -255,7 +255,7 @@ export const UnitInfor = observer(() => {
 
 const Dashboard = () => {
   return (
-    <div>
+    <div className="sales-order">
       <h3
         style={{ textTransform: "uppercase", color: "grey", fontWeight: "600" }}
       >

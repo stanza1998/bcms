@@ -4,6 +4,7 @@ import NEDBANKStore from "../individualStore/banks/NEDBANKStore";
 import CopiedInvoiceStore from "../individualStore/invoice/CopiedInvoiceStore";
 import InvoiceStore from "../individualStore/invoice/InvoiceStore";
 import RecuringInvoiceStore from "../individualStore/invoice/RecuringInvoice";
+import SupplierInvoiceStore from "../individualStore/invoice/SupplierInvoiceStore";
 import FinancialMonthStore from "../individualStore/months/FinancialMonth";
 import BodyCopStore from "../individualStore/properties/BodyCopStore";
 import UnitStore from "../individualStore/properties/UnitStore";
@@ -25,6 +26,7 @@ export default class BodyCorporateStore {
   supplier: SupplierStore;
   transfer: TransferStore;
   account: AccountStore;
+  supplierInvoice: SupplierInvoiceStore
 
   constructor(store: AppStore) {
     this.bodyCop = new BodyCopStore(store);
@@ -39,5 +41,6 @@ export default class BodyCorporateStore {
     this.supplier = new SupplierStore(store);
     this.transfer = new TransferStore(store);
     this.account = new AccountStore(store);
+    this.supplierInvoice = new SupplierInvoiceStore(store);
   }
 }

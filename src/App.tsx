@@ -45,6 +45,11 @@ import { Account } from "./logged_in_admin/nagivation/Drawer";
 import { Transfer } from "./logged_in_admin/bcms/Types/transfers/Transfer";
 import { AccountType } from "./logged_in_admin/bcms/Types/accounts/Account";
 import { Statements } from "./logged_in_admin/bcms/accounting/statements/Statements";
+import { CustomerReportsFNB } from "./logged_in_admin/bcms/accounting/reports/customer/CustomerReport";
+import { SupplierReports } from "./logged_in_admin/bcms/accounting/reports/supplier/SupplierReports";
+import { CustomerReportNEDBANK } from "./logged_in_admin/bcms/accounting/reports/customer/CustomerReportNEDBANK";
+import { SupplierInvoices } from "./logged_in_admin/bcms/accounting/invoices/supplier-invoices/SupplierInvoices";
+import { CreateSupplierInvoice } from "./logged_in_admin/bcms/accounting/invoices/supplier-invoices/create/CreateInvoice";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -80,6 +85,16 @@ const ADMIN_USER_ROUTES = () => {
           />
           <Route path={`accounting/invoices`} element={<Invoices />} />
           <Route
+            path={`accounting/supplier-invoices`}
+            element={<SupplierInvoices />}
+          />
+          <Route
+            path={`accounting/supplier-invoices/create`}
+            element={<CreateSupplierInvoice />}
+          />
+
+          
+          <Route
             path={`accounting/recuring-invoices`}
             element={<RecurringInvoices />}
           />
@@ -88,8 +103,20 @@ const ADMIN_USER_ROUTES = () => {
             element={<ExpenseTracking />}
           />
           <Route path={`accounting/statements`} element={<Statements />} />
-
-          
+          <Route
+            path={`accounting/statements/customer`}
+            element={<CustomerReportsFNB />}
+          />
+          <Route
+            path={`accounting/statements/customer-nedbank`}
+            element={<CustomerReportNEDBANK />}
+          />
+          {/* <Route path={`accounting/statements/customer-windhoek`} element={<CustomerReportsFNB />} /> */}
+          <Route
+            path={`accounting/statements/supplier`}
+            element={<SupplierReports />}
+          />
+          {/* <Route path={`accounting/statements/account`} element={<Statements />} /> */}
 
           <Route path={`body/transfer`} element={<Transfer />} />
           <Route path={`body/suppliers`} element={<Supplier />} />

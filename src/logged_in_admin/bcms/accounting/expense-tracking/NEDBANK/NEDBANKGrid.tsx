@@ -1,43 +1,40 @@
-import IconButton from "@mui/material/IconButton";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useState } from "react";
-import { IFNB } from "../../../../../shared/models/banks/FNBModel";
-import { Box } from "@mui/material";
+import { INEDBANK } from "../../../../../shared/models/banks/NEDBANK";
 import { useAppContext } from "../../../../../shared/functions/Context";
-import { doc, collection, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../../../../../shared/database/FirebaseConfig";
+import { useEffect, useState } from "react";
+import { ICopiedInvoice } from "../../../../../shared/models/invoices/CopyInvoices";
 import showModalFromId, {
   hideModalFromId,
 } from "../../../../../shared/functions/ModalShow";
+import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../../../../shared/database/FirebaseConfig";
 import {
-  SuccessfulAction,
   FailedAction,
+  SuccessfulAction,
 } from "../../../../../shared/models/Snackbar";
 import DIALOG_NAMES from "../../../../dialogs/Dialogs";
-import { ICopiedInvoice } from "../../../../../shared/models/invoices/CopyInvoices";
-import Modal from "../../../../../shared/components/Modal";
-import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturn";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { INormalAccount } from "../../../../../shared/models/Types/Account";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { Box, IconButton } from "@mui/material";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturn";
+import Modal from "../../../../../shared/components/Modal";
 import SaveIcon from "@mui/icons-material/Save";
 
 interface IProp {
-  data: IFNB[];
+  data: INEDBANK[];
 }
 
-const FNBDataGrid = observer(({ data }: IProp) => {
+export const NEDBANKGrid = observer(({ data }: IProp) => {
   const { store, api, ui } = useAppContext();
   const [unitId, setUnit] = useState("");
   const [transactionId, setTransactionId] = useState("");
   const [amount, setAmount] = useState(0);
   const [type, setType] = useState<string>("");
+  const [invoiceCopied, setInvoiceCopied] = useState<ICopiedInvoice[]>([]);
   const [accountId, setAccountId] = useState<string>("");
   const [transferId, setTransferId] = useState<string>("");
   const [supplierId, setSupplierId] = useState<string>("");
-
-  const [invoiceCopied, setInvoiceCopied] = useState<ICopiedInvoice[]>([]);
-
   // Generate the rcp number
   const generateInvoiceNumber = () => {
     const randomNumber = Math.floor(Math.random() * 1000000); // Generate a random number between 0 and 9999
@@ -50,7 +47,7 @@ const FNBDataGrid = observer(({ data }: IProp) => {
     const getStatements = async () => {
       // Otherwise, fetch data and cache it
       await Promise.all([
-        api.body.fnb.getUnAllocatedStatements(),
+        api.body.nedbank.getAll(),
         api.body.body.getAll(),
         api.body.unit.getAll(),
         api.body.copiedInvoice.getAll(),
@@ -62,8 +59,6 @@ const FNBDataGrid = observer(({ data }: IProp) => {
 
     getStatements();
   }, []);
-
-  // const accounts = store.bodyCorperate.account.all;
 
   const onAllocate = (
     unitId: string,
@@ -110,13 +105,13 @@ const FNBDataGrid = observer(({ data }: IProp) => {
         return; // Return early if the invoice doesn't exist
       }
 
-      const fnbStatementsRef = doc(
-        collection(db, "FnbStatements"),
+      const statementsRef = doc(
+        collection(db, "NedBankStatements"),
         transactionId
       );
-      const fnbStatementsSnapshot = await getDoc(fnbStatementsRef);
-      if (fnbStatementsSnapshot.exists()) {
-        await updateDoc(fnbStatementsRef, {
+      const statementsSnapshot = await getDoc(statementsRef);
+      if (statementsSnapshot.exists()) {
+        await updateDoc(statementsRef, {
           allocated: true,
           unitId: unitId,
           invoiceNumber: invoiceNumber,
@@ -125,7 +120,7 @@ const FNBDataGrid = observer(({ data }: IProp) => {
         setIsAllocating(false);
         SuccessfulAction(ui);
       } else {
-        console.log("FnbStatements document not found.");
+        console.log("NedBankStatements document not found.");
         FailedAction(ui);
       }
     } catch (error) {
@@ -146,7 +141,7 @@ const FNBDataGrid = observer(({ data }: IProp) => {
       setSupplierId("");
       return;
     } else {
-      const fnbStatementsRef = doc(collection(db, "FnbStatements"), id);
+      const fnbStatementsRef = doc(collection(db, "NedBankStatements"), id);
       const fnbStatementsSnapshot = await getDoc(fnbStatementsRef);
       if (fnbStatementsSnapshot.exists()) {
         await updateDoc(fnbStatementsRef, {
@@ -160,7 +155,7 @@ const FNBDataGrid = observer(({ data }: IProp) => {
         setTransferId("");
         setSupplierId("");
       } else {
-        console.log("FnbStatements document not found.");
+        console.log("NedBankStatements document not found.");
         FailedAction(ui);
       }
     }
@@ -174,7 +169,7 @@ const FNBDataGrid = observer(({ data }: IProp) => {
       setSupplierId("");
       return;
     } else {
-      const fnbStatementsRef = doc(collection(db, "FnbStatements"), id);
+      const fnbStatementsRef = doc(collection(db, "NedBankStatements"), id);
       const fnbStatementsSnapshot = await getDoc(fnbStatementsRef);
       if (fnbStatementsSnapshot.exists()) {
         await updateDoc(fnbStatementsRef, {
@@ -202,12 +197,12 @@ const FNBDataGrid = observer(({ data }: IProp) => {
       setSupplierId("");
       return;
     } else {
-      const fnbStatementsRef = doc(collection(db, "FnbStatements"), id);
+      const fnbStatementsRef = doc(collection(db, "NedBankStatements"), id);
       const fnbStatementsSnapshot = await getDoc(fnbStatementsRef);
       if (fnbStatementsSnapshot.exists()) {
         await updateDoc(fnbStatementsRef, {
           allocated: true,
-          transfer: transferId,
+          transferId: transferId,
           rcp: generateInvoiceNumber(),
         });
         setIsAllocating(false);
@@ -216,7 +211,7 @@ const FNBDataGrid = observer(({ data }: IProp) => {
         setSupplierId("");
         SuccessfulAction(ui);
       } else {
-        console.log("FnbStatements document not found.");
+        console.log("NedBankStatements document not found.");
         FailedAction(ui);
       }
     }
@@ -242,9 +237,7 @@ const FNBDataGrid = observer(({ data }: IProp) => {
   };
 
   const [createLoader, setCreateLOader] = useState(false);
-
   //quick fix
-
   const createAccount = async (e: any) => {
     e.preventDefault();
     setCreateLOader(true);
@@ -305,11 +298,17 @@ const FNBDataGrid = observer(({ data }: IProp) => {
   };
 
   const column: GridColDef[] = [
-    { field: "date", headerName: "Date", width: 100 },
-    { field: "serviceFee", headerName: "Swervice Fee", width: 100 },
-    { field: "amount", headerName: "Amount", width: 100 },
-    { field: "references", headerName: "Reference", width: 100 },
+    { field: "transactionDate", headerName: "TransactionDate", width: 100 },
+    { field: "valueDate", headerName: "Value Date", width: 100 },
+    {
+      field: "transactionReference",
+      headerName: "Transaction Reference",
+      width: 100,
+    },
     { field: "description", headerName: "Description", width: 100 },
+    { field: "vatIndicator", headerName: "*VAT Charge Indicator", width: 100 },
+    { field: "debit", headerName: "Debit", width: 100 },
+    { field: "credit", headerName: "Credit", width: 100 },
     { field: "balance", headerName: "Balance", width: 100 },
     {
       field: "Type ",
@@ -448,7 +447,7 @@ const FNBDataGrid = observer(({ data }: IProp) => {
           {type === "Customer" && (
             <IconButton
               onClick={() =>
-                onAllocate(unitId, params.row.id, params.row.amount)
+                onAllocate(unitId, params.row.id, params.row.credit)
               }
             >
               <AssignmentReturnIcon
@@ -672,5 +671,3 @@ const FNBDataGrid = observer(({ data }: IProp) => {
     </>
   );
 });
-
-export default FNBDataGrid;

@@ -29,6 +29,8 @@ export const ViewUnit = observer(() => {
   const { propertyId } = useParams();
   const navigate = useNavigate();
   const [newDate, setNewDate] = useState("");
+  const [newDateIssued, setNewDateIssued] = useState("");
+  const [ref, setRef] = useState("");
 
   const [viewBody, setBody] = useState<IBodyCop | undefined>({
     ...defaultBodyCop,
@@ -48,7 +50,14 @@ export const ViewUnit = observer(() => {
       }
     };
     getData();
-  }, [api.auth, api.body.body, api.body.invoice, api.body.unit, propertyId, store.bodyCorperate.bodyCop]);
+  }, [
+    api.auth,
+    api.body.body,
+    api.body.invoice,
+    api.body.unit,
+    propertyId,
+    store.bodyCorperate.bodyCop,
+  ]);
 
   const [masterInvoices, setMasterInvoices] = useState<IInvoice[]>([]);
 
@@ -63,8 +72,6 @@ export const ViewUnit = observer(() => {
     };
     getData();
   }, [propertyId, store.bodyCorperate.invoice.all]);
-
-  console.log("🚀 masterInvoices:", masterInvoices);
 
   const back = () => {
     navigate("/c/body/body-corperate");
@@ -173,7 +180,8 @@ export const ViewUnit = observer(() => {
             const copiedInvoice = { ...masterInvoice };
             copiedInvoice.invoiceNumber = generateInvoiceNumber();
             copiedInvoice.dueDate = newDate;
-            copiedInvoice.dateIssued = currentDate.toLocaleString();
+            copiedInvoice.references = ref;
+            copiedInvoice.dateIssued = newDateIssued;
             const newInvoiceRef = doc(copiedInvoicesCollection);
             await setDoc(newInvoiceRef, copiedInvoice);
             const generatedDocId = newInvoiceRef.id;
@@ -286,7 +294,7 @@ export const ViewUnit = observer(() => {
                 <tbody>
                   {filteredUnits.map((unit, index) => (
                     <tr key={unit.asJson.id}>
-                      <td>{index+1}</td>
+                      <td>{index + 1}</td>
                       <td>Unit {unit.asJson.unitName}</td>
                       <td>
                         {store.user.all
@@ -468,6 +476,31 @@ export const ViewUnit = observer(() => {
             </div>
             <div>
               <h4 className="uk-modal-title">Set New Due Date</h4>
+              <label htmlFor="">Reference</label>
+              <br />
+              <br />
+              <input
+                type="text"
+                className="uk-input "
+                value={ref}
+                onChange={(e) => setRef(e.target.value)}
+              />
+              <br />
+              <br />
+              <label htmlFor="">Current Date</label>
+              <br />
+              <br />
+              <input
+                type="date"
+                className="uk-input "
+                value={newDateIssued}
+                onChange={(e) => setNewDateIssued(e.target.value)}
+              />
+              <br />
+              <br />
+              <label htmlFor="">New Due Date</label>
+              <br />
+              <br />
               <input
                 type="date"
                 className="uk-input "

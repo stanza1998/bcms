@@ -6,6 +6,7 @@ import {
   onSnapshot,
   query,
   setDoc,
+  where,
 } from "firebase/firestore";
 import AppApi from "../AppApi";
 import AppStore from "../../stores/AppStore";
@@ -23,6 +24,21 @@ export default class NEDBANKApi {
 
   async getAll() {
     const q = query(this.collectionRef);
+
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const items: INEDBANK[] = [];
+      querySnapshot.forEach((doc) => {
+        items.push({ id: doc.id, ...doc.data() } as INEDBANK);
+      });
+
+      this.store.bodyCorperate.nedbank.load(items);
+    });
+
+    return unsubscribe;
+  }
+
+  async getUnAllocatedStatements() {
+    const q = query(this.collectionRef, where("allocated", "==", false)); // Add a where condition
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const items: INEDBANK[] = [];

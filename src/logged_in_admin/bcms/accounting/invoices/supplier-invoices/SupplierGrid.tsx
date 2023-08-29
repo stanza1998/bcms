@@ -1,6 +1,5 @@
 import { Box, IconButton } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { ICopiedInvoice } from "../../../../../shared/models/invoices/CopyInvoices";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import PaidIcon from "@mui/icons-material/Paid";
@@ -25,12 +24,16 @@ import DIALOG_NAMES from "../../../../dialogs/Dialogs";
 import Modal from "../../../../../shared/components/Modal";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import PreviewIcon from "@mui/icons-material/Preview";
+import {
+  ISupplierInvoices,
+  defaultSupplierInvoices,
+} from "../../../../../shared/models/invoices/SupplierInvoice";
 
 interface IProp {
-  data: ICopiedInvoice[];
+  data: ISupplierInvoices[];
 }
 
-const InvoicesGrid = observer(({ data }: IProp) => {
+const SupplierInvoicesGrid = observer(({ data }: IProp) => {
   const { store, api } = useAppContext();
   const navigate = useNavigate();
 
@@ -52,11 +55,11 @@ const InvoicesGrid = observer(({ data }: IProp) => {
     api.body.unit,
   ]);
 
- 
-
-  const [invoiceView, setInvoiceView] = useState<ICopiedInvoice | undefined>({
-    ...defaultInvoice,
-  });
+  const [invoiceView, setInvoiceView] = useState<ISupplierInvoices | undefined>(
+    {
+      ...defaultSupplierInvoices,
+    }
+  );
 
   const [viewBody, setBody] = useState<IBodyCop | undefined>({
     ...defaultBodyCop,
@@ -64,14 +67,6 @@ const InvoicesGrid = observer(({ data }: IProp) => {
 
   const [unit, setUnit] = useState<IUnit | undefined>({
     ...defaultUnit,
-  });
-
-  const [year, setYear] = useState<IFinancialYear | undefined>({
-    ...defaultFinancialYear,
-  });
-
-  const [month, setMonth] = useState<IFinancialMonth | undefined>({
-    ...defaultFinancialMonth,
   });
 
   const viewInvoiceDetails = async (
@@ -82,7 +77,7 @@ const InvoicesGrid = observer(({ data }: IProp) => {
     yid: string
   ) => {
     const invoiceDetails =
-      store.bodyCorperate.copiedInvoices.getById(invoiceId);
+      store.bodyCorperate.supplierInvoice.getById(invoiceId);
     setInvoiceView(invoiceDetails?.asJson);
     showModalFromId(DIALOG_NAMES.BODY.VIEW_INVOICE);
     await api.body.body.getAll();
@@ -90,10 +85,6 @@ const InvoicesGrid = observer(({ data }: IProp) => {
     setBody(property?.asJson);
     const unit = store.bodyCorperate.unit.getById(uid);
     setUnit(unit?.asJson);
-    const month = store.bodyCorperate.financialMonth.getById(mid);
-    setMonth(month?.asJson);
-    const year = store.bodyCorperate.financialYear.getById(yid);
-    setYear(year?.asJson);
     await api.body.unit.getAll();
   };
 
@@ -146,28 +137,28 @@ const InvoicesGrid = observer(({ data }: IProp) => {
       renderCell: (params) => (
         <div>
           <IconButton
-            onClick={() =>
-              viewInvoiceDetails(
-                params.row.invoiceId,
-                params.row.propertyId,
-                params.row.unitId,
-                params.row.monthId,
-                params.row.yearId
-              )
-            }
+          // onClick={() =>
+          //   viewInvoiceDetails(
+          //     params.row.invoiceId,
+          //     params.row.propertyId,
+          //     params.row.unitId,
+          //     params.row.monthId,
+          //     params.row.yearId
+          //   )
+          // }
           >
             <MoreHorizIcon />
           </IconButton>
 
           <IconButton
-            onClick={() =>
-              verifyInvoice(
-                params.row.invoiceId,
-                params.row.propertyId,
-                params.row.unitId,
-                params.row.yearId
-              )
-            }
+          // onClick={() =>
+          //   verifyInvoice(
+          //     params.row.invoiceId,
+          //     params.row.propertyId,
+          //     params.row.unitId,
+          //     params.row.yearId
+          //   )
+          // }
           >
             <PreviewIcon />
           </IconButton>
@@ -336,4 +327,4 @@ const InvoicesGrid = observer(({ data }: IProp) => {
   );
 });
 
-export default InvoicesGrid;
+export default SupplierInvoicesGrid;

@@ -14,6 +14,7 @@ import NEDBANKApi from "./bodyCorperate/NEDBANKApi";
 import TransferApi from "./bodyCorperate/type/TransferApi";
 import AccountApi from "./bodyCorperate/type/AccountApi";
 import SupplierApi from "./bodyCorperate/type/SupplierApi";
+import SupplierInvoiceApi from "./bodyCorperate/SupplierInvoices";
 
 export default class BodyCorpetaApi {
   private BodyCoperateDB = collection(db, "BodyCoperate");
@@ -23,6 +24,7 @@ export default class BodyCorpetaApi {
   private InvoiceDB = collection(db, "Invoices");
   private RecuringInvoiceDB = collection(db, "RecuringInvoices");
   private CopiedInvoiceDB = collection(db, "CopiedInvoices");
+  private SupplierInvoiceDB = collection(db, "SupplierInvoices");
   private FNBDB = collection(db, "FnbStatements");
   private NEDBANKBB = collection(db, "NedBankStatements");
   private supplierDB = collection(db, "Suppliers");
@@ -36,6 +38,7 @@ export default class BodyCorpetaApi {
   invoice: InvoiceApi;
   recuringInvoice: RecuringInvoiceApi;
   copiedInvoice: CopiedInvoiceApi;
+  supplierInvoice: SupplierInvoiceApi;
   fnb: FNBApi;
   nedbank: NEDBANKApi;
   transfer: TransferApi;
@@ -63,5 +66,6 @@ export default class BodyCorpetaApi {
     this.transfer = new TransferApi(api, store, this.transferDB);
     this.account = new AccountApi(api, store, this.accountDB);
     this.supplier = new SupplierApi(api, store, this.supplierDB);
+    this.supplierInvoice = new SupplierInvoiceApi(api, store, this.SupplierInvoiceDB)
   }
 }
