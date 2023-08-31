@@ -1,11 +1,11 @@
 import { observer } from "mobx-react-lite";
-import { useAppContext } from "../../../../../shared/functions/Context";
-import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../../../../../shared/functions/Context";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Box, IconButton } from "@mui/material";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
 interface Statement {
   date: string;
@@ -16,6 +16,7 @@ interface Statement {
   credit: string;
   balance: number;
   id: string;
+  supplierId: string;
   propertyId: string;
   unitId: string;
   invoiceNumber: string;
@@ -25,11 +26,11 @@ interface IProp {
   data: Statement[];
 }
 
-export const CustomerReportsFNB = observer(() => {
+export const SupplierReportsFNB = observer(() => {
   const { store, api } = useAppContext();
   const navigate = useNavigate();
-  const [propertyId, setPropertyId] = useState<string>("");
-  const [unitId, setUnitId] = useState<string>("");
+  const [propertyId, setSetPropertyId] = useState("");
+  const [supplierId, setSupplierId] = useState("");
   const [dateFrom, setDateFrom] = useState<Date | null>(null);
   const [dateTo, setDateTo] = useState<Date | null>(null);
 
@@ -40,40 +41,46 @@ export const CustomerReportsFNB = observer(() => {
   useEffect(() => {
     const getData = async () => {
       await api.body.fnb.getAll();
-      await api.body.copiedInvoice.getAll();
+      await api.body.supplier.getAll();
+      await api.body.supplierInvoice.getAll();
       await api.body.body.getAll();
-      await api.body.unit.getAll();
     };
     getData();
-  }, [api.body.body, api.body.copiedInvoice, api.body.fnb, api.body.unit]);
+  }, [
+    api.body.body,
+    api.body.fnb,
+    api.body.supplier,
+    api.body.supplierInvoice,
+  ]);
 
   const properties = store.bodyCorperate.bodyCop.all.map((p) => {
     return p.asJson;
   });
-
-  const units = store.bodyCorperate.unit.all.map((u) => {
-    return u.asJson;
+  const suppliers = store.bodyCorperate.supplier.all.map((p) => {
+    return p.asJson;
   });
 
   const record = store.bodyCorperate.fnb.all
     .filter(
       (r) =>
         r.asJson.propertyId !== "" &&
-        r.asJson.unitId !== "" &&
+        r.asJson.unitId === "" &&
         r.asJson.accountId === "" &&
         r.asJson.transferId === "" &&
-        r.asJson.supplierId === "" &&
+        r.asJson.supplierId !== "" &&
         r.asJson.allocated === true
     )
     .map((r) => {
       return r.asJson;
     });
 
+  //replace with supplier invoice
   const recordInvoiceNumber = record.map((r) => {
     return r.invoiceNumber;
   });
 
-  const invoices = store.bodyCorperate.copiedInvoices.all
+  //replace with supplier invoice
+  const supplier_invoices = store.bodyCorperate.supplierInvoice.all
     .filter((inv) => recordInvoiceNumber.includes(inv.asJson.invoiceNumber))
     .map((inv) => {
       return inv.asJson;
@@ -94,20 +101,21 @@ export const CustomerReportsFNB = observer(() => {
       dataMap[recordItem.invoiceNumber].push({
         date: recordItem.date,
         reference: recordItem.rcp,
-        transactionType: "Customer Receipt",
+        transactionType: "Supplier Payment",
         description: recordItem.description,
-        credit: recordItem.amount.toFixed(2),
-        debit: "",
+        credit: "",
+        debit: recordItem.amount.toFixed(2),
         balance: 0,
-        propertyId: recordItem.propertyId,
+        supplierId: recordItem.supplierId,
         unitId: recordItem.unitId,
         invoiceNumber: recordItem.invoiceNumber,
         id: recordItem.id,
+        propertyId: recordItem.propertyId,
       });
     });
 
     // Group invoice data by invoiceNumber
-    invoices.forEach((invoiceItem) => {
+    supplier_invoices.forEach((invoiceItem) => {
       if (!dataMap[invoiceItem.invoiceNumber]) {
         dataMap[invoiceItem.invoiceNumber] = [];
       }
@@ -115,15 +123,16 @@ export const CustomerReportsFNB = observer(() => {
       dataMap[invoiceItem.invoiceNumber].push({
         date: invoiceItem.dateIssued,
         reference: invoiceItem.invoiceNumber,
-        transactionType: "Tax Invoice",
+        transactionType: "Supplier Invoice",
         description: invoiceItem.references,
-        credit: "",
-        debit: invoiceItem.totalDue.toFixed(2),
+        credit: invoiceItem.totalDue.toFixed(2),
+        debit: "",
         balance: invoiceItem.totalDue,
-        propertyId: invoiceItem.propertyId,
-        unitId: invoiceItem.unitId,
         invoiceNumber: invoiceItem.invoiceNumber,
         id: invoiceItem.invoiceId,
+        supplierId: invoiceItem.supplierId,
+        unitId: "",
+        propertyId: invoiceItem.propertyId,
       });
     });
 
@@ -131,48 +140,44 @@ export const CustomerReportsFNB = observer(() => {
     const comData = Object.values(dataMap).flatMap((group) => group);
 
     // Calculate balances for customer receipts
-    const customerReceipts = comData.filter(
-      (transaction) => transaction.transactionType === "Customer Receipt"
+    const supplierPayments = comData.filter(
+      (transaction) => transaction.transactionType === "Supplier Payment"
     );
 
-    // Create an object to store total credit for each invoice number
-    const invoiceCreditMap: Record<string, number> = {};
+    const supplierInvoiceCreditMap: Record<string, number> = {};
 
-    customerReceipts.forEach((receipt) => {
-      const { invoiceNumber, credit } = receipt;
-
-      // Add the credit to the existing total or initialize if not present
-      invoiceCreditMap[invoiceNumber] =
-        (invoiceCreditMap[invoiceNumber] || 0) + parseFloat(credit);
+    supplierPayments.forEach((payment) => {
+      const { invoiceNumber, debit } = payment;
+      supplierInvoiceCreditMap[invoiceNumber] =
+        (supplierInvoiceCreditMap[invoiceNumber] || 0) + parseFloat(debit);
     });
 
-    customerReceipts.forEach((receipt) => {
+    supplierPayments.forEach((payment) => {
       const matchingInvoice = comData.find(
         (transaction) =>
-          transaction.transactionType === "Tax Invoice" &&
-          transaction.invoiceNumber === receipt.invoiceNumber
+          transaction.transactionType === "Supplier Invoice" &&
+          transaction.invoiceNumber === payment.invoiceNumber
       );
 
       if (matchingInvoice) {
-        // Deduct the total credit from the debit of the matching invoice
-        receipt.balance =
-          parseFloat(matchingInvoice.debit) -
-          (invoiceCreditMap[receipt.invoiceNumber] || 0);
+        payment.balance =
+          (supplierInvoiceCreditMap[payment.invoiceNumber] || 0) +
+          parseFloat(matchingInvoice.credit);
       }
     });
 
     // const customerReceipts = comData.filter(
-    //   (transaction) => transaction.transactionType === "Customer Receipt"
+    //   (transaction) => transaction.transactionType === "Supplier Payment"
     // );
     // customerReceipts.forEach((receipt) => {
     //   const matchingInvoice = comData.find(
     //     (transaction) =>
-    //       transaction.transactionType === "Tax Invoice" &&
+    //       transaction.transactionType === "Supplier Invoice" &&
     //       transaction.invoiceNumber === receipt.invoiceNumber
     //   );
     //   if (matchingInvoice) {
     //     receipt.balance =
-    //       parseFloat(matchingInvoice.debit) - parseFloat(receipt.credit);
+    //       parseFloat(matchingInvoice.credit) - parseFloat(receipt.debit);
     //   }
     // });
 
@@ -185,11 +190,11 @@ export const CustomerReportsFNB = observer(() => {
     const statementDate = new Date(statement.date);
 
     if (dateFrom && dateTo) {
-      if (statement.transactionType === "Customer Receipt") {
+      if (statement.transactionType === "Supplier Payment") {
         // Find tax invoices with the same invoiceNumber and date within the range
         const relatedInvoices = combinedData.filter(
           (invoice) =>
-            invoice.transactionType === "Tax Invoice" &&
+            invoice.transactionType === "Supplier Invoice" &&
             invoice.invoiceNumber === statement.invoiceNumber &&
             new Date(invoice.date) >= dateFrom &&
             new Date(invoice.date) <= dateTo
@@ -200,11 +205,11 @@ export const CustomerReportsFNB = observer(() => {
         return statementDate >= dateFrom && statementDate <= dateTo;
       }
     } else if (dateFrom && !dateTo) {
-      if (statement.transactionType === "Customer Receipt") {
+      if (statement.transactionType === "Supplier Payment") {
         // Find tax invoices with the same invoiceNumber and date greater than dateFrom
         const relatedInvoices = combinedData.filter(
           (invoice) =>
-            invoice.transactionType === "Tax Invoice" &&
+            invoice.transactionType === "Supplier Invoice" &&
             invoice.invoiceNumber === statement.invoiceNumber &&
             new Date(invoice.date) >= dateFrom
         );
@@ -214,11 +219,11 @@ export const CustomerReportsFNB = observer(() => {
         return statementDate >= dateFrom;
       }
     } else if (!dateFrom && dateTo) {
-      if (statement.transactionType === "Customer Receipt") {
+      if (statement.transactionType === "Supplier Payment") {
         // Find tax invoices with the same invoiceNumber and date less than dateTo
         const relatedInvoices = combinedData.filter(
           (invoice) =>
-            invoice.transactionType === "Tax Invoice" &&
+            invoice.transactionType === "Supplier Invoice" &&
             invoice.invoiceNumber === statement.invoiceNumber &&
             new Date(invoice.date) <= dateTo
         );
@@ -237,7 +242,6 @@ export const CustomerReportsFNB = observer(() => {
     setDateTo(to);
   };
 
-  //displaying related tax invoices and customer receipt have tax invoice first and customer receipt second
   const groupedData = [];
   let currentIndex = 0;
 
@@ -256,9 +260,9 @@ export const CustomerReportsFNB = observer(() => {
 
     // Sort the statements with the same invoice number based on transaction type
     const sortedStatements = statementsWithSameInvoice.sort((a, b) => {
-      if (a.transactionType === "Tax Invoice") {
+      if (a.transactionType === "Supplier Invoice") {
         return -1; // Tax Invoices come before Customer Receipts
-      } else if (b.transactionType === "Tax Invoice") {
+      } else if (b.transactionType === "Supplier Invoice") {
         return 1;
       }
       return 0;
@@ -269,28 +273,11 @@ export const CustomerReportsFNB = observer(() => {
   }
 
   const specificCustomerRecord = groupedData.filter(
-    (f) => f.propertyId === propertyId && f.unitId === unitId
+    (f) => f.propertyId === propertyId && f.supplierId === supplierId
   );
 
-  // Iterate through the filtered records and calculate the total balance
-  const uniqueBalances: Record<string, number> = {};
-
-  specificCustomerRecord.forEach((record) => {
-    if (record.transactionType === "Customer Receipt") {
-      if (!uniqueBalances.hasOwnProperty(record.invoiceNumber)) {
-        uniqueBalances[record.invoiceNumber] = record.balance;
-      }
-    }
-  });
-
-  let totalBalance: number = 0;
-  for (const invoiceNumber in uniqueBalances) {
-    totalBalance += uniqueBalances[invoiceNumber];
-  }
-  //clear filter
   const clearFilter = () => {
-    setPropertyId("");
-    setUnitId("");
+    setSupplierId("");
     setDateFrom(null);
     setDateTo(null);
   };
@@ -321,7 +308,6 @@ export const CustomerReportsFNB = observer(() => {
           </div>
         </div>
         <RecordGrid data={specificCustomerRecord} />
-        Balance {totalBalance}
       </div>
       <div id="offcanvas-flip" data-uk-offcanvas="flip: true; overlay: true">
         <div className="uk-offcanvas-bar">
@@ -338,10 +324,10 @@ export const CustomerReportsFNB = observer(() => {
                 className="uk-input"
                 placeholder="100"
                 aria-label="100"
-                onChange={(e) => setPropertyId(e.target.value)}
+                onChange={(e) => setSetPropertyId(e.target.value)}
               >
                 <option value="" style={{ color: "grey" }}>
-                  Select Property
+                  Select Supplier Account
                 </option>
                 {properties.map((p) => (
                   <option key={p.id} value={p.id} style={{ color: "grey" }}>
@@ -351,26 +337,24 @@ export const CustomerReportsFNB = observer(() => {
               </select>
             </div>
             <div className="uk-width-1-1">
-              <label htmlFor="">Customer</label>
+              <label htmlFor="">Supplier Account</label>
               <select
-                disabled={propertyId === ""}
                 className="uk-input"
                 placeholder="100"
                 aria-label="100"
-                onChange={(e) => setUnitId(e.target.value)}
+                onChange={(e) => setSupplierId(e.target.value)}
               >
                 <option value="" style={{ color: "grey" }}>
-                  Select Unit
+                  Select Supplier Account
                 </option>
-                {units
-                  .filter((u) => u.bodyCopId === propertyId)
-                  .map((u) => (
-                    <option value={u.id} key={u.id} style={{ color: "grey" }}>
-                      Unit {u.unitName}
-                    </option>
-                  ))}
+                {suppliers.map((p) => (
+                  <option key={p.id} value={p.id} style={{ color: "grey" }}>
+                    {p.name} , {p.description}
+                  </option>
+                ))}
               </select>
             </div>
+
             <div className="uk-width-1-1">
               <h5>Date Range</h5>
             </div>

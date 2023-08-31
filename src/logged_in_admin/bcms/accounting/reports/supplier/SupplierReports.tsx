@@ -26,7 +26,7 @@ interface IProp {
   data: Statement[];
 }
 
-export const SupplierReports = observer(() => {
+export const SupplierReportsNEDBANK = observer(() => {
   const { store, api } = useAppContext();
   const navigate = useNavigate();
   const [propertyId, setSetPropertyId] = useState("");
@@ -85,10 +85,8 @@ export const SupplierReports = observer(() => {
     .map((inv) => {
       return inv.asJson;
     });
-  console.log("🚀 ~supplier_invoices:", supplier_invoices);
 
   const [combinedData, setCombinedData] = useState<Statement[]>([]);
-  console.log("🚀  combinedData:", combinedData);
 
   // combine invoices and transaction in the same array.
   const combine = () => {
@@ -238,7 +236,6 @@ export const SupplierReports = observer(() => {
       return true;
     }
   });
-  console.log("🚀 ~ filteredData:", filteredData);
 
   const handleDateFilterChange = (from: Date | null, to: Date | null) => {
     setDateFrom(from);
@@ -263,9 +260,9 @@ export const SupplierReports = observer(() => {
 
     // Sort the statements with the same invoice number based on transaction type
     const sortedStatements = statementsWithSameInvoice.sort((a, b) => {
-      if (a.transactionType === "Supplier Payment") {
+      if (a.transactionType === "Supplier Invoice") {
         return -1; // Tax Invoices come before Customer Receipts
-      } else if (b.transactionType === "Supplier Payment") {
+      } else if (b.transactionType === "Supplier Invoice") {
         return 1;
       }
       return 0;

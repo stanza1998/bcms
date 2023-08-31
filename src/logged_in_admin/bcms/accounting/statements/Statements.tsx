@@ -21,8 +21,11 @@ export const Statements = observer(() => {
   const toCustomerNEDBANK = () => {
     navigate("/c/accounting/statements/customer-nedbank");
   };
-  const toSupplierFNB = () => {
+  const toSupplierNEBANK = () => {
     navigate("/c/accounting/statements/supplier");
+  };
+  const toSupplierFNB = () => {
+    navigate("/c/accounting/statements/supplier-fnb");
   };
   const toAccounts = () => {};
 
@@ -57,7 +60,7 @@ export const Statements = observer(() => {
                   className="uk-card-title"
                 >
                   {" "}
-                  <ApartmentIcon /> Customer
+                  <ApartmentIcon /> Customer Transaction Report
                 </h3>
               </div>
             </div>
@@ -72,7 +75,7 @@ export const Statements = observer(() => {
                   className="uk-card-title"
                 >
                   <RvHookupIcon />
-                  Supplier
+                  Supplier Transaction Report
                 </h3>
               </div>
             </div>
@@ -88,7 +91,7 @@ export const Statements = observer(() => {
                 >
                   {" "}
                   <AccountBalanceWalletIcon />
-                  Accounts
+                  Accounts Transaction Report
                 </h3>
               </div>
             </div>
@@ -107,14 +110,14 @@ export const Statements = observer(() => {
             <li>
               First National Bank{" "}
               <KeyboardTabIcon
-                // onClick={toCustomerNEDBANK}
+                onClick={toSupplierFNB}
                 style={{ cursor: "pointer" }}
               />
             </li>
             <li>
               NEBANK{" "}
               <KeyboardTabIcon
-                onClick={toSupplierFNB}
+                onClick={toSupplierNEBANK}
                 style={{ cursor: "pointer" }}
               />
             </li>

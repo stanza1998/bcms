@@ -5,7 +5,13 @@ import React, { useEffect, useState } from "react";
 import { IFNB } from "../../../../../shared/models/banks/FNBModel";
 import { Box } from "@mui/material";
 import { useAppContext } from "../../../../../shared/functions/Context";
-import { doc, collection, getDoc, updateDoc } from "firebase/firestore";
+import {
+  doc,
+  collection,
+  getDoc,
+  updateDoc,
+  getDocs,
+} from "firebase/firestore";
 import { db } from "../../../../../shared/database/FirebaseConfig";
 import showModalFromId, {
   hideModalFromId,
@@ -35,7 +41,6 @@ const FNBDataGrid = observer(({ data }: IProp) => {
   const [accountId, setAccountId] = useState<string>("");
   const [transferId, setTransferId] = useState<string>("");
   const [supplierId, setSupplierId] = useState<string>("");
-
   const [invoiceCopied, setInvoiceCopied] = useState<ICopiedInvoice[]>([]);
 
   // Generate the rcp number
@@ -45,12 +50,18 @@ const FNBDataGrid = observer(({ data }: IProp) => {
     const generatedInvoiceNumber = `RCP000${formattedNumber}`;
     return generatedInvoiceNumber; // Add the prefix "INV" to the number
   };
+  const generateInvoiceNumberSupplier = () => {
+    const randomNumber = Math.floor(Math.random() * 1000000); // Generate a random number between 0 and 9999
+    const formattedNumber = randomNumber.toString().padStart(4, "0"); // Pad the number with leading zeros if necessary
+    const generatedInvoiceNumber = `PAYP000${formattedNumber}`;
+    return generatedInvoiceNumber; // Add the prefix "INV" to the number
+  };
 
   useEffect(() => {
     const getStatements = async () => {
       // Otherwise, fetch data and cache it
       await Promise.all([
-        api.body.fnb.getUnAllocatedStatements(),
+        // api.body.fnb.getUnAllocatedStatements(),
         api.body.body.getAll(),
         api.body.unit.getAll(),
         api.body.copiedInvoice.getAll(),
@@ -61,6 +72,47 @@ const FNBDataGrid = observer(({ data }: IProp) => {
     };
 
     getStatements();
+  }, []);
+
+  useEffect(() => {
+    const getTransactionsForYear = async (
+      propertyId: string,
+      financialYear: string
+    ) => {
+      try {
+        const bodyCoperateCollectionRef = collection(db, "BodyCoperate");
+
+        // Reference to the specific document in "BodyCoperate"
+        const bodyCoperateDocRef = doc(bodyCoperateCollectionRef, propertyId);
+
+        // Reference to the "Year" subcollection under the specific document
+        const yearCollectionRef = collection(bodyCoperateDocRef, "Year");
+
+        // Reference to the specific year document
+        const yearDocRef = doc(yearCollectionRef, financialYear);
+
+        // Reference to the "Transactions" subcollection under the specific year document
+        const transactionsCollectionRef = collection(
+          yearDocRef,
+          "Transactions"
+        );
+
+        // Query the transactions
+        const transactionsQuerySnapshot = await getDocs(
+          transactionsCollectionRef
+        );
+
+        const transactions = transactionsQuerySnapshot.docs.map(
+          (doc) => doc.data() as IFNB
+        );
+
+        return transactions;
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+        return [];
+      }
+    };
+    getTransactionsForYear("Kro9GBJpsTULxDsFSl4d", "2023");
   }, []);
 
   // const accounts = store.bodyCorperate.account.all;
@@ -109,23 +161,40 @@ const FNBDataGrid = observer(({ data }: IProp) => {
         console.log("Invoice not found.");
         return; // Return early if the invoice doesn't exist
       }
+      const bodyCoperateCollectionRef = collection(db, "BodyCoperate");
 
-      const fnbStatementsRef = doc(
-        collection(db, "FnbStatements"),
+      // Specify a valid document ID for bodyCoperateDocRef
+      const bodyCoperateDocRef = doc(
+        bodyCoperateCollectionRef,
+        "Kro9GBJpsTULxDsFSl4d"
+      );
+
+      // Reference to the "Year" subcollection under the specific document
+      const yearCollectionRef = collection(bodyCoperateDocRef, "Year");
+
+      // Reference to the specific year document
+      const yearDocRef = doc(yearCollectionRef, "2023");
+
+      // Reference to the "Transactions" subcollection under the specific year document
+      const transactionsCollectionRef = doc(
+        collection(yearDocRef, "Transactions"),
         transactionId
       );
-      const fnbStatementsSnapshot = await getDoc(fnbStatementsRef);
+
+      const fnbStatementsSnapshot = await getDoc(transactionsCollectionRef);
       if (fnbStatementsSnapshot.exists()) {
-        await updateDoc(fnbStatementsRef, {
+        await updateDoc(transactionsCollectionRef, {
           allocated: true,
           unitId: unitId,
           invoiceNumber: invoiceNumber,
           rcp: generateInvoiceNumber(),
         });
-        setIsAllocating(false);
+
         SuccessfulAction(ui);
+
+        setIsAllocating(false);
       } else {
-        console.log("FnbStatements document not found.");
+        console.log(" document not found.");
         FailedAction(ui);
       }
     } catch (error) {
@@ -146,10 +215,28 @@ const FNBDataGrid = observer(({ data }: IProp) => {
       setSupplierId("");
       return;
     } else {
-      const fnbStatementsRef = doc(collection(db, "FnbStatements"), id);
-      const fnbStatementsSnapshot = await getDoc(fnbStatementsRef);
+      const bodyCoperateCollectionRef = collection(db, "BodyCoperate");
+
+      // Specify a valid document ID for bodyCoperateDocRef
+      const bodyCoperateDocRef = doc(
+        bodyCoperateCollectionRef,
+        "Kro9GBJpsTULxDsFSl4d"
+      );
+
+      // Reference to the "Year" subcollection under the specific document
+      const yearCollectionRef = collection(bodyCoperateDocRef, "Year");
+
+      // Reference to the specific year document
+      const yearDocRef = doc(yearCollectionRef, "2023");
+
+      // Reference to the "Transactions" subcollection under the specific year document
+      const transactionsCollectionRef = doc(
+        collection(yearDocRef, "Transactions"),
+        id
+      );
+      const fnbStatementsSnapshot = await getDoc(transactionsCollectionRef);
       if (fnbStatementsSnapshot.exists()) {
-        await updateDoc(fnbStatementsRef, {
+        await updateDoc(transactionsCollectionRef, {
           allocated: true,
           accountId: accountId,
           rcp: generateInvoiceNumber(),
@@ -174,13 +261,31 @@ const FNBDataGrid = observer(({ data }: IProp) => {
       setSupplierId("");
       return;
     } else {
-      const fnbStatementsRef = doc(collection(db, "FnbStatements"), id);
-      const fnbStatementsSnapshot = await getDoc(fnbStatementsRef);
+      const bodyCoperateCollectionRef = collection(db, "BodyCoperate");
+
+      // Specify a valid document ID for bodyCoperateDocRef
+      const bodyCoperateDocRef = doc(
+        bodyCoperateCollectionRef,
+        "Kro9GBJpsTULxDsFSl4d"
+      );
+
+      // Reference to the "Year" subcollection under the specific document
+      const yearCollectionRef = collection(bodyCoperateDocRef, "Year");
+
+      // Reference to the specific year document
+      const yearDocRef = doc(yearCollectionRef, "2023");
+
+      // Reference to the "Transactions" subcollection under the specific year document
+      const transactionsCollectionRef = doc(
+        collection(yearDocRef, "Transactions"),
+        id
+      );
+      const fnbStatementsSnapshot = await getDoc(transactionsCollectionRef);
       if (fnbStatementsSnapshot.exists()) {
-        await updateDoc(fnbStatementsRef, {
+        await updateDoc(transactionsCollectionRef, {
           allocated: true,
           supplierId: supplierId,
-          rcp: generateInvoiceNumber(),
+          rcp: generateInvoiceNumberSupplier(),
         });
         setIsAllocating(false);
         setAccountId("");
@@ -202,10 +307,28 @@ const FNBDataGrid = observer(({ data }: IProp) => {
       setSupplierId("");
       return;
     } else {
-      const fnbStatementsRef = doc(collection(db, "FnbStatements"), id);
-      const fnbStatementsSnapshot = await getDoc(fnbStatementsRef);
+      const bodyCoperateCollectionRef = collection(db, "BodyCoperate");
+
+      // Specify a valid document ID for bodyCoperateDocRef
+      const bodyCoperateDocRef = doc(
+        bodyCoperateCollectionRef,
+        "Kro9GBJpsTULxDsFSl4d"
+      );
+
+      // Reference to the "Year" subcollection under the specific document
+      const yearCollectionRef = collection(bodyCoperateDocRef, "Year");
+
+      // Reference to the specific year document
+      const yearDocRef = doc(yearCollectionRef, "2023");
+
+      // Reference to the "Transactions" subcollection under the specific year document
+      const transactionsCollectionRef = doc(
+        collection(yearDocRef, "Transactions"),
+        id
+      );
+      const fnbStatementsSnapshot = await getDoc(transactionsCollectionRef);
       if (fnbStatementsSnapshot.exists()) {
-        await updateDoc(fnbStatementsRef, {
+        await updateDoc(transactionsCollectionRef, {
           allocated: true,
           transfer: transferId,
           rcp: generateInvoiceNumber(),
@@ -391,7 +514,7 @@ const FNBDataGrid = observer(({ data }: IProp) => {
             >
               <option value="">Select Account</option>
               {store.bodyCorperate.unit.all
-                .filter((u) => u.asJson.bodyCopId === params.row.propertyId)
+                .filter((u) => u.asJson.bodyCopId === "Kro9GBJpsTULxDsFSl4d")
                 .map((u) => (
                   <option value={u.asJson.id}>Unit {u.asJson.unitName}</option>
                 ))}

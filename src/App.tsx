@@ -46,10 +46,11 @@ import { Transfer } from "./logged_in_admin/bcms/Types/transfers/Transfer";
 import { AccountType } from "./logged_in_admin/bcms/Types/accounts/Account";
 import { Statements } from "./logged_in_admin/bcms/accounting/statements/Statements";
 import { CustomerReportsFNB } from "./logged_in_admin/bcms/accounting/reports/customer/CustomerReport";
-import { SupplierReports } from "./logged_in_admin/bcms/accounting/reports/supplier/SupplierReports";
+import { SupplierReportsNEDBANK } from "./logged_in_admin/bcms/accounting/reports/supplier/SupplierReports";
 import { CustomerReportNEDBANK } from "./logged_in_admin/bcms/accounting/reports/customer/CustomerReportNEDBANK";
 import { SupplierInvoices } from "./logged_in_admin/bcms/accounting/invoices/supplier-invoices/SupplierInvoices";
 import { CreateSupplierInvoice } from "./logged_in_admin/bcms/accounting/invoices/supplier-invoices/create/CreateInvoice";
+import { SupplierReportsFNB } from "./logged_in_admin/bcms/accounting/reports/supplier/SupplierReportFNB";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -114,7 +115,11 @@ const ADMIN_USER_ROUTES = () => {
           {/* <Route path={`accounting/statements/customer-windhoek`} element={<CustomerReportsFNB />} /> */}
           <Route
             path={`accounting/statements/supplier`}
-            element={<SupplierReports />}
+            element={<SupplierReportsNEDBANK />}
+          />
+          <Route
+            path={`accounting/statements/supplier-fnb`}
+            element={<SupplierReportsFNB />}
           />
           {/* <Route path={`accounting/statements/account`} element={<Statements />} /> */}
 

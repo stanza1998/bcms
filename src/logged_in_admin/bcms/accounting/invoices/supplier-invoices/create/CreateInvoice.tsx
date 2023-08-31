@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Tab } from "../../../../../../Tab";
 import { useAppContext } from "../../../../../../shared/functions/Context";
 import { NEDBANKCreate } from "./NEDBANK";
+import { FNBCreate } from "./FNBCreate";
 
 export const CreateSupplierInvoice = observer(() => {
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ export const CreateSupplierInvoice = observer(() => {
             </div>
             <div className="tab-content">
               {activeTab === "nedbank" && <NEDBANKCreate />}
-              {/* {activeTab === "fnb" && <FNBCreate />} */}
+              {activeTab === "fnb" && <FNBCreate />}
               {/* {activeTab === "whk" && <WHKCreate />} */}
             </div>
           </div>
@@ -61,5 +62,3 @@ export const CreateSupplierInvoice = observer(() => {
     </div>
   );
 });
-
-

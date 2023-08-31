@@ -43,6 +43,13 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
     return generatedInvoiceNumber; // Add the prefix "INV" to the number
   };
 
+  const generateInvoiceNumberSupplier = () => {
+    const randomNumber = Math.floor(Math.random() * 1000000); // Generate a random number between 0 and 9999
+    const formattedNumber = randomNumber.toString().padStart(4, "0"); // Pad the number with leading zeros if necessary
+    const generatedInvoiceNumber = `PAYP000${formattedNumber}`;
+    return generatedInvoiceNumber; // Add the prefix "INV" to the number
+  };
+
   useEffect(() => {
     const getStatements = async () => {
       // Otherwise, fetch data and cache it
@@ -175,7 +182,7 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
         await updateDoc(fnbStatementsRef, {
           allocated: true,
           supplierId: supplierId,
-          rcp: generateInvoiceNumber(),
+          rcp: generateInvoiceNumberSupplier(),
         });
         setIsAllocating(false);
         setAccountId("");
