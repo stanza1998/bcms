@@ -1,103 +1,99 @@
 import {
   CollectionReference,
+  Unsubscribe,
+  collection,
   deleteDoc,
   doc,
   getDoc,
   onSnapshot,
   query,
   setDoc,
+  updateDoc,
 } from "firebase/firestore";
 import AppApi from "../AppApi";
 import AppStore from "../../stores/AppStore";
 import { IInvoice } from "../../models/invoices/Invoices";
+import { db } from "../../database/FirebaseConfig";
 
 export default class InvoiceApi {
-  collectionRef: CollectionReference;
-  constructor(
-    private api: AppApi,
-    private store: AppStore,
-    collectionRef: CollectionReference
-  ) {
-    this.collectionRef = collectionRef;
-  }
+  constructor(private api: AppApi, private store: AppStore) {}
 
   async getAll() {
-    const q = query(this.collectionRef);
+    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/MasterInvoices`;
 
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const items: IInvoice[] = [];
-      querySnapshot.forEach((doc) => {
-        items.push({ invoiceId: doc.id, ...doc.data() } as IInvoice);
-      });
+    const $query = query(collection(db, myPath));
+    // new promise
+    return await new Promise<Unsubscribe>((resolve, reject) => {
+      // on snapshot
+      const unsubscribe = onSnapshot(
+        $query,
+        // onNext
+        (querySnapshot) => {
+          const items: IInvoice[] = [];
+          querySnapshot.forEach((doc) => {
+            items.push({ invoiceId: doc.id, ...doc.data() } as IInvoice);
+          });
 
-      this.store.bodyCorperate.invoice.load(items);
+          this.store.bodyCorperate.invoice.load(items);
+          resolve(unsubscribe);
+        },
+        // onError
+        (error) => {
+          reject();
+        }
+      );
+    });
+  }
+
+  async getById(id: string) {
+    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/MasterInvoices`;
+
+    const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
+      if (!doc.exists) return;
+      const item = { invoiceId: doc.id, ...doc.data() } as IInvoice;
+
+      this.store.bodyCorperate.invoice.load([item]);
     });
 
     return unsubscribe;
   }
 
-  async getInvoice(id: string) {
-    const docSnap = await getDoc(doc(this.collectionRef, id));
-    if (docSnap.exists()) {
-      const body = { ...docSnap.data(), invoiceId: docSnap.id } as IInvoice;
-      await this.store.bodyCorperate.invoice.load([body]);
-      return body;
-    } else return undefined;
+  async create(item: IInvoice) {
+    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/MasterInvoices`;
+
+    const itemRef = doc(collection(db, myPath));
+    item.invoiceId = itemRef.id;
+
+    // create in db
+    try {
+      await setDoc(itemRef, item, {
+        merge: true,
+      });
+      // create in store
+      this.store.bodyCorperate.invoice.load([item]);
+    } catch (error) {
+      // console.log(error);
+    }
   }
 
-  async create(data: IInvoice) {
-    const docRef = doc(this.collectionRef);
-    data.invoiceId = docRef.id;
-    await setDoc(docRef, data, { merge: true });
-    return data;
-  }
+  async update(product: IInvoice) {
+    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/MasterInvoices`;
+    try {
+      await updateDoc(doc(db, myPath, product.invoiceId), {
+        ...product,
+      });
 
-  async update(invoice: IInvoice) {
-    await setDoc(doc(this.collectionRef, invoice.invoiceId), invoice, {
-      merge: true,
-    });
-    return invoice;
+      this.store.bodyCorperate.invoice.load([product]);
+    } catch (error) {}
   }
 
   async delete(id: string) {
-    const docRef = doc(this.collectionRef, id);
-    await deleteDoc(docRef);
-    this.store.bodyCorperate.invoice.remove(id);
+    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/MasterInvoices`;
+    try {
+      await deleteDoc(doc(db, myPath, id));
+      this.store.bodyCorperate.invoice.remove(id);
+    } catch (error) {
+      console.log(error);
+    }
   }
-
-  // async scheduleReminderEmail(invoice: IInvoice) {
-  //   const { reminderDate } = invoice;
-
-  //   if (reminderDate) {
-  //     // Parse the reminder date into a Date object (assuming 'reminder' is a valid date string in 'YYYY-MM-DD' format)
-  //     const reminderDateObj = new Date(reminderDate);
-
-  //     // Schedule the reminder email using node-cron
-  //     const reminderTask = cron.schedule(reminderDateObj, async () => {
-  //       try {
-  //         // Implement the logic to send the reminder email using your email library (e.g., nodemailer)
-  //         // Example:
-  //         // const mailOptions = {
-  //         //   from: "your_email@example.com",
-  //         //   to: recipientEmail,
-  //         //   subject: "Reminder: Invoice Due Soon",
-  //         //   text: `This is a friendly reminder that invoice #${invoice.invoiceId} is due on ${reminder}.`,
-  //         // };
-
-  //         // Call the email-sending function (make sure you have set up nodemailer or another email library)
-  //         await 
-
-  //         // After sending the email, you can choose to cancel the scheduled task
-  //         // (optional if you want to send the reminder only once)
-  //         reminderTask.destroy();
-
-  //         console.log("Reminder email sent successfully.");
-  //       } catch (error) {
-  //         console.error("Error sending the reminder email:", error);
-  //       }
-  //     });
-
-  //     console.log("Reminder email scheduled successfully.");
-  //   }
-  // }
 }

@@ -8,6 +8,8 @@ import {
   onSnapshot,
   query,
   setDoc,
+  updateDoc,
+  where,
 } from "firebase/firestore";
 import AppApi from "../AppApi";
 import AppStore from "../../stores/AppStore";
@@ -69,10 +71,7 @@ export default class BodyCopApi {
     this.store.bodyCorperate.bodyCop.remove(id);
   }
 
-   async getTransactionsForYear(
-    propertyId: string,
-    financialYear: string
-  )  {
+  async getTransactionsForYear(propertyId: string, financialYear: string) {
     try {
       const bodyCoperateCollectionRef = collection(db, "BodyCoperate");
 
@@ -97,12 +96,43 @@ export default class BodyCopApi {
         return doc.data() as IFNB;
       });
 
-    
-
       console.log("🚀  transactions:", transactions);
     } catch (error) {
       console.error("Error fetching transactions:", error);
       return [];
     }
-  };
+  }
+
+  async setActiveStatus(documentId: string, active: boolean) {
+    try {
+      // Reference to the collection of documents
+      const documentsCollectionRef = this.collectionRef;
+
+      // Find the document with the current active status set to true
+      const activeDocumentQuery = query(
+        documentsCollectionRef,
+        where("active", "==", true)
+      );
+
+      const activeDocumentQuerySnapshot = await getDocs(
+        activeDocumentQuery
+      );
+
+      if (activeDocumentQuerySnapshot.size > 0) {
+        // There is an active document, so update it to false
+        const activeDocument = activeDocumentQuerySnapshot.docs[0];
+        const activeDocumentRef = doc(documentsCollectionRef, activeDocument.id);
+        await updateDoc(activeDocumentRef, { active: false });
+      }
+
+      // Update the desired document to the new active status
+      const desiredDocumentRef = doc(documentsCollectionRef, documentId);
+      await updateDoc(desiredDocumentRef, { active });
+
+      return true; // Success
+    } catch (error) {
+      console.error("Error updating active status:", error);
+      return false; // Error
+    }
+  }
 }

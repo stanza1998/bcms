@@ -1,70 +1,103 @@
 import {
-    CollectionReference,
-    deleteDoc,
-    doc,
-    getDoc,
-    onSnapshot,
-    query,
-    setDoc,
-  } from "firebase/firestore";
+  CollectionReference,
+  Unsubscribe,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  onSnapshot,
+  query,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import AppApi from "../../AppApi";
 import AppStore from "../../../stores/AppStore";
 import { ISupplier } from "../../../models/Types/Suppliers";
+import { db } from "../../../database/FirebaseConfig";
+
+export default class SupplierApi {
+  // collectionRef: CollectionReference;
+  constructor(private api: AppApi, private store: AppStore) {}
+
+  async getAll() {
+    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/Suppliers`;
+
+    const $query = query(collection(db, myPath));
+    // new promise
+    return await new Promise<Unsubscribe>((resolve, reject) => {
+      // on snapshot
+      const unsubscribe = onSnapshot(
+        $query,
+        // onNext
+        (querySnapshot) => {
+          const items: ISupplier[] = [];
+          querySnapshot.forEach((doc) => {
+            items.push({ id: doc.id, ...doc.data() } as ISupplier);
+          });
+
+          this.store.bodyCorperate.supplier.load(items);
+          resolve(unsubscribe);
+        },
+        // onError
+        (error) => {
+          reject();
+        }
+      );
+    });
+  }
 
 
-  
-  export default class SupplierApi {
-    collectionRef: CollectionReference;
-    constructor(
-      private api: AppApi,
-      private store: AppStore,
-      collectionRef: CollectionReference
-    ) {
-      this.collectionRef = collectionRef;
-    }
-  
-    async getAll() {
-      const q = query(this.collectionRef);
-  
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        const items: ISupplier[] = [];
-        querySnapshot.forEach((doc) => {
-          items.push({ id: doc.id, ...doc.data() } as ISupplier);
-        });
-  
-        this.store.bodyCorperate.supplier.load(items);
-      });
-  
-      return unsubscribe;
-    }
-  
-    async getBodyCop(id: string) {
-      const docSnap = await getDoc(doc(this.collectionRef, id));
-      if (docSnap.exists()) {
-        const body = { ...docSnap.data(), id: docSnap.id } as ISupplier;
-        await this.store.bodyCorperate.supplier.load([body]);
-        return body;
-      } else return undefined;
-    }
-  
-    async create(data: ISupplier) {
-      const docRef = doc(this.collectionRef);
-      data.id = docRef.id;
-      await setDoc(docRef, data, { merge: true });
-      return data;
-    }
-  
-    async update(product: ISupplier) {
-      await setDoc(doc(this.collectionRef, product.id), product, {
+
+  async getById(id: string) {
+    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/Suppliers`;
+
+    const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
+      if (!doc.exists) return;
+      const item = { id: doc.id, ...doc.data() } as ISupplier;
+
+      this.store.bodyCorperate.supplier.load([item]);
+    });
+
+    return unsubscribe;
+  }
+
+  //rememberId
+  async create(item: ISupplier) {
+    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/Suppliers`;
+
+    const itemRef = doc(collection(db, myPath));
+    item.id = itemRef.id;
+
+    // create in db
+    try {
+      await setDoc(itemRef, item, {
         merge: true,
       });
-      return product;
-    }
-  
-    async delete(id: string) {
-      const docRef = doc(this.collectionRef, id);
-      await deleteDoc(docRef);
-      this.store.bodyCorperate.supplier.remove(id);
+      // create in store
+      this.store.bodyCorperate.supplier.load([item]);
+    } catch (error) {
+      // console.log(error);
     }
   }
-  
+
+  async update(supplier: ISupplier) {
+    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/Suppliers`;
+    try {
+      await updateDoc(doc(db, myPath, supplier.id), {
+        ...supplier,
+      });
+
+      this.store.bodyCorperate.supplier.load([supplier]);
+    } catch (error) {}
+  }
+
+  async delete(id: string) {
+    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/Suppliers`;
+    try {
+      await deleteDoc(doc(db, myPath, id));
+      this.store.bodyCorperate.supplier.remove(id);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+}

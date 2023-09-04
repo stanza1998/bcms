@@ -49,7 +49,7 @@ const InvoicesGrid = observer(({ data }: IProp) => {
     api.body.copiedInvoice,
     api.body.financialMonth,
     api.body.financialYear,
-    api.body.unit,
+    api.unit,
   ]);
 
  
@@ -94,7 +94,7 @@ const InvoicesGrid = observer(({ data }: IProp) => {
     setMonth(month?.asJson);
     const year = store.bodyCorperate.financialYear.getById(yid);
     setYear(year?.asJson);
-    await api.body.unit.getAll();
+    await api.unit.getAll();
   };
 
   //unit data

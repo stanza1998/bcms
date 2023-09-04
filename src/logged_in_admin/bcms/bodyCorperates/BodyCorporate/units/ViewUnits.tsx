@@ -21,7 +21,7 @@ import {
   SuccessfulAction,
 } from "../../../../../shared/models/Snackbar";
 import { IInvoice } from "../../../../../shared/models/invoices/Invoices";
-import unitIcon from "./assets/unit.svg";
+
 import GridViewIcon from "@mui/icons-material/GridView";
 
 export const ViewUnit = observer(() => {
@@ -44,7 +44,7 @@ export const ViewUnit = observer(() => {
         await api.body.body.getAll();
         const unit = store.bodyCorperate.bodyCop.getById(propertyId);
         setBody(unit?.asJson);
-        await api.body.unit.getAll();
+        await api.unit.getAll();
         await api.body.invoice.getAll();
         await api.auth.loadAll();
       }
@@ -54,7 +54,7 @@ export const ViewUnit = observer(() => {
     api.auth,
     api.body.body,
     api.body.invoice,
-    api.body.unit,
+    api.unit,
     propertyId,
     store.bodyCorperate.bodyCop,
   ]);
@@ -93,8 +93,8 @@ export const ViewUnit = observer(() => {
     setLoading(true);
     try {
       if (store.bodyCorperate.unit.selected) {
-        const supp = await api.body.unit.update(unit);
-        if (supp) await store.bodyCorperate.unit.load([supp]);
+        const supp = await api.unit.update(unit);
+        await store.bodyCorperate.unit.load();
         ui.snackbar.load({
           id: Date.now(),
           message: "unit updated!",
@@ -104,7 +104,7 @@ export const ViewUnit = observer(() => {
         // Add the default category ID to the tradingType object
         if (viewBody?.id) unit.bodyCopId = viewBody?.id;
 
-        await api.body.unit.create(unit);
+        await api.unit.create(unit);
         // if (supp) await store.inventory.tradingCategories.load([supp]);
         ui.snackbar.load({
           id: Date.now(),
@@ -170,10 +170,17 @@ export const ViewUnit = observer(() => {
   };
 
   const duplicated = async () => {
+    const myPath =
+      "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08";
+
     if (masterInvoices.length > 0) {
       try {
         setLoadingF(true);
-        const copiedInvoicesCollection = collection(db, "CopiedInvoices");
+        const copiedInvoicesCollection = collection(
+          db,
+          myPath,
+          "CopiedInvoices"
+        );
 
         for (const masterInvoice of masterInvoices) {
           try {
@@ -274,7 +281,6 @@ export const ViewUnit = observer(() => {
             <div
               className="uk-card uk-card-default uk-card-body uk-width-1-1@m"
               style={{
-                backgroundImage: `url(${unitIcon})`,
                 backgroundPosition: "right",
                 backgroundSize: "35%",
                 backgroundRepeat: "no-repeat",

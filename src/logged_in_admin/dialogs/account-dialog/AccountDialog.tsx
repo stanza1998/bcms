@@ -24,7 +24,7 @@ export const AccountDialog = observer(() => {
     try {
       if (store.bodyCorperate.account.selected) {
         const deptment = await api.body.account.update(account);
-        if (deptment) await store.bodyCorperate.account.load([deptment]);
+        await store.bodyCorperate.account.load();
         ui.snackbar.load({
           id: Date.now(),
           message: "Account Created!",

@@ -42,10 +42,10 @@ export const CustomerReportsFNB = observer(() => {
       await api.body.fnb.getAll();
       await api.body.copiedInvoice.getAll();
       await api.body.body.getAll();
-      await api.body.unit.getAll();
+      await api.unit.getAll();
     };
     getData();
-  }, [api.body.body, api.body.copiedInvoice, api.body.fnb, api.body.unit]);
+  }, [api.body.body, api.body.copiedInvoice, api.unit]);
 
   const properties = store.bodyCorperate.bodyCop.all.map((p) => {
     return p.asJson;

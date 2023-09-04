@@ -82,14 +82,14 @@ const ADMIN_DRAWER = () => {
                 Accounts
               </NavLink>
             </li>
-            <li>
+            {/* <li>
               <NavLink to={`body/transfer`} className="navlink">
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
                 Transfer
               </NavLink>
-            </li>
+            </li> */}
           </ul>
         </li>
 
@@ -223,28 +223,6 @@ const ADMIN_DRAWER = () => {
             </li>
           </ul>
         </li>
-        {/* <li className="list-item uk-parent">
-          <NavLink to={`accounting`} className="navlink">
-            <span className="uk-margin-small-right">
-              <AccountBalanceIcon style={{ fontSize: "16px" }} />
-            </span>
-            Accounting
-            <span className="down-arrow" data-uk-icon="chevron-down" />
-          </NavLink>
-          <ul className="uk-nav-sub">
-            <li>
-              <NavLink
-                to={`accounting/accounting-overview`}
-                className="navlink"
-              >
-                <span className="uk-margin-small-right">
-                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
-                </span>
-                Orders Overview
-              </NavLink>
-            </li>
-          </ul>
-        </li> */}
 
         <li className="list-item uk-parent">
           <NavLink to={`admin`} className="navlink">
@@ -272,6 +250,14 @@ const ADMIN_DRAWER = () => {
               </NavLink>
             </li>
             <li>
+              <li>
+                <NavLink to={`admin/others`} className="navlink">
+                  <span className="uk-margin-small-right">
+                    <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                  </span>
+                  Settings
+                </NavLink>
+              </li>
               <NavLink to={`admin/appearance`} className="navlink">
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />

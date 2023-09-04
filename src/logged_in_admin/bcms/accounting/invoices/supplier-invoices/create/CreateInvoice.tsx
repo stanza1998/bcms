@@ -8,7 +8,7 @@ import { FNBCreate } from "./FNBCreate";
 
 export const CreateSupplierInvoice = observer(() => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("nedbank");
+  const [activeTab, setActiveTab] = useState("fnb");
 
   const handleTabClick = (tabLabel: string) => {
     setActiveTab(tabLabel);
@@ -36,15 +36,16 @@ export const CreateSupplierInvoice = observer(() => {
           <div>
             <div className="uk-margin">
               <Tab
-                label="NEDBANK"
-                isActive={activeTab === "nedbank"}
-                onClick={() => handleTabClick("nedbank")}
-              />
-              <Tab
                 label="First National Bank"
                 isActive={activeTab === "fnb"}
                 onClick={() => handleTabClick("fnb")}
               />
+              <Tab
+                label="NEDBANK"
+                isActive={activeTab === "nedbank"}
+                onClick={() => handleTabClick("nedbank")}
+              />
+
               <Tab
                 label="Bank Windhoek"
                 isActive={activeTab === "whk"}

@@ -19,7 +19,7 @@ export const UnitCard = observer((props: IProps) => {
   const onDelete = async (id: string) => {
     confirmationDialog().then(
       async function () {
-        await api.body.unit.delete(id);
+        await api.unit.delete(id);
         ui.snackbar.load({
           id: Date.now(),
           message: "Deleted",

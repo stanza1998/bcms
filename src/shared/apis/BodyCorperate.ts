@@ -18,7 +18,7 @@ import SupplierInvoiceApi from "./bodyCorperate/SupplierInvoices";
 
 export default class BodyCorpetaApi {
   private BodyCoperateDB = collection(db, "BodyCoperate");
-  private UnitDB = collection(db, "Unit");
+
   private FinacialYearDB = collection(db, "FinacialYear");
   private FinacialMonthDB = collection(db, "FinacialMonth");
   private InvoiceDB = collection(db, "Invoices");
@@ -32,7 +32,7 @@ export default class BodyCorpetaApi {
   private accountDB = collection(db, "Account");
 
   body: BodyCopApi;
-  unit: UnitApi;
+  // unit: UnitApi;
   financialYear: FinancialYearApi;
   financialMonth: FinancialMonthApi;
   invoice: InvoiceApi;
@@ -43,29 +43,28 @@ export default class BodyCorpetaApi {
   nedbank: NEDBANKApi;
   transfer: TransferApi;
   account: AccountApi;
-  supplier: SupplierApi
+  supplier: SupplierApi;
 
   constructor(api: AppApi, store: AppStore) {
     this.body = new BodyCopApi(api, store, this.BodyCoperateDB);
-    this.unit = new UnitApi(api, store, this.UnitDB);
-    this.financialYear = new FinancialYearApi(api, store, this.FinacialYearDB);
-    this.financialMonth = new FinancialMonthApi(
-      api,
-      store,
-      this.FinacialMonthDB
-    );
-    this.invoice = new InvoiceApi(api, store, this.InvoiceDB);
+    // this.unit = new UnitApi(api, store);
+    this.financialYear = new FinancialYearApi(api, store);
+    this.financialMonth = new FinancialMonthApi(api, store);
+    this.invoice = new InvoiceApi(api, store);
+
+    this.fnb = new FNBApi(api, store);
+    this.copiedInvoice = new CopiedInvoiceApi(api, store);
+    this.nedbank = new NEDBANKApi(api, store, this.NEDBANKBB);
+    this.transfer = new TransferApi(api, store, this.transferDB);
+    this.account = new AccountApi(api, store, this.accountDB);
+    this.supplier = new SupplierApi(api, store);
+    this.supplierInvoice = new SupplierInvoiceApi(api, store);
+
+    //   not needed
     this.recuringInvoice = new RecuringInvoiceApi(
       api,
       store,
       this.RecuringInvoiceDB
     );
-    this.fnb = new FNBApi(api, store, this.FNBDB);
-    this.copiedInvoice = new CopiedInvoiceApi(api, store, this.CopiedInvoiceDB);
-    this.nedbank = new NEDBANKApi(api, store, this.NEDBANKBB);
-    this.transfer = new TransferApi(api, store, this.transferDB);
-    this.account = new AccountApi(api, store, this.accountDB);
-    this.supplier = new SupplierApi(api, store, this.supplierDB);
-    this.supplierInvoice = new SupplierInvoiceApi(api, store, this.SupplierInvoiceDB)
   }
 }

@@ -50,7 +50,8 @@ export const FNBCreate = observer(() => {
   const transactions = store.bodyCorperate.fnb.all
     .filter(
       (t) =>
-        t.asJson.propertyId === propertyId && t.asJson.supplierId === supplierId
+        t.asJson.propertyId === "4Q5WwF2rQFmoStdpmzaW" &&
+        t.asJson.supplierId === supplierId
     )
     .map((t) => {
       return t.asJson;
@@ -59,24 +60,6 @@ export const FNBCreate = observer(() => {
   return (
     <div>
       <div>
-        <label htmlFor="">Select Property</label>
-        <br />
-        <select
-          name=""
-          id=""
-          className="uk-input"
-          onChange={(e) => setPropertyId(e.target.value)}
-          style={{ width: "30%" }}
-        >
-          <option value="">Select Property</option>
-          {properties.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.BodyCopName}
-            </option>
-          ))}
-        </select>
-        <br />
-        <br />
         <label htmlFor="">Select Supplier Account</label>
         <br />
         <select
@@ -96,18 +79,13 @@ export const FNBCreate = observer(() => {
       </div>
       <br />
       <br />
-      <FNBGrid
-      supplierId={supplierId}
-      propertyId={propertyId}
-      data={transactions}
-    />
+      <FNBGrid supplierId={supplierId} data={transactions} />
     </div>
   );
 });
 
 interface IProp {
   data: IFNB[];
-  propertyId: string;
   supplierId: string;
 }
 
@@ -118,7 +96,7 @@ interface ServiceDetails {
   total: number;
 }
 
-const FNBGrid = observer(({ data, propertyId, supplierId }: IProp) => {
+const FNBGrid = observer(({ data, supplierId }: IProp) => {
   const { store, api, ui } = useAppContext();
   const navigate = useNavigate();
   const [transactionId, setTransactionId] = useState<string[]>([]);
@@ -134,9 +112,7 @@ const FNBGrid = observer(({ data, propertyId, supplierId }: IProp) => {
   const currentDate1 = new Date().toISOString().slice(0, 10);
   const [selectedDateIssued, setSelectedDateIssued] = useState(currentDate1);
   const [selectedDate, setSelectedDate] = useState(currentDate1);
-  const [property, setProperty] = useState<IBodyCop | undefined>({
-    ...defaultBodyCop,
-  });
+
   const [supplier, setSupplier] = useState<ISupplier | undefined>({
     ...defaultSupplier,
   });
@@ -145,20 +121,13 @@ const FNBGrid = observer(({ data, propertyId, supplierId }: IProp) => {
     const getProperty = async () => {
       await api.body.body.getAll();
       await api.body.supplier.getAll();
-      const property = store.bodyCorperate.bodyCop.getById(propertyId);
+
       const supplier = store.bodyCorperate.supplier.getById(supplierId);
-      setProperty(property?.asJson);
+
       setSupplier(supplier?.asJson);
     };
     getProperty();
-  }, [
-    api.body.body,
-    api.body.supplier,
-    propertyId,
-    store.bodyCorperate.bodyCop,
-    store.bodyCorperate.supplier,
-    supplierId,
-  ]);
+  }, []);
 
   //create invoice
   // invoice
@@ -228,7 +197,7 @@ const FNBGrid = observer(({ data, propertyId, supplierId }: IProp) => {
       reminder: false,
       reminderDate: "",
       totalPaid: 0,
-      propertyId: property?.id || "",
+      propertyId: "4Q5WwF2rQFmoStdpmzaW",
       supplierId: supplier?.id || "",
     };
     try {
@@ -247,8 +216,13 @@ const FNBGrid = observer(({ data, propertyId, supplierId }: IProp) => {
   };
 
   const addInvoiceNumber = (invoiceNumber: string) => {
+    const myPath =
+      "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08";
     transactionId.forEach(async (ids) => {
-      const fnbStatementsRef = doc(collection(db, "FnbStatements"), ids);
+      const fnbStatementsRef = doc(
+        collection(db, myPath, "FNBTransactions"),
+        ids
+      );
       const fnbStatementsSnapshot = await getDoc(fnbStatementsRef);
       if (fnbStatementsSnapshot.exists()) {
         await updateDoc(fnbStatementsRef, {
@@ -330,7 +304,11 @@ const FNBGrid = observer(({ data, propertyId, supplierId }: IProp) => {
                         id="first-name"
                         className="uk-input uk-form-small"
                         type="text"
-                        value={property?.BodyCopName}
+                        value={store.bodyCorperate.bodyCop.all
+                          .filter((p) => p.asJson.id === "4Q5WwF2rQFmoStdpmzaW")
+                          .map((p) => {
+                            return p.asJson.BodyCopName;
+                          })}
                         disabled
                       />
                     </div>
@@ -358,7 +336,7 @@ const FNBGrid = observer(({ data, propertyId, supplierId }: IProp) => {
                         id="first-name"
                         className="uk-input uk-form-small"
                         type="text"
-                        value={property?.BodyCopName}
+                        // value={property?.BodyCopName}
                         disabled
                       />
                     </div>

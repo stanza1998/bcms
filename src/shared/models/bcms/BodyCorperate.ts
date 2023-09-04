@@ -11,7 +11,8 @@ export const defaultBodyCop: IBodyCop = {
     branchName: "",
     branchCode: "",
     accountStyle: "",
-    swift: ""
+    swift: "",
+    active: false
 };
 
 export interface IBodyCop {
@@ -25,6 +26,7 @@ export interface IBodyCop {
     branchCode: string;
     accountStyle: string;
     swift: string;
+    active:boolean;
 
 }
 

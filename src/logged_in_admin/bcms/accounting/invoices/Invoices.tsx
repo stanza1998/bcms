@@ -80,7 +80,7 @@ const MasterInvoices = observer(() => {
     api.body.copiedInvoice,
     api.body.financialMonth,
     api.body.financialYear,
-    api.body.unit,
+    api.unit,
   ]);
 
   const invoicesC = store.bodyCorperate.copiedInvoices.all.map((statements) => {

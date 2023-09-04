@@ -79,7 +79,7 @@ export const CopiedInvoices = observer(() => {
   }, [
     api.auth,
     api.body.body,
-    api.body.unit,
+    api.unit,
     id,
     monthId,
     propertyId,

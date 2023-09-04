@@ -24,7 +24,7 @@ export const OwnerInvoices = observer(() => {
   const getInvoices = async () => {
     await api.body.invoice.getAll();
     await api.body.body.getAll();
-    await api.body.unit.getAll();
+    await api.unit.getAll();
     await api.body.financialYear.getAll();
     await api.body.financialMonth.getAll();
   };
@@ -33,7 +33,7 @@ export const OwnerInvoices = observer(() => {
     const getInvoices = async () => {
       await api.body.invoice.getAll();
       await api.body.body.getAll();
-      await api.body.unit.getAll();
+      await api.unit.getAll();
       await api.body.financialYear.getAll();
       await api.body.financialMonth.getAll();
     };
@@ -43,7 +43,7 @@ export const OwnerInvoices = observer(() => {
     api.body.financialMonth,
     api.body.financialYear,
     api.body.invoice,
-    api.body.unit,
+    api.unit,
   ]);
 
   const me = store.user.meJson;
@@ -208,24 +208,7 @@ export const OwnerInvoices = observer(() => {
             onChange={(e) => setFinancialMonth(e.target.value)}
           >
             <option value="">filter by month</option>
-            {store.bodyCorperate.financialMonth.all
-              .filter((month) => month.asJson.yearId === financialYear)
-              .map((month) => (
-                <option value={month.asJson.id}>
-                  {month.asJson.month === 1 && <>JAN</>}
-                  {month.asJson.month === 2 && <>FEB</>}
-                  {month.asJson.month === 3 && <>MAR</>}
-                  {month.asJson.month === 4 && <>APR</>}
-                  {month.asJson.month === 5 && <>MAY</>}
-                  {month.asJson.month === 6 && <>JUN</>}
-                  {month.asJson.month === 7 && <>JUL</>}
-                  {month.asJson.month === 8 && <>AUG</>}
-                  {month.asJson.month === 9 && <>SEP</>}
-                  {month.asJson.month === 10 && <>OCT</>}
-                  {month.asJson.month === 11 && <>NOV</>}
-                  {month.asJson.month === 12 && <>DEC</>}
-                </option>
-              ))}
+
           </select>
         </div>
         <div className="uk-overflow-auto">

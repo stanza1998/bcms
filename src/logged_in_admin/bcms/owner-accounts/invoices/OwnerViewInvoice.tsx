@@ -71,7 +71,7 @@ export const OwnerViewInvoice = observer(() => {
         await api.body.financialMonth.getAll();
         await api.body.financialYear.getAll();
         await api.body.invoice.getAll();
-        await api.body.unit.getAll();
+        await api.unit.getAll();
         const property = store.bodyCorperate.bodyCop.getById(propertyId || "");
         setBody(property?.asJson);
         const unit = store.bodyCorperate.unit.getById(id || "");
@@ -90,7 +90,7 @@ export const OwnerViewInvoice = observer(() => {
     api.body.financialMonth,
     api.body.financialYear,
     api.body.invoice,
-    api.body.unit,
+    api.unit,
     id,
     monthId,
     propertyId,

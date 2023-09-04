@@ -33,7 +33,7 @@ export const RecurringInvoices = observer(() => {
       await api.body.financialMonth.getAll();
       await api.body.financialYear.getAll();
       await api.body.invoice.getAll();
-      await api.body.unit.getAll();
+      await api.unit.getAll();
       await api.auth.loadAll();
     };
     getData();
@@ -44,7 +44,7 @@ export const RecurringInvoices = observer(() => {
     api.body.financialYear,
     api.body.invoice,
     api.body.recuringInvoice,
-    api.body.unit,
+    api.unit,
   ]);
 
   const invoices = store.bodyCorperate.recuringInvoice.all.map(

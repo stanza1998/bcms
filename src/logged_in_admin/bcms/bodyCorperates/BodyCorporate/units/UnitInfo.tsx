@@ -54,7 +54,7 @@ export const UnitInfor = observer(() => {
       }
     };
     getData();
-  }, [api.auth, api.body.body, api.body.unit, id, store.bodyCorperate.unit]);
+  }, [api.auth, api.body.body, api.unit, id, store.bodyCorperate.unit]);
 
   const back = () => {
     navigate(`/c/body/body-corperate/${info?.bodyCopId}`);

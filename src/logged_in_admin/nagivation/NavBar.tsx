@@ -9,6 +9,21 @@ const NavBar = () => {
 
   const letter1 = me?.firstName.charAt(0);
   const letter2 = me?.lastName.charAt(0);
+  const property = store.bodyCorperate.bodyCop.all
+    .filter((p) => p.asJson.active === true)
+    .map((p) => {
+      return p.asJson.BodyCopName;
+    });
+  const year = store.bodyCorperate.financialYear.all
+    .filter((p) => p.asJson.active === true)
+    .map((p) => {
+      return p.asJson.year;
+    });
+  const month = store.bodyCorperate.financialMonth.all
+    .filter((p) => p.asJson.active === true)
+    .map((p) => {
+      return p.asJson.month;
+    });
 
   return (
     <div
@@ -22,6 +37,30 @@ const NavBar = () => {
             data-uk-navbar-toggle-icon
             data-uk-toggle="target: #navbar-drawer"
           ></button>
+        </div>
+        <div className="navbar-right uk-navbar-left">
+          <ul className="uk-navbar-nav">
+            <li className="uk-inline" style={{ color: "white" }}>
+              <h6
+                style={{
+                  color: "white",
+                  fontWeight: "500",
+                  margin: "10px",
+                  fontSize: "14px",
+                }}
+              >
+                {property.map((p) => {
+                  return p + " ";
+                })}
+                {year.map((p) => {
+                  return " " + p + " - ";
+                })}
+                {month.map((p) => {
+                  return " " + p.slice(-2) + " ";
+                })}
+              </h6>
+            </li>
+          </ul>
         </div>
         <div className="navbar-right uk-navbar-right">
           <ul className="uk-navbar-nav">

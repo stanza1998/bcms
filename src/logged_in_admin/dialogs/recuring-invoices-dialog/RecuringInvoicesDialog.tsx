@@ -155,10 +155,10 @@ export const RecuringInvoicesDialog = observer(() => {
   useEffect(() => {
     const getData = async () => {
       await api.body.body.getAll();
-      await api.body.unit.getAll();
+      await api.unit.getAll();
     };
     getData();
-  }, [api.body.body, api.body.unit]);
+  }, [api.body.body, api.unit]);
 
   const [selectedBodyId, setSelectedBodyId] = useState("");
 

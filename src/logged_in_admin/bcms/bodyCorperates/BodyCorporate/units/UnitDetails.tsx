@@ -207,13 +207,13 @@ const Invoicing = observer(() => {
         setUnit(unit?.asJson);
         const year = store.bodyCorperate.financialYear.getById(yearId);
         setYear(year?.asJson);
-        await api.body.unit.getAll();
+        await api.unit.getAll();
       }
     };
     getData();
   }, [
     api.body.body,
-    api.body.unit,
+    api.unit,
     id,
     monthId,
     propertyId,
@@ -276,11 +276,13 @@ const Invoicing = observer(() => {
       reminderDate: "",
       totalPaid: 0,
     };
+    try {
+      await api.body.invoice.create(InvoiceData);
+      setLoadingInvoice(false);
+    } catch (error) {
+      console.log(error);
+    }
 
-    const docRef = doc(collection(db, "Invoices"));
-    InvoiceData.invoiceId = docRef.id;
-    await setDoc(docRef, InvoiceData, { merge: true });
-    setLoadingInvoice(false);
     setInvoiceNumber("");
     setSelectedDate("");
     hideModalFromId(DIALOG_NAMES.BODY.CREATE_INVOICE);

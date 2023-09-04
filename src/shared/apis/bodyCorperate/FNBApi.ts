@@ -1,106 +1,100 @@
 import {
-  CollectionReference,
+  Unsubscribe,
+  collection,
   deleteDoc,
   doc,
-  getDoc,
   onSnapshot,
   query,
   setDoc,
-  where,
+  updateDoc,
 } from "firebase/firestore";
 import AppApi from "../AppApi";
 import AppStore from "../../stores/AppStore";
+import { db } from "../../database/FirebaseConfig";
 import { IFNB } from "../../models/banks/FNBModel";
 
 export default class FNBApi {
-  collectionRef: CollectionReference;
-  constructor(
-    private api: AppApi,
-    private store: AppStore,
-    collectionRef: CollectionReference
-  ) {
-    this.collectionRef = collectionRef;
-  }
+  constructor(private api: AppApi, private store: AppStore) {}
 
   async getAll() {
-    const q = query(this.collectionRef);
+    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/FNBTransactions`;
 
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const items: IFNB[] = [];
-      querySnapshot.forEach((doc) => {
-        items.push({ id: doc.id, ...doc.data() } as IFNB);
-      });
+    const $query = query(collection(db, myPath));
+    // new promise
+    return await new Promise<Unsubscribe>((resolve, reject) => {
+      // on snapshot
+      const unsubscribe = onSnapshot(
+        $query,
+        // onNext
+        (querySnapshot) => {
+          const items: IFNB[] = [];
+          querySnapshot.forEach((doc) => {
+            items.push({
+              id: doc.id,
+              ...doc.data(),
+            } as IFNB);
+          });
 
-      this.store.bodyCorperate.fnb.load(items);
+          this.store.bodyCorperate.fnb.load(items);
+          resolve(unsubscribe);
+        },
+        // onError
+        (error) => {
+          reject();
+        }
+      );
+    });
+  }
+
+  async getById(id: string) {
+    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/FNBTransactions`;
+
+    const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
+      if (!doc.exists) return;
+      const item = { id: doc.id, ...doc.data() } as IFNB;
+
+      this.store.bodyCorperate.fnb.load([item]);
     });
 
     return unsubscribe;
   }
 
-  async getUnAllocatedStatements() {
-    const q = query(this.collectionRef, where("allocated", "==", false)); // Add a where condition
+  async create(item: IFNB) {
+    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/FNBTransactions`;
 
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const items: IFNB[] = [];
-      querySnapshot.forEach((doc) => {
-        items.push({ id: doc.id, ...doc.data() } as IFNB);
+    const itemRef = doc(collection(db, myPath));
+    item.id = itemRef.id;
+
+    // create in db
+    try {
+      await setDoc(itemRef, item, {
+        merge: true,
+      });
+      // create in store
+      this.store.bodyCorperate.fnb.load([item]);
+    } catch (error) {
+      // console.log(error);
+    }
+  }
+
+  async update(product: IFNB) {
+    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/FNBTransactions`;
+    try {
+      await updateDoc(doc(db, myPath, product.id), {
+        ...product,
       });
 
-      this.store.bodyCorperate.fnb.load(items);
-    });
-
-    return unsubscribe;
-  }
-
-  async getCustomerRecord() {
-    const q = query(
-      this.collectionRef,
-      where("allocated", "==", true),
-      where("unitId", "!=", ""),
-      where("propertyId", "!=", ""),
-      where("accountId", "==", ""),
-      where("supplierId", "==", ""),
-      where("transferId", "==", "")
-    );
-
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const items: IFNB[] = [];
-      querySnapshot.forEach((doc) => {
-        items.push({ id: doc.id, ...doc.data() } as IFNB);
-      });
-
-      this.store.bodyCorperate.fnb.load(items);
-    });
-
-    return unsubscribe;
-  }
-
-  async getFNB(id: string) {
-    const docSnap = await getDoc(doc(this.collectionRef, id));
-    if (docSnap.exists()) {
-      const body = { ...docSnap.data(), id: docSnap.id } as IFNB;
-      await this.store.bodyCorperate.fnb.load([body]);
-      return body;
-    } else return undefined;
-  }
-
-  async create(data: IFNB) {
-    const docRef = doc(this.collectionRef);
-    data.id = docRef.id;
-    await setDoc(docRef, data, { merge: true });
-    return data;
-  }
-
-  async update(unit: IFNB) {
-    await setDoc(doc(this.collectionRef, unit.id), unit, {
-      merge: true,
-    });
-    return unit;
+      this.store.bodyCorperate.fnb.load([product]);
+    } catch (error) {}
   }
 
   async delete(id: string) {
-    const docRef = doc(this.collectionRef, id);
-    await deleteDoc(docRef);
-    this.store.bodyCorperate.fnb.remove(id);
+    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/FNBTransactions`;
+    try {
+      await deleteDoc(doc(db, myPath, id));
+      this.store.bodyCorperate.fnb.remove(id);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

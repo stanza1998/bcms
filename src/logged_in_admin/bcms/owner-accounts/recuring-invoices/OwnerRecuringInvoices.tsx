@@ -35,19 +35,19 @@ export const OwnerRecuringInvoices = observer(() => {
 
   const getData = async () => {
     await api.body.recuringInvoice.getAll();
-    await api.body.unit.getAll();
+    await api.unit.getAll();
     await api.body.body.getAll();
   };
 
   useEffect(() => {
     const getData = async () => {
       await api.body.recuringInvoice.getAll();
-      await api.body.unit.getAll();
+      await api.unit.getAll();
       await api.body.body.getAll();
       await api.auth.loadAll();
     };
     getData();
-  }, [api.auth, api.body.body, api.body.recuringInvoice, api.body.unit]);
+  }, [api.auth, api.body.body, api.body.recuringInvoice, api.unit]);
 
   const units = store.bodyCorperate.unit.all
     .filter((unit) => unit.asJson.ownerId === me?.uid)

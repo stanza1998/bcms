@@ -126,34 +126,10 @@ const FNBUploadState = observer(() => {
     try {
       setLoading(true);
 
-      // Reference to the "BodyCoperate" collection
-      const bodyCoperateCollectionRef = collection(db, "BodyCoperate");
-
-      // Reference to the specific document in "BodyCoperate"
-      const bodyCoperateDocRef = doc(
-        bodyCoperateCollectionRef,
-        "Kro9GBJpsTULxDsFSl4d"
-      );
-
-      // Reference to the "Year" subcollection under the specific document
-      const yearCollectionRef = collection(bodyCoperateDocRef, "Year");
-
-      // Now, let's work with the "Transactions" subcollection under the specific year
-      const yearDocRef = doc(yearCollectionRef, "2023");
-      const transactionsCollectionRef = collection(yearDocRef, "Transactions");
-
-      // Check if the year already exists in the "Year" subcollection
-      const yearDocSnapshot = await getDoc(yearDocRef);
-      if (!yearDocSnapshot.exists()) {
-        // If the year document doesn't exist, create it
-        await setDoc(yearDocRef, {});
-      }
-
-      // Process each transaction and save it
       for (const transaction of transactions) {
         const saveUpload: IFNB = {
           id: "",
-          propertyId: "",
+          propertyId: "4Q5WwF2rQFmoStdpmzaW", //very crucial to change it to be dynamic
           unitId: "",
           date: transaction.Date,
           serviceFee: transaction["SERVICE FEE"],
@@ -171,10 +147,11 @@ const FNBUploadState = observer(() => {
           rcp: "",
           supplierInvoiceNumber: "",
         };
-        // await api.body.fnb.create(saveUpload);
-        const transactionDocRef = doc(transactionsCollectionRef);
-        saveUpload.id = transactionDocRef.id;
-        await setDoc(transactionDocRef, saveUpload);
+        try {
+          await api.body.fnb.create(saveUpload);
+        } catch (error) {
+          console.log(error);
+        }
       }
 
       setTransactions([]);
@@ -249,78 +226,31 @@ const Allocatate = observer(() => {
     const getStatements = async () => {
       await api.body.body.getAll();
       await api.body.copiedInvoice.getAll();
+      await api.body.fnb.getAll();
     };
     getStatements();
-  }, []);
+  }, [api.body.body, api.body.copiedInvoice, api.body.fnb]);
 
-  const getTransactionsForYear = async () => {
-    setLoading(true);
-    try {
-      const bodyCoperateCollectionRef = collection(db, "BodyCoperate");
-
-      // Reference to the specific document in "BodyCoperate"
-      const bodyCoperateDocRef = doc(
-        bodyCoperateCollectionRef,
-        "Kro9GBJpsTULxDsFSl4d"
-      );
-      // Reference to the "Year" subcollection under the specific document
-      const yearCollectionRef = collection(bodyCoperateDocRef, "Year");
-      // Reference to the specific year document
-      const yearDocRef = doc(yearCollectionRef, "2023");
-      // Reference to the "Transactions" subcollection under the specific year document
-      const transactionsCollectionRef = collection(yearDocRef, "Transactions");
-      // Query the transactions
-      const transactionsQuerySnapshot = await getDocs(
-        transactionsCollectionRef
-      );
-
-      const transactions = transactionsQuerySnapshot.docs.map((doc) => {
-        return doc.data() as IFNB;
-      });
-      setStatements(transactions);
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
-      return [];
-    }
-    setLoading(false);
-  };
   useEffect(() => {
     const getTransactionsForYear = async () => {
       setLoading(true);
-      try {
-        const bodyCoperateCollectionRef = collection(db, "BodyCoperate");
-
-        // Reference to the specific document in "BodyCoperate"
-        const bodyCoperateDocRef = doc(
-          bodyCoperateCollectionRef,
-          "Kro9GBJpsTULxDsFSl4d"
-        );
-        // Reference to the "Year" subcollection under the specific document
-        const yearCollectionRef = collection(bodyCoperateDocRef, "Year");
-        // Reference to the specific year document
-        const yearDocRef = doc(yearCollectionRef, "2023");
-        // Reference to the "Transactions" subcollection under the specific year document
-        const transactionsCollectionRef = collection(
-          yearDocRef,
-          "Transactions"
-        );
-        // Query the transactions
-        const transactionsQuerySnapshot = await getDocs(
-          transactionsCollectionRef
-        );
-
-        const transactions = transactionsQuerySnapshot.docs.map((doc) => {
-          return doc.data() as IFNB;
-        });
-        setStatements(transactions);
-      } catch (error) {
-        console.error("Error fetching transactions:", error);
-        return [];
-      }
+      const transactions = store.bodyCorperate.fnb.all.map((t) => {
+        return t.asJson;
+      });
+      setStatements(transactions);
       setLoading(false);
     };
     getTransactionsForYear();
   }, []);
+
+  const getTransactionsForYear = async () => {
+    setLoading(true);
+    const transactions = store.bodyCorperate.fnb.all.map((t) => {
+      return t.asJson;
+    });
+    setStatements(transactions);
+    setLoading(false);
+  };
 
   return (
     <div>
@@ -331,8 +261,8 @@ const Allocatate = observer(() => {
           <br />
           <br />
           <FNBDataGrid
+            rerender={getTransactionsForYear}
             data={statements.filter((st) => st.allocated === false)}
-           
           />
         </div>
       )}

@@ -24,7 +24,7 @@ export const FinacialMonthDialog = observer(() => {
     try {
       if (store.bodyCorperate.financialMonth.selected) {
         const deptment = await api.body.financialMonth.update(financialMonth);
-        if (deptment) await store.bodyCorperate.financialMonth.load([deptment]);
+        await store.bodyCorperate.financialMonth.load();
         ui.snackbar.load({
           id: Date.now(),
           message: "financial Month updated!",
@@ -80,12 +80,7 @@ export const FinacialMonthDialog = observer(() => {
                   className="uk-input uk-form-small"
                   name=""
                   id=""
-                  onChange={(e) =>
-                    setFinancialMonth({
-                      ...financialMonth,
-                      month: Number(e.target.value),
-                    })
-                  }
+    
                   required
                 >
                   <option value="January">January</option>

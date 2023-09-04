@@ -42,10 +42,10 @@ export const CustomerReportNEDBANK = observer(() => {
       await api.body.nedbank.getAll();
       await api.body.copiedInvoice.getAll();
       await api.body.body.getAll();
-      await api.body.unit.getAll();
+      await api.unit.getAll();
     };
     getData();
-  }, [api.body.body, api.body.copiedInvoice, api.body.nedbank, api.body.unit]);
+  }, [api.body.body, api.body.copiedInvoice, api.body.nedbank, api.unit]);
 
   const properties = store.bodyCorperate.bodyCop.all.map((p) => {
     return p.asJson;

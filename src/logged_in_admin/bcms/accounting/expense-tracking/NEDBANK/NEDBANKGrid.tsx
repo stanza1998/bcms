@@ -56,7 +56,7 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
       await Promise.all([
         api.body.nedbank.getAll(),
         api.body.body.getAll(),
-        api.body.unit.getAll(),
+        api.unit.getAll(),
         api.body.copiedInvoice.getAll(),
         api.body.account.getAll(),
         api.body.transfer.getAll(),

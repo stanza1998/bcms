@@ -51,6 +51,7 @@ import { CustomerReportNEDBANK } from "./logged_in_admin/bcms/accounting/reports
 import { SupplierInvoices } from "./logged_in_admin/bcms/accounting/invoices/supplier-invoices/SupplierInvoices";
 import { CreateSupplierInvoice } from "./logged_in_admin/bcms/accounting/invoices/supplier-invoices/create/CreateInvoice";
 import { SupplierReportsFNB } from "./logged_in_admin/bcms/accounting/reports/supplier/SupplierReportFNB";
+import { Others } from "./logged_in_admin/team/others/Others";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -161,6 +162,7 @@ const ADMIN_USER_ROUTES = () => {
           <Route path={`admin/departments`} element={<Departments />} />
 
           <Route path={`admin/appearance`} element={<AppearanceSettings />} />
+          <Route path={`admin/others`} element={<Others />} />
           <Route path={`settings`} element={<Settings />} />
           <Route path={`FAQ`} element={<FAQ />} />
           <Route path="*" element={<Navigate to="dashboard" />} />

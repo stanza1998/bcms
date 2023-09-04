@@ -9,7 +9,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { CorporateCard } from "./CorporateCard";
 import Loading from "../../../../shared/components/Loading";
 import { PropertyDialog } from "../../../dialogs/property-dialog/PropertyDialog";
-import houseSvg from "./assets/house.svg";
 
 export const BodyCorperates = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -84,7 +83,7 @@ export const BodyCorperates = observer(() => {
               <div
                 className="uk-card uk-card-default uk-card-body uk-width-1-1@m"
                 style={{
-                  backgroundImage: `url(${houseSvg})`,
+         
                   backgroundPosition: "right",
                   backgroundSize: "45%",
                   backgroundRepeat: "no-repeat",

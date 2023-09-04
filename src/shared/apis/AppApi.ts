@@ -7,15 +7,16 @@ import SystemSettingsApi from "./SystemSettingsApi";
 import BodyCorpetaApi from "./BodyCorperate";
 import InvoiceApi from "./bodyCorperate/InvoiceApi";
 import EmailApi from "./email-notifiction-function/EmailApi";
+import UnitApi from "./bodyCorperate/UnitApi";
+
+export const apiPathProperty = (
+  category: "Units" | "FinancialYear"
+): string => {
+  return `BodyCoperate/Kro9GBJpsTULxDsFSl4d/${category}`;
+};
 
 export default class AppApi {
-  // private mailUri = "https://unicomms.app/php/payroll.php?";
-
-  // private mailUri = "https://leave.lotsinsights.com/php/mailer.php?";
-
   private mailUri = "https://www.koshaservices.com/php/bcms.php?";
-
-  // private mailUri = "https://unicomms.app/php/mailer.php?";
   private departmentDB = collection(db, "Departments");
   private regionDB = collection(db, "Regions");
   private payrollFolderDB = collection(db, "Folders");
@@ -25,6 +26,7 @@ export default class AppApi {
   auth: UserApi;
   body: BodyCorpetaApi;
   mail: EmailApi;
+  unit: UnitApi;
 
   namibianRegion: unknown;
 
@@ -36,6 +38,7 @@ export default class AppApi {
     this.auth = new UserApi(this, this.store);
     this.settings = new SystemSettingsApi(this, store);
     this.body = new BodyCorpetaApi(this, store);
+    this.unit = new UnitApi(this, store);
     this.mail = new EmailApi(this, store, this.mailUri);
   }
 }

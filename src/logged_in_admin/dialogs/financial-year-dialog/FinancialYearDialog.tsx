@@ -24,7 +24,7 @@ export const FinacialYearDialog = observer(() => {
     try {
       if (store.bodyCorperate.financialYear.selected) {
         const deptment = await api.body.financialYear.update(financialYear);
-        if (deptment) await store.bodyCorperate.financialYear.load([deptment]);
+       await store.bodyCorperate.financialYear.load();
         ui.snackbar.load({
           id: Date.now(),
           message: "financial Year updated!",

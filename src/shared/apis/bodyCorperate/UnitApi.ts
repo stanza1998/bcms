@@ -1,67 +1,100 @@
 import {
-  CollectionReference,
+  Unsubscribe,
+  collection,
   deleteDoc,
   doc,
-  getDoc,
   onSnapshot,
   query,
   setDoc,
+  updateDoc,
 } from "firebase/firestore";
 import AppApi from "../AppApi";
 import AppStore from "../../stores/AppStore";
 import { IUnit } from "../../models/bcms/Units";
+import { db } from "../../database/FirebaseConfig";
 
 export default class UnitApi {
-  collectionRef: CollectionReference;
-  constructor(
-    private api: AppApi,
-    private store: AppStore,
-    collectionRef: CollectionReference
-  ) {
-    this.collectionRef = collectionRef;
-  }
+  constructor(private api: AppApi, private store: AppStore) {}
 
   async getAll() {
-    const q = query(this.collectionRef);
+    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/Units`;
 
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const items: IUnit[] = [];
-      querySnapshot.forEach((doc) => {
-        items.push({ id: doc.id, ...doc.data() } as IUnit);
-      });
+    const $query = query(collection(db, myPath));
 
-      this.store.bodyCorperate.unit.load(items);
+    // new promise
+    return await new Promise<Unsubscribe>((resolve, reject) => {
+      // on snapshot
+      const unsubscribe = onSnapshot(
+        $query,
+        // onNext
+        (querySnapshot) => {
+          const items: IUnit[] = [];
+          querySnapshot.forEach((doc) => {
+            items.push({ id: doc.id, ...doc.data() } as IUnit);
+          });
+
+          this.store.bodyCorperate.unit.load(items);
+          resolve(unsubscribe);
+        },
+        // onError
+        (error) => {
+          reject();
+        }
+      );
+    });
+  }
+
+  async getById(id: string) {
+    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/Units`;
+
+    const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
+      if (!doc.exists) return;
+      const item = { id: doc.id, ...doc.data() } as IUnit;
+
+      this.store.bodyCorperate.unit.load([item]);
     });
 
     return unsubscribe;
   }
+  // remember id
+  async create(item: IUnit) {
+    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/Units`;
+    const itemRef = doc(collection(db, myPath));
+    item.id = itemRef.id;
 
-  async getUnit(id: string) {
-    const docSnap = await getDoc(doc(this.collectionRef, id));
-    if (docSnap.exists()) {
-      const body = { ...docSnap.data(), id: docSnap.id } as IUnit;
-      await this.store.bodyCorperate.unit.load([body]);
-      return body;
-    } else return undefined;
+    // create in db
+    try {
+      await setDoc(itemRef, item, {
+        merge: true,
+      });
+      // create in store
+      this.store.bodyCorperate.unit.load([item]);
+    } catch (error) {
+      // console.log(error);
+    }
   }
 
-  async create(data: IUnit) {
-    const docRef = doc(this.collectionRef);
-    data.id = docRef.id;
-    await setDoc(docRef, data, { merge: true });
-    return data;
-  }
+  async update(item: IUnit) {
+    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/Units`;
 
-  async update(unit: IUnit) {
-    await setDoc(doc(this.collectionRef, unit.id), unit, {
-      merge: true,
-    });
-    return unit;
+    // update in db
+    try {
+      await updateDoc(doc(db, myPath, item.id), {
+        ...item,
+      });
+      // update in store
+      this.store.bodyCorperate.unit.load([item]);
+    } catch (error) {
+      // console.log(error);
+    }
   }
-
   async delete(id: string) {
-    const docRef = doc(this.collectionRef, id);
-    await deleteDoc(docRef);
-    this.store.bodyCorperate.unit.remove(id);
+    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/Units`;
+    try {
+      await deleteDoc(doc(db, myPath, id));
+      this.store.bodyCorperate.unit.remove(id);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

@@ -95,7 +95,7 @@ export const ViewInvoice = observer(() => {
   }, [
     api.auth,
     api.body.body,
-    api.body.unit,
+    api.unit,
     id,
     monthId,
     propertyId,

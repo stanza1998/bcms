@@ -24,7 +24,7 @@ export const SupplierDialog = observer(() => {
     try {
       if (store.bodyCorperate.supplier.selected) {
         const deptment = await api.body.supplier.update(supplier);
-        if (deptment) await store.bodyCorperate.supplier.load([deptment]);
+       await store.bodyCorperate.supplier.load();
         ui.snackbar.load({
           id: Date.now(),
           message: "Account Created!",
@@ -39,6 +39,7 @@ export const SupplierDialog = observer(() => {
         });
       }
     } catch (error) {
+      console.log("🚀 ~ file: SupplierDialog.tsx:42 ~ onSave ~ error:", error)
       ui.snackbar.load({
         id: Date.now(),
         message: "Error! Failed to update Account.",

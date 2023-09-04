@@ -86,7 +86,7 @@ export const VerifyInvoice = observer(() => {
   }, [
     api.auth,
     api.body.body,
-    api.body.unit,
+    api.unit,
     id,
     monthId,
     propertyId,
@@ -116,7 +116,9 @@ export const VerifyInvoice = observer(() => {
   const updateMaterial = async () => {
     if (invoiceId) {
       setDateLoader(true);
-      const docRef = doc(db, "Invoices", invoiceId);
+      const myPath =
+        "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08";
+      const docRef = doc(db, myPath, "MasterInvoices", invoiceId);
       const docSnap = await getDoc(docRef);
       await updateDoc(docRef, { dueDate: newDate });
       data();
@@ -157,7 +159,9 @@ export const VerifyInvoice = observer(() => {
   const updatePrice = async () => {
     if (invoiceId) {
       setPriceUpdate(true);
-      const docRef = doc(db, "Invoices", invoiceId);
+      const myPath =
+        "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08";
+      const docRef = doc(db, myPath, "MasterInvoices", invoiceId);
       const docSnap = await getDoc(docRef);
       await updateDoc(docRef, { totalDue: totalPriceAmended });
       data();
@@ -206,7 +210,9 @@ export const VerifyInvoice = observer(() => {
   const removeService = async (indexToRemove: number) => {
     if (invoiceId) {
       setReomveLoader(true);
-      const docRef = doc(db, "Invoices", invoiceId);
+      const myPath =
+        "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08";
+      const docRef = doc(db, myPath, "MasterInvoices", invoiceId);
 
       try {
         // Fetch the existing services array from the document
@@ -234,27 +240,15 @@ export const VerifyInvoice = observer(() => {
 
   //verifying invoice
 
-  const message = `We kindly request you to access the
-   invoice for your property, ${viewBody?.BodyCopName}, Unit ${unit?.unitName} ,
-    through our secure system. The invoice number for this transaction is ${invoice?.invoiceNumber}. 
-    To do so, please log in to your account using the link provided. 
-    Your prompt attention to this matter is greatly appreciated. 
-    Should you require any further assistance, please do not hesitate to contact us. 
-    Thank you. <a href="http://localhost:3000/">Login Now<a/>`;
-
-  const subject = "Invoice ";
-  const to = "stanzanarib@gmail.com";
-  const name = "Stanza Narib";
-
   const [verificationLoader, setVerificationLoader] = useState(false);
   const verifyInvoice = async () => {
     if (invoiceId) {
       setVerificationLoader(true);
-      const docRef = doc(db, "Invoices", invoiceId);
+      const myPath =
+        "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08";
+      const docRef = doc(db, myPath, "MasterInvoices", invoiceId);
       const docSnap = await getDoc(docRef);
       await updateDoc(docRef, { verified: true });
-      // send email notification
-      // await api.mail.sendMail(name, to, subject, message, "");
       data();
       SuccessfulAction(ui);
       setVerificationLoader(false);
@@ -264,7 +258,6 @@ export const VerifyInvoice = observer(() => {
     }
   };
 
- 
   const [loaderS, setLoaderS] = useState(true);
 
   setTimeout(() => {

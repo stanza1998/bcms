@@ -52,7 +52,7 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
     api.body.copiedInvoice,
     api.body.financialMonth,
     api.body.financialYear,
-    api.body.unit,
+    api.unit
   ]);
 
   const [invoiceView, setInvoiceView] = useState<ISupplierInvoices | undefined>(
@@ -85,7 +85,7 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
     setBody(property?.asJson);
     const unit = store.bodyCorperate.unit.getById(uid);
     setUnit(unit?.asJson);
-    await api.body.unit.getAll();
+    await api.unit.getAll();
   };
 
   //unit data
