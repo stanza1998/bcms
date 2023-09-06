@@ -40,7 +40,7 @@ export const Invoices = observer(() => {
     <div className="uk-section leave-analytics-page">
       <div className="uk-container uk-container-large">
         <div className="section-toolbar uk-margin">
-          <h4 className="section-heading uk-heading">Invoices</h4>
+          <h4 className="section-heading uk-heading">Customer</h4>
           <div className="controls">
             <div className="uk-inline"></div>
           </div>
@@ -52,9 +52,24 @@ export const Invoices = observer(() => {
               isActive={activeTab === "master"}
               onClick={() => handleTabClick("master")}
             />
+            <Tab
+              label="Customer Transaction Reports"
+              isActive={activeTab === "ctr"}
+              onClick={() => handleTabClick("ctr")}
+            />
+            <Tab
+              label="Customer Statements"
+              isActive={activeTab === "st"}
+              onClick={() => handleTabClick("st")}
+            />
+            <Tab
+              label="Aging Analysis"
+              isActive={activeTab === "aa"}
+              onClick={() => handleTabClick("aa")}
+            />
           </div>
           <div className="tab-content">
-            {activeTab === "master" && <MasterInvoices />}
+            {activeTab === "master" && <CopiedInvoices />}
           </div>
         </div>
       </div>
@@ -62,15 +77,17 @@ export const Invoices = observer(() => {
   );
 });
 
-const MasterInvoices = observer(() => {
+const CopiedInvoices = observer(() => {
   const { store, api } = useAppContext();
-
+  const me = store.user.meJson;
   useEffect(() => {
     const getData = async () => {
       await api.body.body.getAll();
-      await api.body.copiedInvoice.getAll();
-      await api.body.financialYear.getAll();
-      await api.body.financialMonth.getAll();
+      if (me?.property && me.year)
+        await api.body.copiedInvoice.getAll(me.property, me.year);
+      if (me?.property) await api.body.financialYear.getAll(me.property);
+      if (me?.property && me?.year)
+        await api.body.financialMonth.getAll(me.property, me.year);
       await api.auth.loadAll();
     };
     getData();
@@ -81,6 +98,8 @@ const MasterInvoices = observer(() => {
     api.body.financialMonth,
     api.body.financialYear,
     api.unit,
+    me?.property,
+    me?.year,
   ]);
 
   const invoicesC = store.bodyCorperate.copiedInvoices.all.map((statements) => {

@@ -30,12 +30,12 @@ export const Accounting = () => {
           <div>
             <div className="uk-margin">
               <Tab
-                label="Invoicing Overview"
+                label="Customer Invoices"
                 isActive={activeTab === "Invoicing"}
                 onClick={() => handleTabClick("Invoicing")}
               />
               <Tab
-                label="Expense Tracking Overview"
+                label="SupplierInvoices"
                 isActive={activeTab === "Expense"}
                 onClick={() => handleTabClick("Expense")}
               />
@@ -50,8 +50,6 @@ export const Accounting = () => {
     </div>
   );
 };
-
-
 
 const Invoicing = () => {
   //tabs
@@ -73,9 +71,6 @@ const Invoicing = () => {
         >
           Key Matrics
         </h4>
-        <select name="" id="">
-          <option value=""></option>
-        </select>
         <div
           className="uk-child-width-1-4@m uk-grid-small uk-grid-match"
           data-uk-grid
@@ -178,212 +173,6 @@ const Invoicing = () => {
               )}
             </div>
           </div>
-        </div>
-      </div>
-      <div className="uk-margin">
-        <h4
-          style={{
-            fontWeight: "800",
-            color: "lightgrey",
-            textTransform: "uppercase",
-          }}
-        >
-          Activities
-        </h4>
-        <h6
-          style={{
-            fontWeight: "800",
-            color: "lightgrey",
-            textTransform: "uppercase",
-          }}
-        >
-          Reminders and Notifications
-        </h6>
-        <div
-          className="uk-position-relative uk-visible-toggle uk-light"
-          data-uk-slider
-        >
-          <ul className="uk-slider-items uk-child-width-1-2 uk-child-width-1-3@m uk-grid">
-            <div>
-              <div className="uk-card uk-card-default uk-card-body">
-                <h4 className="uk-card-title">Invoice reference: inv0002342</h4>
-                <button className="uk-button primary">Send Reminder</button>
-              </div>
-            </div>
-            <div>
-              <div className="uk-card uk-card-default uk-card-body">
-                <h4 className="uk-card-title">Invoice reference: inv0002342</h4>
-                <button className="uk-button primary">Send Reminder</button>
-              </div>
-            </div>
-            <div>
-              <div className="uk-card uk-card-default uk-card-body">
-                <h4 className="uk-card-title">Invoice reference: inv0002342</h4>
-                <button className="uk-button primary">Send Reminder</button>
-              </div>
-            </div>
-            <div>
-              <div className="uk-card uk-card-default uk-card-body">
-                <h4 className="uk-card-title">Invoice reference: inv0002342</h4>
-                <button className="uk-button primary">Send Reminder</button>
-              </div>
-            </div>
-          </ul>
-          <a
-            style={{
-              padding: "7px",
-              backgroundColor: "white",
-              color: "#01aced",
-            }}
-            className="uk-position-center-left uk-position-small uk-hidden-hover"
-            href="#"
-            data-uk-slidenav-previous
-            data-uk-slider-item="previous"
-          ></a>
-          <a
-            style={{
-              padding: "7px",
-              backgroundColor: "white",
-              color: "#01aced",
-            }}
-            className="uk-position-center-right uk-position-small uk-hidden-hover"
-            href="#"
-            data-uk-slidenav-next
-            data-uk-slider-item="next"
-          ></a>
-        </div>
-
-        <h6
-          style={{
-            fontWeight: "800",
-            color: "lightgrey",
-            textTransform: "uppercase",
-          }}
-        >
-          most recent invoices issued
-        </h6>
-        <div
-          className="uk-position-relative uk-visible-toggle uk-light"
-          data-uk-slider
-        >
-          <ul className="uk-slider-items uk-child-width-1-2 uk-child-width-1-3@m uk-grid">
-            <div>
-              <div className="uk-card uk-card-default uk-card-body">
-                <h4 className="uk-card-title">Invoice reference: inv0002342</h4>
-                <p className="uk-value">Crestview, Unit 1</p>
-              </div>
-            </div>
-            <div>
-              <div className="uk-card uk-card-default uk-card-body">
-                <h4 className="uk-card-title">Invoice reference: inv0002342</h4>
-                <p className="uk-value">Selma Court, Unit 1</p>
-              </div>
-            </div>
-            <div>
-              <div className="uk-card uk-card-default uk-card-body">
-                <h4 className="uk-card-title">Invoice reference: inv0002342</h4>
-                <p className="uk-value">Crestview, Unit 10</p>
-              </div>
-            </div>
-            <div>
-              <div className="uk-card uk-card-default uk-card-body">
-                <h4 className="uk-card-title">Invoice reference: inv0002342</h4>
-                <p className="uk-value">Fig Tree, Unit 11</p>
-              </div>
-            </div>
-          </ul>
-          <a
-            style={{
-              padding: "7px",
-              backgroundColor: "white",
-              color: "#01aced",
-            }}
-            className="uk-position-center-left uk-position-small uk-hidden-hover"
-            href="#"
-            data-uk-slidenav-previous
-            data-uk-slider-item="previous"
-          ></a>
-          <a
-            style={{
-              padding: "7px",
-              backgroundColor: "white",
-              color: "#01aced",
-            }}
-            className="uk-position-center-right uk-position-small uk-hidden-hover"
-            href="#"
-            data-uk-slidenav-next
-            data-uk-slider-item="next"
-          ></a>
-        </div>
-        <h6
-          style={{
-            fontWeight: "800",
-            color: "lightgrey",
-            textTransform: "uppercase",
-          }}
-        >
-          most recent overdue notices
-        </h6>
-        <div
-          className="uk-position-relative uk-visible-toggle uk-light"
-          data-uk-slider
-        >
-          <ul className="uk-slider-items uk-child-width-1-2 uk-child-width-1-3@m uk-grid">
-            <div>
-              <div className="uk-card uk-card-default uk-card-body">
-                <h4 className="uk-card-title">Invoice reference: inv0002342</h4>
-                <button className="uk-button primary">
-                  Send overdue message
-                </button>
-              </div>
-            </div>
-            <div>
-              <div className="uk-card uk-card-default uk-card-body">
-                <h4 className="uk-card-title">Invoice reference: inv0002342</h4>
-                <button className="uk-button primary">
-                  Send overdue message
-                </button>
-              </div>
-            </div>
-            <div>
-              <div className="uk-card uk-card-default uk-card-body">
-                <h4 className="uk-card-title">Invoice reference: inv0002342</h4>
-                <button className="uk-button primary">
-                  Send overdue message
-                </button>
-              </div>
-            </div>
-            <div>
-              <div className="uk-card uk-card-default uk-card-body">
-                <h4 className="uk-card-title">Invoice reference: inv0002342</h4>
-                <button className="uk-button primary">
-                  Send overdue message
-                </button>
-              </div>
-            </div>
-          </ul>
-          <a
-            style={{
-              padding: "7px",
-              backgroundColor: "white",
-              color: "#01aced",
-            }}
-            className="uk-position-center-left uk-position-small uk-hidden-hover"
-            href="#"
-            data-uk-slidenav-previous
-            data-uk-slider-item="previous"
-          ></a>
-          <a
-            style={{
-              padding: "7px",
-              backgroundColor: "white",
-              color: "#01aced",
-            }}
-            className="uk-position-center-right uk-position-small uk-hidden-hover"
-            href="#"
-            data-uk-slidenav-next
-            data-uk-slider-item="next"
-          ></a>
         </div>
       </div>
     </div>

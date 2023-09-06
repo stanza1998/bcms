@@ -1,10 +1,8 @@
 import {
-  CollectionReference,
   Unsubscribe,
   collection,
   deleteDoc,
   doc,
-  getDoc,
   onSnapshot,
   query,
   setDoc,
@@ -18,8 +16,8 @@ import { ICopiedInvoice } from "../../models/invoices/CopyInvoices";
 export default class CopiedInvoiceApi {
   constructor(private api: AppApi, private store: AppStore) {}
 
-  async getAll() {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/CopiedInvoices`;
+  async getAll(pid: string, yid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/CopiedInvoices`;
 
     const $query = query(collection(db, myPath));
     // new promise
@@ -45,8 +43,8 @@ export default class CopiedInvoiceApi {
     });
   }
 
-  async getById(id: string) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/CopiedInvoices`;
+  async getById(id: string, pid: string, yid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/CopiedInvoices`;
 
     const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
       if (!doc.exists) return;
@@ -58,8 +56,8 @@ export default class CopiedInvoiceApi {
     return unsubscribe;
   }
 
-  async create(item: ICopiedInvoice) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/CopiedInvoices`;
+  async create(item: ICopiedInvoice, pid: string, yid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/CopiedInvoices`;
 
     const itemRef = doc(collection(db, myPath));
     item.invoiceId = itemRef.id;
@@ -76,8 +74,8 @@ export default class CopiedInvoiceApi {
     }
   }
 
-  async update(product: ICopiedInvoice) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/CopiedInvoices`;
+  async update(product: ICopiedInvoice, pid: string, yid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/CopiedInvoices`;
     try {
       await updateDoc(doc(db, myPath, product.invoiceId), {
         ...product,
@@ -87,8 +85,8 @@ export default class CopiedInvoiceApi {
     } catch (error) {}
   }
 
-  async delete(id: string) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/CopiedInvoices`;
+  async delete(id: string, pid:string, yid:string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/CopiedInvoices`;
     try {
       await deleteDoc(doc(db, myPath, id));
       this.store.bodyCorperate.copiedInvoices.remove(id);

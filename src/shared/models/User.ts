@@ -15,6 +15,9 @@ export class UserModel implements IUser {
   region: string;
   devUser: boolean;
   cellphone: number;
+  property: string;
+  year: string;
+  month: string;
 
   constructor(private store: AppStore, user: IUser) {
     makeAutoObservable(this);
@@ -30,6 +33,9 @@ export class UserModel implements IUser {
     this.devUser = user.devUser;
     this.supervisor = user.supervisor;
     this.cellphone = user.cellphone;
+    this.property = user.property;
+    this.year = user.year;
+    this.month = user.month;
   }
   supervisor: string;
 
@@ -47,6 +53,9 @@ export class UserModel implements IUser {
       devUser: this.devUser,
       supervisor: this.supervisor,
       cellphone: this.cellphone,
+      property: this.property,
+      year: this.year,
+      month: this.month,
     };
   }
 }

@@ -380,17 +380,18 @@ const FinacialRecords = observer(() => {
   const { store, api, ui } = useAppContext();
   const { propertyId, id } = useParams();
   const navigate = useNavigate();
-
+  const me = store.user.meJson;
   const onCreate = () => {
     showModalFromId(DIALOG_NAMES.BODY.FINANCIAL_YEAR);
   };
 
   useEffect(() => {
     const getData = async () => {
-      await api.body.financialYear.getAll();
+      if (!me?.property) return;
+      await api.body.financialYear.getAll(me.property);
     };
     getData();
-  }, [api.body.financialYear]);
+  }, [api.body.financialYear, me?.property]);
 
   const viewYear = (yearId: string) => {
     navigate(`/c/body/body-corperate/${propertyId}/${id}/${yearId}`);

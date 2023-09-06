@@ -15,11 +15,12 @@ export const UnitCard = observer((props: IProps) => {
   const { unit } = props;
   const { store, api, ui } = useAppContext();
   const navigate = useNavigate();
+  const me = store.user.meJson;
 
   const onDelete = async (id: string) => {
     confirmationDialog().then(
       async function () {
-        await api.unit.delete(id);
+       if(me?.property) await api.unit.delete(id, me.property);
         ui.snackbar.load({
           id: Date.now(),
           message: "Deleted",

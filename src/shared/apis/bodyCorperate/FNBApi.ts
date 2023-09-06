@@ -16,8 +16,8 @@ import { IFNB } from "../../models/banks/FNBModel";
 export default class FNBApi {
   constructor(private api: AppApi, private store: AppStore) {}
 
-  async getAll() {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/FNBTransactions`;
+  async getAll(pid: string, yid: string, mid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months/${mid}/FNBTransactions`;
 
     const $query = query(collection(db, myPath));
     // new promise
@@ -46,8 +46,8 @@ export default class FNBApi {
     });
   }
 
-  async getById(id: string) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/FNBTransactions`;
+  async getById(id: string, pid: string, yid: string, mid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months/${mid}/FNBTransactions`;
 
     const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
       if (!doc.exists) return;
@@ -59,8 +59,8 @@ export default class FNBApi {
     return unsubscribe;
   }
 
-  async create(item: IFNB) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/FNBTransactions`;
+  async create(item: IFNB, pid: string, yid: string, mid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months/${mid}/FNBTransactions`;
 
     const itemRef = doc(collection(db, myPath));
     item.id = itemRef.id;
@@ -77,8 +77,8 @@ export default class FNBApi {
     }
   }
 
-  async update(product: IFNB) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/FNBTransactions`;
+  async update(product: IFNB, pid: string, yid: string, mid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months/${mid}/FNBTransactions`;
     try {
       await updateDoc(doc(db, myPath, product.id), {
         ...product,
@@ -88,8 +88,8 @@ export default class FNBApi {
     } catch (error) {}
   }
 
-  async delete(id: string) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/FNBTransactions`;
+  async delete(id: string, pid: string, yid: string, mid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months/${mid}/FNBTransactions`;
     try {
       await deleteDoc(doc(db, myPath, id));
       this.store.bodyCorperate.fnb.remove(id);

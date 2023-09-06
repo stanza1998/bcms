@@ -19,8 +19,8 @@ import { db } from "../../database/FirebaseConfig";
 export default class FinancialMonthApi {
   constructor(private api: AppApi, private store: AppStore) {}
 
-  async getAll() {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months`;
+  async getAll(pid: string, yid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months`;
 
     const $query = query(collection(db, myPath));
     // new promise
@@ -32,7 +32,7 @@ export default class FinancialMonthApi {
         (querySnapshot) => {
           const items: IFinancialMonth[] = [];
           querySnapshot.forEach((doc) => {
-            items.push({ id: doc.id, ...doc.data() } as IFinancialMonth);
+            items.push({ month: doc.id, ...doc.data() } as IFinancialMonth);
           });
 
           this.store.bodyCorperate.financialMonth.load(items);
@@ -46,8 +46,8 @@ export default class FinancialMonthApi {
     });
   }
 
-  async getById(id: string) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months`;
+  async getById(id: string, pid: string, yid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months`;
 
     const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
       if (!doc.exists) return;
@@ -59,31 +59,14 @@ export default class FinancialMonthApi {
     return unsubscribe;
   }
 
-  // async create(item: IFinancialMonth) {
-  //   const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months`;
-
-  //   const itemRef = doc(collection(db, myPath));
-  //   item.id = itemRef.id;
-
-  //   try {
-  //     await setDoc(itemRef, item, {
-  //       merge: true,
-  //     });
-  //     // create in store
-  //     this.store.bodyCorperate.financialMonth.load([item]);
-  //   } catch (error) {
-  //     // console.log(error);
-  //   }
-  // }
-  async create(item: IFinancialMonth) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/${item.month}`;
+  async create(item: IFinancialMonth, pid: string, yid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months/${item.month}`;
 
     const itemRef = doc(db, myPath);
 
     try {
       // Check if the document already exists
       const docSnapshot = await getDoc(itemRef);
-      
 
       if (docSnapshot.exists()) {
         // Document already exists, you can handle this case here if needed
@@ -101,10 +84,10 @@ export default class FinancialMonthApi {
     }
   }
 
-  async update(product: IFinancialMonth) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months`;
+  async update(product: IFinancialMonth, pid: string, yid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months`;
     try {
-      await updateDoc(doc(db, myPath, product.id), {
+      await updateDoc(doc(db, myPath, product.month), {
         ...product,
       });
 
@@ -112,8 +95,8 @@ export default class FinancialMonthApi {
     } catch (error) {}
   }
 
-  async delete(id: string) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months`;
+  async delete(id: string, pid: string, yid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months`;
     try {
       await deleteDoc(doc(db, myPath, id));
       this.store.bodyCorperate.financialMonth.remove(id);

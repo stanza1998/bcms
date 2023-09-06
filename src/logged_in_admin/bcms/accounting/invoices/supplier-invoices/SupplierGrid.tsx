@@ -36,13 +36,16 @@ interface IProp {
 const SupplierInvoicesGrid = observer(({ data }: IProp) => {
   const { store, api } = useAppContext();
   const navigate = useNavigate();
+  const me = store.user.meJson;
 
   useEffect(() => {
     const getData = async () => {
       await api.body.body.getAll();
-      await api.body.copiedInvoice.getAll();
-      await api.body.financialYear.getAll();
-      await api.body.financialMonth.getAll();
+      if (me?.property && me?.year)
+        await api.body.copiedInvoice.getAll(me.property, me.year);
+      if (me?.property) await api.body.financialYear.getAll(me.property);
+      if (me?.property && me?.year)
+        await api.body.financialMonth.getAll(me.property, me.year);
       await api.auth.loadAll();
     };
     getData();
@@ -52,7 +55,9 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
     api.body.copiedInvoice,
     api.body.financialMonth,
     api.body.financialYear,
-    api.unit
+    api.unit,
+    me?.property,
+    me?.year,
   ]);
 
   const [invoiceView, setInvoiceView] = useState<ISupplierInvoices | undefined>(
@@ -85,7 +90,7 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
     setBody(property?.asJson);
     const unit = store.bodyCorperate.unit.getById(uid);
     setUnit(unit?.asJson);
-    await api.unit.getAll();
+    if (me?.property) await api.unit.getAll(me.property);
   };
 
   //unit data
@@ -101,21 +106,9 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
   };
 
   const columns: GridColDef[] = [
-    { field: "invoiceNumber", headerName: "Invoice Number", width: 200 },
-    { field: "dateIssued", headerName: "Date Issued", width: 200 },
-    { field: "dueDate", headerName: "Due Date", width: 200 },
-    {
-      field: "totalPaid",
-      headerName: "Total Paid",
-      width: 200,
-      valueFormatter: (params) => `NAD ${params.value}`,
-    },
-    {
-      field: "totalDue",
-      headerName: "Total Due",
-      width: 200,
-      valueFormatter: (params) => `NAD ${params.value}`,
-    },
+    { field: "invoiceNumber", headerName: "Invoice Number", width: 250 },
+    { field: "dateIssued", headerName: "Date Issued", width: 250 },
+    { field: "dueDate", headerName: "Due Date", width: 250 },
     {
       field: "Status",
       headerName: "Status",

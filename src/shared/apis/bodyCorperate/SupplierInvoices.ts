@@ -16,8 +16,8 @@ import { ISupplierInvoices } from "../../models/invoices/SupplierInvoice";
 export default class SupplierInvoiceApi {
   constructor(private api: AppApi, private store: AppStore) {}
 
-  async getAll() {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/SupplierInvoices`;
+  async getAll(pid: string, yid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierInvoices`;
 
     const $query = query(collection(db, myPath));
     // new promise
@@ -46,8 +46,8 @@ export default class SupplierInvoiceApi {
     });
   }
 
-  async getById(id: string) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/SupplierInvoices`;
+  async getById(id: string, pid: string, yid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierInvoices`;
 
     const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
       if (!doc.exists) return;
@@ -59,8 +59,8 @@ export default class SupplierInvoiceApi {
     return unsubscribe;
   }
 
-  async create(item: ISupplierInvoices) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/SupplierInvoices`;
+  async create(item: ISupplierInvoices, pid: string, yid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierInvoices`;
 
     const itemRef = doc(collection(db, myPath));
     item.invoiceId = itemRef.id;
@@ -77,8 +77,8 @@ export default class SupplierInvoiceApi {
     }
   }
 
-  async update(product: ISupplierInvoices) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/SupplierInvoices`;
+  async update(product: ISupplierInvoices, pid: string, yid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierInvoices`;
     try {
       await updateDoc(doc(db, myPath, product.invoiceId), {
         ...product,
@@ -88,8 +88,8 @@ export default class SupplierInvoiceApi {
     } catch (error) {}
   }
 
-  async delete(id: string) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/SupplierInvoices`;
+  async delete(id: string, pid: string, yid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierInvoices`;
     try {
       await deleteDoc(doc(db, myPath, id));
       this.store.bodyCorperate.supplierInvoice.remove(id);

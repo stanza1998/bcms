@@ -33,6 +33,7 @@ export const SupplierReportsFNB = observer(() => {
   const [supplierId, setSupplierId] = useState("");
   const [dateFrom, setDateFrom] = useState<Date | null>(null);
   const [dateTo, setDateTo] = useState<Date | null>(null);
+  const me = store.user.meJson;
 
   const back = () => {
     navigate("/c/accounting/statements");
@@ -40,9 +41,11 @@ export const SupplierReportsFNB = observer(() => {
 
   useEffect(() => {
     const getData = async () => {
-      await api.body.fnb.getAll();
-      await api.body.supplier.getAll();
-      await api.body.supplierInvoice.getAll();
+      if (me?.property && !me?.year && !me?.month)
+        await api.body.fnb.getAll(me.property, me.year, me.month);
+      if (me?.property) await api.body.supplier.getAll(me.property);
+      if (me?.property && me.year)
+        await api.body.supplierInvoice.getAll(me.property, me.year);
       await api.body.body.getAll();
     };
     getData();
@@ -51,6 +54,9 @@ export const SupplierReportsFNB = observer(() => {
     api.body.fnb,
     api.body.supplier,
     api.body.supplierInvoice,
+    me?.property,
+    me?.year,
+    me?.month,
   ]);
 
   const properties = store.bodyCorperate.bodyCop.all.map((p) => {
@@ -139,7 +145,7 @@ export const SupplierReportsFNB = observer(() => {
     // Flatten grouped data into a single array
     const comData = Object.values(dataMap).flatMap((group) => group);
 
-    // Calculate balances for customer receipts
+    // Calculate balances for supplier payments
     const supplierPayments = comData.filter(
       (transaction) => transaction.transactionType === "Supplier Payment"
     );
@@ -165,21 +171,6 @@ export const SupplierReportsFNB = observer(() => {
           parseFloat(matchingInvoice.credit);
       }
     });
-
-    // const customerReceipts = comData.filter(
-    //   (transaction) => transaction.transactionType === "Supplier Payment"
-    // );
-    // customerReceipts.forEach((receipt) => {
-    //   const matchingInvoice = comData.find(
-    //     (transaction) =>
-    //       transaction.transactionType === "Supplier Invoice" &&
-    //       transaction.invoiceNumber === receipt.invoiceNumber
-    //   );
-    //   if (matchingInvoice) {
-    //     receipt.balance =
-    //       parseFloat(matchingInvoice.credit) - parseFloat(receipt.debit);
-    //   }
-    // });
 
     // Update the state with the combined data
     setCombinedData(comData);
@@ -421,3 +412,18 @@ const RecordGrid = ({ data }: IProp) => {
     </Box>
   );
 };
+
+// const customerReceipts = comData.filter(
+//   (transaction) => transaction.transactionType === "Supplier Payment"
+// );
+// customerReceipts.forEach((receipt) => {
+//   const matchingInvoice = comData.find(
+//     (transaction) =>
+//       transaction.transactionType === "Supplier Invoice" &&
+//       transaction.invoiceNumber === receipt.invoiceNumber
+//   );
+//   if (matchingInvoice) {
+//     receipt.balance =
+//       parseFloat(matchingInvoice.credit) - parseFloat(receipt.debit);
+//   }
+// });

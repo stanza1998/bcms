@@ -12,6 +12,9 @@ export const defaultUser: IUser = {
   region: "",
   devUser: false,
   supervisor: "",
+  property: "",
+  year: "",
+  month: "",
 };
 
 export interface IUser {
@@ -28,4 +31,7 @@ export interface IUser {
   regionId: string;
   region: string;
   supervisor: string;
+  property: string;
+  year: string;
+  month: string;
 }

@@ -25,8 +25,8 @@ export default class BodyCopApi {
     this.collectionRef = collectionRef;
   }
 
-  async getAll() {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/Accounts`;
+  async getAll(pid:string) {
+    const myPath = `BodyCoperate/${pid}/Accounts`;
 
     const $query = query(collection(db, myPath));
     // new promise
@@ -53,8 +53,8 @@ export default class BodyCopApi {
   }
 
 
-  async getById(id: string) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/Accounts`;
+  async getById(id: string, pid:string) {
+    const myPath = `BodyCoperate/${pid}/Accounts`;
 
     const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
       if (!doc.exists) return;
@@ -67,8 +67,8 @@ export default class BodyCopApi {
   }
 
   //rememberId
-  async create(item: INormalAccount) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/Accounts`;
+  async create(item: INormalAccount, pid:string) {
+    const myPath = `BodyCoperate/${pid}/Accounts`;
 
     const itemRef = doc(collection(db, myPath));
     item.id = itemRef.id;
@@ -84,8 +84,8 @@ export default class BodyCopApi {
       // console.log(error);
     }
   }
-  async update(account: INormalAccount) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/Accounts`;
+  async update(account: INormalAccount, pid:string) {
+    const myPath = `BodyCoperate/${pid}/Accounts`;
     try {
       await updateDoc(doc(db, myPath, account.id), {
         ...account,
@@ -95,8 +95,8 @@ export default class BodyCopApi {
     } catch (error) {}
   }
 
-  async delete(id: string) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/Accounts`;
+  async delete(id: string, pid:string) {
+    const myPath = `BodyCoperate/${pid}/Accounts`;
     try {
       await deleteDoc(doc(db, myPath, id));
       this.store.bodyCorperate.account.remove(id);

@@ -14,7 +14,7 @@ export default class FinancialMonthStore extends Store<IFinancialMonth, Financia
   load(items: IFinancialMonth[] = []) {
     runInAction(() => {
       items.forEach((item) =>
-        this.items.set(item.id, new FinancialMonthModel(this.store, item))
+        this.items.set(item.month, new FinancialMonthModel(this.store, item))
       );
     });
   }

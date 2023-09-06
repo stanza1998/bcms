@@ -18,8 +18,8 @@ import { db } from "../../database/FirebaseConfig";
 export default class FinancialYearApi {
   constructor(private api: AppApi, private store: AppStore) {}
 
-  async getAll() {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear`;
+  async getAll(pid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear`;
 
     const $query = query(collection(db, myPath));
     // new promise
@@ -45,8 +45,8 @@ export default class FinancialYearApi {
     });
   }
 
-  async getById(id: string) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear`;
+  async getById(id: string, pid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear`;
 
     const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
       if (!doc.exists) return;
@@ -58,8 +58,8 @@ export default class FinancialYearApi {
     return unsubscribe;
   }
 
-  async create(item: IFinancialYear) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear`;
+  async create(item: IFinancialYear, pid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear`;
 
     const itemRef = doc(collection(db, myPath));
     item.id = itemRef.id;
@@ -76,8 +76,8 @@ export default class FinancialYearApi {
     }
   }
 
-  async update(product: IFinancialYear) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear`;
+  async update(product: IFinancialYear, pid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear`;
     try {
       await updateDoc(doc(db, myPath, product.id), {
         ...product,
@@ -87,8 +87,8 @@ export default class FinancialYearApi {
     } catch (error) {}
   }
 
-  async delete(id: string) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear`;
+  async delete(id: string, pid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear`;
     try {
       await deleteDoc(doc(db, myPath, id));
       this.store.bodyCorperate.financialYear.remove(id);
@@ -96,7 +96,7 @@ export default class FinancialYearApi {
       console.log(error);
     }
   }
-  
+
   async setActiveStatus(documentId: string, active: boolean) {
     try {
       const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear`;

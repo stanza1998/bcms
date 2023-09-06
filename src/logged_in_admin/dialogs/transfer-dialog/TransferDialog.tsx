@@ -3,12 +3,15 @@ import { FormEvent, useEffect, useState } from "react";
 import { useAppContext } from "../../../shared/functions/Context";
 import { hideModalFromId } from "../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../Dialogs";
-import { ITransfer, defaultTransfer } from "../../../shared/models/Types/Transfer";
+import {
+  ITransfer,
+  defaultTransfer,
+} from "../../../shared/models/Types/Transfer";
 
 export const TransferDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
-
+  const me = store.user.meJson;
   const [transfer, setTransfer] = useState<ITransfer>({
     ...defaultTransfer,
   });
@@ -16,19 +19,20 @@ export const TransferDialog = observer(() => {
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    if (!me?.property) return;
 
     // Update API
     try {
       if (store.bodyCorperate.transfer.selected) {
-        const deptment = await api.body.transfer.update(transfer);
-        if (deptment) await store.bodyCorperate.transfer.load([deptment]);
+        const deptment = await api.body.transfer.update(transfer, me.property);
+        await store.bodyCorperate.transfer.load();
         ui.snackbar.load({
           id: Date.now(),
           message: "Account Created!",
           type: "success",
         });
       } else {
-        await api.body.transfer.create(transfer);
+        await api.body.transfer.create(transfer, me.property);
         ui.snackbar.load({
           id: Date.now(),
           message: "Account created!",

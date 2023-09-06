@@ -34,7 +34,7 @@ export const NEDBANK = () => {
   };
 
   return (
-    <div>
+    <div style={{ overflowX: "hidden" }}>
       <div className="uk-margin">
         <div>
           <div className="uk-margin">
@@ -155,7 +155,7 @@ const UploadStatement = observer(() => {
         supplierId: "",
         transferId: "",
         rcp: "",
-        supplierInvoiceNumber: ""
+        supplierInvoiceNumber: "",
       };
       console.log(parseFloat(transaction.Debit));
 
@@ -251,12 +251,14 @@ const Allocate = observer(() => {
   const { store, api } = useAppContext();
   const [propertyId, setPropertyId] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const me = store.user.meJson;
 
   useEffect(() => {
     const getStatements = async () => {
       await api.body.nedbank.getAll();
       await api.body.body.getAll();
-      await api.body.copiedInvoice.getAll();
+      if (me?.property && me.year)
+        await api.body.copiedInvoice.getAll(me.property, me.year);
     };
     getStatements();
   }, []);

@@ -35,14 +35,14 @@ export const OwnerRecuringInvoices = observer(() => {
 
   const getData = async () => {
     await api.body.recuringInvoice.getAll();
-    await api.unit.getAll();
+    // await api.unit.getAll();
     await api.body.body.getAll();
   };
 
   useEffect(() => {
     const getData = async () => {
       await api.body.recuringInvoice.getAll();
-      await api.unit.getAll();
+      // await api.unit.getAll();
       await api.body.body.getAll();
       await api.auth.loadAll();
     };

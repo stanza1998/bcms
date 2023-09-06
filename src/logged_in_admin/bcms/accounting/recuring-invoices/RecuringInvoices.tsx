@@ -28,12 +28,12 @@ export const RecurringInvoices = observer(() => {
 
   useEffect(() => {
     const getData = async () => {
-      await api.body.recuringInvoice.getAll();
-      await api.body.body.getAll();
-      await api.body.financialMonth.getAll();
-      await api.body.financialYear.getAll();
-      await api.body.invoice.getAll();
-      await api.unit.getAll();
+      // await api.body.recuringInvoice.getAll();
+      // await api.body.body.getAll();
+      // await api.body.financialMonth.getAll();
+      // // await api.body.financialYear.getAll();
+      // // await api.body.invoice.getAll();
+      // await api.unit.getAll();
       await api.auth.loadAll();
     };
     getData();

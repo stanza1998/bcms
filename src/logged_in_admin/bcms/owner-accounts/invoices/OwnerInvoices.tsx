@@ -22,20 +22,20 @@ export const OwnerInvoices = observer(() => {
   const navigate = useNavigate();
 
   const getInvoices = async () => {
-    await api.body.invoice.getAll();
-    await api.body.body.getAll();
-    await api.unit.getAll();
-    await api.body.financialYear.getAll();
-    await api.body.financialMonth.getAll();
+    // await api.body.invoice.getAll();
+    // await api.body.body.getAll();
+    // await api.unit.getAll();
+    // await api.body.financialYear.getAll();
+    // await api.body.financialMonth.getAll();
   };
 
   useEffect(() => {
     const getInvoices = async () => {
-      await api.body.invoice.getAll();
-      await api.body.body.getAll();
-      await api.unit.getAll();
-      await api.body.financialYear.getAll();
-      await api.body.financialMonth.getAll();
+      // await api.body.invoice.getAll();
+      // await api.body.body.getAll();
+      // await api.unit.getAll();
+      // await api.body.financialYear.getAll();
+      // await api.body.financialMonth.getAll();
     };
     getInvoices();
   }, [

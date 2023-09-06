@@ -15,6 +15,7 @@ export const BodyCorperates = observer(() => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const me = store.user.meJson;
 
   const handleSearchChange = (event: any) => {
     setSearchQuery(event.target.value);
@@ -59,18 +60,18 @@ export const BodyCorperates = observer(() => {
               </h4>
               <div className="controls">
                 <div className="uk-inline">
-                  <button
+                  {/* <button
                     className="uk-button primary"
                     type="button"
                     onClick={onCreate}
                   >
                     Add Property
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>
             <div>
-              <input
+              {/* <input
                 type="text"
                 name=""
                 id=""
@@ -79,11 +80,10 @@ export const BodyCorperates = observer(() => {
                 style={{ width: "30%" }}
                 value={searchQuery}
                 onChange={handleSearchChange}
-              />
+              /> */}
               <div
                 className="uk-card uk-card-default uk-card-body uk-width-1-1@m"
                 style={{
-         
                   backgroundPosition: "right",
                   backgroundSize: "45%",
                   backgroundRepeat: "no-repeat",
@@ -103,46 +103,48 @@ export const BodyCorperates = observer(() => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredBodies.map((props, index) => (
-                      <tr key={props.asJson.id}>
-                        <td>
-                          <span>{index}</span>{" "}
-                        </td>
-                        <td>
-                          <span>{props.asJson.BodyCopName}</span>{" "}
-                        </td>
-                        <td>
-                          <span>{props.asJson.location}</span>{" "}
-                        </td>
-                        <td>
-                          <span>{props.asJson.bankName}</span>{" "}
-                        </td>
-                        <td>
-                          <span>{props.asJson.branchName}</span>{" "}
-                        </td>
-                        <td>
-                          <span>{props.asJson.branchCode}</span>{" "}
-                        </td>
-                        <td style={{ zIndex: "-1" }}>
-                          <span
-                            style={{
-                              background: "#000c37",
-                              color: "white",
-                              paddingLeft: "16px",
-                              paddingRight: "0px",
-                              paddingTop: "2px",
-                              paddingBottom: "6px",
-                              borderRadius: "2rem",
-                            }}
-                          >
-                            <CorporateCard
-                              key={props.asJson.id}
-                              body={props.asJson}
-                            />
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                    {filteredBodies
+                      .filter((p) => p.asJson.id === me?.property)
+                      .map((props, index) => (
+                        <tr key={props.asJson.id}>
+                          <td>
+                            <span>{index}</span>{" "}
+                          </td>
+                          <td>
+                            <span>{props.asJson.BodyCopName}</span>{" "}
+                          </td>
+                          <td>
+                            <span>{props.asJson.location}</span>{" "}
+                          </td>
+                          <td>
+                            <span>{props.asJson.bankName}</span>{" "}
+                          </td>
+                          <td>
+                            <span>{props.asJson.branchName}</span>{" "}
+                          </td>
+                          <td>
+                            <span>{props.asJson.branchCode}</span>{" "}
+                          </td>
+                          <td style={{ zIndex: "-1" }}>
+                            <span
+                              style={{
+                                background: "#000c37",
+                                color: "white",
+                                paddingLeft: "16px",
+                                paddingRight: "0px",
+                                paddingTop: "2px",
+                                paddingBottom: "6px",
+                                borderRadius: "2rem",
+                              }}
+                            >
+                              <CorporateCard
+                                key={props.asJson.id}
+                                body={props.asJson}
+                              />
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>

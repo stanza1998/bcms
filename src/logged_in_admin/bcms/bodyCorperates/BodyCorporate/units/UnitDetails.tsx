@@ -17,18 +17,14 @@ import showModalFromId, {
 } from "../../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../../../dialogs/Dialogs";
 import { IInvoice } from "../../../../../shared/models/invoices/Invoices";
-import { collection, doc, setDoc } from "firebase/firestore";
-import { db } from "../../../../../shared/database/FirebaseConfig";
 import { SuccessfulAction } from "../../../../../shared/models/Snackbar";
 import Modal from "../../../../../shared/components/Modal";
-import { IconButton } from "@mui/material";
-import { GridColDef } from "@mui/x-data-grid";
-import { ICopiedInvoice } from "../../../../../shared/models/invoices/CopyInvoices";
 
 export const UnitDetails = observer(() => {
   const { propertyId, id, yearId } = useParams();
   const navigate = useNavigate();
   const { store, api } = useAppContext();
+  const me = store.user.meJson;
 
   const [property, setProperty] = useState<IBodyCop | undefined>({
     ...defaultBodyCop,
@@ -152,6 +148,7 @@ const Invoicing = observer(() => {
   const { propertyId, id, yearId, monthId } = useParams();
   const { store, ui, api } = useAppContext();
   const navigate = useNavigate();
+  const me = store.user.meJson;
   //current date
   const currentDate = new Date();
   const currentDate1 = new Date().toISOString().slice(0, 10);
@@ -207,7 +204,8 @@ const Invoicing = observer(() => {
         setUnit(unit?.asJson);
         const year = store.bodyCorperate.financialYear.getById(yearId);
         setYear(year?.asJson);
-        await api.unit.getAll();
+        if (!me?.property) return;
+        await api.unit.getAll(me.property);
       }
     };
     getData();
@@ -215,6 +213,7 @@ const Invoicing = observer(() => {
     api.body.body,
     api.unit,
     id,
+    me?.property,
     monthId,
     propertyId,
     store.bodyCorperate.bodyCop,
@@ -277,7 +276,8 @@ const Invoicing = observer(() => {
       totalPaid: 0,
     };
     try {
-      await api.body.invoice.create(InvoiceData);
+      if (!me?.property) return;
+      await api.body.invoice.create(InvoiceData, me?.property);
       setLoadingInvoice(false);
     } catch (error) {
       console.log(error);
@@ -293,11 +293,13 @@ const Invoicing = observer(() => {
 
   useEffect(() => {
     const getInvoice = async () => {
-      await api.body.invoice.getAll();
-      await api.body.copiedInvoice.getAll();
+      if (!me?.property) return;
+      await api.body.invoice.getAll(me?.property);
+      if ((me.property, me.year))
+        await api.body.copiedInvoice.getAll(me.property, me.year);
     };
     getInvoice();
-  }, [api.body.copiedInvoice, api.body.invoice]);
+  }, [api.body.copiedInvoice, api.body.invoice, me?.property, me?.year]);
 
   const [inv, setInv] = useState<IInvoice[]>([]);
 

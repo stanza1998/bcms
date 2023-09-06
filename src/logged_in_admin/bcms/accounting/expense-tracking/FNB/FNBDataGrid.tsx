@@ -43,43 +43,41 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
   const [transferId, setTransferId] = useState<string>("");
   const [supplierId, setSupplierId] = useState<string>("");
   const [invoiceCopied, setInvoiceCopied] = useState<ICopiedInvoice[]>([]);
+  const me = store.user.meJson;
 
   // Generate the rcp number
   const generateInvoiceNumber = () => {
-    const randomNumber = Math.floor(Math.random() * 1000000); // Generate a random number between 0 and 9999
-    const formattedNumber = randomNumber.toString().padStart(4, "0"); // Pad the number with leading zeros if necessary
+    const randomNumber = Math.floor(Math.random() * 1000000);
+    const formattedNumber = randomNumber.toString().padStart(4, "0");
     const generatedInvoiceNumber = `RCP000${formattedNumber}`;
-    return generatedInvoiceNumber; // Add the prefix "INV" to the number
+    return generatedInvoiceNumber;
   };
+
+  //generate pay number
   const generateInvoiceNumberSupplier = () => {
-    const randomNumber = Math.floor(Math.random() * 1000000); // Generate a random number between 0 and 9999
-    const formattedNumber = randomNumber.toString().padStart(4, "0"); // Pad the number with leading zeros if necessary
+    const randomNumber = Math.floor(Math.random() * 1000000);
+    const formattedNumber = randomNumber.toString().padStart(4, "0");
     const generatedInvoiceNumber = `PAYP000${formattedNumber}`;
-    return generatedInvoiceNumber; // Add the prefix "INV" to the number
+    return generatedInvoiceNumber;
   };
 
   useEffect(() => {
     const getStatements = async () => {
+      if (!me?.property && !me?.year && !me?.month) return;
       // Otherwise, fetch data and cache it
       await Promise.all([
-        api.body.fnb.getAll(),
+        api.body.fnb.getAll(me.property, me.year, me.month),
         api.body.body.getAll(),
-        api.unit.getAll(),
-        api.body.copiedInvoice.getAll(),
-        api.body.account.getAll(),
-        api.body.transfer.getAll(),
-        api.body.supplier.getAll(),
+        api.unit.getAll(me.property),
+        api.body.copiedInvoice.getAll(me.property, me.year),
+        api.body.account.getAll(me.property),
+        api.body.transfer.getAll(me.property),
+        api.body.supplier.getAll(me.property),
       ]);
     };
 
     getStatements();
-  }, []);
-
-  const getData = async () => {
-    await api.body.fnb.getAll();
-  };
-
-  // const accounts = store.bodyCorperate.account.all;
+  }, [me?.property, me?.year, me?.month]);
 
   const onAllocate = (
     unitId: string,
@@ -111,27 +109,40 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
   ) => {
     try {
       setIsAllocating(true);
-      const myPath =
-        "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08";
-      const invoiceRef = doc(collection(db, myPath, "CopiedInvoices"), id);
+      const copiedInvoicesPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
+      const invoiceRef = doc(
+        collection(db, copiedInvoicesPath, "CopiedInvoices"),
+        id
+      );
       const invoiceSnapshot = await getDoc(invoiceRef);
       if (invoiceSnapshot.exists()) {
         const invoiceData = invoiceSnapshot.data();
         const existingTotalPaid = invoiceData.totalPaid || 0; // Default to 0 if totalPaid doesn't exist
-
         const updatedTotalPaid = existingTotalPaid + amount;
-
-        await updateDoc(invoiceRef, { totalPaid: updatedTotalPaid });
+        await updateDoc(invoiceRef, {
+          totalPaid: updatedTotalPaid,
+        });
       } else {
         console.log("Invoice not found.");
         return; // Return early if the invoice doesn't exist
       }
 
-      const myPath1 = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08`;
+      const unitPath = `/BodyCoperate/${me?.property}/`;
 
+      const unitRef = doc(collection(db, unitPath, "Units"), unitId);
+      const unitSnaphot = await getDoc(unitRef);
+      if (unitSnaphot.exists()) {
+        const unitData = unitSnaphot.data();
+        const balanceUpdate = unitData.balance || 0;
+        const updatedBalance = balanceUpdate - amount;
+
+        await updateDoc(unitRef, { balance: updatedBalance });
+      }
+
+      const transactionsPath = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
       // Reference to the "Transactions" subcollection under the specific year document
       const transactionsCollectionRef = doc(
-        collection(db, myPath1, "FNBTransactions"),
+        collection(db, transactionsPath, "FNBTransactions"),
         transactionId
       );
 
@@ -171,7 +182,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       return;
     } else {
       // Specify a valid document ID for bodyCoperateDocRef
-      const myPath1 = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08`;
+      const myPath1 = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
       const transactionsCollectionRef = doc(
         collection(db, myPath1, "FNBTransactions"),
         id
@@ -205,7 +216,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       return;
     } else {
       // Specify a valid document ID for bodyCoperateDocRef
-      const myPath1 = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08`;
+      const myPath1 = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
       const transactionsCollectionRef = doc(
         collection(db, myPath1, "FNBTransactions"),
         id
@@ -238,7 +249,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       setSupplierId("");
       return;
     } else {
-      const myPath1 = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08`;
+      const myPath1 = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
       const transactionsCollectionRef = doc(
         collection(db, myPath1, "FNBTransactions"),
         id
@@ -295,7 +306,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       description: description,
     };
     try {
-      await api.body.account.create(Account);
+      if (me?.property) await api.body.account.create(Account, me.property);
       SuccessfulAction(ui);
     } catch (error) {
       FailedAction(error);
@@ -314,7 +325,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       description: description,
     };
     try {
-      await api.body.supplier.create(Account);
+      if (me?.property) await api.body.supplier.create(Account, me.property);
       SuccessfulAction(ui);
     } catch (error) {
       FailedAction(error);
@@ -334,7 +345,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       description: description,
     };
     try {
-      await api.body.transfer.create(Account);
+      if (me?.property) await api.body.transfer.create(Account, me.property);
       SuccessfulAction(ui);
     } catch (error) {
       FailedAction(error);
@@ -369,7 +380,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
             <option value="Account">Account</option>
             <option value="Supplier">Supplier</option>
             <option value="Customer">Customer</option>
-            <option value="Transfer">Transfer</option>
+            {/* <option value="Transfer">Transfer</option> */}
           </select>
         </div>
       ),
@@ -432,13 +443,13 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
             >
               <option value="">Select Account</option>
               {store.bodyCorperate.unit.all
-                .filter((u) => u.asJson.bodyCopId === "4Q5WwF2rQFmoStdpmzaW") //very crucial to change the id to selected property
+                .filter((u) => u.asJson.bodyCopId === me?.property)
                 .map((u) => (
                   <option value={u.asJson.id}>Unit {u.asJson.unitName}</option>
                 ))}
             </select>
           )}
-          {type === "Transfer" && (
+          {/* {type === "Transfer" && (
             <>
               <select
                 style={{ width: "82%" }}
@@ -458,7 +469,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
                 <AddCircleOutlineIcon />
               </IconButton>
             </>
-          )}
+          )} */}
         </div>
       ),
     },

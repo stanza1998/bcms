@@ -28,13 +28,14 @@ export const ViewInvoice = observer(() => {
   const { store, api, ui } = useAppContext();
   const { propertyId, id, yearId, monthId, invoiceId } = useParams();
   const navigate = useNavigate();
+  const me = store.user.meJson;
 
   useEffect(() => {
     const getData = async () => {
-      await api.body.invoice.getAll();
+     if(me?.property) await api.body.invoice.getAll(me?.property);
     };
     getData();
-  }, [api.body.invoice]);
+  }, [api.body.invoice, me?.property]);
 
   const [invoice, setInvoice] = useState<IInvoice | undefined>({
     ...defaultInvoice,

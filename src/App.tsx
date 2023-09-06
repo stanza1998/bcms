@@ -48,10 +48,12 @@ import { Statements } from "./logged_in_admin/bcms/accounting/statements/Stateme
 import { CustomerReportsFNB } from "./logged_in_admin/bcms/accounting/reports/customer/CustomerReport";
 import { SupplierReportsNEDBANK } from "./logged_in_admin/bcms/accounting/reports/supplier/SupplierReports";
 import { CustomerReportNEDBANK } from "./logged_in_admin/bcms/accounting/reports/customer/CustomerReportNEDBANK";
-import { SupplierInvoices } from "./logged_in_admin/bcms/accounting/invoices/supplier-invoices/SupplierInvoices";
+import { SuppliersView } from "./logged_in_admin/bcms/accounting/invoices/supplier-invoices/SupplierInvoices";
 import { CreateSupplierInvoice } from "./logged_in_admin/bcms/accounting/invoices/supplier-invoices/create/CreateInvoice";
 import { SupplierReportsFNB } from "./logged_in_admin/bcms/accounting/reports/supplier/SupplierReportFNB";
 import { Others } from "./logged_in_admin/team/others/Others";
+import Accounts from "./logged_in_admin/bcms/accounting/invoices/accounts/Accounts";
+import { CopiedInvoicesAcc } from "./logged_in_admin/bcms/accounting/invoices/CopiedInvoicesAcc";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -88,18 +90,19 @@ const ADMIN_USER_ROUTES = () => {
           <Route path={`accounting/invoices`} element={<Invoices />} />
           <Route
             path={`accounting/supplier-invoices`}
-            element={<SupplierInvoices />}
+            element={<SuppliersView />}
           />
           <Route
             path={`accounting/supplier-invoices/create`}
             element={<CreateSupplierInvoice />}
           />
 
-          
           <Route
             path={`accounting/recuring-invoices`}
             element={<RecurringInvoices />}
           />
+          <Route path={`accounting/account`} element={<Accounts />} />
+
           <Route
             path={`accounting/expense-tracking`}
             element={<ExpenseTracking />}
@@ -145,6 +148,10 @@ const ADMIN_USER_ROUTES = () => {
           <Route
             path={`/c/body/body-corperate/copied/:propertyId/:id/:yearId/:invoiceId`}
             element={<CopiedInvoices />}
+          />
+          <Route
+            path={`/c/accounting/invoices/copiedAcc/:propertyId/:id/:yearId/:invoiceId`}
+            element={<CopiedInvoicesAcc />}
           />
 
           <Route

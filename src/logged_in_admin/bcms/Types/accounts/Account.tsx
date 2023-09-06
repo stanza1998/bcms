@@ -12,6 +12,7 @@ import { AccountTable } from "./AccountTable";
 export const AccountType = observer(() => {
   const { store, api } = useAppContext();
   const [loading, setLoading] = useState(false);
+  const me = store.user.meJson;
 
   const onCreate = () => {
     showModalFromId(DIALOG_NAMES.BODY.ALLOCATE_DIALOGS);
@@ -19,7 +20,8 @@ export const AccountType = observer(() => {
 
   useEffect(() => {
     const getData = async () => {
-      await api.body.account.getAll();
+      if (!me?.property) return;
+      await api.body.account.getAll(me?.property);
     };
     getData();
   }, []);

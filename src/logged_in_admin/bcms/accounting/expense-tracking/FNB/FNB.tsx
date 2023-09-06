@@ -69,19 +69,15 @@ const FNBUploadState = observer(() => {
   const { store, api } = useAppContext();
   const [csvData, setCSVData] = useState<CSVRow[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [propertyId, setPropertyId] = useState<string>("");
-  const [financialYear, setFinancialYear] = useState<string>("");
+  const me = store.user.meJson;
 
   useEffect(() => {
     const getData = async () => {
       await api.body.body.getAll();
-      await api.body.financialYear.getAll();
+      if (me?.property) await api.body.financialYear.getAll(me.property);
     };
     getData();
-  }, [api.body.body, api.body.financialYear]);
-
-  const property = store.bodyCorperate.bodyCop.all;
-  const year = store.bodyCorperate.financialYear.all;
+  }, [api.body.body, api.body.financialYear, me?.property]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -126,10 +122,14 @@ const FNBUploadState = observer(() => {
     try {
       setLoading(true);
 
-      for (const transaction of transactions) {
+      if (!me?.property) {
+        throw new Error("No property Id");
+      }
+
+      const promises = transactions.map(async (transaction) => {
         const saveUpload: IFNB = {
           id: "",
-          propertyId: "4Q5WwF2rQFmoStdpmzaW", //very crucial to change it to be dynamic
+          propertyId: me.property || "",
           unitId: "",
           date: transaction.Date,
           serviceFee: transaction["SERVICE FEE"],
@@ -147,18 +147,16 @@ const FNBUploadState = observer(() => {
           rcp: "",
           supplierInvoiceNumber: "",
         };
-        try {
-          await api.body.fnb.create(saveUpload);
-        } catch (error) {
-          console.log(error);
-        }
-      }
 
-      setTransactions([]);
+        await api.body.fnb.create(saveUpload, me.property, me.year, me.month);
+      });
+
+      await Promise.all(promises);
+
       setLoading(false);
     } catch (error) {
-      FailedAction(error);
-      setLoading(false);
+      console.error("Error in saveFNBStatement:", error);
+      // Handle the error appropriately, e.g., show an error message to the user
     }
   };
 
@@ -184,11 +182,10 @@ const FNBUploadState = observer(() => {
               </button>
             </div>
           </div>
-          {transactions.map((trans) => trans).length > 0 && (
-            <button className="uk-button primary" onClick={saveFNBStatement}>
-              Save Statement
-            </button>
-          )}
+
+          <button className="uk-button primary" onClick={saveFNBStatement}>
+            Save Statement
+          </button>
 
           <div className="uk-margin">
             <table className="">
@@ -221,15 +218,25 @@ const Allocatate = observer(() => {
   const { store, api, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [statements, setStatements] = useState<IFNB[]>([]);
+  const me = store.user.meJson;
 
   useEffect(() => {
     const getStatements = async () => {
       await api.body.body.getAll();
-      await api.body.copiedInvoice.getAll();
-      await api.body.fnb.getAll();
+      if (me?.property && me.year)
+        await api.body.copiedInvoice.getAll(me.property, me.year);
+      if (me?.property && !me?.year && !me?.month)
+        await api.body.fnb.getAll(me.property, me.year, me.month);
     };
     getStatements();
-  }, [api.body.body, api.body.copiedInvoice, api.body.fnb]);
+  }, [
+    api.body.body,
+    api.body.copiedInvoice,
+    api.body.fnb,
+    me?.year,
+    me?.property,
+    me?.month,
+  ]);
 
   useEffect(() => {
     const getTransactionsForYear = async () => {
@@ -269,96 +276,3 @@ const Allocatate = observer(() => {
     </div>
   );
 });
-
-// const saveFNBStateme = () => {
-//   transactions.forEach(async (transaction: Transaction) => {
-//     const saveUpload: IFNB = {
-//       id: "",
-//       propertyId: "",
-//       unitId: "",
-//       date: transaction.Date,
-//       serviceFee: transaction["SERVICE FEE"],
-//       amount: parseFloat(transaction.Amount),
-//       description: transaction.DESCRIPTION,
-//       references: transaction.REFERENCE,
-//       balance: parseFloat(transaction.Balance),
-//       chequeNumber: parseFloat(transaction["CHEQUE NUMBER"]),
-//       allocated: false,
-//       invoiceNumber: "",
-//       expenses: false,
-//       accountId: "",
-//       supplierId: "",
-//       transferId: "",
-//       rcp: "",
-//       supplierInvoiceNumber: "",
-//     };
-//     try {
-//       setLoading(true);
-//       const year = 2023; // The year you want to work with
-//       // Reference to the "BodyCoperate" collection
-//       const bodyCoperateCollectionRef = collection(db, "BodyCoperate");
-
-//       // Reference to the specific document in "BodyCoperate"
-//       const bodyCoperateDocRef = doc(
-//         bodyCoperateCollectionRef,
-//         "dt9Yz58HEQEh63l43AUV"
-//       );
-
-//       // Reference to the "Year" subcollection under the specific document
-//       const yearCollectionRef = collection(bodyCoperateDocRef, "Year");
-
-//       // Check if the year already exists in the "Year" subcollection
-//       const yearQuerySnapshot = await getDocs(yearCollectionRef);
-//       const yearExists = yearQuerySnapshot.docs.some(
-//         (doc) => doc.data().year === year
-//       );
-
-//       if (!yearExists) {
-//         // If the year doesn't exist, create a new document with the year
-//         await addDoc(yearCollectionRef, { year: year });
-//       }
-
-//       // Now, let's work with the "Transactions" subcollection under the specific year
-//       const yearDocRef = doc(bodyCoperateDocRef, "Year", year.toString());
-//       const transactionsCollectionRef = collection(
-//         yearDocRef,
-//         "Transactions"
-//       );
-
-//       // Assuming you have the data to save as "saveUpload"
-//       await addDoc(transactionsCollectionRef, saveUpload);
-
-//       setTransactions([]);
-//       setLoading(false);
-//     } catch (error) {
-//       FailedAction(error);
-//       setLoading(false);
-//     }
-//   });
-// };
-
-// const updateProperties = async () => {
-//   setLoading(true);
-//   const fnbStatementsRef = collection(db, "FnbStatements");
-
-//   try {
-//     const querySnapshot = await getDocs(fnbStatementsRef);
-
-//     const updatePromises = querySnapshot.docs.map(async (docSnapshot) => {
-//       const data = docSnapshot.data();
-
-//       if (!data.allocated) {
-//         // Update the document only if 'allocated' is false
-//         const docRef = doc(db, "FnbStatements", docSnapshot.id);
-//         await updateDoc(docRef, { propertyId: propertyId });
-//       }
-//     });
-
-//     await Promise.all(updatePromises);
-
-//     console.log("Documents updated successfully.");
-//   } catch (error) {
-//     console.error("Error updating documents:", error);
-//   }
-//   setLoading(false);
-// };

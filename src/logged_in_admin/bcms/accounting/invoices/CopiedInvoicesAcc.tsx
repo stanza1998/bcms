@@ -1,9 +1,13 @@
 import { observer } from "mobx-react-lite";
-import { useAppContext } from "../../../../shared/functions/Context";
+
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { useAppContext } from "../../../../shared/functions/Context";
 import {
   IInvoice,
+  IService,
   defaultInvoice,
 } from "../../../../shared/models/invoices/Invoices";
 import {
@@ -11,46 +15,49 @@ import {
   defaultBodyCop,
 } from "../../../../shared/models/bcms/BodyCorperate";
 import { IUnit, defaultUnit } from "../../../../shared/models/bcms/Units";
-import {
-  IFinancialMonth,
-  defaultFinancialMonth,
-} from "../../../../shared/models/monthModels/FinancialMonth";
-import {
-  IFinancialYear,
-  defaultFinancialYear,
-} from "../../../../shared/models/yearModels/FinancialYear";
 import Loading from "../../../../shared/components/Loading";
+import { SuccessfulAction } from "../../../../shared/models/Snackbar";
+import { db } from "../../../../shared/database/FirebaseConfig";
+import React from "react";
+import {
+  ICopiedInvoice,
+  defaultCopiedInvoice,
+} from "../../../../shared/models/invoices/CopyInvoices";
 
-export const OwnerViewInvoice = observer(() => {
-  const { store, api } = useAppContext();
+export const CopiedInvoicesAcc = observer(() => {
+  const { store, api, ui } = useAppContext();
   const { propertyId, id, yearId, monthId, invoiceId } = useParams();
   const navigate = useNavigate();
   const me = store.user.meJson;
 
   useEffect(() => {
     const getData = async () => {
-      // await api.body.invoice.getAll();
+      if (me?.property && me.year)
+        await api.body.copiedInvoice.getAll(me.property, me.year);
     };
     getData();
-  }, [api.body.invoice]);
+  }, [api.body.copiedInvoice, me?.property, me?.year]);
 
-  const [invoice, setInvoice] = useState<IInvoice | undefined>({
-    ...defaultInvoice,
+  const [invoice, setInvoice] = useState<ICopiedInvoice | undefined>({
+    ...defaultCopiedInvoice,
   });
 
   useEffect(() => {
     const data = async () => {
       if (invoiceId) {
-        const invoice = store.bodyCorperate.invoice.getById(invoiceId);
+        const invoice = store.bodyCorperate.copiedInvoices.getById(invoiceId);
+        console.log("🚀 ~ data ~ invoice:", invoice?.asJson);
         setInvoice(invoice?.asJson);
       }
     };
     data();
-  }, [invoiceId, store.bodyCorperate.invoice]);
+  }, [invoiceId, store.bodyCorperate.copiedInvoices]);
 
   const back = () => {
-    navigate("/c/finance/invoices-view");
+    navigate(`/c/accounting/invoices`);
   };
+
+  //
 
   const [viewBody, setBody] = useState<IBodyCop | undefined>({
     ...defaultBodyCop,
@@ -58,30 +65,15 @@ export const OwnerViewInvoice = observer(() => {
   const [unit, setUnit] = useState<IUnit | undefined>({
     ...defaultUnit,
   });
-  const [year, setYear] = useState<IFinancialYear | undefined>({
-    ...defaultFinancialYear,
-  });
-  const [month, setMonth] = useState<IFinancialMonth | undefined>({
-    ...defaultFinancialMonth,
-  });
 
   useEffect(() => {
     const data = async () => {
       if (propertyId || id || yearId || monthId) {
         await api.body.body.getAll();
-        if (me?.property && me.year)
-          await api.body.financialMonth.getAll(me.property, me.year);
-        // await api.body.financialYear.getAll();
-        // await api.body.invoice.getAll();
-        // await api.unit.getAll();
         const property = store.bodyCorperate.bodyCop.getById(propertyId || "");
         setBody(property?.asJson);
         const unit = store.bodyCorperate.unit.getById(id || "");
         setUnit(unit?.asJson);
-        const month = store.bodyCorperate.financialMonth.getById(yearId || "");
-        setMonth(month?.asJson);
-        const year = store.bodyCorperate.financialYear.getById(monthId || "");
-        setYear(year?.asJson);
         await api.auth.loadAll();
       }
     };
@@ -89,9 +81,6 @@ export const OwnerViewInvoice = observer(() => {
   }, [
     api.auth,
     api.body.body,
-    api.body.financialMonth,
-    api.body.financialYear,
-    api.body.invoice,
     api.unit,
     id,
     monthId,
@@ -103,7 +92,9 @@ export const OwnerViewInvoice = observer(() => {
     yearId,
   ]);
 
-  //laader
+  //editing
+  const [show, setShow] = useState(false);
+
   const [loaderS, setLoaderS] = useState(true);
 
   setTimeout(() => {
@@ -129,16 +120,14 @@ export const OwnerViewInvoice = observer(() => {
             <h4 className="section-heading uk-heading">
               {invoice?.invoiceNumber}
             </h4>
-            <div className="controls">
-              <div className="uk-inline">
-                <button
-                  onClick={back}
-                  className="uk-button primary"
-                  type="button"
-                >
-                  Back
-                </button>
-              </div>
+            <div className="uk-inline">
+              <button
+                onClick={back}
+                className="uk-button primary"
+                type="button"
+              >
+                Back
+              </button>
             </div>
           </div>
           <div className="uk-section">
@@ -192,6 +181,7 @@ export const OwnerViewInvoice = observer(() => {
                     <th>Description</th>
                     <th className="uk-text-center">Price</th>
                     <th className="uk-text-right">Total Price</th>
+                    {show === true && <td className="uk-text-right">Action</td>}
                   </tr>
                 </thead>
                 <tbody>

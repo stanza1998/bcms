@@ -11,6 +11,7 @@ import {
 export const FinacialYearDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
+  const me = store.user.meJson;
 
   const [financialYear, setFinancialYear] = useState<IFinancialYear>({
     ...defaultFinancialYear,
@@ -19,19 +20,22 @@ export const FinacialYearDialog = observer(() => {
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-
+    if (!me?.property) return;
     // Update API
     try {
       if (store.bodyCorperate.financialYear.selected) {
-        const deptment = await api.body.financialYear.update(financialYear);
-       await store.bodyCorperate.financialYear.load();
+        const deptment = await api.body.financialYear.update(
+          financialYear,
+          me.property
+        );
+        await store.bodyCorperate.financialYear.load();
         ui.snackbar.load({
           id: Date.now(),
           message: "financial Year updated!",
           type: "success",
         });
       } else {
-        await api.body.financialYear.create(financialYear);
+        await api.body.financialYear.create(financialYear, me.property);
         ui.snackbar.load({
           id: Date.now(),
           message: "Financial Year created!",

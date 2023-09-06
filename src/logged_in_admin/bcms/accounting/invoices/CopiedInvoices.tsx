@@ -28,13 +28,15 @@ export const CopiedInvoices = observer(() => {
   const { store, api, ui } = useAppContext();
   const { propertyId, id, yearId, monthId, invoiceId } = useParams();
   const navigate = useNavigate();
+  const me = store.user.meJson;
 
   useEffect(() => {
     const getData = async () => {
-      await api.body.copiedInvoice.getAll();
+      if (me?.property && me.year)
+        await api.body.copiedInvoice.getAll(me.property, me.year);
     };
     getData();
-  }, [api.body.copiedInvoice]);
+  }, [api.body.copiedInvoice, me?.property, me?.year]);
 
   const [invoice, setInvoice] = useState<ICopiedInvoice | undefined>({
     ...defaultCopiedInvoice,

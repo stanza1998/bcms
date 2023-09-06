@@ -11,7 +11,7 @@ import {
 export const SupplierDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
-
+  const me = store.user.meJson;
   const [supplier, setSupplier] = useState<ISupplier>({
     ...defaultSupplier,
   });
@@ -19,19 +19,19 @@ export const SupplierDialog = observer(() => {
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-
+    if (!me?.property) return;
     // Update API
     try {
       if (store.bodyCorperate.supplier.selected) {
-        const deptment = await api.body.supplier.update(supplier);
-       await store.bodyCorperate.supplier.load();
+        const deptment = await api.body.supplier.update(supplier, me.property);
+        await store.bodyCorperate.supplier.load();
         ui.snackbar.load({
           id: Date.now(),
           message: "Account Created!",
           type: "success",
         });
       } else {
-        await api.body.supplier.create(supplier);
+        await api.body.supplier.create(supplier, me.property);
         ui.snackbar.load({
           id: Date.now(),
           message: "Account created!",
@@ -39,7 +39,7 @@ export const SupplierDialog = observer(() => {
         });
       }
     } catch (error) {
-      console.log("🚀 ~ file: SupplierDialog.tsx:42 ~ onSave ~ error:", error)
+      console.log("🚀 ~ file: SupplierDialog.tsx:42 ~ onSave ~ error:", error);
       ui.snackbar.load({
         id: Date.now(),
         message: "Error! Failed to update Account.",

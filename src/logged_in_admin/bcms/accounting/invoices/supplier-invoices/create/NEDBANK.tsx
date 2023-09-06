@@ -31,15 +31,16 @@ export const NEDBANKCreate = observer(() => {
   const { store, api } = useAppContext();
   const [propertyId, setPropertyId] = useState<string>("");
   const [supplierId, setSupplierId] = useState<string>("");
+  const me = store.user.meJson;
 
   useEffect(() => {
     const getData = async () => {
       await api.body.nedbank.getAll();
       await api.body.body.getAll();
-      await api.body.supplier.getAll();
+      if (me?.property) await api.body.supplier.getAll(me.property);
     };
     getData();
-  }, []);
+  }, [me?.property]);
 
   const properties = store.bodyCorperate.bodyCop.all.map((p) => {
     return p.asJson;
@@ -122,6 +123,7 @@ interface ServiceDetails {
 const NEDBANKGrid = observer(({ data, propertyId, supplierId }: IProp) => {
   const { store, api, ui } = useAppContext();
   const navigate = useNavigate();
+  const me = store.user.meJson;
   const [transactionId, setTransactionId] = useState<string[]>([]);
   const handleCheckboxChange = (event: any, id: string) => {
     if (event.target.checked) {
@@ -145,7 +147,7 @@ const NEDBANKGrid = observer(({ data, propertyId, supplierId }: IProp) => {
   useEffect(() => {
     const getProperty = async () => {
       await api.body.body.getAll();
-      await api.body.supplier.getAll();
+      if (me?.property) await api.body.supplier.getAll(me.property);
       const property = store.bodyCorperate.bodyCop.getById(propertyId);
       const supplier = store.bodyCorperate.supplier.getById(supplierId);
       setProperty(property?.asJson);
@@ -159,6 +161,7 @@ const NEDBANKGrid = observer(({ data, propertyId, supplierId }: IProp) => {
     store.bodyCorperate.bodyCop,
     store.bodyCorperate.supplier,
     supplierId,
+    me?.property,
   ]);
 
   //create invoice
@@ -235,7 +238,12 @@ const NEDBANKGrid = observer(({ data, propertyId, supplierId }: IProp) => {
       supplierId: supplier?.id || "",
     };
     try {
-      await api.body.supplierInvoice.create(InvoiceData);
+      if (me?.property && me.year)
+        await api.body.supplierInvoice.create(
+          InvoiceData,
+          me.property,
+          me.year
+        );
       addInvoiceNumber(InvoiceData.invoiceNumber);
       SuccessfulAction(ui);
     } catch (error) {

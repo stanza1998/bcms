@@ -29,13 +29,14 @@ export const VerifyInvoice = observer(() => {
   const { store, api, ui } = useAppContext();
   const { propertyId, id, yearId, monthId, invoiceId } = useParams();
   const navigate = useNavigate();
+  const me = store.user.meJson;
 
   useEffect(() => {
     const getData = async () => {
-      await api.body.invoice.getAll();
+      if (me?.property) await api.body.invoice.getAll(me?.property);
     };
     getData();
-  }, [api.body.invoice]);
+  }, [api.body.invoice, me?.property]);
 
   const [invoice, setInvoice] = useState<IInvoice | undefined>({
     ...defaultInvoice,
@@ -116,8 +117,7 @@ export const VerifyInvoice = observer(() => {
   const updateMaterial = async () => {
     if (invoiceId) {
       setDateLoader(true);
-      const myPath =
-        "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08";
+      const myPath = "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW";
       const docRef = doc(db, myPath, "MasterInvoices", invoiceId);
       const docSnap = await getDoc(docRef);
       await updateDoc(docRef, { dueDate: newDate });
@@ -159,8 +159,7 @@ export const VerifyInvoice = observer(() => {
   const updatePrice = async () => {
     if (invoiceId) {
       setPriceUpdate(true);
-      const myPath =
-        "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08";
+      const myPath = "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW";
       const docRef = doc(db, myPath, "MasterInvoices", invoiceId);
       const docSnap = await getDoc(docRef);
       await updateDoc(docRef, { totalDue: totalPriceAmended });
@@ -177,8 +176,8 @@ export const VerifyInvoice = observer(() => {
   const AddNewDetails = async () => {
     if (invoiceId) {
       setDetailsLoader(true);
-      const docRef = doc(db, "Invoices", invoiceId);
-
+      const myPath = "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW";
+      const docRef = doc(db, myPath, "MasterInvoices", invoiceId);
       try {
         // Fetch the existing services array from the document
         const docSnap = await getDoc(docRef);
@@ -210,8 +209,7 @@ export const VerifyInvoice = observer(() => {
   const removeService = async (indexToRemove: number) => {
     if (invoiceId) {
       setReomveLoader(true);
-      const myPath =
-        "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08";
+      const myPath = "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW";
       const docRef = doc(db, myPath, "MasterInvoices", invoiceId);
 
       try {
@@ -244,8 +242,7 @@ export const VerifyInvoice = observer(() => {
   const verifyInvoice = async () => {
     if (invoiceId) {
       setVerificationLoader(true);
-      const myPath =
-        "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08";
+      const myPath = "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW";
       const docRef = doc(db, myPath, "MasterInvoices", invoiceId);
       const docSnap = await getDoc(docRef);
       await updateDoc(docRef, { verified: true });

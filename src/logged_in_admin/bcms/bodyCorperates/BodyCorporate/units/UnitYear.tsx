@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../../../../../shared/components/Loading";
 import { useAppContext } from "../../../../../shared/functions/Context";
@@ -8,13 +8,9 @@ import {
   IFinancialYear,
   defaultFinancialYear,
 } from "../../../../../shared/models/yearModels/FinancialYear";
-import showModalFromId, {
-  hideModalFromId,
-} from "../../../../../shared/functions/ModalShow";
+import showModalFromId from "../../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../../../dialogs/Dialogs";
-import Modal from "../../../../../shared/components/Modal";
-import { FinacialMonthDialog } from "../../../../dialogs/financial-month-dialog/FinancialMonthDialog";
-import folder from "./assets/folder (3).png";
+
 import {
   IFinancialMonth,
   defaultFinancialMonth,
@@ -29,6 +25,7 @@ export const UnitYear = observer(() => {
   const { propertyId, id, yearId } = useParams();
   const navigate = useNavigate();
   const [laoderS, setLoaderS] = useState(true);
+  const me = store.user.meJson;
 
   const back = () => {
     navigate(`/c/body/body-corperate/${propertyId}/${id}`);
@@ -36,12 +33,13 @@ export const UnitYear = observer(() => {
 
   useEffect(() => {
     const getData = async () => {
-      await api.body.financialYear.getAll();
-      await api.unit.getAll();
-      await api.body.financialMonth.getAll();
+      if (!me?.property) return;
+      await api.body.financialYear.getAll(me.property);
+      await api.unit.getAll(me.property);
+    if(me.property && me.year)  await api.body.financialMonth.getAll(me.property, me.year);
     };
     getData();
-  }, [api.body.financialMonth, api.body.financialYear, api.unit]);
+  }, [api.body.financialMonth, api.body.financialYear, api.unit, me?.property, me?.year]);
 
   const [info, setInfo] = useState<IUnit | undefined>({
     ...defaultUnit,

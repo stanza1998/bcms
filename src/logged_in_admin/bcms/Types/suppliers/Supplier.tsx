@@ -12,6 +12,7 @@ import { SupplierTable } from "./SupplierTables";
 export const Supplier = observer(() => {
   const { store, api } = useAppContext();
   const [loading, setLoading] = useState(false);
+  const me = store.user.meJson;
 
   const onCreate = () => {
     showModalFromId(DIALOG_NAMES.BODY.ALLOCATE_DIALOGS);
@@ -19,7 +20,8 @@ export const Supplier = observer(() => {
 
   useEffect(() => {
     const getData = async () => {
-      await api.body.supplier.getAll();
+      if (!me?.property) return;
+      await api.body.supplier.getAll(me?.property);
     };
     getData();
   }, []);

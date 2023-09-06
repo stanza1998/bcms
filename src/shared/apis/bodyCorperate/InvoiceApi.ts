@@ -18,8 +18,8 @@ import { db } from "../../database/FirebaseConfig";
 export default class InvoiceApi {
   constructor(private api: AppApi, private store: AppStore) {}
 
-  async getAll() {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/MasterInvoices`;
+  async getAll(pid: string) {
+    const myPath = `BodyCoperate/${pid}/MasterInvoices`;
 
     const $query = query(collection(db, myPath));
     // new promise
@@ -45,8 +45,8 @@ export default class InvoiceApi {
     });
   }
 
-  async getById(id: string) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/MasterInvoices`;
+  async getById(id: string, pid: string) {
+    const myPath = `BodyCoperate/${pid}/MasterInvoices`;
 
     const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
       if (!doc.exists) return;
@@ -58,8 +58,9 @@ export default class InvoiceApi {
     return unsubscribe;
   }
 
-  async create(item: IInvoice) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/MasterInvoices`;
+  //rememberId
+  async create(item: IInvoice, pid: string) {
+    const myPath = `BodyCoperate/${pid}/MasterInvoices`;
 
     const itemRef = doc(collection(db, myPath));
     item.invoiceId = itemRef.id;
@@ -75,20 +76,19 @@ export default class InvoiceApi {
       // console.log(error);
     }
   }
-
-  async update(product: IInvoice) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/MasterInvoices`;
+  async update(invoice: IInvoice, pid: string) {
+    const myPath = `BodyCoperate/${pid}/MasterInvoices`;
     try {
-      await updateDoc(doc(db, myPath, product.invoiceId), {
-        ...product,
+      await updateDoc(doc(db, myPath, invoice.invoiceId), {
+        ...invoice,
       });
 
-      this.store.bodyCorperate.invoice.load([product]);
+      this.store.bodyCorperate.invoice.load([invoice]);
     } catch (error) {}
   }
 
-  async delete(id: string) {
-    const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08/MasterInvoices`;
+  async delete(id: string, pid: string) {
+    const myPath = `BodyCoperate/${pid}/MasterInvoices`;
     try {
       await deleteDoc(doc(db, myPath, id));
       this.store.bodyCorperate.invoice.remove(id);

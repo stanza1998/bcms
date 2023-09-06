@@ -35,6 +35,7 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
   const [accountId, setAccountId] = useState<string>("");
   const [transferId, setTransferId] = useState<string>("");
   const [supplierId, setSupplierId] = useState<string>("");
+  const me = store.user.meJson;
   // Generate the rcp number
   const generateInvoiceNumber = () => {
     const randomNumber = Math.floor(Math.random() * 1000000); // Generate a random number between 0 and 9999
@@ -52,20 +53,20 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
 
   useEffect(() => {
     const getStatements = async () => {
+      if (!me?.property && !me?.year) return;
       // Otherwise, fetch data and cache it
       await Promise.all([
         api.body.nedbank.getAll(),
         api.body.body.getAll(),
-        api.unit.getAll(),
-        api.body.copiedInvoice.getAll(),
-        api.body.account.getAll(),
-        api.body.transfer.getAll(),
-        api.body.supplier.getAll(),
+        api.unit.getAll(me?.property),
+        api.body.copiedInvoice.getAll(me?.property, me?.year),
+        api.body.account.getAll(me?.property),
+        api.body.supplier.getAll(me?.property),
       ]);
     };
 
     getStatements();
-  }, []);
+  }, [me?.property, me?.year]);
 
   const onAllocate = (
     unitId: string,
@@ -254,7 +255,7 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
       description: description,
     };
     try {
-      await api.body.account.create(Account);
+      if (me?.property) await api.body.account.create(Account, me.property);
       SuccessfulAction(ui);
     } catch (error) {
       FailedAction(error);
@@ -273,7 +274,7 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
       description: description,
     };
     try {
-      await api.body.supplier.create(Account);
+      if (me?.property) await api.body.supplier.create(Account, me.property);
       SuccessfulAction(ui);
     } catch (error) {
       FailedAction(error);
@@ -293,7 +294,7 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
       description: description,
     };
     try {
-      await api.body.transfer.create(Account);
+      if (me?.property) await api.body.transfer.create(Account, me.property);
       SuccessfulAction(ui);
     } catch (error) {
       FailedAction(error);
@@ -480,8 +481,8 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
   ];
 
   return (
-    <>
-      <Box sx={{ height: 400 }} className="companies-grid">
+    <div style={{ overflowX: "hidden" }}>
+      <Box sx={{ height: 400, width: 1090 }} className="companies-grid">
         <DataGrid
           rows={data}
           //   columns={column}
@@ -675,6 +676,6 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
           </form>
         </div>
       </Modal>
-    </>
+    </div>
   );
 });

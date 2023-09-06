@@ -155,7 +155,7 @@ export const RecuringInvoicesDialog = observer(() => {
   useEffect(() => {
     const getData = async () => {
       await api.body.body.getAll();
-      await api.unit.getAll();
+      // await api.unit.getAll();
     };
     getData();
   }, [api.body.body, api.unit]);

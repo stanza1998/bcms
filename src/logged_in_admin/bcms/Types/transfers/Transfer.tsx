@@ -18,7 +18,7 @@ export const Transfer = observer(() => {
   };
   useEffect(() => {
     const getData = async () => {
-      await api.body.transfer.getAll();
+      // await api.body.transfer.getAll();
     };
     getData();
   }, []);

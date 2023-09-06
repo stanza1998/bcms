@@ -118,7 +118,7 @@ const ADMIN_DRAWER = () => {
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
-                Customer Invoices
+                Customer
               </NavLink>
             </li>
             <li>
@@ -126,7 +126,15 @@ const ADMIN_DRAWER = () => {
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
-                Supplier Invoices
+                Supplier
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={`accounting/account`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Accounts
               </NavLink>
             </li>
             <li>

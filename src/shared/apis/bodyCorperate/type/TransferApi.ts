@@ -1,15 +1,19 @@
 import {
     CollectionReference,
+    Unsubscribe,
+    collection,
     deleteDoc,
     doc,
     getDoc,
     onSnapshot,
     query,
     setDoc,
+    updateDoc,
   } from "firebase/firestore";
 import AppApi from "../../AppApi";
 import AppStore from "../../../stores/AppStore";
 import { ITransfer } from "../../../models/Types/Transfer";
+import { db } from "../../../database/FirebaseConfig";
 
   
   export default class TransferApi {
@@ -22,48 +26,84 @@ import { ITransfer } from "../../../models/Types/Transfer";
       this.collectionRef = collectionRef;
     }
   
-    async getAll() {
-      const q = query(this.collectionRef);
+    async getAll(pid:string) {
+      const myPath = `BodyCoperate/${pid}/Accounts`;
   
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        const items: ITransfer[] = [];
-        querySnapshot.forEach((doc) => {
-          items.push({ id: doc.id, ...doc.data() } as ITransfer);
-        });
+      const $query = query(collection(db, myPath));
+      // new promise
+      return await new Promise<Unsubscribe>((resolve, reject) => {
+        // on snapshot
+        const unsubscribe = onSnapshot(
+          $query,
+          // onNext
+          (querySnapshot) => {
+            const items: ITransfer[] = [];
+            querySnapshot.forEach((doc) => {
+              items.push({ id: doc.id, ...doc.data() } as ITransfer);
+            });
   
-        this.store.bodyCorperate.transfer.load(items);
+            this.store.bodyCorperate.account.load(items);
+            resolve(unsubscribe);
+          },
+          // onError
+          (error) => {
+            reject();
+          }
+        );
+      });
+    }
+  
+  
+    async getById(id: string, pid:string) {
+      const myPath = `BodyCoperate/${pid}/Accounts`;
+  
+      const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
+        if (!doc.exists) return;
+        const item = { id: doc.id, ...doc.data() } as ITransfer;
+  
+        this.store.bodyCorperate.account.load([item]);
       });
   
       return unsubscribe;
     }
   
-    async getBodyCop(id: string) {
-      const docSnap = await getDoc(doc(this.collectionRef, id));
-      if (docSnap.exists()) {
-        const body = { ...docSnap.data(), id: docSnap.id } as ITransfer;
-        await this.store.bodyCorperate.transfer.load([body]);
-        return body;
-      } else return undefined;
+    //rememberId
+    async create(item: ITransfer, pid:string) {
+      const myPath = `BodyCoperate/${pid}/Accounts`;
+  
+      const itemRef = doc(collection(db, myPath));
+      item.id = itemRef.id;
+  
+      // create in db
+      try {
+        await setDoc(itemRef, item, {
+          merge: true,
+        });
+        // create in store
+        this.store.bodyCorperate.account.load([item]);
+      } catch (error) {
+        // console.log(error);
+      }
+    }
+    async update(account: ITransfer, pid:string) {
+      const myPath = `BodyCoperate/${pid}/Accounts`;
+      try {
+        await updateDoc(doc(db, myPath, account.id), {
+          ...account,
+        });
+  
+        this.store.bodyCorperate.account.load([account]);
+      } catch (error) {}
     }
   
-    async create(data: ITransfer) {
-      const docRef = doc(this.collectionRef);
-      data.id = docRef.id;
-      await setDoc(docRef, data, { merge: true });
-      return data;
-    }
-  
-    async update(product: ITransfer) {
-      await setDoc(doc(this.collectionRef, product.id), product, {
-        merge: true,
-      });
-      return product;
-    }
-  
-    async delete(id: string) {
-      const docRef = doc(this.collectionRef, id);
-      await deleteDoc(docRef);
-      this.store.bodyCorperate.transfer.remove(id);
+    async delete(id: string, pid:string) {
+      const myPath = `BodyCoperate/${pid}/Accounts`;
+      try {
+        await deleteDoc(doc(db, myPath, id));
+        this.store.bodyCorperate.account.remove(id);
+      } catch (error) {
+        console.log(error);
+      }
     }
   }
   

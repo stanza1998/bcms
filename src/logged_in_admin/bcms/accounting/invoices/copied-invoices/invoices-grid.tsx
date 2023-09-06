@@ -33,13 +33,16 @@ interface IProp {
 const InvoicesGrid = observer(({ data }: IProp) => {
   const { store, api } = useAppContext();
   const navigate = useNavigate();
+  const me = store.user.meJson;
 
   useEffect(() => {
     const getData = async () => {
       await api.body.body.getAll();
-      await api.body.copiedInvoice.getAll();
-      await api.body.financialYear.getAll();
-      await api.body.financialMonth.getAll();
+      if (me?.property && me.year)
+        await api.body.copiedInvoice.getAll(me.property, me.year);
+      if (me?.property) await api.body.financialYear.getAll(me?.property);
+      if ((me?.property, me?.year))
+        await api.body.financialMonth.getAll(me.property, me.year);
       await api.auth.loadAll();
     };
     getData();
@@ -50,9 +53,9 @@ const InvoicesGrid = observer(({ data }: IProp) => {
     api.body.financialMonth,
     api.body.financialYear,
     api.unit,
+    me?.property,
+    me?.year,
   ]);
-
- 
 
   const [invoiceView, setInvoiceView] = useState<ICopiedInvoice | undefined>({
     ...defaultInvoice,
@@ -94,7 +97,7 @@ const InvoicesGrid = observer(({ data }: IProp) => {
     setMonth(month?.asJson);
     const year = store.bodyCorperate.financialYear.getById(yid);
     setYear(year?.asJson);
-    await api.unit.getAll();
+    if (me?.property) await api.unit.getAll(me?.property);
   };
 
   //unit data
@@ -105,14 +108,13 @@ const InvoicesGrid = observer(({ data }: IProp) => {
     yearId: string
   ) => {
     navigate(
-      `/c/body/body-corperate/copied/${propertyId}/${id}/${yearId}/${invoiceId}/`
+      `/c/accounting/invoices/copiedAcc/${propertyId}/${id}/${yearId}/${invoiceId}/`
     );
   };
 
   const columns: GridColDef[] = [
     { field: "invoiceNumber", headerName: "Invoice Number", width: 200 },
     { field: "dateIssued", headerName: "Date Issued", width: 200 },
-    { field: "dueDate", headerName: "Due Date", width: 200 },
     {
       field: "totalPaid",
       headerName: "Total Paid",
@@ -121,7 +123,7 @@ const InvoicesGrid = observer(({ data }: IProp) => {
     },
     {
       field: "totalDue",
-      headerName: "Total Due",
+      headerName: "Total Amount",
       width: 200,
       valueFormatter: (params) => `NAD ${params.value}`,
     },

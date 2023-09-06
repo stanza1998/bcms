@@ -11,6 +11,7 @@ import {
 export const FinacialMonthDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
+  const me = store.user.meJson;
 
   const [financialMonth, setFinancialMonth] = useState<IFinancialMonth>({
     ...defaultFinancialMonth,
@@ -23,7 +24,12 @@ export const FinacialMonthDialog = observer(() => {
     // Update API
     try {
       if (store.bodyCorperate.financialMonth.selected) {
-        const deptment = await api.body.financialMonth.update(financialMonth);
+        if (me?.property && me.year)
+          await api.body.financialMonth.update(
+            financialMonth,
+            me.property,
+            me.year
+          );
         await store.bodyCorperate.financialMonth.load();
         ui.snackbar.load({
           id: Date.now(),
@@ -31,7 +37,12 @@ export const FinacialMonthDialog = observer(() => {
           type: "success",
         });
       } else {
-        await api.body.financialMonth.create(financialMonth);
+        if ((me?.property, me?.year))
+          await api.body.financialMonth.create(
+            financialMonth,
+            me.property,
+            me.year
+          );
         ui.snackbar.load({
           id: Date.now(),
           message: "Financial Month created!",
@@ -80,7 +91,6 @@ export const FinacialMonthDialog = observer(() => {
                   className="uk-input uk-form-small"
                   name=""
                   id=""
-    
                   required
                 >
                   <option value="January">January</option>

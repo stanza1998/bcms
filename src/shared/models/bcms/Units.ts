@@ -5,7 +5,8 @@ export const defaultUnit: IUnit = {
     id: "",
     unitName: 0,
     bodyCopId: "",
-    ownerId: ""
+    ownerId: "",
+    balance:0
 };
 
 export interface IUnit {
@@ -13,6 +14,7 @@ export interface IUnit {
   unitName: number;
   bodyCopId: string;
   ownerId: string;
+  balance:number;
 }
 
 export default class UnitModel {

@@ -32,6 +32,7 @@ export const CustomerReportNEDBANK = observer(() => {
   const [unitId, setUnitId] = useState<string>("");
   const [dateFrom, setDateFrom] = useState<Date | null>(null);
   const [dateTo, setDateTo] = useState<Date | null>(null);
+  const me = store.user.meJson;
 
   const back = () => {
     navigate("/c/accounting/statements");
@@ -40,12 +41,20 @@ export const CustomerReportNEDBANK = observer(() => {
   useEffect(() => {
     const getData = async () => {
       await api.body.nedbank.getAll();
-      await api.body.copiedInvoice.getAll();
+      if ((me?.property, me?.year))
+        await api.body.copiedInvoice.getAll(me.property, me.year);
       await api.body.body.getAll();
-      await api.unit.getAll();
+      if (me?.property) await api.unit.getAll(me.property);
     };
     getData();
-  }, [api.body.body, api.body.copiedInvoice, api.body.nedbank, api.unit]);
+  }, [
+    api.body.body,
+    api.body.copiedInvoice,
+    api.body.nedbank,
+    api.unit,
+    me?.property,
+    me?.year,
+  ]);
 
   const properties = store.bodyCorperate.bodyCop.all.map((p) => {
     return p.asJson;
@@ -134,43 +143,46 @@ export const CustomerReportNEDBANK = observer(() => {
     const customerReceipts = comData.filter(
       (transaction) => transaction.transactionType === "Customer Receipt"
     );
-    
+
     // Create an object to store total credit for each invoice number
     const invoiceCreditMap: Record<string, number> = {};
-    
+
     customerReceipts.forEach((receipt) => {
       const { invoiceNumber, credit } = receipt;
-    
+
       // Add the credit to the existing total or initialize if not present
-      invoiceCreditMap[invoiceNumber] = (invoiceCreditMap[invoiceNumber] || 0) + parseFloat(credit);
+      invoiceCreditMap[invoiceNumber] =
+        (invoiceCreditMap[invoiceNumber] || 0) + parseFloat(credit);
     });
-    
+
     customerReceipts.forEach((receipt) => {
       const matchingInvoice = comData.find(
         (transaction) =>
           transaction.transactionType === "Tax Invoice" &&
           transaction.invoiceNumber === receipt.invoiceNumber
       );
-      
+
       if (matchingInvoice) {
         // Deduct the total credit from the debit of the matching invoice
-        receipt.balance = parseFloat(matchingInvoice.debit) - (invoiceCreditMap[receipt.invoiceNumber] || 0);
+        receipt.balance =
+          parseFloat(matchingInvoice.debit) -
+          (invoiceCreditMap[receipt.invoiceNumber] || 0);
       }
     });
-  //   const customerReceipts = comData.filter(
-  //     (transaction) => transaction.transactionType === "Customer Receipt"
-  //   );
-  //   customerReceipts.forEach((receipt) => {
-  //     const matchingInvoice = comData.find(
-  //       (transaction) =>
-  //         transaction.transactionType === "Tax Invoice" &&
-  //         transaction.invoiceNumber === receipt.invoiceNumber
-  //     );
-  //     if (matchingInvoice) {
-  //       receipt.balance =
-  //         parseFloat(matchingInvoice.debit) - parseFloat(receipt.credit);
-  //     }
-  //   });
+    //   const customerReceipts = comData.filter(
+    //     (transaction) => transaction.transactionType === "Customer Receipt"
+    //   );
+    //   customerReceipts.forEach((receipt) => {
+    //     const matchingInvoice = comData.find(
+    //       (transaction) =>
+    //         transaction.transactionType === "Tax Invoice" &&
+    //         transaction.invoiceNumber === receipt.invoiceNumber
+    //     );
+    //     if (matchingInvoice) {
+    //       receipt.balance =
+    //         parseFloat(matchingInvoice.debit) - parseFloat(receipt.credit);
+    //     }
+    //   });
 
     // Update the state with the combined data
     setCombinedData(comData);
@@ -277,144 +289,142 @@ export const CustomerReportNEDBANK = observer(() => {
 
   return (
     <div className="uk-section leave-analytics-page">
-    <div className="uk-container uk-container-large">
-      <div className="section-toolbar uk-margin">
-        <h4 className="section-heading uk-heading">
-          NEDBANK / Customer Transaction Report
-        </h4>
-        <div className="controls">
-          <div className="uk-inline">
-            <button
-              className="uk-button primary uk-margin-right"
-              type="button"
-              onClick={back}
-            >
-              Back
-            </button>
-            <IconButton onClick={clearFilter}>
-              <FilterAltOffIcon />
-            </IconButton>
-            <IconButton data-uk-toggle="target: #offcanvas-flip">
-              <FilterAltIcon />
-            </IconButton>
+      <div className="uk-container uk-container-large">
+        <div className="section-toolbar uk-margin">
+          <h4 className="section-heading uk-heading">
+            NEDBANK / Customer Transaction Report
+          </h4>
+          <div className="controls">
+            <div className="uk-inline">
+              <button
+                className="uk-button primary uk-margin-right"
+                type="button"
+                onClick={back}
+              >
+                Back
+              </button>
+              <IconButton onClick={clearFilter}>
+                <FilterAltOffIcon />
+              </IconButton>
+              <IconButton data-uk-toggle="target: #offcanvas-flip">
+                <FilterAltIcon />
+              </IconButton>
+            </div>
           </div>
         </div>
+        <RecordGrid data={specificCustomerRecord} />
       </div>
-      <RecordGrid data={specificCustomerRecord} />
-    </div>
-    <div id="offcanvas-flip" data-uk-offcanvas="flip: true; overlay: true">
-      <div className="uk-offcanvas-bar">
-        <button
-          className="uk-offcanvas-close"
-          type="button"
-          data-uk-close
-        ></button>
-        <h6>Filter Statements</h6>
-        <form className="uk-grid-small" data-uk-grid>
-          <div className="uk-width-1-1">
-            <label htmlFor="">Property</label>
-            <select
-              className="uk-input"
-              placeholder="100"
-              aria-label="100"
-              onChange={(e) => setPropertyId(e.target.value)}
-            >
-              <option value="" style={{ color: "grey" }}>
-                Select Property
-              </option>
-              {properties.map((p) => (
-                <option key={p.id} value={p.id} style={{ color: "grey" }}>
-                  {p.BodyCopName}
+      <div id="offcanvas-flip" data-uk-offcanvas="flip: true; overlay: true">
+        <div className="uk-offcanvas-bar">
+          <button
+            className="uk-offcanvas-close"
+            type="button"
+            data-uk-close
+          ></button>
+          <h6>Filter Statements</h6>
+          <form className="uk-grid-small" data-uk-grid>
+            <div className="uk-width-1-1">
+              <label htmlFor="">Property</label>
+              <select
+                className="uk-input"
+                placeholder="100"
+                aria-label="100"
+                onChange={(e) => setPropertyId(e.target.value)}
+              >
+                <option value="" style={{ color: "grey" }}>
+                  Select Property
                 </option>
-              ))}
-            </select>
-          </div>
-          <div className="uk-width-1-1">
-            <label htmlFor="">Customer</label>
-            <select
-              disabled={propertyId === ""}
-              className="uk-input"
-              placeholder="100"
-              aria-label="100"
-              onChange={(e) => setUnitId(e.target.value)}
-            >
-              <option value="" style={{ color: "grey" }}>
-                Select Unit
-              </option>
-              {units
-                .filter((u) => u.bodyCopId === propertyId)
-                .map((u) => (
-                  <option value={u.id} key={u.id} style={{ color: "grey" }}>
-                    Unit {u.unitName}
+                {properties.map((p) => (
+                  <option key={p.id} value={p.id} style={{ color: "grey" }}>
+                    {p.BodyCopName}
                   </option>
                 ))}
-            </select>
-          </div>
-          <div className="uk-width-1-1">
-            <h5>Date Range</h5>
-          </div>
+              </select>
+            </div>
+            <div className="uk-width-1-1">
+              <label htmlFor="">Customer</label>
+              <select
+                disabled={propertyId === ""}
+                className="uk-input"
+                placeholder="100"
+                aria-label="100"
+                onChange={(e) => setUnitId(e.target.value)}
+              >
+                <option value="" style={{ color: "grey" }}>
+                  Select Unit
+                </option>
+                {units
+                  .filter((u) => u.bodyCopId === propertyId)
+                  .map((u) => (
+                    <option value={u.id} key={u.id} style={{ color: "grey" }}>
+                      Unit {u.unitName}
+                    </option>
+                  ))}
+              </select>
+            </div>
+            <div className="uk-width-1-1">
+              <h5>Date Range</h5>
+            </div>
 
-          <div className="uk-width-1-2">
-            <label htmlFor="">From </label>
-            <input
-              className="uk-input"
-              type="date"
-              aria-label="50"
-              value={dateFrom ? dateFrom.toISOString().split("T")[0] : ""}
-              onChange={(e) =>
-                handleDateFilterChange(
-                  e.target.value ? new Date(e.target.value) : null,
-                  dateTo
-                )
-              }
-            />
-          </div>
-          <div className="uk-width-1-2">
-            <label htmlFor="">To </label>
-            <input
-              className="uk-input"
-              type="date"
-              aria-label="25"
-              value={dateTo ? dateTo.toISOString().split("T")[0] : ""}
-              onChange={(e) =>
-                handleDateFilterChange(
-                  dateFrom,
-                  e.target.value ? new Date(e.target.value) : null
-                )
-              }
-            />
-          </div>
-          <IconButton onClick={combine}>
-            <FilterAltIcon style={{ color: "white" }} />
-          </IconButton>
-        </form>
+            <div className="uk-width-1-2">
+              <label htmlFor="">From </label>
+              <input
+                className="uk-input"
+                type="date"
+                aria-label="50"
+                value={dateFrom ? dateFrom.toISOString().split("T")[0] : ""}
+                onChange={(e) =>
+                  handleDateFilterChange(
+                    e.target.value ? new Date(e.target.value) : null,
+                    dateTo
+                  )
+                }
+              />
+            </div>
+            <div className="uk-width-1-2">
+              <label htmlFor="">To </label>
+              <input
+                className="uk-input"
+                type="date"
+                aria-label="25"
+                value={dateTo ? dateTo.toISOString().split("T")[0] : ""}
+                onChange={(e) =>
+                  handleDateFilterChange(
+                    dateFrom,
+                    e.target.value ? new Date(e.target.value) : null
+                  )
+                }
+              />
+            </div>
+            <IconButton onClick={combine}>
+              <FilterAltIcon style={{ color: "white" }} />
+            </IconButton>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
-  )
+  );
 });
 
-
 const RecordGrid = ({ data }: IProp) => {
-    const columns: GridColDef[] = [
-      { field: "date", headerName: "Date", width: 150 },
-      { field: "reference", headerName: "Reference", width: 150 },
-      { field: "transactionType", headerName: "TransactionType", width: 150 },
-      { field: "description", headerName: "Description", width: 150 },
-      { field: "debit", headerName: "Debit", width: 150 },
-      { field: "credit", headerName: "Credit", width: 150 },
-      { field: "balance", headerName: "Balance", width: 150 },
-    ];
-    return (
-      <Box className="companies-grid">
-        <DataGrid
-          rows={data}
-          //   columns={column}
-          columns={columns}
-          getRowId={(row) => row.id}
-          rowHeight={50}
-        />
-      </Box>
-    );
-  };
-  
+  const columns: GridColDef[] = [
+    { field: "date", headerName: "Date", width: 150 },
+    { field: "reference", headerName: "Reference", width: 150 },
+    { field: "transactionType", headerName: "TransactionType", width: 150 },
+    { field: "description", headerName: "Description", width: 150 },
+    { field: "debit", headerName: "Debit", width: 150 },
+    { field: "credit", headerName: "Credit", width: 150 },
+    { field: "balance", headerName: "Balance", width: 150 },
+  ];
+  return (
+    <Box className="companies-grid">
+      <DataGrid
+        rows={data}
+        //   columns={column}
+        columns={columns}
+        getRowId={(row) => row.id}
+        rowHeight={50}
+      />
+    </Box>
+  );
+};

@@ -6,6 +6,7 @@ import { Box, IconButton } from "@mui/material";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { IUnit, defaultUnit } from "../../../../../shared/models/bcms/Units";
 
 interface Statement {
   date: string;
@@ -32,6 +33,8 @@ export const CustomerReportsFNB = observer(() => {
   const [unitId, setUnitId] = useState<string>("");
   const [dateFrom, setDateFrom] = useState<Date | null>(null);
   const [dateTo, setDateTo] = useState<Date | null>(null);
+  const [unit, setUnit] = useState<IUnit | undefined>({ ...defaultUnit });
+  const me = store.user.meJson;
 
   const back = () => {
     navigate("/c/accounting/statements");
@@ -39,13 +42,31 @@ export const CustomerReportsFNB = observer(() => {
 
   useEffect(() => {
     const getData = async () => {
-      await api.body.fnb.getAll();
-      await api.body.copiedInvoice.getAll();
-      await api.body.body.getAll();
-      await api.unit.getAll();
+      const getUnit = store.bodyCorperate.unit.getById(unitId);
+      setUnit(getUnit?.asJson);
     };
     getData();
-  }, [api.body.body, api.body.copiedInvoice, api.unit]);
+  }, [store.bodyCorperate.unit, unitId]);
+
+  useEffect(() => {
+    const getData = async () => {
+      if (me?.property && !me?.year && !me?.month)
+        await api.body.fnb.getAll(me.property, me.year, me.month);
+      if (me?.property && me?.year)
+        await api.body.copiedInvoice.getAll(me.property, me.year);
+      await api.body.body.getAll();
+      if (me?.property) await api.unit.getAll(me.property);
+    };
+    getData();
+  }, [
+    api.body.body,
+    api.body.copiedInvoice,
+    api.body.fnb,
+    api.unit,
+    me?.property,
+    me?.year,
+    me?.month,
+  ]);
 
   const properties = store.bodyCorperate.bodyCop.all.map((p) => {
     return p.asJson;
@@ -160,27 +181,11 @@ export const CustomerReportsFNB = observer(() => {
           (invoiceCreditMap[receipt.invoiceNumber] || 0);
       }
     });
-
-    // const customerReceipts = comData.filter(
-    //   (transaction) => transaction.transactionType === "Customer Receipt"
-    // );
-    // customerReceipts.forEach((receipt) => {
-    //   const matchingInvoice = comData.find(
-    //     (transaction) =>
-    //       transaction.transactionType === "Tax Invoice" &&
-    //       transaction.invoiceNumber === receipt.invoiceNumber
-    //   );
-    //   if (matchingInvoice) {
-    //     receipt.balance =
-    //       parseFloat(matchingInvoice.debit) - parseFloat(receipt.credit);
-    //   }
-    // });
-
     // Update the state with the combined data
     setCombinedData(comData);
   };
 
-  //filter from and to date
+  //filter from and to date. these would probably be restructure due to change in database structure
   const filteredData = combinedData.filter((statement) => {
     const statementDate = new Date(statement.date);
 
@@ -320,6 +325,7 @@ export const CustomerReportsFNB = observer(() => {
             </div>
           </div>
         </div>
+        Opening Balance: {unit?.balance}
         <RecordGrid data={specificCustomerRecord} />
         Balance {totalBalance}
       </div>
@@ -437,3 +443,18 @@ const RecordGrid = ({ data }: IProp) => {
     </Box>
   );
 };
+
+// const customerReceipts = comData.filter(
+//   (transaction) => transaction.transactionType === "Customer Receipt"
+// );
+// customerReceipts.forEach((receipt) => {
+//   const matchingInvoice = comData.find(
+//     (transaction) =>
+//       transaction.transactionType === "Tax Invoice" &&
+//       transaction.invoiceNumber === receipt.invoiceNumber
+//   );
+//   if (matchingInvoice) {
+//     receipt.balance =
+//       parseFloat(matchingInvoice.debit) - parseFloat(receipt.credit);
+//   }
+// });

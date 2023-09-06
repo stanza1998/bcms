@@ -11,7 +11,7 @@ import {
 export const AccountDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
-
+  const me = store.user.meJson;
   const [account, setAccount] = useState<INormalAccount>({
     ...defaultAccount,
   });
@@ -19,11 +19,11 @@ export const AccountDialog = observer(() => {
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-
+    if (!me?.property) return;
     // Update API
     try {
       if (store.bodyCorperate.account.selected) {
-        const deptment = await api.body.account.update(account);
+        const deptment = await api.body.account.update(account, me.property);
         await store.bodyCorperate.account.load();
         ui.snackbar.load({
           id: Date.now(),
@@ -31,7 +31,7 @@ export const AccountDialog = observer(() => {
           type: "success",
         });
       } else {
-        await api.body.account.create(account);
+        await api.body.account.create(account, me.property);
         ui.snackbar.load({
           id: Date.now(),
           message: "Account created!",

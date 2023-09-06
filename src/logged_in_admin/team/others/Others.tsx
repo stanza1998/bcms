@@ -15,9 +15,11 @@ import { IFinancialMonth } from "../../../shared/models/monthModels/FinancialMon
 import { IconButton } from "@mui/material";
 import AdjustIcon from "@mui/icons-material/Adjust";
 import SingleSelect from "../../../shared/components/single-select/SlingleSelect";
+import { PropertyDialog } from "../../dialogs/property-dialog/PropertyDialog";
 
 export const Others = observer(() => {
   const { store, api, ui } = useAppContext();
+  const me = store.user.meJson;
   const [year, setYear] = useState(0);
   const [month, setMonth] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,70 +28,36 @@ export const Others = observer(() => {
   const [selectedMonth, setSelectedMonth] = useState("");
 
   const getData = async () => {
+    if (!me?.property) return FailedAction("property not set.");
     await api.body.body.getAll();
-    await api.body.financialYear.getAll();
-    await api.body.financialMonth.getAll();
+    await api.body.financialYear.getAll(me.property);
+    if (me.property && me.year)
+      await api.body.financialMonth.getAll(me.property, me.year);
   };
 
   useEffect(() => {
     const getData = async () => {
+      if (!me?.property) return FailedAction("property not set.");
       await api.body.body.getAll();
-      await api.body.financialYear.getAll();
-      await api.body.financialMonth.getAll();
+      await api.body.financialYear.getAll(me.property);
+      if (me.property && me.year)
+        await api.body.financialMonth.getAll(me.property, me.year);
     };
     getData();
   }, []);
 
-  const properties = store.bodyCorperate.bodyCop.all.map((p) => p.asJson);
-
-  const setActiveStatusProperty = async (id: string, active: boolean) => {
-    setLoading(true);
-    try {
-      await api.body.body.setActiveStatus(id, true);
-      getData();
-      SuccessfulAction(ui);
-    } catch (error) {
-      console.log(error);
-      FailedAction(error);
-    }
-    setLoading(false);
-  };
-
   const years = store.bodyCorperate.financialYear.all.map((y) => y.asJson);
-
-  const setActiveStatusYear = async (id: string, active: boolean) => {
-    setLoading(true);
-    try {
-      await api.body.financialYear.setActiveStatus(id, true);
-      getData();
-      SuccessfulAction(ui);
-    } catch (error) {
-      console.log(error);
-      FailedAction(error);
-    }
-    setLoading(false);
-  };
-
   const months = store.bodyCorperate.financialMonth.all.map((m) => m.asJson);
 
-  const setActiveStatusMonth = async (id: string, active: boolean) => {
-    setLoading(true);
-    try {
-      await api.body.financialMonth.setActiveStatus(id, true);
-      getData();
-      SuccessfulAction(ui);
-    } catch (error) {
-      console.log(error);
-      FailedAction(error);
-    }
-    setLoading(false);
+  const onCreateProperty = () => {
+    showModalFromId(DIALOG_NAMES.BODY.BODY_CORPORATE_DIALOG);
   };
 
   const onCreateYear = () => {
-    showModalFromId(DIALOG_NAMES.BODY.FINANCIAL_YEAR);
+    showModalFromId(DIALOG_NAMES.BODY.ALLOCATE_DIALOGS);
   };
   const onCreateMonth = () => {
-    showModalFromId(DIALOG_NAMES.BODY.FINANCIAL_MONTH);
+    showModalFromId(DIALOG_NAMES.BODY.BODY_UNIT_DIALOG);
   };
 
   const onSave = async (e: any) => {
@@ -101,9 +69,9 @@ export const Others = observer(() => {
       active: false,
     };
     try {
-      await api.body.financialYear.create(Year);
+      if (me?.property) await api.body.financialYear.create(Year, me?.property);
       SuccessfulAction(ui);
-      hideModalFromId(DIALOG_NAMES.BODY.FINANCIAL_YEAR);
+      hideModalFromId(DIALOG_NAMES.BODY.BODY_UNIT_DIALOG);
     } catch (error) {
       console.log(error);
     }
@@ -118,7 +86,8 @@ export const Others = observer(() => {
       active: false,
     };
     try {
-      await api.body.financialMonth.create(Month);
+      if (me?.property && me?.year)
+        await api.body.financialMonth.create(Month, me?.property, me?.year);
       SuccessfulAction(ui);
       hideModalFromId(DIALOG_NAMES.BODY.FINANCIAL_MONTH);
     } catch (error) {
@@ -138,6 +107,13 @@ export const Others = observer(() => {
               <button
                 className="uk-button primary uk-margin-right"
                 type="button"
+                onClick={onCreateProperty}
+              >
+                Create Property
+              </button>
+              <button
+                className="uk-button primary uk-margin-right"
+                type="button"
                 onClick={onCreateYear}
               >
                 Create Year
@@ -154,113 +130,84 @@ export const Others = observer(() => {
         </div>
 
         {loading && <>loading...</>}
-        <div className="Properties uk-margin">
-          <h6
-            style={{
-              textTransform: "uppercase",
-              fontWeight: "600",
-              color: "grey",
-            }}
-          >
-            Properties
-          </h6>
-          <select
-            className="uk-input"
-            style={{ width: "50%" }}
-            onChange={(e) => setSelectedProperty(e.target.value)}
-          >
-            <option value="">select</option>
-            {properties.map((p) => (
-              <option
-                style={{
-                  background: p.active === true ? "green" : "",
-                  color: p.active === true ? "white" : "",
-                }}
-                value={p.id}
-              >
-                {p.BodyCopName}
-              </option>
-            ))}
-          </select>
-          <IconButton
-            onClick={() => setActiveStatusProperty(selectedProperty, true)}
-          >
-            <AdjustIcon />
-          </IconButton>
-        </div>
-        <div className="Years uk-margin">
-          <h6
-            style={{
-              textTransform: "uppercase",
-              fontWeight: "600",
-              color: "grey",
-            }}
-          >
-            Years
-          </h6>
-          <select
-            className="uk-input"
-            style={{ width: "50%" }}
-            onChange={(e) => setSelectedYear(e.target.value)}
-          >
-            <option value="">select</option>
-            {years
-              .sort((a, b) => a.year - b.year)
-              .map((p) => (
-                <option
-                  style={{
-                    background: p.active === true ? "green" : "",
-                    color: p.active === true ? "white" : "",
-                  }}
-                  value={p.id}
-                >
-                  {p.year}
-                </option>
-              ))}
-          </select>
-          <IconButton onClick={() => setActiveStatusYear(selectedYear, true)}>
-            <AdjustIcon />
-          </IconButton>
-        </div>
-        <div className="Months uk-margin">
-          <h6
-            style={{
-              textTransform: "uppercase",
-              fontWeight: "600",
-              color: "grey",
-            }}
-          >
-            Month
-          </h6>
-          <select
-            className="uk-input"
-            style={{ width: "50%" }}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-          >
-            <option value="">select</option>
-            {months
-              .sort(
-                (a, b) =>
-                  new Date(a.month).getMonth() - new Date(b.month).getMonth()
-              )
-              .map((p) => (
-                <option
-                  style={{
-                    background: p.active === true ? "green" : "",
-                    color: p.active === true ? "white" : "",
-                  }}
-                  value={p.month}
-                >
-                  {p.month}
-                </option>
-              ))}
-          </select>
-          <IconButton onClick={() => setActiveStatusMonth(selectedMonth, true)}>
-            <AdjustIcon />
-          </IconButton>
+
+        <div className="uk-child-width-expand@s" data-uk-grid>
+          <div>
+            <h6
+              style={{ textTransform: "uppercase", fontSize: "14px" }}
+              className="uk-modal-title"
+            >
+              Properties
+            </h6>
+            <table className="uk-table uk-table-small uk-table-divider">
+              <thead>
+                <tr>
+                  <th>property name</th>
+                  <th>location</th>
+                  <th>bank</th>
+                </tr>
+              </thead>
+              <tbody>
+                {store.bodyCorperate.bodyCop.all.map((p) => (
+                  <tr key={p.asJson.id}>
+                    <td>{p.asJson.BodyCopName}</td>
+                    <td>{p.asJson.location}</td>
+                    <td>{p.asJson.bankName}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <h6
+              style={{ textTransform: "uppercase", fontSize: "14px" }}
+              className="uk-modal-title"
+            >
+              Years
+            </h6>
+            <table className="uk-table uk-table-small uk-table-divider">
+              <thead>
+                <tr>
+                  <th>year</th>
+                </tr>
+              </thead>
+              <tbody>
+                {years.map((m) => (
+                  <tr key={m.id}>
+                    <td>{m.year}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <h6
+              style={{ textTransform: "uppercase", fontSize: "14px" }}
+              className="uk-modal-title"
+            >
+              Months
+            </h6>
+            <table className="uk-table uk-table-small uk-table-divider">
+              <thead>
+                <tr>
+                  <th>month</th>
+                </tr>
+              </thead>
+              <tbody>
+                {months.map((m) => (
+                  <tr key={m.month}>
+                    <td>{m.month}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-      <Modal modalId={DIALOG_NAMES.BODY.FINANCIAL_MONTH}>
+      <Modal modalId={DIALOG_NAMES.BODY.BODY_CORPORATE_DIALOG}>
+        <PropertyDialog />
+      </Modal>
+      <Modal modalId={DIALOG_NAMES.BODY.BODY_UNIT_DIALOG}>
         <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
           <button
             className="uk-modal-close-default"
@@ -290,7 +237,7 @@ export const Others = observer(() => {
           </div>
         </div>
       </Modal>
-      <Modal modalId={DIALOG_NAMES.BODY.FINANCIAL_YEAR}>
+      <Modal modalId={DIALOG_NAMES.BODY.ALLOCATE_DIALOGS}>
         <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
           <button
             className="uk-modal-close-default"

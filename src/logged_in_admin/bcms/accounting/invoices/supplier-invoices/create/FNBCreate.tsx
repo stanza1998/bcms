@@ -28,21 +28,19 @@ import { Box } from "@mui/material";
 
 export const FNBCreate = observer(() => {
   const { store, api } = useAppContext();
-  const [propertyId, setPropertyId] = useState<string>("");
   const [supplierId, setSupplierId] = useState<string>("");
+  const me = store.user.meJson;
 
   useEffect(() => {
     const getData = async () => {
-      await api.body.fnb.getAll();
+      if (me?.property && !me?.year && !me?.month)
+        await api.body.fnb.getAll(me.property, me.year, me.month);
       await api.body.body.getAll();
-      await api.body.supplier.getAll();
+      if (me?.property) await api.body.supplier.getAll(me.property);
     };
     getData();
-  }, []);
+  }, [me?.property, me?.year, me?.month]);
 
-  const properties = store.bodyCorperate.bodyCop.all.map((p) => {
-    return p.asJson;
-  });
   const accounts = store.bodyCorperate.supplier.all.map((p) => {
     return p.asJson;
   });
@@ -50,7 +48,7 @@ export const FNBCreate = observer(() => {
   const transactions = store.bodyCorperate.fnb.all
     .filter(
       (t) =>
-        t.asJson.propertyId === "4Q5WwF2rQFmoStdpmzaW" &&
+        t.asJson.propertyId === me?.property &&
         t.asJson.supplierId === supplierId
     )
     .map((t) => {
@@ -99,7 +97,12 @@ interface ServiceDetails {
 const FNBGrid = observer(({ data, supplierId }: IProp) => {
   const { store, api, ui } = useAppContext();
   const navigate = useNavigate();
+  const currentDate1 = new Date().toISOString().slice(0, 10);
+  const [selectedDateIssued, setSelectedDateIssued] = useState(currentDate1);
+  const [selectedDate, setSelectedDate] = useState(currentDate1);
+  const me = store.user.meJson;
   const [transactionId, setTransactionId] = useState<string[]>([]);
+
   const handleCheckboxChange = (event: any, id: string) => {
     if (event.target.checked) {
       setTransactionId((prevIds) => [...prevIds, id]);
@@ -108,29 +111,15 @@ const FNBGrid = observer(({ data, supplierId }: IProp) => {
     }
   };
 
-  const currentDate = new Date();
-  const currentDate1 = new Date().toISOString().slice(0, 10);
-  const [selectedDateIssued, setSelectedDateIssued] = useState(currentDate1);
-  const [selectedDate, setSelectedDate] = useState(currentDate1);
-
-  const [supplier, setSupplier] = useState<ISupplier | undefined>({
-    ...defaultSupplier,
-  });
-
   useEffect(() => {
     const getProperty = async () => {
       await api.body.body.getAll();
-      await api.body.supplier.getAll();
-
-      const supplier = store.bodyCorperate.supplier.getById(supplierId);
-
-      setSupplier(supplier?.asJson);
+      if (me?.property) await api.body.supplier.getAll(me.property);
     };
     getProperty();
   }, []);
 
   //create invoice
-  // invoice
   const createInvoice = () => {
     showModalFromId(DIALOG_NAMES.BODY.CREATE_INVOICE);
   };
@@ -138,15 +127,14 @@ const FNBGrid = observer(({ data, supplierId }: IProp) => {
   const [invoiceNumber, setInvoiceNumber] = useState("");
 
   useEffect(() => {
-    // Generate the invoice number
     const generateInvoiceNumber = () => {
-      const randomNumber = Math.floor(Math.random() * 100000); // Generate a random number between 0 and 9999
-      const formattedNumber = randomNumber.toString().padStart(4, "0"); // Pad the number with leading zeros if necessary
-      const generatedInvoiceNumber = `SIV000${formattedNumber}`; // Add the prefix "INV" to the number
-      setInvoiceNumber(generatedInvoiceNumber); // Update the state with the generated invoice number
+      const randomNumber = Math.floor(Math.random() * 100000);
+      const formattedNumber = randomNumber.toString().padStart(4, "0");
+      const generatedInvoiceNumber = `SIV000${formattedNumber}`;
+      setInvoiceNumber(generatedInvoiceNumber);
     };
-    generateInvoiceNumber(); // Generate the invoice number when the component mounts
-    // Clean up the effect (optional)
+    generateInvoiceNumber();
+
     return () => {
       // Any cleanup code if necessary
     };
@@ -197,11 +185,16 @@ const FNBGrid = observer(({ data, supplierId }: IProp) => {
       reminder: false,
       reminderDate: "",
       totalPaid: 0,
-      propertyId: "4Q5WwF2rQFmoStdpmzaW",
-      supplierId: supplier?.id || "",
+      propertyId: me?.property || "",
+      supplierId: supplierId,
     };
     try {
-      await api.body.supplierInvoice.create(InvoiceData);
+      if (me?.property && me.year)
+        await api.body.supplierInvoice.create(
+          InvoiceData,
+          me.property,
+          me.year
+        );
       addInvoiceNumber(InvoiceData.invoiceNumber);
       SuccessfulAction(ui);
     } catch (error) {
@@ -210,14 +203,13 @@ const FNBGrid = observer(({ data, supplierId }: IProp) => {
 
     setLoadingInvoice(false);
     setInvoiceNumber("");
-    // setSelectedDate("");
+    setSelectedDate("");
     hideModalFromId(DIALOG_NAMES.BODY.CREATE_INVOICE);
     navigate("/c/accounting/supplier-invoices");
   };
 
   const addInvoiceNumber = (invoiceNumber: string) => {
-    const myPath =
-      "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08";
+    const myPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
     transactionId.forEach(async (ids) => {
       const fnbStatementsRef = doc(
         collection(db, myPath, "FNBTransactions"),
@@ -305,7 +297,7 @@ const FNBGrid = observer(({ data, supplierId }: IProp) => {
                         className="uk-input uk-form-small"
                         type="text"
                         value={store.bodyCorperate.bodyCop.all
-                          .filter((p) => p.asJson.id === "4Q5WwF2rQFmoStdpmzaW")
+                          .filter((p) => p.asJson.id === me?.property)
                           .map((p) => {
                             return p.asJson.BodyCopName;
                           })}

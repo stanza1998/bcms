@@ -14,7 +14,14 @@ import showModalFromId, {
 } from "../../../../../shared/functions/ModalShow";
 import { UnitCard } from "./UnitCard";
 import Loading from "../../../../../shared/components/Loading";
-import { collection, doc, setDoc, addDoc, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  setDoc,
+  addDoc,
+  updateDoc,
+  runTransaction,
+} from "firebase/firestore";
 import { db } from "../../../../../shared/database/FirebaseConfig";
 import {
   FailedAction,
@@ -31,6 +38,7 @@ export const ViewUnit = observer(() => {
   const [newDate, setNewDate] = useState("");
   const [newDateIssued, setNewDateIssued] = useState("");
   const [ref, setRef] = useState("");
+  const me = store.user.meJson;
 
   const [viewBody, setBody] = useState<IBodyCop | undefined>({
     ...defaultBodyCop,
@@ -41,11 +49,12 @@ export const ViewUnit = observer(() => {
       if (!propertyId) {
         window.alert("Cannot find ");
       } else {
+        if (!me?.property) return;
         await api.body.body.getAll();
         const unit = store.bodyCorperate.bodyCop.getById(propertyId);
         setBody(unit?.asJson);
-        await api.unit.getAll();
-        await api.body.invoice.getAll();
+        await api.unit.getAll(me?.property);
+        await api.body.invoice.getAll(me?.property);
         await api.auth.loadAll();
       }
     };
@@ -55,6 +64,7 @@ export const ViewUnit = observer(() => {
     api.body.body,
     api.body.invoice,
     api.unit,
+    me?.property,
     propertyId,
     store.bodyCorperate.bodyCop,
   ]);
@@ -91,9 +101,10 @@ export const ViewUnit = observer(() => {
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    if (!me?.property) return;
     try {
       if (store.bodyCorperate.unit.selected) {
-        const supp = await api.unit.update(unit);
+        const supp = await api.unit.update(unit, me.property);
         await store.bodyCorperate.unit.load();
         ui.snackbar.load({
           id: Date.now(),
@@ -104,7 +115,7 @@ export const ViewUnit = observer(() => {
         // Add the default category ID to the tradingType object
         if (viewBody?.id) unit.bodyCopId = viewBody?.id;
 
-        await api.unit.create(unit);
+        await api.unit.create(unit, me.property);
         // if (supp) await store.inventory.tradingCategories.load([supp]);
         ui.snackbar.load({
           id: Date.now(),
@@ -170,17 +181,52 @@ export const ViewUnit = observer(() => {
   };
 
   const duplicated = async () => {
-    const myPath =
-      "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months/2023-08";
+    if (!me?.property && !me?.year) return;
+    const copiedInvoicePath = `/BodyCoperate/${me.property}/FinancialYear/${me.year}`;
+
+    const unitPath = `/BodyCoperate/${me.property}/Units`;
 
     if (masterInvoices.length > 0) {
       try {
         setLoadingF(true);
         const copiedInvoicesCollection = collection(
           db,
-          myPath,
+          copiedInvoicePath,
           "CopiedInvoices"
         );
+
+        // Firestore transaction to update unit balances
+        const updateUnitBalancesTransaction = async (transaction: any) => {
+          const unitCollectionRef = collection(db, unitPath);
+          const updates = []; // Array to store update operations
+
+          for (const masterInvoice of masterInvoices) {
+            const { unitId, totalDue } = masterInvoice;
+
+            // Get the unit document reference
+            const unitDocRef = doc(unitCollectionRef, unitId);
+
+            // Retrieve the unit document data
+            const unitDoc = await transaction.get(unitDocRef);
+
+            // Calculate the new balance by adding totalDue
+            const newBalance = unitDoc.data().balance + totalDue;
+
+            // Prepare the update operation and store it in the updates array
+            updates.push({
+              ref: unitDocRef,
+              data: { balance: newBalance },
+            });
+          }
+
+          // Perform all the update operations outside the loop
+          for (const update of updates) {
+            transaction.update(update.ref, update.data);
+          }
+        };
+
+        // Run the transaction
+        await runTransaction(db, updateUnitBalancesTransaction);
 
         for (const masterInvoice of masterInvoices) {
           try {
@@ -193,7 +239,9 @@ export const ViewUnit = observer(() => {
             await setDoc(newInvoiceRef, copiedInvoice);
             const generatedDocId = newInvoiceRef.id;
             copiedInvoice.invoiceId = generatedDocId;
+
             await updateDoc(newInvoiceRef, { invoiceId: generatedDocId });
+            // await updateDoc()
             console.log("Invoice duplicated and saved:", copiedInvoice);
           } catch (error) {
             console.log("Error duplicating invoice:", error);
@@ -207,6 +255,7 @@ export const ViewUnit = observer(() => {
     } else {
       alert("No master invoices");
     }
+    setLoadingF(false);
     hideModalFromId(DIALOG_NAMES.BODY.VIEW_INVOICE);
     navigate("/c/body/body-corperate");
     window.location.reload();
@@ -294,6 +343,7 @@ export const ViewUnit = observer(() => {
                     <th>Owner Name</th>
                     <th>Owner Email</th>
                     <th>Owner Phone</th>
+                    <th>Balance</th>
                     <th className="uk-text-right">Action</th>
                   </tr>
                 </thead>
@@ -325,6 +375,7 @@ export const ViewUnit = observer(() => {
                             return "+264" + user.cellphone;
                           })}
                       </td>
+                      <td>N$ {unit.asJson.balance.toFixed(2)}</td>
                       <td className="uk-text-right">
                         <span
                           style={{

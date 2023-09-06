@@ -33,6 +33,7 @@ export const SupplierReportsNEDBANK = observer(() => {
   const [supplierId, setSupplierId] = useState("");
   const [dateFrom, setDateFrom] = useState<Date | null>(null);
   const [dateTo, setDateTo] = useState<Date | null>(null);
+  const me = store.user.meJson;
 
   const back = () => {
     navigate("/c/accounting/statements");
@@ -40,9 +41,10 @@ export const SupplierReportsNEDBANK = observer(() => {
 
   useEffect(() => {
     const getData = async () => {
+      if (!me?.property && !me?.year) return;
       await api.body.nedbank.getAll();
-      await api.body.supplier.getAll();
-      await api.body.supplierInvoice.getAll();
+      await api.body.supplier.getAll(me?.property);
+      await api.body.supplierInvoice.getAll(me.property, me.year);
       await api.body.body.getAll();
     };
     getData();
@@ -51,6 +53,8 @@ export const SupplierReportsNEDBANK = observer(() => {
     api.body.nedbank,
     api.body.supplier,
     api.body.supplierInvoice,
+    me?.property,
+    me?.year,
   ]);
 
   const properties = store.bodyCorperate.bodyCop.all.map((p) => {
