@@ -118,6 +118,66 @@ export const SupplierDialog = observer(() => {
                 />
               </div>
             </div>
+            <div className="uk-margin">
+              <label className="uk-form-label" htmlFor="form-stacked-text">
+                Mobile Number
+              </label>
+              <div className="uk-form-controls">
+                <input
+                  className="uk-input uk-form-small"
+                  type="text"
+                  placeholder="Description"
+                  value={supplier.mobileNumber}
+                  onChange={(e) =>
+                    setSupplier({
+                      ...supplier,
+                      mobileNumber: e.target.value,
+                    })
+                  }
+                  // required
+                />
+              </div>
+            </div>
+            <div className="uk-margin">
+              <label className="uk-form-label" htmlFor="form-stacked-text">
+                Telephone Number
+              </label>
+              <div className="uk-form-controls">
+                <input
+                  className="uk-input uk-form-small"
+                  type="text"
+                  placeholder="Description"
+                  value={supplier.telephoneNumber}
+                  onChange={(e) =>
+                    setSupplier({
+                      ...supplier,
+                      telephoneNumber: e.target.value,
+                    })
+                  }
+                  // required
+                />
+              </div>
+            </div>
+            <div className="uk-margin">
+              <label className="uk-form-label" htmlFor="form-stacked-text">
+                Balance
+              </label>
+              <div className="uk-form-controls">
+                <input
+                  className="uk-input uk-form-small"
+                  type="number"
+                  placeholder="Description"
+                  value={supplier.balance}
+                  onChange={(e) =>
+                    setSupplier({
+                      ...supplier,
+                      balance: Number(e.target.value),
+                    })
+                  }
+                  // required
+                />
+              </div>
+            </div>
             <div className="footer uk-margin">
               <button className="uk-button secondary uk-modal-close">
                 Cancel

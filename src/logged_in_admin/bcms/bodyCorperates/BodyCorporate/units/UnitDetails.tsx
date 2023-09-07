@@ -115,7 +115,10 @@ export const UnitDetails = observer(() => {
         </div>
         <div className="uk-margin">
           <div>
-            <div className="uk-margin">
+            <div
+              style={{ padding: "10px" }}
+              className="uk-margin  uk-card-default"
+            >
               <Tab
                 label="Invoicing Overview"
                 isActive={activeTab === "Invoicing"}
@@ -152,29 +155,19 @@ const Invoicing = observer(() => {
   //current date
   const currentDate = new Date();
   const currentDate1 = new Date().toISOString().slice(0, 10);
-
   const [selectedDate, setSelectedDate] = useState(currentDate1);
 
-  const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedDate(event.target.value);
-  };
-
   // generate invoice number
-
   const [invoiceNumber, setInvoiceNumber] = useState("");
-
   useEffect(() => {
     // Generate the invoice number
     const generateInvoiceNumber = () => {
-      const randomNumber = Math.floor(Math.random() * 10000); // Generate a random number between 0 and 9999
-      const formattedNumber = randomNumber.toString().padStart(4, "0"); // Pad the number with leading zeros if necessary
-      const generatedInvoiceNumber = `INV000${formattedNumber}`; // Add the prefix "INV" to the number
-      setInvoiceNumber(generatedInvoiceNumber); // Update the state with the generated invoice number
+      const randomNumber = Math.floor(Math.random() * 10000);
+      const formattedNumber = randomNumber.toString().padStart(4, "0");
+      const generatedInvoiceNumber = `INV000${formattedNumber}`;
+      setInvoiceNumber(generatedInvoiceNumber);
     };
-
-    generateInvoiceNumber(); // Generate the invoice number when the component mounts
-
-    // Clean up the effect (optional)
+    generateInvoiceNumber();
     return () => {
       // Any cleanup code if necessary
     };
@@ -241,7 +234,6 @@ const Invoicing = observer(() => {
       price: price,
       total: total,
     };
-
     // Update the state by adding the new detail to the existing details array
     setDetails((prevDetails) => [...prevDetails, newDetail]);
     // Reset the input fields to their initial states

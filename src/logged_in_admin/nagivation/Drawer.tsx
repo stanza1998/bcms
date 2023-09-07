@@ -55,7 +55,7 @@ const ADMIN_DRAWER = () => {
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
-                Owners
+                Owners list
               </NavLink>
             </li>
             <li>
@@ -63,7 +63,7 @@ const ADMIN_DRAWER = () => {
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
-                Properties
+                Customers list
               </NavLink>
             </li>
             <li>
@@ -71,7 +71,7 @@ const ADMIN_DRAWER = () => {
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
-                Suppliers
+                Suppliers list
               </NavLink>
             </li>
             <li>
@@ -79,7 +79,7 @@ const ADMIN_DRAWER = () => {
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
-                Accounts
+                Accounts list
               </NavLink>
             </li>
             {/* <li>
@@ -118,7 +118,7 @@ const ADMIN_DRAWER = () => {
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
-                Customer
+                Customers
               </NavLink>
             </li>
             <li>
@@ -126,7 +126,7 @@ const ADMIN_DRAWER = () => {
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
-                Supplier
+                Suppliers
               </NavLink>
             </li>
             <li>
@@ -142,7 +142,7 @@ const ADMIN_DRAWER = () => {
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
-                Banking
+                Bank Statements
               </NavLink>
             </li>
             <li>

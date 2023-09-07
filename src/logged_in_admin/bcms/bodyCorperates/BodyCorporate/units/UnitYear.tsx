@@ -8,20 +8,13 @@ import {
   IFinancialYear,
   defaultFinancialYear,
 } from "../../../../../shared/models/yearModels/FinancialYear";
-import showModalFromId from "../../../../../shared/functions/ModalShow";
-import DIALOG_NAMES from "../../../../dialogs/Dialogs";
-
-import {
-  IFinancialMonth,
-  defaultFinancialMonth,
-} from "../../../../../shared/models/monthModels/FinancialMonth";
 import {
   IBodyCop,
   defaultBodyCop,
 } from "../../../../../shared/models/bcms/BodyCorperate";
 
 export const UnitYear = observer(() => {
-  const { api, store, ui } = useAppContext();
+  const { api, store } = useAppContext();
   const { propertyId, id, yearId } = useParams();
   const navigate = useNavigate();
   const [laoderS, setLoaderS] = useState(true);
@@ -36,10 +29,17 @@ export const UnitYear = observer(() => {
       if (!me?.property) return;
       await api.body.financialYear.getAll(me.property);
       await api.unit.getAll(me.property);
-    if(me.property && me.year)  await api.body.financialMonth.getAll(me.property, me.year);
+      if (me.property && me.year)
+        await api.body.financialMonth.getAll(me.property, me.year);
     };
     getData();
-  }, [api.body.financialMonth, api.body.financialYear, api.unit, me?.property, me?.year]);
+  }, [
+    api.body.financialMonth,
+    api.body.financialYear,
+    api.unit,
+    me?.property,
+    me?.year,
+  ]);
 
   const [info, setInfo] = useState<IUnit | undefined>({
     ...defaultUnit,
@@ -79,12 +79,6 @@ export const UnitYear = observer(() => {
     ...defaultFinancialYear,
   });
 
-  const [financialMonth, setFinancialMonth] = useState<IFinancialMonth>({
-    ...defaultFinancialMonth,
-  });
-
-  const [loading, setLoading] = useState(false);
-
   useEffect(() => {
     const getData = async () => {
       if (!yearId) {
@@ -97,16 +91,6 @@ export const UnitYear = observer(() => {
     };
     getData();
   }, [api.auth, store.bodyCorperate.financialYear, yearId]);
-
-  const onCreate = () => {
-    showModalFromId(DIALOG_NAMES.BODY.FINANCIAL_MONTH);
-  };
-
-  const currentYear = year?.id;
-
-  const viewMonth = (monthId: string) => {
-    navigate(`/c/body/body-corperate/${propertyId}/${id}/${yearId}/${monthId}`);
-  };
 
   setTimeout(() => {
     setLoaderS(false);

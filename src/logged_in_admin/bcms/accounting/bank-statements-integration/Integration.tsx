@@ -1,15 +1,10 @@
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
-import { useAppContext } from "../../../../shared/functions/Context";
+import { useState } from "react";
 import { Tab } from "../../../../Tab";
-import Papa from "papaparse";
-import { IFNB } from "../../../../shared/models/banks/FNBModel";
-import { FailedAction } from "../../../../shared/models/Snackbar";
 import { FNB } from "./FNB/FNB";
 import { NEDBANK } from "./NEDBANK/NEDBank";
 
 export const ExpenseTracking = observer(() => {
-  const { store, api, ui } = useAppContext();
   const [activeTab, setActiveTab] = useState("fnb");
 
   const handleTabClick = (tabLabel: string) => {
@@ -27,7 +22,10 @@ export const ExpenseTracking = observer(() => {
         </div>
         <div className="uk-margin">
           <div>
-            <div className="uk-margin">
+            <div
+              style={{ padding: "10px" }}
+              className="uk-margin  uk-card-default"
+            >
               <Tab
                 label="First National Bank"
                 isActive={activeTab === "fnb"}

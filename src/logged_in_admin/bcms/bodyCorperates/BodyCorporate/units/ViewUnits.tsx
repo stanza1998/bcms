@@ -18,15 +18,11 @@ import {
   collection,
   doc,
   setDoc,
-  addDoc,
   updateDoc,
   runTransaction,
 } from "firebase/firestore";
 import { db } from "../../../../../shared/database/FirebaseConfig";
-import {
-  FailedAction,
-  SuccessfulAction,
-} from "../../../../../shared/models/Snackbar";
+import { FailedAction } from "../../../../../shared/models/Snackbar";
 import { IInvoice } from "../../../../../shared/models/invoices/Invoices";
 
 import GridViewIcon from "@mui/icons-material/GridView";
@@ -173,8 +169,6 @@ export const ViewUnit = observer(() => {
     return generatedInvoiceNumber;
   };
 
-  const currentDate = new Date();
-
   //duplicate function
   const onDupicate = () => {
     showModalFromId(DIALOG_NAMES.BODY.VIEW_INVOICE);
@@ -218,16 +212,13 @@ export const ViewUnit = observer(() => {
               data: { balance: newBalance },
             });
           }
-
           // Perform all the update operations outside the loop
           for (const update of updates) {
             transaction.update(update.ref, update.data);
           }
         };
-
         // Run the transaction
         await runTransaction(db, updateUnitBalancesTransaction);
-
         for (const masterInvoice of masterInvoices) {
           try {
             const copiedInvoice = { ...masterInvoice };
@@ -239,9 +230,7 @@ export const ViewUnit = observer(() => {
             await setDoc(newInvoiceRef, copiedInvoice);
             const generatedDocId = newInvoiceRef.id;
             copiedInvoice.invoiceId = generatedDocId;
-
             await updateDoc(newInvoiceRef, { invoiceId: generatedDocId });
-            // await updateDoc()
             console.log("Invoice duplicated and saved:", copiedInvoice);
           } catch (error) {
             console.log("Error duplicating invoice:", error);
@@ -364,7 +353,7 @@ export const ViewUnit = observer(() => {
                           .filter(
                             (user) => user.asJson.uid === unit.asJson.ownerId
                           )
-                          .map((user) => user.firstName)}
+                          .map((user) => user.email)}
                       </td>
                       <td>
                         {store.user.all

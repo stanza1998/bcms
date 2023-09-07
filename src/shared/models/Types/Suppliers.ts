@@ -2,15 +2,21 @@ import { makeAutoObservable, toJS } from "mobx";
 import AppStore from "../../stores/AppStore";
 
 export const defaultSupplier: ISupplier = {
-    id: "",
-    name: "",
-    description: ""
+  id: "",
+  name: "",
+  description: "",
+  balance: 0,
+  mobileNumber: "",
+  telephoneNumber: "",
 };
 
 export interface ISupplier {
   id: string;
-  name:string;
-  description:string;
+  name: string;
+  description: string;
+  balance: number;
+  mobileNumber: string;
+  telephoneNumber: string;
 }
 
 export default class SupplierModel {

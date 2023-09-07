@@ -1,12 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { observer } from "mobx-react-lite";
-import { useAppContext } from "../../../../shared/functions/Context";
-import showModalFromId from "../../../../shared/functions/ModalShow";
-import DIALOG_NAMES from "../../../dialogs/Dialogs";
-import { FailedAction } from "../../../../shared/models/Snackbar";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { Box, IconButton } from "@mui/material";
-import { INormalAccount } from "../../../../shared/models/Types/Account";
+import { Box } from "@mui/material";
 import { ISupplier } from "../../../../shared/models/Types/Suppliers";
 
 interface IProp {
@@ -14,15 +9,17 @@ interface IProp {
 }
 
 export const SupplierTable = observer(({ data }: IProp) => {
-  const { store, api, ui } = useAppContext();
   const columns: GridColDef[] = [
-    { field: "name", headerName: "Name", width: 400 },
-    { field: "description", headerName: "Description", width: 400 },
+    { field: "name", headerName: "Name", width: 230 },
+    { field: "description", headerName: "Description", width: 230 },
+    { field: "telephoneNumber", headerName: "Telephone Number", width: 230 },
+    { field: "mobileNumber", headerName: "Mobile Number", width: 230 },
+    { field: "balance", headerName: "Balance", width: 0 },
   ];
 
   return (
     <>
-      <Box sx={{ height: 450 }} className="companies-grid">
+      <Box sx={{ height: 350 }} className="companies-grid">
         <DataGrid
           rows={data}
           //   columns={column}

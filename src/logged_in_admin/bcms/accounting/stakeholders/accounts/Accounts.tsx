@@ -18,7 +18,10 @@ const Accounts = () => {
           </div>
         </div>
         <div>
-          <div className="uk-margin">
+          <div
+            style={{ padding: "10px" }}
+            className="uk-margin  uk-card-default"
+          >
             <Tab
               label="Accounts Transaction Report"
               isActive={activeTab === "Invoices"}

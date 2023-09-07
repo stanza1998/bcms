@@ -4,26 +4,26 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { useAppContext } from "../../../../shared/functions/Context";
+import { useAppContext } from "../../../../../../shared/functions/Context";
 import {
   IInvoice,
   IService,
   defaultInvoice,
-} from "../../../../shared/models/invoices/Invoices";
+} from "../../../../../../shared/models/invoices/Invoices";
 import {
   IBodyCop,
   defaultBodyCop,
-} from "../../../../shared/models/bcms/BodyCorperate";
-import { IUnit, defaultUnit } from "../../../../shared/models/bcms/Units";
-import { db } from "../../../../shared/database/FirebaseConfig";
-import { SuccessfulAction } from "../../../../shared/models/Snackbar";
-import Loading from "../../../../shared/components/Loading";
+} from "../../../../../../shared/models/bcms/BodyCorperate";
+import { IUnit, defaultUnit } from "../../../../../../shared/models/bcms/Units";
+import { db } from "../../../../../../shared/database/FirebaseConfig";
+import { SuccessfulAction } from "../../../../../../shared/models/Snackbar";
+import Loading from "../../../../../../shared/components/Loading";
 
 interface ServiceDetails {
   description: string;
   price: number;
 }
-
+//outdated
 export const ViewInvoice = observer(() => {
   const { store, api, ui } = useAppContext();
   const { propertyId, id, yearId, monthId, invoiceId } = useParams();
@@ -32,7 +32,7 @@ export const ViewInvoice = observer(() => {
 
   useEffect(() => {
     const getData = async () => {
-     if(me?.property) await api.body.invoice.getAll(me?.property);
+      if (me?.property) await api.body.invoice.getAll(me?.property);
     };
     getData();
   }, [api.body.invoice, me?.property]);

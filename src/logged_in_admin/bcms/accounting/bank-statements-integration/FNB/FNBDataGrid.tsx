@@ -1,72 +1,79 @@
+import IconButton from "@mui/material/IconButton";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
-import { INEDBANK } from "../../../../../shared/models/banks/NEDBANK";
+import React, { useEffect, useState } from "react";
+import { IFNB } from "../../../../../shared/models/banks/FNBModel";
+import { Box } from "@mui/material";
 import { useAppContext } from "../../../../../shared/functions/Context";
-import { useEffect, useState } from "react";
-import { ICopiedInvoice } from "../../../../../shared/models/invoices/CopyInvoices";
+import { doc, collection, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../../../../shared/database/FirebaseConfig";
 import showModalFromId, {
   hideModalFromId,
 } from "../../../../../shared/functions/ModalShow";
-import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../../../../../shared/database/FirebaseConfig";
 import {
-  FailedAction,
   SuccessfulAction,
+  FailedAction,
 } from "../../../../../shared/models/Snackbar";
 import DIALOG_NAMES from "../../../../dialogs/Dialogs";
-import { INormalAccount } from "../../../../../shared/models/Types/Account";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { Box, IconButton } from "@mui/material";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturn";
+import { ICopiedInvoice } from "../../../../../shared/models/invoices/CopyInvoices";
 import Modal from "../../../../../shared/components/Modal";
+import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturn";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import { INormalAccount } from "../../../../../shared/models/Types/Account";
 import SaveIcon from "@mui/icons-material/Save";
+import { ISupplier } from "../../../../../shared/models/Types/Suppliers";
+import { ITransfer } from "../../../../../shared/models/Types/Transfer";
 
 interface IProp {
-  data: INEDBANK[];
+  data: IFNB[];
+  rerender: () => void;
 }
 
-export const NEDBANKGrid = observer(({ data }: IProp) => {
+const FNBDataGrid = observer(({ data, rerender }: IProp) => {
   const { store, api, ui } = useAppContext();
   const [unitId, setUnit] = useState("");
   const [transactionId, setTransactionId] = useState("");
   const [amount, setAmount] = useState(0);
   const [type, setType] = useState<string>("");
-  const [invoiceCopied, setInvoiceCopied] = useState<ICopiedInvoice[]>([]);
   const [accountId, setAccountId] = useState<string>("");
   const [transferId, setTransferId] = useState<string>("");
   const [supplierId, setSupplierId] = useState<string>("");
+  const [invoiceCopied, setInvoiceCopied] = useState<ICopiedInvoice[]>([]);
   const me = store.user.meJson;
+
   // Generate the rcp number
   const generateInvoiceNumber = () => {
-    const randomNumber = Math.floor(Math.random() * 1000000); // Generate a random number between 0 and 9999
-    const formattedNumber = randomNumber.toString().padStart(4, "0"); // Pad the number with leading zeros if necessary
+    const randomNumber = Math.floor(Math.random() * 1000000);
+    const formattedNumber = randomNumber.toString().padStart(4, "0");
     const generatedInvoiceNumber = `RCP000${formattedNumber}`;
-    return generatedInvoiceNumber; // Add the prefix "INV" to the number
+    return generatedInvoiceNumber;
   };
 
+  //generate pay number
   const generateInvoiceNumberSupplier = () => {
-    const randomNumber = Math.floor(Math.random() * 1000000); // Generate a random number between 0 and 9999
-    const formattedNumber = randomNumber.toString().padStart(4, "0"); // Pad the number with leading zeros if necessary
+    const randomNumber = Math.floor(Math.random() * 1000000);
+    const formattedNumber = randomNumber.toString().padStart(4, "0");
     const generatedInvoiceNumber = `PAYP000${formattedNumber}`;
-    return generatedInvoiceNumber; // Add the prefix "INV" to the number
+    return generatedInvoiceNumber;
   };
 
   useEffect(() => {
     const getStatements = async () => {
-      if (!me?.property && !me?.year) return;
+      if (!me?.property && !me?.year && !me?.month) return;
       // Otherwise, fetch data and cache it
       await Promise.all([
-        api.body.nedbank.getAll(),
+        api.body.fnb.getAll(me.property, me.year, me.month),
         api.body.body.getAll(),
-        api.unit.getAll(me?.property),
-        api.body.copiedInvoice.getAll(me?.property, me?.year),
-        api.body.account.getAll(me?.property),
-        api.body.supplier.getAll(me?.property),
+        api.unit.getAll(me.property),
+        api.body.copiedInvoice.getAll(me.property, me.year),
+        api.body.account.getAll(me.property),
+        api.body.transfer.getAll(me.property),
+        api.body.supplier.getAll(me.property),
       ]);
     };
 
     getStatements();
-  }, [me?.property, me?.year]);
+  }, [me?.property, me?.year, me?.month]);
 
   const onAllocate = (
     unitId: string,
@@ -85,8 +92,6 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
     showModalFromId(DIALOG_NAMES.BODY.ALLOCATE_DIALOGS);
   };
 
-  // 1. save unitId to transaction, 2. save invoice number to transaction
-  // 1. update invoice selected to confirm
   const [isAllocating, setIsAllocating] = useState(false);
 
   const updateStatement = async (
@@ -98,37 +103,53 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
   ) => {
     try {
       setIsAllocating(true);
-
-      const invoiceRef = doc(collection(db, "CopiedInvoices"), id);
+      const copiedInvoicesPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
+      const invoiceRef = doc(
+        collection(db, copiedInvoicesPath, "CopiedInvoices"),
+        id
+      );
       const invoiceSnapshot = await getDoc(invoiceRef);
       if (invoiceSnapshot.exists()) {
         const invoiceData = invoiceSnapshot.data();
         const existingTotalPaid = invoiceData.totalPaid || 0; // Default to 0 if totalPaid doesn't exist
-
         const updatedTotalPaid = existingTotalPaid + amount;
-
-        await updateDoc(invoiceRef, { totalPaid: updatedTotalPaid });
+        await updateDoc(invoiceRef, {
+          totalPaid: updatedTotalPaid,
+        });
       } else {
         console.log("Invoice not found.");
         return; // Return early if the invoice doesn't exist
       }
 
-      const statementsRef = doc(
-        collection(db, "NedBankStatements"),
+      const unitPath = `/BodyCoperate/${me?.property}/`;
+
+      const unitRef = doc(collection(db, unitPath, "Units"), unitId);
+      const unitSnaphot = await getDoc(unitRef);
+      if (unitSnaphot.exists()) {
+        const unitData = unitSnaphot.data();
+        const balanceUpdate = unitData.balance || 0;
+        const updatedBalance = balanceUpdate - amount;
+        await updateDoc(unitRef, { balance: updatedBalance });
+      }
+
+      const transactionsPath = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
+      // Reference to the "Transactions" subcollection under the specific year document
+      const transactionsCollectionRef = doc(
+        collection(db, transactionsPath, "FNBTransactions"),
         transactionId
       );
-      const statementsSnapshot = await getDoc(statementsRef);
-      if (statementsSnapshot.exists()) {
-        await updateDoc(statementsRef, {
+      const fnbStatementsSnapshot = await getDoc(transactionsCollectionRef);
+      if (fnbStatementsSnapshot.exists()) {
+        await updateDoc(transactionsCollectionRef, {
           allocated: true,
           unitId: unitId,
           invoiceNumber: invoiceNumber,
           rcp: generateInvoiceNumber(),
         });
-        setIsAllocating(false);
         SuccessfulAction(ui);
+        setIsAllocating(false);
       } else {
-        console.log("NedBankStatements document not found.");
+        console.log(" document not found.");
         FailedAction(ui);
       }
     } catch (error) {
@@ -137,6 +158,7 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
     } finally {
       setIsAllocating(false);
       setUnit("");
+      rerender();
       hideModalFromId(DIALOG_NAMES.BODY.ALLOCATE_DIALOGS);
     }
   };
@@ -149,10 +171,15 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
       setSupplierId("");
       return;
     } else {
-      const fnbStatementsRef = doc(collection(db, "NedBankStatements"), id);
-      const fnbStatementsSnapshot = await getDoc(fnbStatementsRef);
+      // Specify a valid document ID for bodyCoperateDocRef
+      const myPath1 = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
+      const transactionsCollectionRef = doc(
+        collection(db, myPath1, "FNBTransactions"),
+        id
+      );
+      const fnbStatementsSnapshot = await getDoc(transactionsCollectionRef);
       if (fnbStatementsSnapshot.exists()) {
-        await updateDoc(fnbStatementsRef, {
+        await updateDoc(transactionsCollectionRef, {
           allocated: true,
           accountId: accountId,
           rcp: generateInvoiceNumber(),
@@ -163,9 +190,10 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
         setTransferId("");
         setSupplierId("");
       } else {
-        console.log("NedBankStatements document not found.");
+        console.log("FnbStatements document not found.");
         FailedAction(ui);
       }
+      rerender();
     }
   };
 
@@ -177,10 +205,15 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
       setSupplierId("");
       return;
     } else {
-      const fnbStatementsRef = doc(collection(db, "NedBankStatements"), id);
-      const fnbStatementsSnapshot = await getDoc(fnbStatementsRef);
+      // Specify a valid document ID for bodyCoperateDocRef
+      const myPath1 = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
+      const transactionsCollectionRef = doc(
+        collection(db, myPath1, "FNBTransactions"),
+        id
+      );
+      const fnbStatementsSnapshot = await getDoc(transactionsCollectionRef);
       if (fnbStatementsSnapshot.exists()) {
-        await updateDoc(fnbStatementsRef, {
+        await updateDoc(transactionsCollectionRef, {
           allocated: true,
           supplierId: supplierId,
           rcp: generateInvoiceNumberSupplier(),
@@ -194,6 +227,7 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
         console.log("FnbStatements document not found.");
         FailedAction(ui);
       }
+      rerender();
     }
   };
 
@@ -205,12 +239,16 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
       setSupplierId("");
       return;
     } else {
-      const fnbStatementsRef = doc(collection(db, "NedBankStatements"), id);
-      const fnbStatementsSnapshot = await getDoc(fnbStatementsRef);
+      const myPath1 = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
+      const transactionsCollectionRef = doc(
+        collection(db, myPath1, "FNBTransactions"),
+        id
+      );
+      const fnbStatementsSnapshot = await getDoc(transactionsCollectionRef);
       if (fnbStatementsSnapshot.exists()) {
-        await updateDoc(fnbStatementsRef, {
+        await updateDoc(transactionsCollectionRef, {
           allocated: true,
-          transferId: transferId,
+          transfer: transferId,
           rcp: generateInvoiceNumber(),
         });
         setIsAllocating(false);
@@ -219,15 +257,19 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
         setSupplierId("");
         SuccessfulAction(ui);
       } else {
-        console.log("NedBankStatements document not found.");
+        console.log("FnbStatements document not found.");
         FailedAction(ui);
       }
+      rerender();
     }
   };
 
   //create accounts
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [tel, setTel] = useState("");
+  const [balance, setBalance] = useState(0);
 
   const onCreateAccount = () => {
     showModalFromId(DIALOG_NAMES.BODY.CREATE_INVOICE);
@@ -245,7 +287,7 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
   };
 
   const [createLoader, setCreateLOader] = useState(false);
-  //quick fix
+
   const createAccount = async (e: any) => {
     e.preventDefault();
     setCreateLOader(true);
@@ -265,13 +307,17 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
     setDescription("");
     hideModalFromId(DIALOG_NAMES.BODY.CREATE_INVOICE);
   };
+
   const createSupplier = async (e: any) => {
     e.preventDefault();
     setCreateLOader(true);
-    const Account: INormalAccount = {
+    const Account: ISupplier = {
       id: "",
       name: name,
       description: description,
+      balance: balance,
+      mobileNumber: mobile,
+      telephoneNumber: tel,
     };
     try {
       if (me?.property) await api.body.supplier.create(Account, me.property);
@@ -288,7 +334,7 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
   const createTransfer = async (e: any) => {
     e.preventDefault();
     setCreateLOader(true);
-    const Account: INormalAccount = {
+    const Account: ITransfer = {
       id: "",
       name: name,
       description: description,
@@ -306,18 +352,12 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
   };
 
   const column: GridColDef[] = [
-    { field: "transactionDate", headerName: "TransactionDate", width: 100 },
-    { field: "valueDate", headerName: "Value Date", width: 100 },
-    {
-      field: "transactionReference",
-      headerName: "Transaction Reference",
-      width: 100,
-    },
+    { field: "date", headerName: "Date", width: 100 },
+    { field: "serviceFee", headerName: "Swervice Fee", width: 100 },
+    { field: "amount", headerName: "Amount", width: 100 },
+    { field: "references", headerName: "Reference", width: 100 },
     { field: "description", headerName: "Description", width: 100 },
-    { field: "vatIndicator", headerName: "*VAT Charge Indicator", width: 100 },
-    { field: "debit", headerName: "Debit", width: 100 },
-    { field: "credit", headerName: "Credit", width: 100 },
-    { field: "balance", headerName: "Balance", width: 100 },
+    { field: "balance", headerName: "Balance", width: 0 },
     {
       field: "Type ",
       headerName: "Type",
@@ -335,7 +375,7 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
             <option value="Account">Account</option>
             <option value="Supplier">Supplier</option>
             <option value="Customer">Customer</option>
-            <option value="Transfer">Transfer</option>
+            {/* <option value="Transfer">Transfer</option> */}
           </select>
         </div>
       ),
@@ -398,13 +438,13 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
             >
               <option value="">Select Account</option>
               {store.bodyCorperate.unit.all
-                .filter((u) => u.asJson.bodyCopId === params.row.propertyId)
+                .filter((u) => u.asJson.bodyCopId === me?.property)
                 .map((u) => (
                   <option value={u.asJson.id}>Unit {u.asJson.unitName}</option>
                 ))}
             </select>
           )}
-          {type === "Transfer" && (
+          {/* {type === "Transfer" && (
             <>
               <select
                 style={{ width: "82%" }}
@@ -424,7 +464,7 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
                 <AddCircleOutlineIcon />
               </IconButton>
             </>
-          )}
+          )} */}
         </div>
       ),
     },
@@ -455,7 +495,7 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
           {type === "Customer" && (
             <IconButton
               onClick={() =>
-                onAllocate(unitId, params.row.id, params.row.credit)
+                onAllocate(unitId, params.row.id, params.row.amount)
               }
             >
               <AssignmentReturnIcon
@@ -481,8 +521,8 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
   ];
 
   return (
-    <div style={{ overflowX: "hidden" }}>
-      <Box sx={{ height: 400, width: 1090 }} className="companies-grid">
+    <>
+      <Box sx={{ height: 400 }} className="companies-grid">
         <DataGrid
           rows={data}
           //   columns={column}
@@ -583,6 +623,39 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
                 required
               />
             </div>
+            <div className="uk-width-1-1">
+              <label htmlFor="">Mobile Number</label>
+              <input
+                className="uk-input"
+                type="number"
+                aria-label="100"
+                onChange={(e) => setMobile(e.target.value)}
+                required
+                value={mobile}
+              />
+            </div>
+            <div className="uk-width-1-1">
+              <label htmlFor="">Telephone Number</label>
+              <input
+                className="uk-input"
+                type="number"
+                aria-label="100"
+                onChange={(e) => setTel(e.target.value)}
+                required
+                value={tel}
+              />
+            </div>
+            <div className="uk-width-1-1">
+              <label htmlFor="">Balance</label>
+              <input
+                className="uk-input"
+                type="number"
+                aria-label="100"
+                onChange={(e) => setBalance(Number(e.target.value))}
+                required
+                value={balance}
+              />
+            </div>
             <IconButton type="submit">
               <SaveIcon />
             </IconButton>
@@ -676,6 +749,8 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
           </form>
         </div>
       </Modal>
-    </div>
+    </>
   );
 });
+
+export default FNBDataGrid;

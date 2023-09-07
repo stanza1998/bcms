@@ -4,20 +4,20 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { useAppContext } from "../../../../shared/functions/Context";
+import { useAppContext } from "../../../../../../shared/functions/Context";
 import {
   IInvoice,
   IService,
   defaultInvoice,
-} from "../../../../shared/models/invoices/Invoices";
+} from "../../../../../../shared/models/invoices/Invoices";
 import {
   IBodyCop,
   defaultBodyCop,
-} from "../../../../shared/models/bcms/BodyCorperate";
-import { IUnit, defaultUnit } from "../../../../shared/models/bcms/Units";
-import Loading from "../../../../shared/components/Loading";
-import { SuccessfulAction } from "../../../../shared/models/Snackbar";
-import { db } from "../../../../shared/database/FirebaseConfig";
+} from "../../../../../../shared/models/bcms/BodyCorperate";
+import { IUnit, defaultUnit } from "../../../../../../shared/models/bcms/Units";
+import Loading from "../../../../../../shared/components/Loading";
+import { SuccessfulAction } from "../../../../../../shared/models/Snackbar";
+import { db } from "../../../../../../shared/database/FirebaseConfig";
 import React from "react";
 
 interface ServiceDetails {
@@ -117,7 +117,7 @@ export const VerifyInvoice = observer(() => {
   const updateMaterial = async () => {
     if (invoiceId) {
       setDateLoader(true);
-      const myPath = "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW";
+      const myPath = `/BodyCoperate/${me?.property}`;
       const docRef = doc(db, myPath, "MasterInvoices", invoiceId);
       const docSnap = await getDoc(docRef);
       await updateDoc(docRef, { dueDate: newDate });
@@ -159,7 +159,7 @@ export const VerifyInvoice = observer(() => {
   const updatePrice = async () => {
     if (invoiceId) {
       setPriceUpdate(true);
-      const myPath = "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW";
+      const myPath = `/BodyCoperate/${me?.property}`;
       const docRef = doc(db, myPath, "MasterInvoices", invoiceId);
       const docSnap = await getDoc(docRef);
       await updateDoc(docRef, { totalDue: totalPriceAmended });
@@ -176,7 +176,7 @@ export const VerifyInvoice = observer(() => {
   const AddNewDetails = async () => {
     if (invoiceId) {
       setDetailsLoader(true);
-      const myPath = "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW";
+      const myPath = `/BodyCoperate/${me?.property}`;
       const docRef = doc(db, myPath, "MasterInvoices", invoiceId);
       try {
         // Fetch the existing services array from the document
@@ -209,7 +209,7 @@ export const VerifyInvoice = observer(() => {
   const removeService = async (indexToRemove: number) => {
     if (invoiceId) {
       setReomveLoader(true);
-      const myPath = "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW";
+      const myPath = `/BodyCoperate/${me?.property}`;
       const docRef = doc(db, myPath, "MasterInvoices", invoiceId);
 
       try {
@@ -242,7 +242,7 @@ export const VerifyInvoice = observer(() => {
   const verifyInvoice = async () => {
     if (invoiceId) {
       setVerificationLoader(true);
-      const myPath = "/BodyCoperate/4Q5WwF2rQFmoStdpmzaW";
+      const myPath = `/BodyCoperate/${me?.property}`;
       const docRef = doc(db, myPath, "MasterInvoices", invoiceId);
       const docSnap = await getDoc(docRef);
       await updateDoc(docRef, { verified: true });

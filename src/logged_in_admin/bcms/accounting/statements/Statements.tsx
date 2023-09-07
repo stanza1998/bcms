@@ -1,18 +1,15 @@
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ApartmentIcon from "@mui/icons-material/Apartment";
 import RvHookupIcon from "@mui/icons-material/RvHookup";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import { useNavigate } from "react-router-dom";
-import { useAppContext } from "../../../../shared/functions/Context";
 import showModalFromId from "../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../../dialogs/Dialogs";
 import Modal from "../../../../shared/components/Modal";
 import KeyboardTabIcon from "@mui/icons-material/KeyboardTab";
 
 export const Statements = observer(() => {
-  const { store, api } = useAppContext();
-  const [propertyId, setPropertyId] = useState<string>("");
   const navigate = useNavigate();
 
   const toCustomerFNB = () => {

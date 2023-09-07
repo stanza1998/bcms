@@ -13,10 +13,11 @@ import {
   IBodyCop,
   defaultBodyCop,
 } from "../../../../../shared/models/bcms/BodyCorperate";
+import { Tab } from "../../../../../Tab";
 
 export const UnitInfor = observer(() => {
   const { propertyId, id } = useParams();
-  const { store, api, ui } = useAppContext();
+  const { store, api } = useAppContext();
   const navigate = useNavigate();
   const [loadingS, setLoadingS] = useState(true);
 
@@ -175,76 +176,66 @@ export const UnitInfor = observer(() => {
               </div>
             </div>
           </div>
-          <div className="uk-margin">
-            <div className="uk-margin">
-              <button
-                className={`uk-button primary uk-margin-right ${
-                  activeTab === "overview" ? "active" : ""
-                }`}
-                onClick={() => handleTabClick("overview")}
-              >
-                Dashboard
-              </button>
-              <button
-                className={`uk-button primary uk-margin-right ${
-                  activeTab === "finance" ? "active" : ""
-                }`}
-                onClick={() => handleTabClick("finance")}
-              >
-                Financial Records
-              </button>
-              <button
-                className={`uk-button primary uk-margin-right ${
-                  activeTab === "maintenance" ? "active" : ""
-                }`}
-                onClick={() => handleTabClick("maintenance")}
-              >
-                Maintenance and Repairs
-              </button>
-              <button
-                className={`uk-button primary uk-margin-right ${
-                  activeTab === "communication" ? "active" : ""
-                }`}
-                onClick={() => handleTabClick("communication")}
-              >
-                Communication
-              </button>
-              <button
-                className={`uk-button primary uk-margin-right ${
-                  activeTab === "documents" ? "active" : ""
-                }`}
-                onClick={() => handleTabClick("documents")}
-              >
-                Documents
-              </button>
-            </div>
 
-            <div className="tabs-content">
-              {activeTab === "overview" && (
-                <div className="dashboard">
-                  <Dashboard />
-                </div>
-              )}
-              {activeTab === "finance" && (
-                <div className="finance">
-                  <FinacialRecords />
-                </div>
-              )}
-              {activeTab === "maintenance" && (
-                <div className="maintenance">
-                  <Maintenance />
-                </div>
-              )}
-              {activeTab === "communication" && (
-                <div className="communication">
-                  <Communication />
-                </div>
-              )}
-              {activeTab === "documents" && (
-                <div className="documents">
-                  <Documents />
-                </div>
-              )}
+          <div className="uk-margin">
+            <div>
+              <div
+                style={{ padding: "10px" }}
+                className="uk-margin  uk-card-default"
+              >
+                <Tab
+                  label="Overview"
+                  isActive={activeTab === "overview"}
+                  onClick={() => handleTabClick("overview")}
+                />
+                <Tab
+                  label="Financial Records"
+                  isActive={activeTab === "finance"}
+                  onClick={() => handleTabClick("finance")}
+                />
+                <Tab
+                  label="Maintenance"
+                  isActive={activeTab === "maintenance"}
+                  onClick={() => handleTabClick("maintenance")}
+                />
+                <Tab
+                  label="Communication"
+                  isActive={activeTab === "communication"}
+                  onClick={() => handleTabClick("communication")}
+                />
+                <Tab
+                  label="Documents"
+                  isActive={activeTab === "documents"}
+                  onClick={() => handleTabClick("documents")}
+                />
+              </div>
+              <div className="tab-content">
+                {activeTab === "overview" && (
+                  <div className="dashboard">
+                    <Dashboard />
+                  </div>
+                )}
+                {activeTab === "finance" && (
+                  <div className="finance">
+                    <FinacialRecords />
+                  </div>
+                )}
+                {activeTab === "maintenance" && (
+                  <div className="maintenance">
+                    <Maintenance />
+                  </div>
+                )}
+                {activeTab === "communication" && (
+                  <div className="communication">
+                    <Communication />
+                  </div>
+                )}
+                {activeTab === "documents" && (
+                  <div className="documents">
+                    <Documents />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

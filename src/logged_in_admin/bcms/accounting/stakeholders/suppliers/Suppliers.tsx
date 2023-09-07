@@ -1,12 +1,12 @@
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
-import SupplierInvoicesGrid from "./SupplierGrid";
-import { useAppContext } from "../../../../../shared/functions/Context";
 import { useEffect, useState } from "react";
 import { Tab } from "../../../../../Tab";
+import { useAppContext } from "../../../../../shared/functions/Context";
+import SupplierInvoicesGrid from "../../invoices/supplier-invoices/invoices/SupplierGrid";
 
 export const SuppliersView = observer(() => {
-  const [activeTab, setActiveTab] = useState("Invoices");
+  const [activeTab, setActiveTab] = useState("invoices");
 
   const handleTabClick = (tabLabel: string) => {
     setActiveTab(tabLabel);
@@ -21,30 +21,38 @@ export const SuppliersView = observer(() => {
           </div>
         </div>
         <div>
-          <div className="uk-margin">
+          <div
+            style={{ padding: "10px" }}
+            className="uk-margin  uk-card-default"
+          >
             <Tab
-              label="Invoices"
-              isActive={activeTab === "Invoices"}
-              onClick={() => handleTabClick("Invoices")}
+              label="Supplier Tax Invoices"
+              isActive={activeTab === "invoices"}
+              onClick={() => handleTabClick("invoices")}
             />
             <Tab
-              label="Supplier Transaction Reports"
-              isActive={activeTab === "ctr"}
-              onClick={() => handleTabClick("ctr")}
+              label="Supplier Payments"
+              isActive={activeTab === "receipts"}
+              onClick={() => handleTabClick("receipts")}
+            />
+            <Tab
+              label="Supplier Balance"
+              isActive={activeTab === "balance"}
+              onClick={() => handleTabClick("balance")}
             />
             <Tab
               label="Supplier Statements"
-              isActive={activeTab === "st"}
-              onClick={() => handleTabClick("st")}
+              isActive={activeTab === "statements"}
+              onClick={() => handleTabClick("statements")}
             />
             <Tab
-              label="Aging Analysis"
-              isActive={activeTab === "aa"}
-              onClick={() => handleTabClick("aa")}
+              label="Supplier Transaction"
+              isActive={activeTab === "transaction"}
+              onClick={() => handleTabClick("transaction")}
             />
           </div>
           <div className="tab-content">
-            {activeTab === "Invoices" && <SupplierInvoices />}
+            {activeTab === "invoices" && <SupplierInvoices />}
           </div>
         </div>
       </div>

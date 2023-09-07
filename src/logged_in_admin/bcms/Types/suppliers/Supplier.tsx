@@ -1,17 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 
 import { observer } from "mobx-react-lite";
 import { useAppContext } from "../../../../shared/functions/Context";
 import DIALOG_NAMES from "../../../dialogs/Dialogs";
 import Modal from "../../../../shared/components/Modal";
 import showModalFromId from "../../../../shared/functions/ModalShow";
-import { Suppliers } from "./Suppliers";
 import { SupplierDialog } from "../../../dialogs/supplier-dialog/SupplierDialog";
 import { SupplierTable } from "./SupplierTables";
 
 export const Supplier = observer(() => {
   const { store, api } = useAppContext();
-  const [loading, setLoading] = useState(false);
   const me = store.user.meJson;
 
   const onCreate = () => {

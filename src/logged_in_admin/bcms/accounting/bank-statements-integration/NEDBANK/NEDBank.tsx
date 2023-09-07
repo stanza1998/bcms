@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useAppContext } from "../../../../../shared/functions/Context";
 import Papa from "papaparse";
 import { observer } from "mobx-react-lite";
-import { StatementTabs } from "../Tabs/StatementsTab";
 import { INEDBANK } from "../../../../../shared/models/banks/NEDBANK";
 import {
   FailedAction,
@@ -12,6 +11,7 @@ import Loading from "../../../../../shared/components/Loading";
 import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import { db } from "../../../../../shared/database/FirebaseConfig";
 import { NEDBANKGrid } from "./NEDBANKGrid";
+import { Tab } from "../../../../../Tab";
 
 type CSVRow = Array<string | undefined>;
 
@@ -37,13 +37,16 @@ export const NEDBANK = () => {
     <div style={{ overflowX: "hidden" }}>
       <div className="uk-margin">
         <div>
-          <div className="uk-margin">
-            <StatementTabs
+          <div
+            style={{ padding: "10px" }}
+            className="uk-margin  uk-card-default"
+          >
+            <Tab
               label="Upload Statement"
               isActive={activeTab === "Invoicing"}
               onClick={() => handleTabClick("Invoicing")}
             />
-            <StatementTabs
+            <Tab
               label="Allocate Transactions"
               isActive={activeTab === "Expense"}
               onClick={() => handleTabClick("Expense")}
@@ -162,6 +165,7 @@ const UploadStatement = observer(() => {
       try {
         await api.body.nedbank.create(saveUpload);
         setTransactions([]);
+        SuccessfulAction(ui);
         setLoading(false);
       } catch (error) {
         FailedAction(ui);

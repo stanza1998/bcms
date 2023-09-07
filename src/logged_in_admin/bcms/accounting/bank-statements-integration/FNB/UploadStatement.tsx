@@ -1,25 +1,9 @@
 import { observer } from "mobx-react-lite";
 import Papa from "papaparse";
-import { useEffect, useState } from "react";
-import { useAppContext } from "../../../../../shared/functions/Context";
-import { FailedAction } from "../../../../../shared/models/Snackbar";
-import { IFNB } from "../../../../../shared/models/banks/FNBModel";
-import { StatementTabs } from "../Tabs/StatementsTab";
+import { useState, useEffect } from "react";
 import Loading from "../../../../../shared/components/Loading";
-import { db } from "../../../../../shared/database/FirebaseConfig";
-import {
-  WriteBatch,
-  addDoc,
-  arrayUnion,
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  setDoc,
-  updateDoc,
-  writeBatch,
-} from "firebase/firestore";
-import FNBDataGrid from "./FNBDataGrid";
+import { useAppContext } from "../../../../../shared/functions/Context";
+import { IFNB } from "../../../../../shared/models/banks/FNBModel";
 
 type CSVRow = Array<string | undefined>;
 
@@ -32,40 +16,8 @@ interface Transaction {
   Balance: string;
   "CHEQUE NUMBER": string;
 }
-export const FNB = () => {
-  const [activeTab, setActiveTab] = useState("Invoicing");
 
-  const handleTabClick = (tabLabel: string) => {
-    setActiveTab(tabLabel);
-  };
-
-  return (
-    <div>
-      <div className="uk-margin">
-        <div>
-          <div className="uk-margin">
-            <StatementTabs
-              label="Upload Statement"
-              isActive={activeTab === "Invoicing"}
-              onClick={() => handleTabClick("Invoicing")}
-            />
-            <StatementTabs
-              label="Allocate Transactions"
-              isActive={activeTab === "Expense"}
-              onClick={() => handleTabClick("Expense")}
-            />
-          </div>
-          <div className="tab-content">
-            {activeTab === "Invoicing" && <FNBUploadState />}
-            {activeTab === "Expense" && <Allocatate />}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const FNBUploadState = observer(() => {
+export const FNBUploadState = observer(() => {
   const { store, api } = useAppContext();
   const [csvData, setCSVData] = useState<CSVRow[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -81,7 +33,6 @@ const FNBUploadState = observer(() => {
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-
     if (file) {
       Papa.parse(file, {
         complete: (result) => {
@@ -121,11 +72,9 @@ const FNBUploadState = observer(() => {
   const saveFNBStatement = async () => {
     try {
       setLoading(true);
-
       if (!me?.property) {
         throw new Error("No property Id");
       }
-
       const promises = transactions.map(async (transaction) => {
         const saveUpload: IFNB = {
           id: "",
@@ -147,12 +96,9 @@ const FNBUploadState = observer(() => {
           rcp: "",
           supplierInvoiceNumber: "",
         };
-
         await api.body.fnb.create(saveUpload, me.property, me.year, me.month);
       });
-
       await Promise.all(promises);
-
       setLoading(false);
     } catch (error) {
       console.error("Error in saveFNBStatement:", error);
@@ -209,69 +155,6 @@ const FNBUploadState = observer(() => {
             </table>
           </div>
         </>
-      )}
-    </div>
-  );
-});
-
-const Allocatate = observer(() => {
-  const { store, api, ui } = useAppContext();
-  const [loading, setLoading] = useState(false);
-  const [statements, setStatements] = useState<IFNB[]>([]);
-  const me = store.user.meJson;
-
-  useEffect(() => {
-    const getStatements = async () => {
-      await api.body.body.getAll();
-      if (me?.property && me.year)
-        await api.body.copiedInvoice.getAll(me.property, me.year);
-      if (me?.property && !me?.year && !me?.month)
-        await api.body.fnb.getAll(me.property, me.year, me.month);
-    };
-    getStatements();
-  }, [
-    api.body.body,
-    api.body.copiedInvoice,
-    api.body.fnb,
-    me?.year,
-    me?.property,
-    me?.month,
-  ]);
-
-  useEffect(() => {
-    const getTransactionsForYear = async () => {
-      setLoading(true);
-      const transactions = store.bodyCorperate.fnb.all.map((t) => {
-        return t.asJson;
-      });
-      setStatements(transactions);
-      setLoading(false);
-    };
-    getTransactionsForYear();
-  }, []);
-
-  const getTransactionsForYear = async () => {
-    setLoading(true);
-    const transactions = store.bodyCorperate.fnb.all.map((t) => {
-      return t.asJson;
-    });
-    setStatements(transactions);
-    setLoading(false);
-  };
-
-  return (
-    <div>
-      {loading ? (
-        <Loading />
-      ) : (
-        <div>
-          <br />
-          <br />
-          <FNBDataGrid
-            rerender={getTransactionsForYear}
-            data={statements.filter((st) => st.allocated === false)}
-          />
-        </div>
       )}
     </div>
   );

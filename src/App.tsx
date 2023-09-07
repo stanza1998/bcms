@@ -11,12 +11,11 @@ import { observer } from "mobx-react-lite";
 import { USER_ROLES } from "./shared/constants/USER_ROLES";
 import Dashboard from "./logged_in_admin/dashboard/Dashboard";
 import FAQ from "./logged_in_admin/faq/FAQ";
-import EmployeeDashboard from "./logged_in_client/dashboard/EmployeeDashboard";
 import PrivateRoute from "./logged_in_admin/shared/PrivateRoute";
 import "../src/shared/sass/styles.scss";
 import AppearanceSettings from "./logged_in_admin/team/Appearence/AppearenceSettings";
 import { Documents } from "./logged_in_admin/bcms/documents/Documents";
-import { Accounting } from "./logged_in_admin/bcms/accounting/Accounting";
+import { Accounting } from "./logged_in_admin/bcms/accounting/overview/Accounting";
 import { Communication } from "./logged_in_admin/bcms/communication/Communication";
 import { BodyCorperates } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/BodyCorperates";
 import Owners from "./logged_in_admin/bcms/bodyCorperates/Owners";
@@ -27,33 +26,28 @@ import Settings from "./logged_in_admin/profiles/Settings";
 import Departments from "./logged_in_admin/team/departments/Departments";
 import Employees from "./logged_in_admin/team/employees/Employees";
 import { Meetings } from "./logged_in_admin/bcms/meetings/Meetings";
-// import { UnitYear } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/UnitYear";
-// import { UnitMonth } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/UnitMonth";
-import { Invoices } from "./logged_in_admin/bcms/accounting/invoices/Invoices";
-import { RecurringInvoices } from "./logged_in_admin/bcms/accounting/recuring-invoices/RecuringInvoices";
-import { ExpenseTracking } from "./logged_in_admin/bcms/accounting/expense-tracking/ExpenseTracking";
-
+import { Customer } from "./logged_in_admin/bcms/accounting/stakeholders/customers/Customer";
+import { ExpenseTracking } from "./logged_in_admin/bcms/accounting/bank-statements-integration/Integration";
 import { OwnerInvoices } from "./logged_in_admin/bcms/owner-accounts/invoices/OwnerInvoices";
 import { OwnerViewInvoice } from "./logged_in_admin/bcms/owner-accounts/invoices/OwnerViewInvoice";
-import { VerifyInvoice } from "./logged_in_admin/bcms/accounting/invoices/VerifyInvoice";
-import { ViewInvoice } from "./logged_in_admin/bcms/accounting/invoices/ViewInvoice";
+import { VerifyInvoice } from "./logged_in_admin/bcms/accounting/invoices/customer-invoices/verify/VerifyInvoice";
+import { ViewInvoice } from "./logged_in_admin/bcms/accounting/invoices/customer-invoices/verify/ViewInvoice";
 import { OwnerRecuringInvoices } from "./logged_in_admin/bcms/owner-accounts/recuring-invoices/OwnerRecuringInvoices";
 import { UnitDetails } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/UnitDetails";
-import { CopiedInvoices } from "./logged_in_admin/bcms/accounting/invoices/CopiedInvoices";
 import { Supplier } from "./logged_in_admin/bcms/Types/suppliers/Supplier";
-import { Account } from "./logged_in_admin/nagivation/Drawer";
 import { Transfer } from "./logged_in_admin/bcms/Types/transfers/Transfer";
 import { AccountType } from "./logged_in_admin/bcms/Types/accounts/Account";
 import { Statements } from "./logged_in_admin/bcms/accounting/statements/Statements";
 import { CustomerReportsFNB } from "./logged_in_admin/bcms/accounting/reports/customer/CustomerReport";
 import { SupplierReportsNEDBANK } from "./logged_in_admin/bcms/accounting/reports/supplier/SupplierReports";
 import { CustomerReportNEDBANK } from "./logged_in_admin/bcms/accounting/reports/customer/CustomerReportNEDBANK";
-import { SuppliersView } from "./logged_in_admin/bcms/accounting/invoices/supplier-invoices/SupplierInvoices";
 import { CreateSupplierInvoice } from "./logged_in_admin/bcms/accounting/invoices/supplier-invoices/create/CreateInvoice";
 import { SupplierReportsFNB } from "./logged_in_admin/bcms/accounting/reports/supplier/SupplierReportFNB";
 import { Others } from "./logged_in_admin/team/others/Others";
-import Accounts from "./logged_in_admin/bcms/accounting/invoices/accounts/Accounts";
-import { CopiedInvoicesAcc } from "./logged_in_admin/bcms/accounting/invoices/CopiedInvoicesAcc";
+import Accounts from "./logged_in_admin/bcms/accounting/stakeholders/accounts/Accounts";
+import { CopiedInvoices } from "./logged_in_admin/bcms/accounting/invoices/customer-invoices/CopiedInvoicesView";
+import { SuppliersView } from "./logged_in_admin/bcms/accounting/stakeholders/suppliers/Suppliers";
+import { CopiedInvoicesAcc } from "./logged_in_admin/bcms/accounting/invoices/customer-invoices/CopiedInvoicesAccView";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -87,7 +81,7 @@ const ADMIN_USER_ROUTES = () => {
             path={`accounting/accounting-overview`}
             element={<Accounting />}
           />
-          <Route path={`accounting/invoices`} element={<Invoices />} />
+          <Route path={`accounting/invoices`} element={<Customer />} />
           <Route
             path={`accounting/supplier-invoices`}
             element={<SuppliersView />}
@@ -97,10 +91,10 @@ const ADMIN_USER_ROUTES = () => {
             element={<CreateSupplierInvoice />}
           />
 
-          <Route
+          {/* <Route
             path={`accounting/recuring-invoices`}
             element={<RecurringInvoices />}
-          />
+          /> */}
           <Route path={`accounting/account`} element={<Accounts />} />
 
           <Route

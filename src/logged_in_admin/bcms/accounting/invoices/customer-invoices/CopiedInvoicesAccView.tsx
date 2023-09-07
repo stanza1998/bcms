@@ -1,30 +1,15 @@
 import { observer } from "mobx-react-lite";
-
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { useAppContext } from "../../../../shared/functions/Context";
-import {
-  IInvoice,
-  IService,
-  defaultInvoice,
-} from "../../../../shared/models/invoices/Invoices";
-import {
-  IBodyCop,
-  defaultBodyCop,
-} from "../../../../shared/models/bcms/BodyCorperate";
-import { IUnit, defaultUnit } from "../../../../shared/models/bcms/Units";
-import Loading from "../../../../shared/components/Loading";
-import { SuccessfulAction } from "../../../../shared/models/Snackbar";
-import { db } from "../../../../shared/database/FirebaseConfig";
 import React from "react";
-import {
-  ICopiedInvoice,
-  defaultCopiedInvoice,
-} from "../../../../shared/models/invoices/CopyInvoices";
+import { useAppContext } from "../../../../../shared/functions/Context";
+import { ICopiedInvoice, defaultCopiedInvoice } from "../../../../../shared/models/invoices/CopyInvoices";
+import { IBodyCop, defaultBodyCop } from "../../../../../shared/models/bcms/BodyCorperate";
+import { IUnit, defaultUnit } from "../../../../../shared/models/bcms/Units";
+import Loading from "../../../../../shared/components/Loading";
 
-export const CopiedInvoices = observer(() => {
+export const CopiedInvoicesAcc = observer(() => {
   const { store, api, ui } = useAppContext();
   const { propertyId, id, yearId, monthId, invoiceId } = useParams();
   const navigate = useNavigate();
@@ -54,7 +39,7 @@ export const CopiedInvoices = observer(() => {
   }, [invoiceId, store.bodyCorperate.copiedInvoices]);
 
   const back = () => {
-    navigate(`/c/body/body-corperate/${propertyId}/${id}/${yearId}/`);
+    navigate(`/c/accounting/invoices`);
   };
 
   //

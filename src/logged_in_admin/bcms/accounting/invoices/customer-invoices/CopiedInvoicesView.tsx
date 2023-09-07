@@ -1,34 +1,38 @@
 import { observer } from "mobx-react-lite";
-
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { useAppContext } from "../../../../shared/functions/Context";
-import {
-  IInvoice,
-  IService,
-  defaultInvoice,
-} from "../../../../shared/models/invoices/Invoices";
+import { useAppContext } from "../../../../../shared/functions/Context";
 import {
   IBodyCop,
   defaultBodyCop,
-} from "../../../../shared/models/bcms/BodyCorperate";
-import { IUnit, defaultUnit } from "../../../../shared/models/bcms/Units";
-import Loading from "../../../../shared/components/Loading";
-import { SuccessfulAction } from "../../../../shared/models/Snackbar";
-import { db } from "../../../../shared/database/FirebaseConfig";
+} from "../../../../../shared/models/bcms/BodyCorperate";
+import { IUnit, defaultUnit } from "../../../../../shared/models/bcms/Units";
+import Loading from "../../../../../shared/components/Loading";
 import React from "react";
 import {
   ICopiedInvoice,
   defaultCopiedInvoice,
-} from "../../../../shared/models/invoices/CopyInvoices";
+} from "../../../../../shared/models/invoices/CopyInvoices";
 
-export const CopiedInvoicesAcc = observer(() => {
-  const { store, api, ui } = useAppContext();
+export const CopiedInvoices = observer(() => {
+  const { store, api } = useAppContext();
   const { propertyId, id, yearId, monthId, invoiceId } = useParams();
   const navigate = useNavigate();
   const me = store.user.meJson;
+  const [loaderS, setLoaderS] = useState(true);
+  const [invoice, setInvoice] = useState<ICopiedInvoice | undefined>({
+    ...defaultCopiedInvoice,
+  });
+  const [viewBody, setBody] = useState<IBodyCop | undefined>({
+    ...defaultBodyCop,
+  });
+  const [unit, setUnit] = useState<IUnit | undefined>({
+    ...defaultUnit,
+  });
+
+  const back = () => {
+    navigate(`/c/body/body-corperate/${propertyId}/${id}/${yearId}/`);
+  };
 
   useEffect(() => {
     const getData = async () => {
@@ -38,33 +42,15 @@ export const CopiedInvoicesAcc = observer(() => {
     getData();
   }, [api.body.copiedInvoice, me?.property, me?.year]);
 
-  const [invoice, setInvoice] = useState<ICopiedInvoice | undefined>({
-    ...defaultCopiedInvoice,
-  });
-
   useEffect(() => {
     const data = async () => {
       if (invoiceId) {
         const invoice = store.bodyCorperate.copiedInvoices.getById(invoiceId);
-        console.log("🚀 ~ data ~ invoice:", invoice?.asJson);
         setInvoice(invoice?.asJson);
       }
     };
     data();
   }, [invoiceId, store.bodyCorperate.copiedInvoices]);
-
-  const back = () => {
-    navigate(`/c/accounting/invoices`);
-  };
-
-  //
-
-  const [viewBody, setBody] = useState<IBodyCop | undefined>({
-    ...defaultBodyCop,
-  });
-  const [unit, setUnit] = useState<IUnit | undefined>({
-    ...defaultUnit,
-  });
 
   useEffect(() => {
     const data = async () => {
@@ -91,11 +77,6 @@ export const CopiedInvoicesAcc = observer(() => {
     store.bodyCorperate.unit,
     yearId,
   ]);
-
-  //editing
-  const [show, setShow] = useState(false);
-
-  const [loaderS, setLoaderS] = useState(true);
 
   setTimeout(() => {
     setLoaderS(false);
@@ -181,7 +162,6 @@ export const CopiedInvoicesAcc = observer(() => {
                     <th>Description</th>
                     <th className="uk-text-center">Price</th>
                     <th className="uk-text-right">Total Price</th>
-                    {show === true && <td className="uk-text-right">Action</td>}
                   </tr>
                 </thead>
                 <tbody>

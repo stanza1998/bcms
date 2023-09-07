@@ -1,5 +1,6 @@
 import { Box, IconButton } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import { ICopiedInvoice } from "../../../../../shared/models/invoices/CopyInvoices";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import PaidIcon from "@mui/icons-material/Paid";
@@ -24,27 +25,23 @@ import DIALOG_NAMES from "../../../../dialogs/Dialogs";
 import Modal from "../../../../../shared/components/Modal";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import PreviewIcon from "@mui/icons-material/Preview";
-import {
-  ISupplierInvoices,
-  defaultSupplierInvoices,
-} from "../../../../../shared/models/invoices/SupplierInvoice";
 
 interface IProp {
-  data: ISupplierInvoices[];
+  data: ICopiedInvoice[];
 }
 
-const SupplierInvoicesGrid = observer(({ data }: IProp) => {
+const InvoicesGrid = observer(({ data }: IProp) => {
   const { store, api } = useAppContext();
-  const navigate = useNavigate();
   const me = store.user.meJson;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getData = async () => {
       await api.body.body.getAll();
-      if (me?.property && me?.year)
+      if (me?.property && me.year)
         await api.body.copiedInvoice.getAll(me.property, me.year);
-      if (me?.property) await api.body.financialYear.getAll(me.property);
-      if (me?.property && me?.year)
+      if (me?.property) await api.body.financialYear.getAll(me?.property);
+      if ((me?.property, me?.year))
         await api.body.financialMonth.getAll(me.property, me.year);
       await api.auth.loadAll();
     };
@@ -60,11 +57,9 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
     me?.year,
   ]);
 
-  const [invoiceView, setInvoiceView] = useState<ISupplierInvoices | undefined>(
-    {
-      ...defaultSupplierInvoices,
-    }
-  );
+  const [invoiceView, setInvoiceView] = useState<ICopiedInvoice | undefined>({
+    ...defaultInvoice,
+  });
 
   const [viewBody, setBody] = useState<IBodyCop | undefined>({
     ...defaultBodyCop,
@@ -72,6 +67,14 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
 
   const [unit, setUnit] = useState<IUnit | undefined>({
     ...defaultUnit,
+  });
+
+  const [year, setYear] = useState<IFinancialYear | undefined>({
+    ...defaultFinancialYear,
+  });
+
+  const [month, setMonth] = useState<IFinancialMonth | undefined>({
+    ...defaultFinancialMonth,
   });
 
   const viewInvoiceDetails = async (
@@ -82,7 +85,7 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
     yid: string
   ) => {
     const invoiceDetails =
-      store.bodyCorperate.supplierInvoice.getById(invoiceId);
+      store.bodyCorperate.copiedInvoices.getById(invoiceId);
     setInvoiceView(invoiceDetails?.asJson);
     showModalFromId(DIALOG_NAMES.BODY.VIEW_INVOICE);
     await api.body.body.getAll();
@@ -90,7 +93,11 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
     setBody(property?.asJson);
     const unit = store.bodyCorperate.unit.getById(uid);
     setUnit(unit?.asJson);
-    if (me?.property) await api.unit.getAll(me.property);
+    const month = store.bodyCorperate.financialMonth.getById(mid);
+    setMonth(month?.asJson);
+    const year = store.bodyCorperate.financialYear.getById(yid);
+    setYear(year?.asJson);
+    if (me?.property) await api.unit.getAll(me?.property);
   };
 
   //unit data
@@ -101,14 +108,25 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
     yearId: string
   ) => {
     navigate(
-      `/c/body/body-corperate/copied/${propertyId}/${id}/${yearId}/${invoiceId}/`
+      `/c/accounting/invoices/copiedAcc/${propertyId}/${id}/${yearId}/${invoiceId}/`
     );
   };
 
   const columns: GridColDef[] = [
-    { field: "invoiceNumber", headerName: "Invoice Number", width: 250 },
-    { field: "dateIssued", headerName: "Date Issued", width: 250 },
-    { field: "dueDate", headerName: "Due Date", width: 250 },
+    { field: "invoiceNumber", headerName: "Invoice Number", width: 200 },
+    { field: "dateIssued", headerName: "Date Issued", width: 200 },
+    {
+      field: "totalPaid",
+      headerName: "Total Paid",
+      width: 200,
+      valueFormatter: (params) => `NAD ${params.value}`,
+    },
+    {
+      field: "totalDue",
+      headerName: "Total Amount",
+      width: 200,
+      valueFormatter: (params) => `NAD ${params.value}`,
+    },
     {
       field: "Status",
       headerName: "Status",
@@ -130,28 +148,28 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
       renderCell: (params) => (
         <div>
           <IconButton
-          // onClick={() =>
-          //   viewInvoiceDetails(
-          //     params.row.invoiceId,
-          //     params.row.propertyId,
-          //     params.row.unitId,
-          //     params.row.monthId,
-          //     params.row.yearId
-          //   )
-          // }
+            onClick={() =>
+              viewInvoiceDetails(
+                params.row.invoiceId,
+                params.row.propertyId,
+                params.row.unitId,
+                params.row.monthId,
+                params.row.yearId
+              )
+            }
           >
             <MoreHorizIcon />
           </IconButton>
 
           <IconButton
-          // onClick={() =>
-          //   verifyInvoice(
-          //     params.row.invoiceId,
-          //     params.row.propertyId,
-          //     params.row.unitId,
-          //     params.row.yearId
-          //   )
-          // }
+            onClick={() =>
+              verifyInvoice(
+                params.row.invoiceId,
+                params.row.propertyId,
+                params.row.unitId,
+                params.row.yearId
+              )
+            }
           >
             <PreviewIcon />
           </IconButton>
@@ -320,4 +338,4 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
   );
 });
 
-export default SupplierInvoicesGrid;
+export default InvoicesGrid;
