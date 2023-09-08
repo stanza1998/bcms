@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Tab } from "../../../../../Tab";
 import { useAppContext } from "../../../../../shared/functions/Context";
 import SupplierInvoicesGrid from "../../invoices/supplier-invoices/invoices/SupplierGrid";
+import SupplierPayment from "../../receiprs-payments/payments-suppliers/SupplierPayments";
 
 export const SuppliersView = observer(() => {
   const [activeTab, setActiveTab] = useState("invoices");
@@ -31,6 +32,11 @@ export const SuppliersView = observer(() => {
               onClick={() => handleTabClick("invoices")}
             />
             <Tab
+              label="Supplier Returns"
+              isActive={activeTab === "returns"}
+              onClick={() => handleTabClick("returns")}
+            />
+            <Tab
               label="Supplier Payments"
               isActive={activeTab === "receipts"}
               onClick={() => handleTabClick("receipts")}
@@ -53,6 +59,7 @@ export const SuppliersView = observer(() => {
           </div>
           <div className="tab-content">
             {activeTab === "invoices" && <SupplierInvoices />}
+            {activeTab === "receipts" && <SupplierPayment />}
           </div>
         </div>
       </div>

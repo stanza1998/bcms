@@ -13,6 +13,8 @@ import showModalFromId, {
 import {
   SuccessfulAction,
   FailedAction,
+  SuccessfulActionCustomerReceipt,
+  SuccessfulActionSupplierPayment,
 } from "../../../../../shared/models/Snackbar";
 import DIALOG_NAMES from "../../../../dialogs/Dialogs";
 import { ICopiedInvoice } from "../../../../../shared/models/invoices/CopyInvoices";
@@ -23,6 +25,10 @@ import { INormalAccount } from "../../../../../shared/models/Types/Account";
 import SaveIcon from "@mui/icons-material/Save";
 import { ISupplier } from "../../../../../shared/models/Types/Suppliers";
 import { ITransfer } from "../../../../../shared/models/Types/Transfer";
+import {
+  IReceiptsPayments,
+  defaultReceiptsPayments,
+} from "../../../../../shared/models/receipts-payments/ReceiptsPayments";
 
 interface IProp {
   data: IFNB[];
@@ -93,6 +99,9 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
   };
 
   const [isAllocating, setIsAllocating] = useState(false);
+  const [receiptsPayments, setReceiptsPayments] = useState<IReceiptsPayments>({
+    ...defaultReceiptsPayments,
+  });
 
   const updateStatement = async (
     id: string,
@@ -156,6 +165,38 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       console.log("🚀 ~error:", error);
       FailedAction(ui);
     } finally {
+      const trans = store.bodyCorperate.fnb.getById(transactionId);
+      const rs: IReceiptsPayments = {
+        id: "",
+        date: trans?.asJson.date || "",
+        reference: trans?.asJson.references || "",
+        transactionType: "Customer Receipt",
+        description: trans?.asJson.description || "",
+        debit: trans?.asJson.amount.toFixed(2) || "",
+        credit: "",
+        balance: trans?.asJson.balance.toFixed(2) || "",
+        propertyId: trans?.asJson.propertyId || "",
+        unitId: trans?.asJson.unitId || "",
+        invoiceNumber: trans?.asJson.invoiceNumber || "",
+        rcp: trans?.asJson.rcp || "",
+        supplierId: trans?.asJson.supplierId || "",
+      };
+
+      if (!me?.property && !me?.year && !me?.month)
+        return FailedAction("NOT FOUND");
+      try {
+        await api.body.receiptPayments.create(
+          rs,
+          me.property,
+          me.year,
+          me.month
+        );
+      } catch (error) {
+        console.log(error);
+      } finally {
+        SuccessfulActionCustomerReceipt(ui);
+      }
+
       setIsAllocating(false);
       setUnit("");
       rerender();
@@ -198,36 +239,73 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
   };
 
   const updateSupplier = async (id: string) => {
-    if (supplierId === "") {
-      FailedAction(ui);
-      setAccountId("");
-      setTransferId("");
-      setSupplierId("");
-      return;
-    } else {
-      // Specify a valid document ID for bodyCoperateDocRef
-      const myPath1 = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
-      const transactionsCollectionRef = doc(
-        collection(db, myPath1, "FNBTransactions"),
-        id
-      );
-      const fnbStatementsSnapshot = await getDoc(transactionsCollectionRef);
-      if (fnbStatementsSnapshot.exists()) {
-        await updateDoc(transactionsCollectionRef, {
-          allocated: true,
-          supplierId: supplierId,
-          rcp: generateInvoiceNumberSupplier(),
-        });
-        setIsAllocating(false);
+    try {
+      if (supplierId === "") {
+        FailedAction(ui);
         setAccountId("");
         setTransferId("");
         setSupplierId("");
-        SuccessfulAction(ui);
+        return;
       } else {
-        console.log("FnbStatements document not found.");
-        FailedAction(ui);
+        // Specify a valid document ID for bodyCoperateDocRef
+        const myPath1 = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
+        const transactionsCollectionRef = doc(
+          collection(db, myPath1, "FNBTransactions"),
+          id
+        );
+        const fnbStatementsSnapshot = await getDoc(transactionsCollectionRef);
+        if (fnbStatementsSnapshot.exists()) {
+          await updateDoc(transactionsCollectionRef, {
+            allocated: true,
+            supplierId: supplierId,
+            rcp: generateInvoiceNumberSupplier(),
+          });
+          setIsAllocating(false);
+          setAccountId("");
+          setTransferId("");
+          setSupplierId("");
+          SuccessfulAction(ui);
+        } else {
+          console.log("FnbStatements document not found.");
+          FailedAction(ui);
+        }
+        rerender();
       }
-      rerender();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      const trans = store.bodyCorperate.fnb.getById(id);
+      console.log("🚀 trans:", trans?.asJson);
+      const rs: IReceiptsPayments = {
+        id: "",
+        date: trans?.asJson.date || "",
+        reference: trans?.asJson.references || "",
+        transactionType: "Supplier Payment",
+        description: trans?.asJson.description || "",
+        debit: "",
+        credit: trans?.asJson.amount.toFixed(2) || "",
+        balance: trans?.asJson.balance.toFixed(2) || "",
+        propertyId: trans?.asJson.propertyId || "",
+        unitId: trans?.asJson.unitId || "",
+        invoiceNumber: trans?.asJson.invoiceNumber || "",
+        rcp: trans?.asJson.rcp || "",
+        supplierId: trans?.asJson.supplierId || "",
+      };
+
+      if (!me?.property && !me?.year && !me?.month)
+        return FailedAction("NOT FOUND");
+      try {
+        await api.body.receiptPayments.create(
+          rs,
+          me.property,
+          me.year,
+          me.month
+        );
+      } catch (error) {
+        console.log(error);
+      } finally {
+        SuccessfulActionSupplierPayment(ui);
+      }
     }
   };
 

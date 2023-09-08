@@ -8,9 +8,9 @@ import {
   setDoc,
   where,
 } from "firebase/firestore";
-import AppApi from "../AppApi";
-import AppStore from "../../stores/AppStore";
-import { INEDBANK } from "../../models/banks/NEDBANK";
+import AppApi from "../../AppApi";
+import AppStore from "../../../stores/AppStore";
+import { INEDBANK } from "../../../models/banks/NEDBANK";
 
 export default class NEDBANKApi {
   collectionRef: CollectionReference;

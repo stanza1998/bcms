@@ -8,10 +8,10 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
-import AppApi from "../AppApi";
-import AppStore from "../../stores/AppStore";
-import { db } from "../../database/FirebaseConfig";
-import { IFNB } from "../../models/banks/FNBModel";
+import AppApi from "../../AppApi";
+import AppStore from "../../../stores/AppStore";
+import { db } from "../../../database/FirebaseConfig";
+import { IFNB } from "../../../models/banks/FNBModel";
 
 export default class FNBApi {
   constructor(private api: AppApi, private store: AppStore) {}

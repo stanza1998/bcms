@@ -41,7 +41,11 @@ const CustomerGrid = observer(({ data }: IProp) => {
       headerName: "Action",
       width: 0,
       renderCell: (params) => (
-        <CorporateCard key={params.id} body={params.row} />
+        <div>
+          {params.row.id === me?.property && (
+            <CorporateCard key={params.id} body={params.row} />
+          )}
+        </div>
       ),
     },
   ];

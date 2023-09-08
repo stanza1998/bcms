@@ -11,11 +11,11 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import AppApi from "../AppApi";
-import AppStore from "../../stores/AppStore";
-import { IBodyCop } from "../../models/bcms/BodyCorperate";
-import { db } from "../../database/FirebaseConfig";
-import { IFNB } from "../../models/banks/FNBModel";
+import AppApi from "../../AppApi";
+import AppStore from "../../../stores/AppStore";
+import { IBodyCop } from "../../../models/bcms/BodyCorperate";
+import { db } from "../../../database/FirebaseConfig";
+import { IFNB } from "../../../models/banks/FNBModel";
 
 export default class BodyCopApi {
   collectionRef: CollectionReference;

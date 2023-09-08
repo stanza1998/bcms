@@ -3,7 +3,6 @@ import {
   collection,
   deleteDoc,
   doc,
-  getDoc,
   getDocs,
   onSnapshot,
   query,
@@ -11,16 +10,16 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import AppApi from "../AppApi";
-import AppStore from "../../stores/AppStore";
-import { IFinancialMonth } from "../../models/monthModels/FinancialMonth";
-import { db } from "../../database/FirebaseConfig";
+import AppApi from "../../AppApi";
+import AppStore from "../../../stores/AppStore";
+import { IFinancialYear } from "../../../models/yearModels/FinancialYear";
+import { db } from "../../../database/FirebaseConfig";
 
-export default class FinancialMonthApi {
+export default class FinancialYearApi {
   constructor(private api: AppApi, private store: AppStore) {}
 
-  async getAll(pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months`;
+  async getAll(pid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear`;
 
     const $query = query(collection(db, myPath));
     // new promise
@@ -30,12 +29,12 @@ export default class FinancialMonthApi {
         $query,
         // onNext
         (querySnapshot) => {
-          const items: IFinancialMonth[] = [];
+          const items: IFinancialYear[] = [];
           querySnapshot.forEach((doc) => {
-            items.push({ month: doc.id, ...doc.data() } as IFinancialMonth);
+            items.push({ id: doc.id, ...doc.data() } as IFinancialYear);
           });
 
-          this.store.bodyCorperate.financialMonth.load(items);
+          this.store.bodyCorperate.financialYear.load(items);
           resolve(unsubscribe);
         },
         // onError
@@ -46,60 +45,53 @@ export default class FinancialMonthApi {
     });
   }
 
-  async getById(id: string, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months`;
+  async getById(id: string, pid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear`;
 
     const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
       if (!doc.exists) return;
-      const item = { id: doc.id, ...doc.data() } as IFinancialMonth;
+      const item = { id: doc.id, ...doc.data() } as IFinancialYear;
 
-      this.store.bodyCorperate.financialMonth.load([item]);
+      this.store.bodyCorperate.financialYear.load([item]);
     });
 
     return unsubscribe;
   }
 
-  async create(item: IFinancialMonth, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months/${item.month}`;
+  async create(item: IFinancialYear, pid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear`;
 
-    const itemRef = doc(db, myPath);
+    const itemRef = doc(collection(db, myPath));
+    item.id = itemRef.id;
 
+    // create in db
     try {
-      // Check if the document already exists
-      const docSnapshot = await getDoc(itemRef);
-
-      if (docSnapshot.exists()) {
-        // Document already exists, you can handle this case here if needed
-      } else {
-        // Document doesn't exist, create it
-        await setDoc(itemRef, item, {
-          merge: true,
-        });
-
-        // Create in store
-        this.store.bodyCorperate.financialMonth.load([item]);
-      }
+      await setDoc(itemRef, item, {
+        merge: true,
+      });
+      // create in store
+      this.store.bodyCorperate.financialYear.load([item]);
     } catch (error) {
-      console.error("Error creating document:", error);
+      // console.log(error);
     }
   }
 
-  async update(product: IFinancialMonth, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months`;
+  async update(product: IFinancialYear, pid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear`;
     try {
-      await updateDoc(doc(db, myPath, product.month), {
+      await updateDoc(doc(db, myPath, product.id), {
         ...product,
       });
 
-      this.store.bodyCorperate.financialMonth.load([product]);
+      this.store.bodyCorperate.financialYear.load([product]);
     } catch (error) {}
   }
 
-  async delete(id: string, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months`;
+  async delete(id: string, pid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear`;
     try {
       await deleteDoc(doc(db, myPath, id));
-      this.store.bodyCorperate.financialMonth.remove(id);
+      this.store.bodyCorperate.financialYear.remove(id);
     } catch (error) {
       console.log(error);
     }
@@ -107,7 +99,7 @@ export default class FinancialMonthApi {
 
   async setActiveStatus(documentId: string, active: boolean) {
     try {
-      const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear/oW6F7LmwBv862NurrPox/Months`;
+      const myPath = `BodyCoperate/4Q5WwF2rQFmoStdpmzaW/FinancialYear`;
 
       // Reference to the collection of documents
       const documentsCollectionRef = collection(db, myPath);

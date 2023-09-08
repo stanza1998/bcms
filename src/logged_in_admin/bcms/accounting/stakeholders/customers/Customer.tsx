@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Tab } from "../../../../../Tab";
 import { CopiedInvoices } from "../../invoices/customer-invoices/CopiedInvoices";
 import CustomerReceipts from "../../receiprs-payments/receipts-customers/CustomerReceipts";
+import CustomerCreditNotes from "../../customer-credit-notes/CustomerCreditNotes";
 
 export const Customer = () => {
   const [activeTab, setActiveTab] = useState("invoices");
@@ -14,7 +15,7 @@ export const Customer = () => {
     <div className="uk-section leave-analytics-page">
       <div className="uk-container uk-container-large">
         <div className="section-toolbar uk-margin">
-          <h4 className="section-heading uk-heading">Customer</h4>
+          <h4 className="section-heading uk-heading">Customers</h4>
           <div className="controls">
             <div className="uk-inline"></div>
           </div>
@@ -58,6 +59,7 @@ export const Customer = () => {
           <div className="tab-content">
             {activeTab === "invoices" && <CopiedInvoices />}
             {activeTab === "receipts" && <CustomerReceipts />}
+            {activeTab === "credit-notes" && <CustomerCreditNotes />}
           </div>
         </div>
       </div>

@@ -36,6 +36,11 @@ export const ExpenseTracking = observer(() => {
                 isActive={activeTab === "ned"}
                 onClick={() => handleTabClick("ned")}
               />
+              <Tab
+                label="Bank Windhoek"
+                isActive={activeTab === "whk"}
+                onClick={() => handleTabClick("whk")}
+              />
             </div>
             <div className="tab-content">
               {activeTab === "fnb" && <FNB />}

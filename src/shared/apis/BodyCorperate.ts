@@ -2,19 +2,20 @@ import { collection } from "firebase/firestore";
 import { db } from "../database/FirebaseConfig";
 import AppStore from "../stores/AppStore";
 import AppApi from "./AppApi";
-import BodyCopApi from "./bodyCorperate/BodyCopApi";
-import UnitApi from "./bodyCorperate/UnitApi";
-import FinancialYearApi from "./bodyCorperate/FinancialYearApi";
-import FinancialMonthApi from "./bodyCorperate/FinancialMonth";
-import InvoiceApi from "./bodyCorperate/InvoiceApi";
+import BodyCopApi from "./bodyCorperate/customers/BodyCopApi";
+import UnitApi from "./bodyCorperate/customers/UnitApi";
+import FinancialYearApi from "./bodyCorperate/periods/FinancialYearApi";
+import FinancialMonthApi from "./bodyCorperate/periods/FinancialMonth";
+import InvoiceApi from "./bodyCorperate/invoices/customer-inovices/InvoiceApi";
 import RecuringInvoiceApi from "./bodyCorperate/RecuringInvoice";
-import CopiedInvoiceApi from "./bodyCorperate/CopiedInvoiceApi";
-import FNBApi from "./bodyCorperate/FNBApi";
-import NEDBANKApi from "./bodyCorperate/NEDBANKApi";
+import CopiedInvoiceApi from "./bodyCorperate/invoices/customer-inovices/CopiedInvoiceApi";
+import FNBApi from "./bodyCorperate/banks/FNBApi";
+import NEDBANKApi from "./bodyCorperate/banks/NEDBANKApi";
 import TransferApi from "./bodyCorperate/type/TransferApi";
 import AccountApi from "./bodyCorperate/type/AccountApi";
 import SupplierApi from "./bodyCorperate/type/SupplierApi";
-import SupplierInvoiceApi from "./bodyCorperate/SupplierInvoices";
+import SupplierInvoiceApi from "./bodyCorperate/invoices/supplier-invoices/SupplierInvoices";
+import ReceiptPaymentsApi from "./bodyCorperate/receiptsPayments/ReceiptPaymentsApi";
 
 export default class BodyCorpetaApi {
   private BodyCoperateDB = collection(db, "BodyCoperate");
@@ -44,15 +45,15 @@ export default class BodyCorpetaApi {
   transfer: TransferApi;
   account: AccountApi;
   supplier: SupplierApi;
+  receiptPayments: ReceiptPaymentsApi;
 
   constructor(api: AppApi, store: AppStore) {
     this.body = new BodyCopApi(api, store, this.BodyCoperateDB);
-    // this.unit = new UnitApi(api, store);
     this.financialYear = new FinancialYearApi(api, store);
     this.financialMonth = new FinancialMonthApi(api, store);
     this.invoice = new InvoiceApi(api, store);
-
     this.fnb = new FNBApi(api, store);
+    this.receiptPayments = new ReceiptPaymentsApi(api, store);
     this.copiedInvoice = new CopiedInvoiceApi(api, store);
     this.nedbank = new NEDBANKApi(api, store, this.NEDBANKBB);
     this.transfer = new TransferApi(api, store, this.transferDB);

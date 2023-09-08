@@ -10,10 +10,10 @@ import {
   setDoc,
   updateDoc,
 } from "firebase/firestore";
-import AppApi from "../AppApi";
-import AppStore from "../../stores/AppStore";
-import { IInvoice } from "../../models/invoices/Invoices";
-import { db } from "../../database/FirebaseConfig";
+import AppApi from "../../../AppApi";
+import AppStore from "../../../../stores/AppStore";
+import { IInvoice } from "../../../../models/invoices/Invoices";
+import { db } from "../../../../database/FirebaseConfig";
 
 export default class InvoiceApi {
   constructor(private api: AppApi, private store: AppStore) {}

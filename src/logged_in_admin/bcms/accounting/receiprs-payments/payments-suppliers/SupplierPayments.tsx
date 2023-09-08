@@ -1,14 +1,14 @@
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { useAppContext } from "../../../../../shared/functions/Context";
-import ReceiptGrid from "./grid/ReceiptGrid";
 import { IReceiptsPayments } from "../../../../../shared/models/receipts-payments/ReceiptsPayments";
 import PrintIcon from "@mui/icons-material/Print";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ArticleIcon from "@mui/icons-material/Article";
 import { IconButton } from "@mui/material";
+import PaymentGrid from "./grid/PaymentGrid";
 
-const CustomerReceipts = observer(() => {
+const SupplierPayment = observer(() => {
   const { store, api } = useAppContext();
   const me = store.user.meJson;
   const [rcp, setRCP] = useState<Array<IReceiptsPayments>>([]);
@@ -18,7 +18,7 @@ const CustomerReceipts = observer(() => {
       if (me?.property && me?.year && me?.month) {
         await api.body.receiptPayments.getAll(me.property, me?.year, me?.month);
         const rcp = store.bodyCorperate.receiptsPayments.all
-          .filter((rcp) => rcp.asJson.transactionType === "Customer Receipt")
+          .filter((rcp) => rcp.asJson.transactionType === "Supplier Payment")
           .map((rcp) => {
             return rcp.asJson;
           });
@@ -41,9 +41,9 @@ const CustomerReceipts = observer(() => {
           <ArticleIcon />
         </IconButton>
       </div>
-      <ReceiptGrid data={rcp} />
+      <PaymentGrid data={rcp} />
     </div>
   );
 });
 
-export default CustomerReceipts;
+export default SupplierPayment;

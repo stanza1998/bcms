@@ -44,3 +44,18 @@ export const SuccessfulAction = (ui: any) => {
     type: "success",
   });
 };
+export const SuccessfulActionCustomerReceipt = (ui: any) => {
+  return ui.snackbar.load({
+    id: Date.now(),
+    message: "Cusomer Receipt Created",
+    type: "success",
+  });
+};
+
+export const SuccessfulActionSupplierPayment = (ui: any) => {
+  return ui.snackbar.load({
+    id: Date.now(),
+    message: "Supplier Payments",
+    type: "success",
+  });
+};

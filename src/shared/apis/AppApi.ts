@@ -5,9 +5,9 @@ import DepartmentApi from "./DepartmentApi";
 import UserApi from "./UserApi";
 import SystemSettingsApi from "./SystemSettingsApi";
 import BodyCorpetaApi from "./BodyCorperate";
-import InvoiceApi from "./bodyCorperate/InvoiceApi";
+import InvoiceApi from "./bodyCorperate/invoices/customer-inovices/InvoiceApi";
 import EmailApi from "./email-notifiction-function/EmailApi";
-import UnitApi from "./bodyCorperate/UnitApi";
+import UnitApi from "./bodyCorperate/customers/UnitApi";
 
 export const apiPathProperty = (
   category: "Units" | "FinancialYear"

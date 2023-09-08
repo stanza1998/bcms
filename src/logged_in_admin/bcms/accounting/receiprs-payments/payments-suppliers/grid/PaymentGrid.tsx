@@ -1,30 +1,16 @@
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import React from "react";
-import { CorporateCard } from "../../../../bodyCorperates/BodyCorporate/CorporateCard";
 import { Box } from "@mui/material";
 import { IReceiptsPayments } from "../../../../../../shared/models/receipts-payments/ReceiptsPayments";
 
-// interface Statement {
-//   date: string;
-//   reference: string;
-//   transactionType: string;
-//   description: string;
-//   debit: string;
-//   credit: string;
-//   balance: number;
-//   id: string;
-//   propertyId: string;
-//   unitId: string;
-//   invoiceNumber: string;
-//   rcp: string;
-// }
+
 
 interface IProp {
   data: IReceiptsPayments[];
 }
 
-const ReceiptGrid = observer(({ data }: IProp) => {
+const PaymentGrid = observer(({ data }: IProp) => {
   const columns: GridColDef[] = [
     { field: "date", headerName: "Date", width: 140 },
     { field: "rcp", headerName: "Doc No", width: 140 },
@@ -48,4 +34,4 @@ const ReceiptGrid = observer(({ data }: IProp) => {
   );
 });
 
-export default ReceiptGrid;
+export default PaymentGrid;

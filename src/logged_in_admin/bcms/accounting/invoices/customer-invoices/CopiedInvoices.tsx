@@ -2,6 +2,10 @@ import { observer } from "mobx-react-lite";
 import { useAppContext } from "../../../../../shared/functions/Context";
 import { useEffect } from "react";
 import InvoicesGrid from "./invoices-grid";
+import PrintIcon from "@mui/icons-material/Print";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import ArticleIcon from "@mui/icons-material/Article";
+import { IconButton } from "@mui/material";
 
 export const CopiedInvoices = observer(() => {
   const { store, api } = useAppContext();
@@ -34,6 +38,17 @@ export const CopiedInvoices = observer(() => {
 
   return (
     <div>
+      <div className="uk-margin">
+        <IconButton>
+          <PrintIcon />
+        </IconButton>
+        <IconButton>
+          <PictureAsPdfIcon />
+        </IconButton>
+        <IconButton>
+          <ArticleIcon />
+        </IconButton>
+      </div>
       <InvoicesGrid data={invoicesC} />
     </div>
   );
