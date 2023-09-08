@@ -3,6 +3,9 @@ import { Tab } from "../../../../../Tab";
 import { CopiedInvoices } from "../../invoices/customer-invoices/CopiedInvoices";
 import CustomerReceipts from "../../receiprs-payments/receipts-customers/CustomerReceipts";
 import CustomerCreditNotes from "../../customer-credit-notes/CustomerCreditNotes";
+import Toolbar2 from "../../../../shared/Toolbar2";
+import { IconButton } from "@mui/material";
+import FiberSmartRecordIcon from "@mui/icons-material/FiberSmartRecord";
 
 export const Customer = () => {
   const [activeTab, setActiveTab] = useState("invoices");

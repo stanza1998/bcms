@@ -20,6 +20,7 @@ const DIALOG_NAMES = {
     VIEW_SERVICE_DETAILS: "view-service-details",
     VIEW_RCURRING_INVOICE: "view-recurring-invoices",
     ALLOCATE_DIALOGS: "allocation-dialogs",
+    CREDIT_NOTE: "create-credit-note",
   },
 
   OWNER: {

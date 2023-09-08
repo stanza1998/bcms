@@ -31,13 +31,13 @@ const SupplierPayment = observer(() => {
   return (
     <div>
       <div className="uk-margin">
-        <IconButton>
+        <IconButton uk-tooltip="Print invoices">
           <PrintIcon />
         </IconButton>
-        <IconButton>
+        <IconButton uk-tooltip="Export to pdf">
           <PictureAsPdfIcon />
         </IconButton>
-        <IconButton>
+        <IconButton uk-tooltip="Export to csv">
           <ArticleIcon />
         </IconButton>
       </div>

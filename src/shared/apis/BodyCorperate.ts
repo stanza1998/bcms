@@ -16,19 +16,12 @@ import AccountApi from "./bodyCorperate/type/AccountApi";
 import SupplierApi from "./bodyCorperate/type/SupplierApi";
 import SupplierInvoiceApi from "./bodyCorperate/invoices/supplier-invoices/SupplierInvoices";
 import ReceiptPaymentsApi from "./bodyCorperate/receiptsPayments/ReceiptPaymentsApi";
+import CreditNoteApi from "./bodyCorperate/credit-notes-returns/CreditNoteApi";
 
 export default class BodyCorpetaApi {
   private BodyCoperateDB = collection(db, "BodyCoperate");
-
-  private FinacialYearDB = collection(db, "FinacialYear");
-  private FinacialMonthDB = collection(db, "FinacialMonth");
-  private InvoiceDB = collection(db, "Invoices");
   private RecuringInvoiceDB = collection(db, "RecuringInvoices");
-  private CopiedInvoiceDB = collection(db, "CopiedInvoices");
-  private SupplierInvoiceDB = collection(db, "SupplierInvoices");
-  private FNBDB = collection(db, "FnbStatements");
   private NEDBANKBB = collection(db, "NedBankStatements");
-  private supplierDB = collection(db, "Suppliers");
   private transferDB = collection(db, "Transfer");
   private accountDB = collection(db, "Account");
 
@@ -46,6 +39,7 @@ export default class BodyCorpetaApi {
   account: AccountApi;
   supplier: SupplierApi;
   receiptPayments: ReceiptPaymentsApi;
+  creditNote: CreditNoteApi;
 
   constructor(api: AppApi, store: AppStore) {
     this.body = new BodyCopApi(api, store, this.BodyCoperateDB);
@@ -60,6 +54,7 @@ export default class BodyCorpetaApi {
     this.account = new AccountApi(api, store, this.accountDB);
     this.supplier = new SupplierApi(api, store);
     this.supplierInvoice = new SupplierInvoiceApi(api, store);
+    this.creditNote = new CreditNoteApi(api, store);
 
     //   not needed
     this.recuringInvoice = new RecuringInvoiceApi(

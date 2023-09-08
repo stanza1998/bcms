@@ -6,6 +6,8 @@ import PrintIcon from "@mui/icons-material/Print";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ArticleIcon from "@mui/icons-material/Article";
 import { IconButton } from "@mui/material";
+import Toolbar2 from "../../../../shared/Toolbar2";
+import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 
 export const CopiedInvoices = observer(() => {
   const { store, api } = useAppContext();
@@ -38,17 +40,29 @@ export const CopiedInvoices = observer(() => {
 
   return (
     <div>
-      <div className="uk-margin">
-        <IconButton>
-          <PrintIcon />
-        </IconButton>
-        <IconButton>
-          <PictureAsPdfIcon />
-        </IconButton>
-        <IconButton>
-          <ArticleIcon />
-        </IconButton>
-      </div>
+      <Toolbar2
+        leftControls={
+          <div className="">
+            <IconButton uk-tooltip="Create Invoice">
+              <CreateNewFolderIcon />
+            </IconButton>
+          </div>
+        }
+        rightControls={
+          <div>
+            <IconButton uk-tooltip="Print invoices">
+              <PrintIcon />
+            </IconButton>
+            <IconButton uk-tooltip="Export to pdf">
+              <PictureAsPdfIcon />
+            </IconButton>
+            <IconButton uk-tooltip="Export to csv">
+              <ArticleIcon />
+            </IconButton>
+          </div>
+        }
+      />
+
       <InvoicesGrid data={invoicesC} />
     </div>
   );

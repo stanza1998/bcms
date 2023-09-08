@@ -1,6 +1,7 @@
 import AppStore from "../AppStore";
 import FNBStore from "../individualStore/banks/FNBStore";
 import NEDBANKStore from "../individualStore/banks/NEDBANKStore";
+import CreditNoteStore from "../individualStore/credit-notes-returns/CreditNotesStore";
 import CopiedInvoiceStore from "../individualStore/invoice/CopiedInvoiceStore";
 import InvoiceStore from "../individualStore/invoice/InvoiceStore";
 import RecuringInvoiceStore from "../individualStore/invoice/RecuringInvoice";
@@ -29,6 +30,7 @@ export default class BodyCorporateStore {
   account: AccountStore;
   supplierInvoice: SupplierInvoiceStore;
   receiptsPayments: ReceiptsPaymentStore;
+  creditNote: CreditNoteStore;
 
   constructor(store: AppStore) {
     this.bodyCop = new BodyCopStore(store);
@@ -45,5 +47,6 @@ export default class BodyCorporateStore {
     this.account = new AccountStore(store);
     this.supplierInvoice = new SupplierInvoiceStore(store);
     this.receiptsPayments = new ReceiptsPaymentStore(store);
+    this.creditNote = new CreditNoteStore(store);
   }
 }

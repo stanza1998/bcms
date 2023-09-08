@@ -283,7 +283,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
         transactionType: "Supplier Payment",
         description: trans?.asJson.description || "",
         debit: "",
-        credit: trans?.asJson.amount.toFixed(2) || "",
+        credit: Math.abs(trans?.asJson.amount || 0).toFixed(2) || "",
         balance: trans?.asJson.balance.toFixed(2) || "",
         propertyId: trans?.asJson.propertyId || "",
         unitId: trans?.asJson.unitId || "",
