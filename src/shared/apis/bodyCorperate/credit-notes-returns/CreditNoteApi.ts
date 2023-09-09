@@ -80,33 +80,26 @@ export default class CreditNoteApi {
     mid: string,
     unitId: string
   ) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months/${mid}/CreditNotes`;
-    const itemRef = doc(collection(db, myPath));
-    item.id = itemRef.id;
-
-    // create in db
     try {
-      await setDoc(itemRef, item, {
-        merge: true,
-      });
+      const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months/${mid}/CreditNotes`;
+      const itemRef = doc(collection(db, myPath));
+      item.id = itemRef.id;
+
+      // Create in db
+      await setDoc(itemRef, item, { merge: true });
 
       // Retrieve unit document
       const unitDocRef = doc(db, `BodyCoperate/${pid}/Units/${unitId}`);
       const unitDocSnap = await getDoc(unitDocRef);
-      const unitData = unitDocSnap.data();
 
-      if (unitData) {
-        // Assuming unitBalance and creditBalance are properties in the unit document
+      if (unitDocSnap.exists()) {
+        const unitData = unitDocSnap.data();
         const newUnitBalance = unitData.balance - item.balance;
 
         // Update unit document with new unit balance
-        await setDoc(
-          unitDocRef,
-          { unitBalance: newUnitBalance },
-          { merge: true }
-        );
+        await setDoc(unitDocRef, { balance: newUnitBalance }, { merge: true });
 
-        // create in store
+        // Create in store
         this.store.bodyCorperate.creditNote.load([item]);
       } else {
         // Handle case where unit document is not found

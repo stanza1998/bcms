@@ -18,6 +18,7 @@ export class UserModel implements IUser {
   property: string;
   year: string;
   month: string;
+  bankAccountInUse: string;
 
   constructor(private store: AppStore, user: IUser) {
     makeAutoObservable(this);
@@ -36,6 +37,7 @@ export class UserModel implements IUser {
     this.property = user.property;
     this.year = user.year;
     this.month = user.month;
+    this.bankAccountInUse = user.bankAccountInUse;
   }
   supervisor: string;
 
@@ -56,6 +58,7 @@ export class UserModel implements IUser {
       property: this.property,
       year: this.year,
       month: this.month,
+      bankAccountInUse: this.bankAccountInUse,
     };
   }
 }

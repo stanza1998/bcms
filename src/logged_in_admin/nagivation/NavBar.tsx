@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useAppContext } from "../../shared/functions/Context";
-import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../shared/database/FirebaseConfig";
-import showModalFromId from "../../shared/functions/ModalShow";
+import showModalFromId, {
+  hideModalFromId,
+} from "../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../dialogs/Dialogs";
 import Modal from "../../shared/components/Modal";
-import ArrowDropDownCircleIcon from "@mui/icons-material/ArrowDropDownCircle";
+import AddIcon from "@mui/icons-material/Add";
 import { IconButton } from "@mui/material";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import UpdateIcon from "@mui/icons-material/Update";
 import { observer } from "mobx-react-lite";
 import { FailedAction, SuccessfulAction } from "../../shared/models/Snackbar";
+import { IPropertyBankAccount } from "../../shared/models/property-bank-account/PropertyBankAccount";
 
 const NavBar = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -20,6 +22,7 @@ const NavBar = observer(() => {
   const [propertyId, setPropertyId] = useState<string>("");
   const [yearId, setYearId] = useState<string>("");
   const [monthId, setMonthId] = useState<string>("");
+  const [accountId, setAccount] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const letter1 = me?.firstName.charAt(0);
   const letter2 = me?.lastName.charAt(0);
@@ -46,6 +49,7 @@ const NavBar = observer(() => {
     const getData = async () => {
       if (me?.property) {
         await api.body.body.getAll();
+        await api.body.propertyBankAccount.getAll(me.property);
         await api.body.financialYear.getAll(me?.property);
         if ((me?.property, me?.year))
           await api.body.financialMonth.getAll(me.property, me.year);
@@ -58,6 +62,7 @@ const NavBar = observer(() => {
     api.body.body,
     api.body.financialMonth,
     api.body.financialYear,
+    api.body.propertyBankAccount,
     me?.property,
     me?.year,
   ]);
@@ -67,15 +72,53 @@ const NavBar = observer(() => {
   const months = store.bodyCorperate.financialMonth.all.map((m) => {
     return m.asJson;
   });
+  const bank_accounts = store.bodyCorperate.propetyBankAccount.all.map((m) => {
+    return m.asJson;
+  });
 
   const onUpdateProperty = () => {
-    showModalFromId(DIALOG_NAMES.TEAM.USER_DIALOG);
+    showModalFromId(DIALOG_NAMES.BODY.PROPERTY_ACCOUNT);
   };
   const onUpdateYear = () => {
     showModalFromId(DIALOG_NAMES.BODY.FINANCIAL_YEAR);
   };
   const onUpdateMonth = () => {
     showModalFromId(DIALOG_NAMES.BODY.FINANCIAL_MONTH);
+  };
+  const onUpdateAccoount = () => {
+    showModalFromId(DIALOG_NAMES.BODY.BANK_ACCOUNT_UPDATE);
+  };
+
+  //create back account
+  const [accountName, setAccountName] = useState<string>("");
+
+  const createAccount = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const account: IPropertyBankAccount = {
+      id: "",
+      name: accountName,
+      totalBalance: 0,
+    };
+
+    try {
+      if (me?.property) {
+        await api.body.propertyBankAccount.create(account, me.property);
+      } else {
+        throw new Error("Property information missing.");
+      }
+      SuccessfulAction(ui);
+      hideModalFromId(DIALOG_NAMES.BODY.BANK_ACCOUNT);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onCreateAccount = () => {
+    showModalFromId(DIALOG_NAMES.BODY.BANK_ACCOUNT);
   };
 
   return (
@@ -99,38 +142,76 @@ const NavBar = observer(() => {
                   color: "white",
                   fontWeight: "500",
                   margin: "10px",
-                  fontSize: "14px",
+                  fontSize: "12px",
                 }}
               >
-                <span>
+                <span
+                  onClick={onUpdateProperty}
+                  style={{ cursor: "pointer" }}
+                  className="uk-margin-right"
+                >
                   {properties
                     .filter((p) => p.asJson.id === me?.property)
                     .map((p) => {
                       return p.asJson.BodyCopName;
                     })}
-                  <IconButton onClick={onUpdateProperty}>
-                    <ArrowDropDownIcon style={{ color: "white" }} />
-                  </IconButton>
                 </span>
-                <span>
+                <span
+                  onClick={onUpdateYear}
+                  style={{ cursor: "pointer" }}
+                  className="uk-margin"
+                >
                   {years
                     .filter((p) => p.asJson.id === me?.year)
                     .map((p) => {
-                      return p.asJson.year;
+                      return p.asJson.year + "-";
                     })}
-                  <IconButton onClick={onUpdateYear}>
-                    <ArrowDropDownIcon style={{ color: "white" }} />
-                  </IconButton>
                 </span>
-                <span>
+                <span
+                  onClick={onUpdateMonth}
+                  style={{ cursor: "pointer" }}
+                  className="uk-margin-right"
+                >
                   {months
                     .filter((p) => p.month === me?.month)
                     .map((p) => {
                       return p.month.slice(-2);
                     })}
-                  <IconButton onClick={onUpdateMonth}>
-                    <ArrowDropDownIcon style={{ color: "white" }} />
-                  </IconButton>
+                </span>
+              </h6>
+            </li>
+          </ul>
+        </div>
+        <div className="navbar-right uk-navbar-center">
+          <ul className="uk-navbar-nav">
+            <li className="uk-inline" style={{ color: "white" }}>
+              <h6
+                style={{
+                  color: "white",
+                  fontWeight: "500",
+                  margin: "14px",
+                  fontSize: "12px",
+                }}
+              >
+                <span style={{ cursor: "pointer" }} onClick={onUpdateAccoount}>
+                  <IconButton onClick={onCreateAccount}>
+                    <AddIcon style={{ color: "white", fontSize: "11px" }} />
+                  </IconButton>{" "}
+                  Bank Account Name:{" "}
+                  {bank_accounts
+                    .filter((p) => p.id === me?.bankAccountInUse)
+                    .map((p) => {
+                      return p.name;
+                    })}
+                </span>
+
+                <span className="uk-margin-left">
+                  Balance:{" NAD "}
+                  {bank_accounts
+                    .filter((p) => p.id === me?.bankAccountInUse)
+                    .map((p) => {
+                      return p.totalBalance.toFixed(2);
+                    })}
                 </span>
               </h6>
             </li>
@@ -183,7 +264,7 @@ const NavBar = observer(() => {
           </ul>
         </div>
       </nav>
-      <Modal modalId={DIALOG_NAMES.TEAM.USER_DIALOG}>
+      <Modal modalId={DIALOG_NAMES.BODY.PROPERTY_ACCOUNT}>
         <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical staff-dialog">
           <button
             className="uk-modal-close-default"
@@ -259,6 +340,60 @@ const NavBar = observer(() => {
               <UpdateIcon />
             </IconButton>
           )}
+        </div>
+      </Modal>
+      <Modal modalId={DIALOG_NAMES.BODY.BANK_ACCOUNT_UPDATE}>
+        <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical staff-dialog">
+          <button
+            className="uk-modal-close-default"
+            type="button"
+            data-uk-close
+          ></button>
+          {loading && <p>loading....</p>}
+          <h5 className="uk-modal-title">Switch Acconts</h5>
+          <select
+            className="uk-input"
+            onChange={(e) => setAccount(e.target.value)}
+          >
+            <option value="">Select Account</option>
+            {bank_accounts.map((p) => (
+              <option value={p.id}>{p.name}</option>
+            ))}
+          </select>
+          <br />
+          {accountId !== "" && (
+            <IconButton
+              onClick={() => updateDocument("bankAccountInUse", accountId)}
+            >
+              <UpdateIcon />
+            </IconButton>
+          )}
+        </div>
+      </Modal>
+      <Modal modalId={DIALOG_NAMES.BODY.BANK_ACCOUNT}>
+        <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical staff-dialog">
+          <button
+            className="uk-modal-close-default"
+            type="button"
+            data-uk-close
+          ></button>
+          <h4 className="uk-modal-title">Create New Account</h4>
+          <form onSubmit={createAccount}>
+            <div>
+              <label>Account Name</label>
+              <br />
+              <br />
+              <input
+                value={accountName}
+                onChange={(e) => setAccountName(e.target.value)}
+                className="uk-input"
+                placeholder="Account Name"
+              />
+            </div>
+            <IconButton type="submit">
+              <UpdateIcon />
+            </IconButton>
+          </form>
         </div>
       </Modal>
     </div>

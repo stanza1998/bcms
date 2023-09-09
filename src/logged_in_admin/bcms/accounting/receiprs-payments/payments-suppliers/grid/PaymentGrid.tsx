@@ -4,8 +4,6 @@ import React from "react";
 import { Box } from "@mui/material";
 import { IReceiptsPayments } from "../../../../../../shared/models/receipts-payments/ReceiptsPayments";
 
-
-
 interface IProp {
   data: IReceiptsPayments[];
 }
@@ -18,7 +16,12 @@ const PaymentGrid = observer(({ data }: IProp) => {
     { field: "transactionType", headerName: "Transaction Type", width: 140 },
     { field: "description", headerName: "Description", width: 140 },
     { field: "debit", headerName: "Debit", width: 140 },
-    { field: "credit", headerName: "Credit", width: 140 },
+    {
+      field: "credit",
+      headerName: "Credit",
+      width: 140,
+      valueFormatter: (params) => `NAD ${parseInt(params.value).toFixed(2)}`,
+    },
     { field: "balance", headerName: "Balance", width: 0 },
   ];
 

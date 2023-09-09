@@ -20,6 +20,7 @@ import {
   setDoc,
   updateDoc,
   runTransaction,
+  Transaction,
 } from "firebase/firestore";
 import { db } from "../../../../../shared/database/FirebaseConfig";
 import { FailedAction } from "../../../../../shared/models/Snackbar";
@@ -175,80 +176,156 @@ export const ViewUnit = observer(() => {
   };
 
   const duplicated = async () => {
-    if (!me?.property && !me?.year) return;
-    const copiedInvoicePath = `/BodyCoperate/${me.property}/FinancialYear/${me.year}`;
+    setLoadingF(true);
+    try {
+      if (!me?.property || !me?.year) {
+        throw new Error("Invalid 'property' or 'year' value for duplication.");
+      }
 
-    const unitPath = `/BodyCoperate/${me.property}/Units`;
+      const copiedInvoicePath = `/BodyCoperate/${me.property}/FinancialYear/${me.year}`;
+      const unitPath = `/BodyCoperate/${me.property}/Units`;
 
-    if (masterInvoices.length > 0) {
-      try {
-        setLoadingF(true);
-        const copiedInvoicesCollection = collection(
-          db,
-          copiedInvoicePath,
-          "CopiedInvoices"
-        );
+      if (masterInvoices.length === 0) {
+        throw new Error("No master invoices to duplicate.");
+      }
 
-        // Firestore transaction to update unit balances
-        const updateUnitBalancesTransaction = async (transaction: any) => {
-          const unitCollectionRef = collection(db, unitPath);
-          const updates = []; // Array to store update operations
+      const copiedInvoicesCollection = collection(
+        db,
+        copiedInvoicePath,
+        "CopiedInvoices"
+      );
 
-          for (const masterInvoice of masterInvoices) {
-            const { unitId, totalDue } = masterInvoice;
+      const updateUnitBalancesTransaction = async (
+        transaction: Transaction
+      ) => {
+        const unitCollectionRef = collection(db, unitPath);
+        const updates = [];
 
-            // Get the unit document reference
-            const unitDocRef = doc(unitCollectionRef, unitId);
-
-            // Retrieve the unit document data
-            const unitDoc = await transaction.get(unitDocRef);
-
-            // Calculate the new balance by adding totalDue
-            const newBalance = unitDoc.data().balance + totalDue;
-
-            // Prepare the update operation and store it in the updates array
-            updates.push({
-              ref: unitDocRef,
-              data: { balance: newBalance },
-            });
-          }
-          // Perform all the update operations outside the loop
-          for (const update of updates) {
-            transaction.update(update.ref, update.data);
-          }
-        };
-        // Run the transaction
-        await runTransaction(db, updateUnitBalancesTransaction);
         for (const masterInvoice of masterInvoices) {
-          try {
-            const copiedInvoice = { ...masterInvoice };
-            copiedInvoice.invoiceNumber = generateInvoiceNumber();
-            copiedInvoice.dueDate = newDate;
-            copiedInvoice.references = ref;
-            copiedInvoice.dateIssued = newDateIssued;
-            const newInvoiceRef = doc(copiedInvoicesCollection);
-            await setDoc(newInvoiceRef, copiedInvoice);
-            const generatedDocId = newInvoiceRef.id;
-            copiedInvoice.invoiceId = generatedDocId;
-            await updateDoc(newInvoiceRef, { invoiceId: generatedDocId });
-            console.log("Invoice duplicated and saved:", copiedInvoice);
-          } catch (error) {
-            console.log("Error duplicating invoice:", error);
-            FailedAction(ui);
+          const { unitId, totalDue } = masterInvoice;
+          const unitDocRef = doc(unitCollectionRef, unitId);
+          const unitDoc = await transaction.get(unitDocRef);
+
+          if (unitDoc.exists()) {
+            // Check if the document exists
+            const currentBalance = unitDoc.data().balance || 0; // Use default value if balance is undefined
+            const newBalance = currentBalance + totalDue;
+
+            updates.push({ ref: unitDocRef, data: { balance: newBalance } });
+          } else {
+            console.error(`Unit document ${unitId} does not exist.`);
           }
         }
-        setLoadingF(false);
-      } catch (error) {
-        console.log(error);
+
+        for (const update of updates) {
+          transaction.update(update.ref, update.data);
+        }
+      };
+
+      await runTransaction(db, updateUnitBalancesTransaction);
+
+      for (const masterInvoice of masterInvoices) {
+        const copiedInvoice = { ...masterInvoice };
+        copiedInvoice.invoiceNumber = generateInvoiceNumber();
+        copiedInvoice.dueDate = newDate;
+        copiedInvoice.references = ref;
+        copiedInvoice.dateIssued = newDateIssued;
+
+        const newInvoiceRef = doc(copiedInvoicesCollection);
+        await setDoc(newInvoiceRef, copiedInvoice);
+        const generatedDocId = newInvoiceRef.id;
+        copiedInvoice.invoiceId = generatedDocId;
+        await updateDoc(newInvoiceRef, { invoiceId: generatedDocId });
+
+        console.log("Invoice duplicated and saved:", copiedInvoice);
       }
-    } else {
-      alert("No master invoices");
+
+      hideModalFromId(DIALOG_NAMES.BODY.VIEW_INVOICE);
+      navigate("/c/body/body-corperate");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error duplicating invoice:", error);
+      FailedAction(ui);
+    } finally {
+      setLoadingF(false);
     }
-    setLoadingF(false);
-    hideModalFromId(DIALOG_NAMES.BODY.VIEW_INVOICE);
-    navigate("/c/body/body-corperate");
-    window.location.reload();
   };
+
+  // const duplicated = async () => {
+  //   if (!me?.property && !me?.year) return;
+  //   const copiedInvoicePath = `/BodyCoperate/${me.property}/FinancialYear/${me.year}`;
+
+  //   const unitPath = `/BodyCoperate/${me.property}/Units`;
+
+  //   if (masterInvoices.length > 0) {
+  //     try {
+  //       setLoadingF(true);
+  //       const copiedInvoicesCollection = collection(
+  //         db,
+  //         copiedInvoicePath,
+  //         "CopiedInvoices"
+  //       );
+
+  //       // Firestore transaction to update unit balances
+  //       const updateUnitBalancesTransaction = async (transaction: any) => {
+  //         const unitCollectionRef = collection(db, unitPath);
+  //         const updates = []; // Array to store update operations
+
+  //         for (const masterInvoice of masterInvoices) {
+  //           const { unitId, totalDue } = masterInvoice;
+
+  //           // Get the unit document reference
+  //           const unitDocRef = doc(unitCollectionRef, unitId);
+
+  //           // Retrieve the unit document data
+  //           const unitDoc = await transaction.get(unitDocRef);
+
+  //           // Calculate the new balance by adding totalDue
+  //           const newBalance = unitDoc.data().balance + totalDue;
+
+  //           // Prepare the update operation and store it in the updates array
+  //           updates.push({
+  //             ref: unitDocRef,
+  //             data: { balance: newBalance },
+  //           });
+  //         }
+  //         // Perform all the update operations outside the loop
+  //         for (const update of updates) {
+  //           transaction.update(update.ref, update.data);
+  //         }
+  //       };
+  //       // Run the transaction
+  //       await runTransaction(db, updateUnitBalancesTransaction);
+  //       for (const masterInvoice of masterInvoices) {
+  //         try {
+  //           const copiedInvoice = { ...masterInvoice };
+  //           copiedInvoice.invoiceNumber = generateInvoiceNumber();
+  //           copiedInvoice.dueDate = newDate;
+  //           copiedInvoice.references = ref;
+  //           copiedInvoice.dateIssued = newDateIssued;
+  //           const newInvoiceRef = doc(copiedInvoicesCollection);
+  //           await setDoc(newInvoiceRef, copiedInvoice);
+  //           const generatedDocId = newInvoiceRef.id;
+  //           copiedInvoice.invoiceId = generatedDocId;
+  //           await updateDoc(newInvoiceRef, { invoiceId: generatedDocId });
+  //           console.log("Invoice duplicated and saved:", copiedInvoice);
+  //         } catch (error) {
+  //           console.log("Error duplicating invoice:", error);
+  //           FailedAction(ui);
+  //         }
+  //       }
+  //       setLoadingF(false);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   } else {
+  //     alert("No master invoices");
+  //   }
+  //   setLoadingF(false);
+  //   hideModalFromId(DIALOG_NAMES.BODY.VIEW_INVOICE);
+  //   navigate("/c/body/body-corperate");
+  //   window.location.reload();
+  // };
 
   setTimeout(() => {
     setLoadingS(false);

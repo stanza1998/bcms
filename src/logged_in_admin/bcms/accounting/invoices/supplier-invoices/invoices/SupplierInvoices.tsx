@@ -1,41 +1,42 @@
-import { observer } from "mobx-react-lite";
-import React, { useEffect, useState } from "react";
-import { useAppContext } from "../../../../../shared/functions/Context";
-import { IReceiptsPayments } from "../../../../../shared/models/receipts-payments/ReceiptsPayments";
 import PrintIcon from "@mui/icons-material/Print";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ArticleIcon from "@mui/icons-material/Article";
 import { IconButton } from "@mui/material";
-import PaymentGrid from "./grid/PaymentGrid";
-import Toolbar2 from "../../../../shared/Toolbar2";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
+import { observer } from "mobx-react-lite";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../../../../../../shared/functions/Context";
+import Toolbar2 from "../../../../../shared/Toolbar2";
+import SupplierInvoicesGrid from "./SupplierGrid";
 
-const SupplierPayment = observer(() => {
+export const SupplierInvoices = observer(() => {
   const { store, api } = useAppContext();
+  const navigate = useNavigate();
   const me = store.user.meJson;
-  const [rcp, setRCP] = useState<Array<IReceiptsPayments>>([]);
 
   useEffect(() => {
     const getData = async () => {
-      if (me?.property && me?.year && me?.month) {
-        await api.body.receiptPayments.getAll(me.property, me?.year, me?.month);
-        const rcp = store.bodyCorperate.receiptsPayments.all
-          .filter((rcp) => rcp.asJson.transactionType === "Supplier Payment")
-          .map((rcp) => {
-            return rcp.asJson;
-          });
-        setRCP(rcp);
-      }
+      if ((me?.property, me?.year))
+        await api.body.supplierInvoice.getAll(me.property, me.year);
     };
     getData();
-  }, []);
+  }, [api.body.supplierInvoice, me?.property, me?.year]);
+
+  const create = () => {
+    navigate("/c/accounting/supplier-invoices/create");
+  };
+
+  const invoices = store.bodyCorperate.supplierInvoice.all.map((inv) => {
+    return inv.asJson;
+  });
 
   return (
-    <div>
+    <div className="uk-section leave-analytics-page">
       <Toolbar2
         leftControls={
           <div className="">
-            <IconButton uk-tooltip="Create Invoice">
+            <IconButton uk-tooltip="Create Invoice" onClick={create}>
               <CreateNewFolderIcon />
             </IconButton>
           </div>
@@ -54,9 +55,7 @@ const SupplierPayment = observer(() => {
           </div>
         }
       />
-      <PaymentGrid data={rcp} />
+      <SupplierInvoicesGrid data={invoices} />
     </div>
   );
 });
-
-export default SupplierPayment;

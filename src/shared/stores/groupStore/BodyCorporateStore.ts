@@ -9,6 +9,7 @@ import SupplierInvoiceStore from "../individualStore/invoice/SupplierInvoiceStor
 import FinancialMonthStore from "../individualStore/months/FinancialMonth";
 import BodyCopStore from "../individualStore/properties/BodyCopStore";
 import UnitStore from "../individualStore/properties/UnitStore";
+import PropertyBankAccountStore from "../individualStore/property-bank-account/PropertyBankAccountStore";
 import ReceiptsPaymentStore from "../individualStore/receipts-payments/ReceiptsPaymentStore";
 import AccountStore from "../individualStore/type/AccountStore";
 import SupplierStore from "../individualStore/type/SupplierStore";
@@ -31,6 +32,7 @@ export default class BodyCorporateStore {
   supplierInvoice: SupplierInvoiceStore;
   receiptsPayments: ReceiptsPaymentStore;
   creditNote: CreditNoteStore;
+  propetyBankAccount: PropertyBankAccountStore;
 
   constructor(store: AppStore) {
     this.bodyCop = new BodyCopStore(store);
@@ -48,5 +50,6 @@ export default class BodyCorporateStore {
     this.supplierInvoice = new SupplierInvoiceStore(store);
     this.receiptsPayments = new ReceiptsPaymentStore(store);
     this.creditNote = new CreditNoteStore(store);
+    this.propetyBankAccount = new PropertyBankAccountStore(store);
   }
 }

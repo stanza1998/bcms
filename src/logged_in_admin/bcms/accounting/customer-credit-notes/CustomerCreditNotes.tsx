@@ -8,13 +8,17 @@ import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import { observer } from "mobx-react-lite";
 import Modal from "../../../../shared/components/Modal";
 import { useAppContext } from "../../../../shared/functions/Context";
-import showModalFromId from "../../../../shared/functions/ModalShow";
+import showModalFromId, {
+  hideModalFromId,
+} from "../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../../dialogs/Dialogs";
 import { ICreditNote } from "../../../../shared/models/credit-notes-returns/CreditNotesReturns";
 import SaveIcon from "@mui/icons-material/Save";
+import { SuccessfulAction } from "../../../../shared/models/Snackbar";
+import CreditNoteGrid from "./grid/CreditNoteGrid";
 
 const CustomerCreditNotes = observer(() => {
-  const { store, api } = useAppContext();
+  const { store, api, ui } = useAppContext();
   const me = store.user.meJson;
   const [unitId, setUnitId] = useState<string>("");
   const [balance, setBalance] = useState<number>(0);
@@ -23,18 +27,22 @@ const CustomerCreditNotes = observer(() => {
   const [loading, setLoading] = useState(false);
 
   const createCreditNote = async (e: any) => {
-    e.preventDefault();
-    setLoading(true);
-    const creditNote: ICreditNote = {
-      id: "",
-      unitId: unitId,
-      balance: balance,
-      invoiceNumber: invoiceNumber,
-      customerReference: customerRef,
-    };
-    if (!me?.property && !me?.year && !me?.month) return;
-
     try {
+      e.preventDefault();
+      setLoading(true);
+
+      if (!me?.property || !me?.year || !me?.month) {
+        throw new Error("Property, year, or month is missing.");
+      }
+
+      const creditNote: ICreditNote = {
+        id: "",
+        unitId: unitId,
+        balance: balance,
+        invoiceNumber: invoiceNumber,
+        customerReference: customerRef,
+      };
+
       await api.body.creditNote.create(
         creditNote,
         me.property,
@@ -42,18 +50,15 @@ const CustomerCreditNotes = observer(() => {
         me.month,
         unitId
       );
+
+      hideModalFromId(DIALOG_NAMES.BODY.CREDIT_NOTE);
+      SuccessfulAction(ui);
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      // Handle the error as needed (e.g., display a user-friendly message)
+    } finally {
+      setLoading(false);
     }
-    if (me?.property && me?.year && me?.month)
-      await api.body.creditNote.create(
-        creditNote,
-        me.property,
-        me.year,
-        me.month,
-        unitId
-      );
-    setLoading(false);
   };
 
   const onCreate = () => {
@@ -65,9 +70,15 @@ const CustomerCreditNotes = observer(() => {
       if (me?.property) await api.unit.getAll(me?.property);
       if (me?.property && me?.year)
         await api.body.copiedInvoice.getAll(me.property, me.year);
+      if (me?.property && me?.year)
+        await api.body.creditNote.getAll(me.property, me.year, me.month);
     };
     getData();
   }, []);
+
+  const units = store.bodyCorperate.unit.all.map((u) => {
+    return u.asJson;
+  });
 
   return (
     <div>
@@ -95,6 +106,12 @@ const CustomerCreditNotes = observer(() => {
             </IconButton>
           </div>
         }
+      />
+      <CreditNoteGrid
+        data={store.bodyCorperate.creditNote.all.map((u) => {
+          return u.asJson;
+        })}
+        units={units}
       />
 
       <Modal modalId={DIALOG_NAMES.BODY.CREDIT_NOTE}>
@@ -146,7 +163,7 @@ const CustomerCreditNotes = observer(() => {
                 {store.bodyCorperate.copiedInvoices.all
                   .filter((inv) => inv.asJson.unitId === unitId)
                   .map((inv) => (
-                    <option value={invoiceNumber}>
+                    <option value={inv.asJson.invoiceNumber}>
                       Invoice Number: {inv.asJson.invoiceNumber} | Total Paid
                       {": "}
                       N$ {inv.asJson.totalPaid.toFixed(2)} | Total Due: N${" "}
@@ -166,7 +183,11 @@ const CustomerCreditNotes = observer(() => {
               />
             </div>
 
-            <IconButton type="submit" uk-tooltip="Export to csv">
+            <IconButton
+              disabled={loading}
+              type="submit"
+              uk-tooltip="Export to csv"
+            >
               <SaveIcon />
             </IconButton>
             {loading && <>loading...</>}

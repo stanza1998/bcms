@@ -21,6 +21,10 @@ const DIALOG_NAMES = {
     VIEW_RCURRING_INVOICE: "view-recurring-invoices",
     ALLOCATE_DIALOGS: "allocation-dialogs",
     CREDIT_NOTE: "create-credit-note",
+    BANK_ACCOUNT: "bank-account",
+    BANK_ACCOUNT_UPDATE: "bank-account-update",
+    PROPERTY_ACCOUNT: "property-account",
+    CREATE_RECEIPT:"create-receipt"
   },
 
   OWNER: {

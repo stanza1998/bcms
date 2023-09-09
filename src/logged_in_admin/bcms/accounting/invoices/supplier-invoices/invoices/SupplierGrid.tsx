@@ -163,12 +163,12 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
 
   return (
     <>
-      <Box sx={{ height: 450 }} className="invoices-grid">
+      <Box sx={{ height: 350 }} className="invoices-grid">
         <DataGrid
           rows={data}
           columns={columns}
           getRowId={(row) => row.invoiceId} // Use the appropriate identifier property
-          rowHeight={50}
+          rowHeight={40}
         />
       </Box>
       <Modal modalId={DIALOG_NAMES.BODY.VIEW_INVOICE}>

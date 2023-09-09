@@ -99,9 +99,6 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
   };
 
   const [isAllocating, setIsAllocating] = useState(false);
-  const [receiptsPayments, setReceiptsPayments] = useState<IReceiptsPayments>({
-    ...defaultReceiptsPayments,
-  });
 
   const updateStatement = async (
     id: string,
@@ -131,7 +128,6 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       }
 
       const unitPath = `/BodyCoperate/${me?.property}/`;
-
       const unitRef = doc(collection(db, unitPath, "Units"), unitId);
       const unitSnaphot = await getDoc(unitRef);
       if (unitSnaphot.exists()) {
@@ -142,7 +138,6 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       }
 
       const transactionsPath = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
-      // Reference to the "Transactions" subcollection under the specific year document
       const transactionsCollectionRef = doc(
         collection(db, transactionsPath, "FNBTransactions"),
         transactionId
@@ -162,7 +157,6 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
         FailedAction(ui);
       }
     } catch (error) {
-      console.log("🚀 ~error:", error);
       FailedAction(ui);
     } finally {
       const trans = store.bodyCorperate.fnb.getById(transactionId);
@@ -196,6 +190,30 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       } finally {
         SuccessfulActionCustomerReceipt(ui);
       }
+      try {
+        const myPath = `BodyCoperate/${me?.property}`;
+        const accountRef = doc(
+          collection(db, myPath, "BankAccount"),
+          "SqJqFv8O6bS7YUWJLHeg"
+        );
+        const userSnapshot = await getDoc(accountRef);
+
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data();
+          const currentBalance = userData.totalBalance || 0;
+          const newBalance = currentBalance + amount;
+
+          await updateDoc(accountRef, {
+            totalBalance: newBalance, // Assuming your balance field is called totalBalance
+          });
+
+          console.log("Balance updated successfully");
+        } else {
+          console.log("Document not found");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
 
       setIsAllocating(false);
       setUnit("");
@@ -204,7 +222,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
     }
   };
 
-  const updateAccount = async (id: string) => {
+  const updateAccount = async (id: string, amount: number) => {
     if (accountId === "") {
       FailedAction(ui);
       setAccountId("");
@@ -212,7 +230,6 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       setSupplierId("");
       return;
     } else {
-      // Specify a valid document ID for bodyCoperateDocRef
       const myPath1 = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
       const transactionsCollectionRef = doc(
         collection(db, myPath1, "FNBTransactions"),
@@ -234,11 +251,34 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
         console.log("FnbStatements document not found.");
         FailedAction(ui);
       }
+      try {
+        const myPath = `BodyCoperate/${me?.property}`;
+        const accountRef = doc(
+          collection(db, myPath, "BankAccount"),
+          "SqJqFv8O6bS7YUWJLHeg"
+        );
+        const userSnapshot = await getDoc(accountRef);
+
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data();
+          const currentBalance = userData.totalBalance || 0;
+          const newBalance = currentBalance + amount;
+
+          await updateDoc(accountRef, {
+            totalBalance: newBalance, // Assuming your balance field is called totalBalance
+          });
+          console.log("Balance updated successfully");
+        } else {
+          console.log("Document not found");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
       rerender();
     }
   };
 
-  const updateSupplier = async (id: string) => {
+  const updateSupplier = async (id: string, amount: number) => {
     try {
       if (supplierId === "") {
         FailedAction(ui);
@@ -247,7 +287,6 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
         setSupplierId("");
         return;
       } else {
-        // Specify a valid document ID for bodyCoperateDocRef
         const myPath1 = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
         const transactionsCollectionRef = doc(
           collection(db, myPath1, "FNBTransactions"),
@@ -275,7 +314,6 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       console.log(error);
     } finally {
       const trans = store.bodyCorperate.fnb.getById(id);
-      console.log("🚀 trans:", trans?.asJson);
       const rs: IReceiptsPayments = {
         id: "",
         date: trans?.asJson.date || "",
@@ -306,39 +344,49 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       } finally {
         SuccessfulActionSupplierPayment(ui);
       }
-    }
-  };
+      try {
+        const myPath = `BodyCoperate/${me?.property}`;
+        const accountRef = doc(
+          collection(db, myPath, "BankAccount"),
+          "SqJqFv8O6bS7YUWJLHeg"
+        );
+        const userSnapshot = await getDoc(accountRef);
 
-  const updateTransfer = async (id: string) => {
-    if (transferId === "") {
-      FailedAction(ui);
-      setAccountId("");
-      setTransferId("");
-      setSupplierId("");
-      return;
-    } else {
-      const myPath1 = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
-      const transactionsCollectionRef = doc(
-        collection(db, myPath1, "FNBTransactions"),
-        id
-      );
-      const fnbStatementsSnapshot = await getDoc(transactionsCollectionRef);
-      if (fnbStatementsSnapshot.exists()) {
-        await updateDoc(transactionsCollectionRef, {
-          allocated: true,
-          transfer: transferId,
-          rcp: generateInvoiceNumber(),
-        });
-        setIsAllocating(false);
-        setAccountId("");
-        setTransferId("");
-        setSupplierId("");
-        SuccessfulAction(ui);
-      } else {
-        console.log("FnbStatements document not found.");
-        FailedAction(ui);
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data();
+          const currentBalance = userData.totalBalance || 0;
+          const newBalance = currentBalance + amount;
+          await updateDoc(accountRef, {
+            totalBalance: newBalance, // Assuming your balance field is called totalBalance
+          });
+        } else {
+          console.log("Document not found");
+        }
+      } catch (error) {
+        console.error("Error:", error);
       }
-      rerender();
+
+      try {
+        const supplierPath = `BodyCoperate/${me.property}`;
+        const supplierRef = doc(
+          collection(db, supplierPath, "Suppliers"),
+          supplierId
+        );
+
+        const supplierSnapShot = await getDoc(supplierRef);
+        if (supplierSnapShot.exists()) {
+          const supplierData = supplierSnapShot.data();
+          const supplierBalance = supplierData.balance || 0;
+          const supplierNewBalance = supplierBalance + amount;
+          await updateDoc(supplierRef, { balance: supplierNewBalance });
+
+          console.log("Balance updated successfully");
+        } else {
+          console.log("Docuemnt not found");
+        }
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -354,9 +402,6 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
   };
   const onCreateSupplier = () => {
     showModalFromId(DIALOG_NAMES.BODY.BODY_UNIT_DIALOG);
-  };
-  const onCreateTransfer = () => {
-    showModalFromId(DIALOG_NAMES.BODY.FINANCIAL_MONTH);
   };
 
   const clear = () => {
@@ -522,27 +567,6 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
                 ))}
             </select>
           )}
-          {/* {type === "Transfer" && (
-            <>
-              <select
-                style={{ width: "82%" }}
-                name=""
-                id=""
-                className="uk-input uk-form-small"
-                onChange={(e) => setTransferId(e.target.value)}
-              >
-                <option value="">Select Account</option>
-                {store.bodyCorperate.transfer.all.map((a) => (
-                  <option value={a.asJson.id}>
-                    {a.asJson.name} , {a.asJson.description}
-                  </option>
-                ))}
-              </select>
-              <IconButton onClick={onCreateTransfer}>
-                <AddCircleOutlineIcon />
-              </IconButton>
-            </>
-          )} */}
         </div>
       ),
     },
@@ -553,7 +577,9 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       renderCell: (params) => (
         <div>
           {type === "Account" && (
-            <IconButton onClick={() => updateAccount(params.row.id)}>
+            <IconButton
+              onClick={() => updateAccount(params.row.id, params.row.amount)}
+            >
               <AssignmentReturnIcon
                 style={{
                   color: "#000066",
@@ -562,7 +588,9 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
             </IconButton>
           )}
           {type === "Supplier" && (
-            <IconButton onClick={() => updateSupplier(params.row.id)}>
+            <IconButton
+              onClick={() => updateSupplier(params.row.id, params.row.amount)}
+            >
               <AssignmentReturnIcon
                 style={{
                   color: "#016800",
@@ -583,31 +611,15 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
               />
             </IconButton>
           )}
-          {type === "Transfer" && (
-            <IconButton onClick={() => updateTransfer(params.row.id)}>
-              <AssignmentReturnIcon
-                style={{
-                  color: "#4e006a",
-                }}
-              />
-            </IconButton>
-          )}
         </div>
       ),
-      //  valueGetter: () => toEdit, // Pass the toEdit function here
     },
   ];
 
   return (
     <>
       <Box sx={{ height: 400 }} className="companies-grid">
-        <DataGrid
-          rows={data}
-          //   columns={column}
-          columns={column}
-          //   getRowId={(row) => row.id}
-          rowHeight={45}
-        />
+        <DataGrid rows={data} columns={column} rowHeight={40} />
       </Box>
       <Modal modalId={DIALOG_NAMES.BODY.ALLOCATE_DIALOGS}>
         <div

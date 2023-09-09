@@ -15,6 +15,7 @@ export const defaultUser: IUser = {
   property: "",
   year: "",
   month: "",
+  bankAccountInUse: ""
 };
 
 export interface IUser {
@@ -34,4 +35,5 @@ export interface IUser {
   property: string;
   year: string;
   month: string;
+  bankAccountInUse:string;
 }

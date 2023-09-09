@@ -3,7 +3,6 @@ import { db } from "../database/FirebaseConfig";
 import AppStore from "../stores/AppStore";
 import AppApi from "./AppApi";
 import BodyCopApi from "./bodyCorperate/customers/BodyCopApi";
-import UnitApi from "./bodyCorperate/customers/UnitApi";
 import FinancialYearApi from "./bodyCorperate/periods/FinancialYearApi";
 import FinancialMonthApi from "./bodyCorperate/periods/FinancialMonth";
 import InvoiceApi from "./bodyCorperate/invoices/customer-inovices/InvoiceApi";
@@ -17,6 +16,7 @@ import SupplierApi from "./bodyCorperate/type/SupplierApi";
 import SupplierInvoiceApi from "./bodyCorperate/invoices/supplier-invoices/SupplierInvoices";
 import ReceiptPaymentsApi from "./bodyCorperate/receiptsPayments/ReceiptPaymentsApi";
 import CreditNoteApi from "./bodyCorperate/credit-notes-returns/CreditNoteApi";
+import ProperyBankAccountApi from "./bodyCorperate/prperty-bank-account/PropertyBankAccountApi";
 
 export default class BodyCorpetaApi {
   private BodyCoperateDB = collection(db, "BodyCoperate");
@@ -40,6 +40,7 @@ export default class BodyCorpetaApi {
   supplier: SupplierApi;
   receiptPayments: ReceiptPaymentsApi;
   creditNote: CreditNoteApi;
+  propertyBankAccount: ProperyBankAccountApi;
 
   constructor(api: AppApi, store: AppStore) {
     this.body = new BodyCopApi(api, store, this.BodyCoperateDB);
@@ -55,6 +56,7 @@ export default class BodyCorpetaApi {
     this.supplier = new SupplierApi(api, store);
     this.supplierInvoice = new SupplierInvoiceApi(api, store);
     this.creditNote = new CreditNoteApi(api, store);
+    this.propertyBankAccount = new ProperyBankAccountApi(api, store);
 
     //   not needed
     this.recuringInvoice = new RecuringInvoiceApi(

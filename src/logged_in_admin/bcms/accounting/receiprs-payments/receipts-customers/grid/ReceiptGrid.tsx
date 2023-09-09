@@ -3,6 +3,7 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import { Box } from "@mui/material";
 import { IReceiptsPayments } from "../../../../../../shared/models/receipts-payments/ReceiptsPayments";
+import { param } from "jquery";
 
 interface IProp {
   data: IReceiptsPayments[];
@@ -15,7 +16,12 @@ const ReceiptGrid = observer(({ data }: IProp) => {
     { field: "reference", headerName: "Reference", width: 140 },
     { field: "transactionType", headerName: "Transaction Type", width: 140 },
     { field: "description", headerName: "Description", width: 140 },
-    { field: "debit", headerName: "Debit", width: 140 },
+    {
+      field: "debit",
+      headerName: "Debit",
+      width: 140,
+      valueFormatter: (params) => `NAD ${parseInt(params.value).toFixed(2)}`,
+    },
     { field: "credit", headerName: "Credit", width: 140 },
     { field: "balance", headerName: "Balance", width: 0 },
   ];

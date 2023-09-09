@@ -95,6 +95,10 @@ interface ServiceDetails {
 }
 
 const FNBGrid = observer(({ data, supplierId }: IProp) => {
+  console.log(
+    "🚀 ~ file: FNBCreate.tsx:98 ~ FNBGrid ~ supplierId:",
+    supplierId
+  );
   const { store, api, ui } = useAppContext();
   const navigate = useNavigate();
   const currentDate1 = new Date().toISOString().slice(0, 10);
@@ -115,6 +119,8 @@ const FNBGrid = observer(({ data, supplierId }: IProp) => {
     const getProperty = async () => {
       await api.body.body.getAll();
       if (me?.property) await api.body.supplier.getAll(me.property);
+      if (me?.property && me?.year && me?.month)
+        await api.body.fnb.getAll(me.property, me.year, me.month);
     };
     getProperty();
   }, []);
@@ -189,14 +195,33 @@ const FNBGrid = observer(({ data, supplierId }: IProp) => {
       supplierId: supplierId,
     };
     try {
-      if (me?.property && me.year)
+      if (me?.property && me.year) {
         await api.body.supplierInvoice.create(
           InvoiceData,
           me.property,
           me.year
         );
-      addInvoiceNumber(InvoiceData.invoiceNumber);
-      SuccessfulAction(ui);
+
+        const supplierPath = `BodyCoperate/${me.property}`;
+        const supplierRef = doc(
+          collection(db, supplierPath, "Suppliers"),
+          supplierId
+        );
+
+        const supplierSnapShot = await getDoc(supplierRef);
+        if (supplierSnapShot.exists()) {
+          const supplierData = supplierSnapShot.data();
+          const supplierBalance = supplierData.balance || 0;
+          const supplierNewBalance = supplierBalance + totalPrice;
+          await updateDoc(supplierRef, { balance: supplierNewBalance });
+
+          console.log("Balance updated successfully");
+        } else {
+          console.log("Docuemnt not found");
+        }
+        addInvoiceNumber(InvoiceData.invoiceNumber);
+        SuccessfulAction(ui);
+      }
     } catch (error) {
       FailedAction(ui);
     }

@@ -119,13 +119,13 @@ const InvoicesGrid = observer(({ data }: IProp) => {
       field: "totalPaid",
       headerName: "Total Paid",
       width: 200,
-      valueFormatter: (params) => `NAD ${params.value}`,
+      valueFormatter: (params) => `NAD ${params.value.toFixed(2)}`,
     },
     {
       field: "totalDue",
       headerName: "Total Amount",
       width: 200,
-      valueFormatter: (params) => `NAD ${params.value}`,
+      valueFormatter: (params) => `NAD ${params.value.toFixed(2)}`,
     },
     {
       field: "Status",
@@ -181,12 +181,12 @@ const InvoicesGrid = observer(({ data }: IProp) => {
 
   return (
     <>
-      <Box sx={{ height: 450 }} className="invoices-grid">
+      <Box sx={{ height: 350 }} className="invoices-grid">
         <DataGrid
           rows={data}
           columns={columns}
           getRowId={(row) => row.invoiceId} // Use the appropriate identifier property
-          rowHeight={50}
+          rowHeight={40}
         />
       </Box>
       <Modal modalId={DIALOG_NAMES.BODY.VIEW_INVOICE}>

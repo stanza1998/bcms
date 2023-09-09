@@ -2,11 +2,9 @@ import { observer } from "mobx-react-lite";
 import { FormEvent, useEffect, useState } from "react";
 import { useAppContext } from "../../../shared/functions/Context";
 import { hideModalFromId } from "../../../shared/functions/ModalShow";
+import { ITransfer, defaultTransfer } from "../../../shared/models/Types/Transfer";
 import DIALOG_NAMES from "../Dialogs";
-import {
-  ITransfer,
-  defaultTransfer,
-} from "../../../shared/models/Types/Transfer";
+
 
 export const CreditNoteDialog = observer(() => {
   const { api, store, ui } = useAppContext();

@@ -34,7 +34,10 @@ export const CreateSupplierInvoice = observer(() => {
         </div>
         <div className="uk-margin">
           <div>
-            <div className="uk-margin">
+            <div
+              style={{ padding: "10px" }}
+              className="uk-margin  uk-card-default"
+            >
               <Tab
                 label="First National Bank"
                 isActive={activeTab === "fnb"}
