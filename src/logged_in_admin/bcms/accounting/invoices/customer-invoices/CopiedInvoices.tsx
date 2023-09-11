@@ -7,7 +7,9 @@ import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ArticleIcon from "@mui/icons-material/Article";
 import { IconButton } from "@mui/material";
 import Toolbar2 from "../../../../shared/Toolbar2";
-import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
+import { nadFormatter } from "../../../../shared/NADFormatter";
+import ArrowCircleUpSharpIcon from "@mui/icons-material/ArrowCircleUpSharp";
+import ArrowCircleDownSharpIcon from "@mui/icons-material/ArrowCircleDownSharp";
 
 export const CopiedInvoices = observer(() => {
   const { store, api } = useAppContext();
@@ -38,14 +40,32 @@ export const CopiedInvoices = observer(() => {
     return statements.asJson;
   });
 
+  const totalDue = invoicesC.reduce(
+    (amount, invoice) => amount + invoice.totalDue,
+    0
+  );
+
+  const totalPaid = invoicesC.reduce(
+    (amount, invoice) => amount + invoice.totalPaid,
+    0
+  );
+
+  const formattedTotalDue = nadFormatter.format(totalDue);
+  const formattedTotalPaid = nadFormatter.format(totalPaid);
+
   return (
     <div>
       <Toolbar2
         leftControls={
           <div className="">
-            {/* <IconButton uk-tooltip="Create Invoice">
-              <CreateNewFolderIcon />
-            </IconButton> */}
+            <span className="uk-margin-right" style={{ fontSize: "18px" }}>
+              <ArrowCircleDownSharpIcon style={{ color: "red" }} /> Total Due:{" "}
+              {formattedTotalDue}
+            </span>
+            <span style={{ fontSize: "18px" }}>
+              <ArrowCircleUpSharpIcon style={{ color: "green" }} /> Total Paid:{" "}
+              {formattedTotalPaid}
+            </span>
           </div>
         }
         rightControls={

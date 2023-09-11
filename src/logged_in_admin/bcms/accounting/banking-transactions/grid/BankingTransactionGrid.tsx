@@ -28,7 +28,7 @@ const BankingTransactionGrid = ({
     },
     {
       field: "payee",
-      headerName: "Customer",
+      headerName: "Customer/Supplier/N/A",
       width: 120,
       renderCell: (params) => {
         const unit = units.find((unit) => unit.id === params.row.payee);
@@ -78,12 +78,12 @@ const BankingTransactionGrid = ({
     },
     {
       field: "credit",
-      headerName: "Credit",
+      headerName: "Outflows",
       width: 80,
     },
     {
       field: "debit",
-      headerName: "Debit",
+      headerName: "Inflows",
       width: 80,
     },
     {
@@ -101,7 +101,7 @@ const BankingTransactionGrid = ({
   ];
 
   return (
-    <Box sx={{ height: 350 }} className="invoices-grid">
+    <Box sx={{ height: 425 }} className="invoices-grid">
       <DataGrid
         rows={data}
         columns={columns}

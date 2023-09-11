@@ -17,6 +17,8 @@ import ArticleIcon from "@mui/icons-material/Article";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import SaveIcon from "@mui/icons-material/Save";
 import { IBankingTransactions } from "../../../../../shared/models/banks/banking/BankTransactions";
+import ArrowCircleUpSharpIcon from "@mui/icons-material/ArrowCircleUpSharp";
+import { nadFormatter } from "../../../../shared/NADFormatter";
 
 const CustomerCreditNotes = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -113,22 +115,36 @@ const CustomerCreditNotes = observer(() => {
   const accounts = store.bodyCorperate.account.all.map((u) => {
     return u.asJson;
   });
+  const credits = store.bodyCorperate.creditNote.all.map((u) => {
+    return u.asJson;
+  });
+
+  const total = credits.reduce(
+    (balance, accounts) => balance + accounts.balance,
+    0
+  );
+
+  const formattedTotal = nadFormatter.format(total);
 
   return (
     <div>
       <Toolbar2
         leftControls={
           <div className="">
+            <span className="uk-margin-right" style={{ fontSize: "18px" }}>
+              <ArrowCircleUpSharpIcon style={{ color: "red" }} /> Total Balance:{" "}
+              {formattedTotal}
+            </span>
+          </div>
+        }
+        rightControls={
+          <div>
             <IconButton
               uk-tooltip="Create Customer Credit Note"
               onClick={onCreate}
             >
               <CreateNewFolderIcon />
             </IconButton>
-          </div>
-        }
-        rightControls={
-          <div>
             <IconButton uk-tooltip="Print invoices">
               <PrintIcon />
             </IconButton>
@@ -239,13 +255,10 @@ const CustomerCreditNotes = observer(() => {
               />
             </div>
 
-            <IconButton
-              disabled={loading}
-              type="submit"
-              uk-tooltip="Export to csv"
-            >
+            <IconButton disabled={loading} type="submit">
               <SaveIcon />
             </IconButton>
+            <br />
             {loading && <>loading...</>}
           </form>
         </div>

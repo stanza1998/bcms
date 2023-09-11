@@ -207,15 +207,6 @@ const NavBar = observer(() => {
                       return p.name;
                     })}
                 </span>
-
-                <span className="uk-margin-left">
-                  Balance:{" NAD "}
-                  {bank_accounts
-                    .filter((p) => p.id === me?.bankAccountInUse)
-                    .map((p) => {
-                      return p.totalBalance.toFixed(2);
-                    })}
-                </span>
               </h6>
             </li>
           </ul>

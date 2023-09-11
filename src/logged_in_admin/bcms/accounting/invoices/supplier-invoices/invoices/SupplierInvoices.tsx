@@ -9,6 +9,9 @@ import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../../../../../../shared/functions/Context";
 import Toolbar2 from "../../../../../shared/Toolbar2";
 import SupplierInvoicesGrid from "./SupplierGrid";
+import { nadFormatter } from "../../../../../shared/NADFormatter";
+import ArrowCircleUpSharpIcon from "@mui/icons-material/ArrowCircleUpSharp";
+import ArrowCircleDownSharpIcon from "@mui/icons-material/ArrowCircleDownSharp";
 
 export const SupplierInvoices = observer(() => {
   const { store, api } = useAppContext();
@@ -31,18 +34,38 @@ export const SupplierInvoices = observer(() => {
     return inv.asJson;
   });
 
+  const totalBalance = invoices.reduce(
+    (balance, invoice) => balance + invoice.totalDue,
+    0
+  );
+  const totalPaid = invoices.reduce(
+    (balance, invoice) => balance + invoice.totalPaid,
+    0
+  );
+
+  const formattedTotal = nadFormatter.format(totalBalance);
+  const formattedPaid = nadFormatter.format(totalPaid);
+
   return (
     <div className="uk-section leave-analytics-page">
       <Toolbar2
         leftControls={
-          <div className="">
-            <IconButton uk-tooltip="Create Invoice" onClick={create}>
-              <CreateNewFolderIcon />
-            </IconButton>
-          </div>
+          <>
+            <span style={{ fontSize: "18px" }} className="uk-margin-right">
+              <ArrowCircleDownSharpIcon style={{ color: "red" }} /> Total Due{" "}
+              {formattedTotal}
+            </span>
+            <span style={{ fontSize: "18px" }} className="">
+              <ArrowCircleUpSharpIcon style={{ color: "green" }} /> Total Paid{" "}
+              {formattedPaid}
+            </span>
+          </>
         }
         rightControls={
           <div>
+            <IconButton uk-tooltip="Create Invoice" onClick={create}>
+              <CreateNewFolderIcon />
+            </IconButton>
             <IconButton uk-tooltip="Print invoices">
               <PrintIcon />
             </IconButton>

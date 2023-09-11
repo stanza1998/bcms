@@ -17,6 +17,8 @@ import { SuccessfulAction } from "../../../../../shared/models/Snackbar";
 import Modal from "../../../../../shared/components/Modal";
 import SaveIcon from "@mui/icons-material/Save";
 import { IBankingTransactions } from "../../../../../shared/models/banks/banking/BankTransactions";
+import ArrowCircleUpSharpIcon from "@mui/icons-material/ArrowCircleUpSharp";
+import { nadFormatter } from "../../../../shared/NADFormatter";
 
 const SupplierPayment = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -137,18 +139,29 @@ const SupplierPayment = observer(() => {
     return a.asJson;
   });
 
+  const totalCredits = rcp.reduce(
+    (debit, rcp) => debit + parseInt(rcp.credit),
+    0
+  );
+
+  const formattedCredit = nadFormatter.format(totalCredits);
+
   return (
     <div>
       <Toolbar2
         leftControls={
           <div className="">
-            <IconButton uk-tooltip="Create Invoice" onClick={onCreate}>
-              <CreateNewFolderIcon />
-            </IconButton>
+            <span className="uk-margin-right" style={{ fontSize: "18px" }}>
+              <ArrowCircleUpSharpIcon style={{ color: "red" }} /> Total
+              Outflows: {formattedCredit}
+            </span>
           </div>
         }
         rightControls={
           <div>
+            <IconButton uk-tooltip="Create Invoice" onClick={onCreate}>
+              <CreateNewFolderIcon />
+            </IconButton>
             <IconButton uk-tooltip="Print invoices">
               <PrintIcon />
             </IconButton>

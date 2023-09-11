@@ -17,6 +17,8 @@ import SupplierReturnGrid from "./grid/SupplierReturnsGrid";
 import SaveIcon from "@mui/icons-material/Save";
 import Modal from "../../../../../shared/components/Modal";
 import { IBankingTransactions } from "../../../../../shared/models/banks/banking/BankTransactions";
+import ArrowCircleUpSharpIcon from "@mui/icons-material/ArrowCircleUpSharp";
+import { nadFormatter } from "../../../../shared/NADFormatter";
 
 export const SupplierReturns = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -102,19 +104,33 @@ export const SupplierReturns = observer(() => {
   const suppliers = store.bodyCorperate.supplier.all.map((u) => {
     return u.asJson;
   });
+  const returns = store.bodyCorperate.supplierReturn.all.map((u) => {
+    return u.asJson;
+  });
+
+  const totalDebit = returns.reduce(
+    (balance, returns) => balance + returns.balance,
+    0
+  );
+
+  const formattedTotal = nadFormatter.format(totalDebit);
 
   return (
     <div>
       <Toolbar2
         leftControls={
           <div className="">
-            <IconButton uk-tooltip="Create Supplier Return" onClick={onCreate}>
-              <CreateNewFolderIcon />
-            </IconButton>
+            <span className="uk-margin-right" style={{ fontSize: "18px" }}>
+              <ArrowCircleUpSharpIcon style={{ color: "red" }} /> Total Balance:{" "}
+              {formattedTotal}
+            </span>
           </div>
         }
         rightControls={
           <div>
+            <IconButton uk-tooltip="Create Supplier Return" onClick={onCreate}>
+              <CreateNewFolderIcon />
+            </IconButton>
             <IconButton uk-tooltip="Print invoices">
               <PrintIcon />
             </IconButton>
@@ -213,10 +229,7 @@ export const SupplierReturns = observer(() => {
               </select>
             </div>
 
-            <IconButton
-              disabled={loading}
-              type="submit"
-            >
+            <IconButton disabled={loading} type="submit">
               <SaveIcon />
             </IconButton>
             {loading && <>loading...</>}

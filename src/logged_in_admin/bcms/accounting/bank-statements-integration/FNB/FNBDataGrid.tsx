@@ -304,7 +304,14 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
     }
   };
 
-  const updateSupplier = async (id: string, amount: number) => {
+  const onAllocateSupplier = (id: string, amount: number) => {
+    setTransactionId(id);
+    setAmount(amount);
+    showModalFromId(DIALOG_NAMES.BODY.CREATE_ALLOCATE_SUPPLIER);
+  };
+
+  const updateSupplier = async () => {
+    setIsAllocating(true);
     try {
       if (supplierId === "") {
         FailedAction(ui);
@@ -316,7 +323,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
         const myPath1 = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
         const transactionsCollectionRef = doc(
           collection(db, myPath1, "FNBTransactions"),
-          id
+          transactionId
         );
         const fnbStatementsSnapshot = await getDoc(transactionsCollectionRef);
         if (fnbStatementsSnapshot.exists()) {
@@ -339,7 +346,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
     } catch (error) {
       console.log(error);
     } finally {
-      const trans = store.bodyCorperate.fnb.getById(id);
+      const trans = store.bodyCorperate.fnb.getById(transactionId);
       const rs: IReceiptsPayments = {
         id: "",
         date: trans?.asJson.date || "",
@@ -373,10 +380,10 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       const bank_transaction: IBankingTransactions = {
         id: "",
         date: trans?.asJson.date || "",
-        payee: accountId,
-        description: trans?.asJson.description || "",
+        payee: supplierId,
+        description: accountId,
         type: "Supplier",
-        selection: supplierId,
+        selection: accountId,
         reference: trans?.asJson.references || "",
         VAT: "Exempted",
         credit: Math.abs(amount).toFixed(2),
@@ -394,28 +401,6 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       } catch (error) {
         console.log(error);
       }
-
-      // try {
-      //   const myPath = `BodyCoperate/${me?.property}`;
-      //   const accountRef = doc(
-      //     collection(db, myPath, "BankAccount"),
-      //     "SqJqFv8O6bS7YUWJLHeg"
-      //   );
-      //   const userSnapshot = await getDoc(accountRef);
-
-      //   if (userSnapshot.exists()) {
-      //     const userData = userSnapshot.data();
-      //     const currentBalance = userData.totalBalance || 0;
-      //     const newBalance = currentBalance + amount;
-      //     await updateDoc(accountRef, {
-      //       totalBalance: newBalance, // Assuming your balance field is called totalBalance
-      //     });
-      //   } else {
-      //     console.log("Document not found");
-      //   }
-      // } catch (error) {
-      //   console.error("Error:", error);
-      // }
 
       try {
         const supplierPath = `BodyCoperate/${me.property}`;
@@ -439,6 +424,8 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
         console.log(error);
       }
     }
+    setIsAllocating(false);
+    hideModalFromId(DIALOG_NAMES.BODY.CREATE_ALLOCATE_SUPPLIER);
   };
 
   //create accounts
@@ -559,7 +546,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
     {
       field: "Selection ",
       headerName: "Selection",
-      width: 250,
+      width: 150,
       renderCell: (params) => (
         <div style={{ width: "100%" }}>
           {type === "Account" && (
@@ -642,7 +629,9 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
           )}
           {type === "Supplier" && (
             <IconButton
-              onClick={() => updateSupplier(params.row.id, params.row.amount)}
+              onClickCapture={() =>
+                onAllocateSupplier(params.row.id, params.row.amount)
+              }
             >
               <AssignmentReturnIcon
                 style={{
@@ -904,6 +893,33 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
             </IconButton>
             {createLoader && <p>loading...</p>}
           </form>
+        </div>
+      </Modal>
+      <Modal modalId={DIALOG_NAMES.BODY.CREATE_ALLOCATE_SUPPLIER}>
+        <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical staff-dialog">
+          <button
+            className="uk-modal-close-default"
+            type="button"
+            data-uk-close
+            onClick={clear}
+          ></button>
+          {isAllocating && <div data-uk-spinner></div>}
+          <div>
+            <label>Select Account</label>
+            <br />
+            <select
+              className="uk-input"
+              onChange={(e) => setAccountId(e.target.value)}
+            >
+              <option value="">Select Account</option>
+              {store.bodyCorperate.account.all.map((a) => (
+                <option value={a.asJson.id}>{a.asJson.name}</option>
+              ))}
+            </select>
+          </div>
+          <IconButton onClick={updateSupplier}>
+            <SaveIcon />
+          </IconButton>
         </div>
       </Modal>
     </>
