@@ -29,6 +29,7 @@ import {
   IReceiptsPayments,
   defaultReceiptsPayments,
 } from "../../../../../shared/models/receipts-payments/ReceiptsPayments";
+import { IBankingTransactions } from "../../../../../shared/models/banks/banking/BankTransactions";
 
 interface IProp {
   data: IFNB[];
@@ -190,31 +191,31 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       } finally {
         SuccessfulActionCustomerReceipt(ui);
       }
+
+      const bank_transaction: IBankingTransactions = {
+        id: "",
+        date: trans?.asJson.date || "",
+        payee: unitId,
+        description: trans?.asJson.description || "",
+        type: "Customer",
+        selection: accountId,
+        reference: trans?.asJson.references || "",
+        VAT: "Exempted",
+        credit: "",
+        debit: Math.abs(amount).toFixed(2),
+      };
       try {
-        const myPath = `BodyCoperate/${me?.property}`;
-        const accountRef = doc(
-          collection(db, myPath, "BankAccount"),
-          "SqJqFv8O6bS7YUWJLHeg"
-        );
-        const userSnapshot = await getDoc(accountRef);
-
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.data();
-          const currentBalance = userData.totalBalance || 0;
-          const newBalance = currentBalance + amount;
-
-          await updateDoc(accountRef, {
-            totalBalance: newBalance, // Assuming your balance field is called totalBalance
-          });
-
-          console.log("Balance updated successfully");
-        } else {
-          console.log("Document not found");
-        }
+        if (me?.property && me?.bankAccountInUse)
+          await api.body.banking_transaction.create(
+            bank_transaction,
+            me.property,
+            me.bankAccountInUse
+          );
+        console.log("transaction created");
+        setAccountId("");
       } catch (error) {
-        console.error("Error:", error);
+        console.log(error);
       }
-
       setIsAllocating(false);
       setUnit("");
       rerender();
@@ -273,6 +274,31 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
         }
       } catch (error) {
         console.error("Error:", error);
+      }
+      const trans = store.bodyCorperate.fnb.getById(id);
+      const bank_transaction: IBankingTransactions = {
+        id: "",
+        date: trans?.asJson.date || "",
+        payee: accountId,
+        description: trans?.asJson.description || "",
+        type: "Account",
+        selection: accountId,
+        reference: trans?.asJson.references || "",
+        VAT: "Exempted",
+        credit: amount < 0 ? Math.abs(amount).toFixed(2) : "",
+        debit: amount > 0 ? amount.toFixed(2) : "",
+      };
+      try {
+        if (me?.property && me?.bankAccountInUse)
+          await api.body.banking_transaction.create(
+            bank_transaction,
+            me.property,
+            me.bankAccountInUse
+          );
+        console.log("transaction created");
+        setAccountId("");
+      } catch (error) {
+        console.log(error);
       }
       rerender();
     }
@@ -344,27 +370,52 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       } finally {
         SuccessfulActionSupplierPayment(ui);
       }
+      const bank_transaction: IBankingTransactions = {
+        id: "",
+        date: trans?.asJson.date || "",
+        payee: accountId,
+        description: trans?.asJson.description || "",
+        type: "Supplier",
+        selection: supplierId,
+        reference: trans?.asJson.references || "",
+        VAT: "Exempted",
+        credit: Math.abs(amount).toFixed(2),
+        debit: "",
+      };
       try {
-        const myPath = `BodyCoperate/${me?.property}`;
-        const accountRef = doc(
-          collection(db, myPath, "BankAccount"),
-          "SqJqFv8O6bS7YUWJLHeg"
-        );
-        const userSnapshot = await getDoc(accountRef);
-
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.data();
-          const currentBalance = userData.totalBalance || 0;
-          const newBalance = currentBalance + amount;
-          await updateDoc(accountRef, {
-            totalBalance: newBalance, // Assuming your balance field is called totalBalance
-          });
-        } else {
-          console.log("Document not found");
-        }
+        if (me?.property && me?.bankAccountInUse)
+          await api.body.banking_transaction.create(
+            bank_transaction,
+            me.property,
+            me.bankAccountInUse
+          );
+        console.log("transaction created");
+        setAccountId("");
       } catch (error) {
-        console.error("Error:", error);
+        console.log(error);
       }
+
+      // try {
+      //   const myPath = `BodyCoperate/${me?.property}`;
+      //   const accountRef = doc(
+      //     collection(db, myPath, "BankAccount"),
+      //     "SqJqFv8O6bS7YUWJLHeg"
+      //   );
+      //   const userSnapshot = await getDoc(accountRef);
+
+      //   if (userSnapshot.exists()) {
+      //     const userData = userSnapshot.data();
+      //     const currentBalance = userData.totalBalance || 0;
+      //     const newBalance = currentBalance + amount;
+      //     await updateDoc(accountRef, {
+      //       totalBalance: newBalance, // Assuming your balance field is called totalBalance
+      //     });
+      //   } else {
+      //     console.log("Document not found");
+      //   }
+      // } catch (error) {
+      //   console.error("Error:", error);
+      // }
 
       try {
         const supplierPath = `BodyCoperate/${me.property}`;
@@ -418,6 +469,8 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       id: "",
       name: name,
       description: description,
+      category: "",
+      balance: 0,
     };
     try {
       if (me?.property) await api.body.account.create(Account, me.property);
@@ -640,6 +693,20 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
                 return unit.asJson.unitName;
               })}{" "}
           </h4>
+          <br />
+          <label>Select Account</label>
+          <br />
+          <select
+            className="uk-input"
+            onChange={(e) => setAccountId(e.target.value)}
+          >
+            <option>select accounnt</option>
+            {store.bodyCorperate.account.all.map((a) => (
+              <option value={a.asJson.id}>{a.asJson.name}</option>
+            ))}
+          </select>
+          <br />
+
           <table className="uk-table uk-table-divider uk-table-small">
             <thead>
               <tr>

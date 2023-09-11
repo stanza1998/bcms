@@ -16,6 +16,7 @@ import DIALOG_NAMES from "../../../../dialogs/Dialogs";
 import Modal from "../../../../../shared/components/Modal";
 import { SuccessfulAction } from "../../../../../shared/models/Snackbar";
 import SaveIcon from "@mui/icons-material/Save";
+import { IBankingTransactions } from "../../../../../shared/models/banks/banking/BankTransactions";
 
 const CustomerReceipts = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -29,6 +30,7 @@ const CustomerReceipts = observer(() => {
   const [balance, setBalance] = useState<string>("");
   const [unitId, setUnitId] = useState<string>("");
   const [invoiceNumber, setInvoiceNumber] = useState<string>("");
+  const [selection, setSelection] = useState<string>("");
 
   const onCreate = () => {
     showModalFromId(DIALOG_NAMES.BODY.CREATE_RECEIPT);
@@ -52,7 +54,7 @@ const CustomerReceipts = observer(() => {
       transactionType: "Customer Receipt",
       description: description,
       debit: debit.toFixed(2),
-      credit: "0",
+      credit: "",
       balance: balance,
       propertyId: me?.property || "",
       unitId: unitId,
@@ -70,12 +72,35 @@ const CustomerReceipts = observer(() => {
         );
       } catch (error) {
         console.log(error);
-      } finally {
-        setLoading(false);
-        getData();
-        hideModalFromId(DIALOG_NAMES.BODY.CREATE_RECEIPT);
-        SuccessfulAction(ui);
       }
+    const bank_transaction: IBankingTransactions = {
+      id: "",
+      date: date,
+      payee: unitId,
+      description: description,
+      type: "Customer",
+      selection: selection,
+      reference: "Customer Receipt",
+      VAT: "Exempted",
+      credit: "",
+      debit: debit.toFixed(2),
+    };
+    try {
+      if (me?.property && me?.bankAccountInUse)
+        await api.body.banking_transaction.create(
+          bank_transaction,
+          me.property,
+          me.bankAccountInUse
+        );
+      console.log("transaction created");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+      getData();
+      hideModalFromId(DIALOG_NAMES.BODY.CREATE_RECEIPT);
+      SuccessfulAction(ui);
+    }
   };
 
   useEffect(() => {
@@ -99,6 +124,7 @@ const CustomerReceipts = observer(() => {
     if (me?.property && me?.year && me?.month) {
       await api.body.copiedInvoice.getAll(me.property, me.year);
       await api.unit.getAll(me.property);
+      await api.body.account.getAll(me.property);
       await api.body.receiptPayments.getAll(me.property, me?.year, me?.month);
       const rcp = store.bodyCorperate.receiptsPayments.all
         .filter((rcp) => rcp.asJson.transactionType === "Customer Receipt")
@@ -113,6 +139,9 @@ const CustomerReceipts = observer(() => {
     return inv.asJson;
   });
   const units = store.bodyCorperate.unit.all.map((inv) => {
+    return inv.asJson;
+  });
+  const accounts = store.bodyCorperate.account.all.map((inv) => {
     return inv.asJson;
   });
 
@@ -154,7 +183,7 @@ const CustomerReceipts = observer(() => {
           </h4>
           <form onSubmit={createReceipt}>
             <div className="uk-margin">
-              <label>Select Customer (Unit)</label>
+              <label>Customer (Unit)</label>
               <br />
               <select
                 className="uk-input"
@@ -222,6 +251,19 @@ const CustomerReceipts = observer(() => {
                       {inv.totalPaid} | Total Due {inv.totalDue}
                     </option>
                   ))}
+              </select>
+            </div>
+            <div className="uk-margin">
+              <label>Account (Selection)</label>
+              <br />
+              <select
+                className="uk-input"
+                onChange={(e) => setSelection(e.target.value)}
+              >
+                <option>Select Account</option>
+                {accounts.map((inv) => (
+                  <option value={inv.id}>{inv.name}</option>
+                ))}
               </select>
             </div>
             <IconButton type="submit">

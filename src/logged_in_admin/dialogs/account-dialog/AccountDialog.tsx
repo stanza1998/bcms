@@ -16,6 +16,17 @@ export const AccountDialog = observer(() => {
     ...defaultAccount,
   });
 
+  const categories = store.bodyCorperate.accountCategory.all.map((c) => {
+    return c.asJson;
+  });
+
+  useEffect(() => {
+    const getData = async () => {
+      if (me?.property) await api.body.accountCategory.getAll(me.property);
+    };
+    getData();
+  }, []);
+
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -83,7 +94,7 @@ export const AccountDialog = observer(() => {
               </label>
               <div className="uk-form-controls">
                 <input
-                  className="uk-input uk-form-small"
+                  className="uk-input "
                   type="text"
                   placeholder="Name"
                   value={account.name}
@@ -99,11 +110,11 @@ export const AccountDialog = observer(() => {
             </div>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-                Description
+                Account Description
               </label>
               <div className="uk-form-controls">
                 <input
-                  className="uk-input uk-form-small"
+                  className="uk-input "
                   type="text"
                   placeholder="Description"
                   value={account.description}
@@ -113,8 +124,31 @@ export const AccountDialog = observer(() => {
                       description: e.target.value,
                     })
                   }
-                  required
+                  // required
                 />
+              </div>
+            </div>
+            <div className="uk-margin">
+              <label className="uk-form-label" htmlFor="form-stacked-text">
+                Category
+              </label>
+              <div className="uk-form-controls">
+                <select
+                  className="uk-input "
+                  value={account.category}
+                  onChange={(e) =>
+                    setAccount({
+                      ...account,
+                      category: e.target.value,
+                    })
+                  }
+                  // required
+                >
+                  <option value="">Select category</option>
+                  {categories.map((c) => (
+                    <option value={c.id}>{c.name}</option>
+                  ))}
+                </select>
               </div>
             </div>
             <div className="footer uk-margin">

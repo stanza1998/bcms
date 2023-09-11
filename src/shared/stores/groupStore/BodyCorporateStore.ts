@@ -1,7 +1,9 @@
 import AppStore from "../AppStore";
 import FNBStore from "../individualStore/banks/FNBStore";
 import NEDBANKStore from "../individualStore/banks/NEDBANKStore";
+import BankingTransactionStore from "../individualStore/banks/banking/BankingTransactionStore";
 import CreditNoteStore from "../individualStore/credit-notes-returns/CreditNotesStore";
+import SupplierReturnStore from "../individualStore/credit-notes-returns/SupplierReturns";
 import CopiedInvoiceStore from "../individualStore/invoice/CopiedInvoiceStore";
 import InvoiceStore from "../individualStore/invoice/InvoiceStore";
 import RecuringInvoiceStore from "../individualStore/invoice/RecuringInvoice";
@@ -11,6 +13,7 @@ import BodyCopStore from "../individualStore/properties/BodyCopStore";
 import UnitStore from "../individualStore/properties/UnitStore";
 import PropertyBankAccountStore from "../individualStore/property-bank-account/PropertyBankAccountStore";
 import ReceiptsPaymentStore from "../individualStore/receipts-payments/ReceiptsPaymentStore";
+import AccountCategoryStore from "../individualStore/type/AccountCategoryStore";
 import AccountStore from "../individualStore/type/AccountStore";
 import SupplierStore from "../individualStore/type/SupplierStore";
 import TransferStore from "../individualStore/type/Transfer";
@@ -33,6 +36,9 @@ export default class BodyCorporateStore {
   receiptsPayments: ReceiptsPaymentStore;
   creditNote: CreditNoteStore;
   propetyBankAccount: PropertyBankAccountStore;
+  supplierReturn: SupplierReturnStore;
+  accountCategory: AccountCategoryStore;
+  bankingTransactions: BankingTransactionStore;
 
   constructor(store: AppStore) {
     this.bodyCop = new BodyCopStore(store);
@@ -51,5 +57,8 @@ export default class BodyCorporateStore {
     this.receiptsPayments = new ReceiptsPaymentStore(store);
     this.creditNote = new CreditNoteStore(store);
     this.propetyBankAccount = new PropertyBankAccountStore(store);
+    this.supplierReturn = new SupplierReturnStore(store);
+    this.accountCategory = new AccountCategoryStore(store);
+    this.bankingTransactions = new BankingTransactionStore(store);
   }
 }

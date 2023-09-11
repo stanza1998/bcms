@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Tab } from "../../../../../Tab";
 import { CopiedInvoices } from "../../invoices/customer-invoices/CopiedInvoices";
 import CustomerReceipts from "../../receiprs-payments/receipts-customers/CustomerReceipts";
-import CustomerCreditNotes from "../../customer-credit-notes/CustomerCreditNotes";
 import Toolbar2 from "../../../../shared/Toolbar2";
 import { IconButton } from "@mui/material";
 import FiberSmartRecordIcon from "@mui/icons-material/FiberSmartRecord";
+import CustomerCreditNotes from "../../returns-credit-notes/customer-credit-notes/CustomerCreditNotes";
 
 export const Customer = () => {
   const [activeTab, setActiveTab] = useState("invoices");
@@ -22,6 +22,17 @@ export const Customer = () => {
             style={{ padding: "10px" }}
             className="uk-margin  uk-card-default"
           >
+            <span
+              style={{
+                fontSize: "16px",
+                color: "#01aced",
+                cursor: "not-allowed",
+              }}
+              uk-tooltip="Transactions"
+              className="uk-margin-right"
+            >
+              (T)
+            </span>
             <Tab
               label="Customer Tax Invoices"
               isActive={activeTab === "invoices"}
@@ -37,6 +48,17 @@ export const Customer = () => {
               isActive={activeTab === "receipts"}
               onClick={() => handleTabClick("receipts")}
             />
+            <span
+              style={{
+                fontSize: "16px",
+                color: "#01aced",
+                cursor: "not-allowed",
+              }}
+              uk-tooltip="Reports"
+              className="uk-margin-right"
+            >
+              (R)
+            </span>
             <Tab
               label="Customer Balance"
               isActive={activeTab === "balance"}

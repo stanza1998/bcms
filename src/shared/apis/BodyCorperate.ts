@@ -17,6 +17,9 @@ import SupplierInvoiceApi from "./bodyCorperate/invoices/supplier-invoices/Suppl
 import ReceiptPaymentsApi from "./bodyCorperate/receiptsPayments/ReceiptPaymentsApi";
 import CreditNoteApi from "./bodyCorperate/credit-notes-returns/CreditNoteApi";
 import ProperyBankAccountApi from "./bodyCorperate/prperty-bank-account/PropertyBankAccountApi";
+import SupplierReturnApi from "./bodyCorperate/credit-notes-returns/SupplierReturns";
+import AccountCategoryApi from "./bodyCorperate/type/AccountCategoryApi";
+import BankingTransactionsApi from "./bodyCorperate/banks/banking/BankingTransactionApi";
 
 export default class BodyCorpetaApi {
   private BodyCoperateDB = collection(db, "BodyCoperate");
@@ -40,7 +43,10 @@ export default class BodyCorpetaApi {
   supplier: SupplierApi;
   receiptPayments: ReceiptPaymentsApi;
   creditNote: CreditNoteApi;
+  supplierReturn: SupplierReturnApi;
   propertyBankAccount: ProperyBankAccountApi;
+  accountCategory: AccountCategoryApi;
+  banking_transaction: BankingTransactionsApi;
 
   constructor(api: AppApi, store: AppStore) {
     this.body = new BodyCopApi(api, store, this.BodyCoperateDB);
@@ -57,6 +63,9 @@ export default class BodyCorpetaApi {
     this.supplierInvoice = new SupplierInvoiceApi(api, store);
     this.creditNote = new CreditNoteApi(api, store);
     this.propertyBankAccount = new ProperyBankAccountApi(api, store);
+    this.supplierReturn = new SupplierReturnApi(api, store);
+    this.accountCategory = new AccountCategoryApi(api, store);
+    this.banking_transaction = new BankingTransactionsApi(api, store);
 
     //   not needed
     this.recuringInvoice = new RecuringInvoiceApi(

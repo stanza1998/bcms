@@ -3,6 +3,7 @@ import AppStore from "../../stores/AppStore";
 
 export const defaultCreditNote: ICreditNote = {
   id: "",
+  date: "",
   unitId: "",
   balance: 0,
   invoiceNumber: "",
@@ -11,6 +12,7 @@ export const defaultCreditNote: ICreditNote = {
 
 export interface ICreditNote {
   id: string;
+  date: string;
   unitId: string;
   balance: number;
   invoiceNumber: string | "";

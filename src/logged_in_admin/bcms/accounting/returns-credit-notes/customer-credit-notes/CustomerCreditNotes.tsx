@@ -1,21 +1,22 @@
-import React, { useEffect, useState } from "react";
-import Toolbar2 from "../../../shared/Toolbar2";
+import { observer } from "mobx-react-lite";
+import { useAppContext } from "../../../../../shared/functions/Context";
+import { useEffect, useState } from "react";
+import { ICreditNote } from "../../../../../shared/models/credit-notes-returns/CreditNotesReturns";
+import showModalFromId, {
+  hideModalFromId,
+} from "../../../../../shared/functions/ModalShow";
+import DIALOG_NAMES from "../../../../dialogs/Dialogs";
+import { SuccessfulAction } from "../../../../../shared/models/Snackbar";
+import Toolbar2 from "../../../../shared/Toolbar2";
+import { IconButton } from "@mui/material";
+import CreditNoteGrid from "./grid/CreditNoteGrid";
+import Modal from "../../../../../shared/components/Modal";
 import PrintIcon from "@mui/icons-material/Print";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ArticleIcon from "@mui/icons-material/Article";
-import { IconButton } from "@mui/material";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
-import { observer } from "mobx-react-lite";
-import Modal from "../../../../shared/components/Modal";
-import { useAppContext } from "../../../../shared/functions/Context";
-import showModalFromId, {
-  hideModalFromId,
-} from "../../../../shared/functions/ModalShow";
-import DIALOG_NAMES from "../../../dialogs/Dialogs";
-import { ICreditNote } from "../../../../shared/models/credit-notes-returns/CreditNotesReturns";
 import SaveIcon from "@mui/icons-material/Save";
-import { SuccessfulAction } from "../../../../shared/models/Snackbar";
-import CreditNoteGrid from "./grid/CreditNoteGrid";
+import { IBankingTransactions } from "../../../../../shared/models/banks/banking/BankTransactions";
 
 const CustomerCreditNotes = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -24,7 +25,9 @@ const CustomerCreditNotes = observer(() => {
   const [balance, setBalance] = useState<number>(0);
   const [invoiceNumber, setInvoiceNumber] = useState<string>("");
   const [customerRef, setCustomerRef] = useState<string>("");
+  const [date, setDate] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [selection, setSelection] = useState<string>("");
 
   const createCreditNote = async (e: any) => {
     try {
@@ -34,22 +37,49 @@ const CustomerCreditNotes = observer(() => {
       if (!me?.property || !me?.year || !me?.month) {
         throw new Error("Property, year, or month is missing.");
       }
-
       const creditNote: ICreditNote = {
         id: "",
+        date: date,
         unitId: unitId,
         balance: balance,
         invoiceNumber: invoiceNumber,
         customerReference: customerRef,
       };
 
-      await api.body.creditNote.create(
-        creditNote,
-        me.property,
-        me.year,
-        me.month,
-        unitId
-      );
+      try {
+        await api.body.creditNote.create(
+          creditNote,
+          me.property,
+          me.year,
+          me.month,
+          unitId
+        );
+      } catch (error) {
+        console.log(error);
+      }
+      const bank_transaction: IBankingTransactions = {
+        id: "",
+        date: date,
+        payee: unitId,
+        description: selection,
+        type: "Customer",
+        selection: selection,
+        reference: "Credit Note",
+        VAT: "Exempted",
+        credit: balance.toFixed(2),
+        debit: "",
+      };
+      try {
+        if (me?.property && me?.bankAccountInUse)
+          await api.body.banking_transaction.create(
+            bank_transaction,
+            me.property,
+            me.bankAccountInUse
+          );
+        console.log("transaction created");
+      } catch (error) {
+        console.log(error);
+      }
 
       hideModalFromId(DIALOG_NAMES.BODY.CREDIT_NOTE);
       SuccessfulAction(ui);
@@ -72,11 +102,15 @@ const CustomerCreditNotes = observer(() => {
         await api.body.copiedInvoice.getAll(me.property, me.year);
       if (me?.property && me?.year)
         await api.body.creditNote.getAll(me.property, me.year, me.month);
+      if (me?.property) await api.body.account.getAll(me?.property);
     };
     getData();
   }, []);
 
   const units = store.bodyCorperate.unit.all.map((u) => {
+    return u.asJson;
+  });
+  const accounts = store.bodyCorperate.account.all.map((u) => {
     return u.asJson;
   });
 
@@ -130,7 +164,17 @@ const CustomerCreditNotes = observer(() => {
             onSubmit={createCreditNote}
             data-uk-grid
           >
-            <div className="uk-width-1-1 uk-margin">
+            <div className="uk-width-1-1 ">
+              <label>Date</label>
+              <input
+                className="uk-input"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                required
+              />
+            </div>
+            <div className="uk-width-1-1 ">
               <label>Select Customer (Unit)</label>
               <select
                 className="uk-input"
@@ -143,7 +187,7 @@ const CustomerCreditNotes = observer(() => {
                 ))}
               </select>
             </div>
-            <div className="uk-width-1-1 uk-margin">
+            <div className="uk-width-1-1 ">
               <label>Balance</label>
               <input
                 className="uk-input"
@@ -170,6 +214,18 @@ const CustomerCreditNotes = observer(() => {
                       {inv.asJson.totalDue.toFixed(2)}
                     </option>
                   ))}
+              </select>
+            </div>
+            <div className="uk-width-1-1 ">
+              <label>Account</label>
+              <select
+                className="uk-input"
+                onChange={(e) => setSelection(e.target.value)}
+              >
+                <option value="">Select Account (Selection)</option>
+                {accounts.map((inv) => (
+                  <option value={inv.id}>{inv.name}</option>
+                ))}
               </select>
             </div>
             <div className="uk-width-1-1 uk-margin">

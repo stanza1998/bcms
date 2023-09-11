@@ -1,9 +1,9 @@
 import React from "react";
-import { ICreditNote } from "../../../../../shared/models/credit-notes-returns/CreditNotesReturns";
 import { observer } from "mobx-react-lite";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Box } from "@mui/material";
-import { IUnit } from "../../../../../shared/models/bcms/Units";
+import { ICreditNote } from "../../../../../../shared/models/credit-notes-returns/CreditNotesReturns";
+import { IUnit } from "../../../../../../shared/models/bcms/Units";
 
 interface IProp {
   data: ICreditNote[];
@@ -13,9 +13,14 @@ interface IProp {
 const CreditNoteGrid = observer(({ data, units }: IProp) => {
   const columns: GridColDef[] = [
     {
+      field: "date",
+      headerName: "Date",
+      width: 200,
+    },
+    {
       field: "unitId",
       headerName: "Customer (Unit)",
-      width: 300,
+      width: 200,
       renderCell: (params) => {
         const unit = units.find((unit) => unit.id === params.row.unitId);
         return <>{unit ? "Unit " + unit.unitName : "Unknown Unit"}</>;
@@ -24,7 +29,7 @@ const CreditNoteGrid = observer(({ data, units }: IProp) => {
     {
       field: "balance",
       headerName: "balance",
-      width: 300,
+      width: 200,
       valueFormatter: (params) => `NAD ${params.value.toFixed(2)}`,
     },
     { field: "invoiceNumber", headerName: "Invoice Number", width: 250 },

@@ -1,10 +1,10 @@
 import { observer } from "mobx-react-lite";
-import { useAppContext } from "../../../../../shared/functions/Context";
-import { IUnit } from "../../../../../shared/models/bcms/Units";
+import { useAppContext } from "../../../../../../shared/functions/Context";
+import { IUnit } from "../../../../../../shared/models/bcms/Units";
 import showModalFromId, {
   confirmationDialog,
-} from "../../../../../shared/functions/ModalShow";
-import DIALOG_NAMES from "../../../../dialogs/Dialogs";
+} from "../../../../../../shared/functions/ModalShow";
+import DIALOG_NAMES from "../../../../../dialogs/Dialogs";
 import { useNavigate } from "react-router-dom";
 
 interface IProps {

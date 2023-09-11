@@ -2,15 +2,20 @@ import { makeAutoObservable, toJS } from "mobx";
 import AppStore from "../../stores/AppStore";
 
 export const defaultAccount: INormalAccount = {
-    id: "",
-    name: "",
-    description: ""
+  id: "",
+  name: "",
+  description: "",
+  category: "",
+  balance: 0
 };
 
 export interface INormalAccount {
   id: string;
   name:string;
+  category: string;
   description:string;
+  balance:number;
+
 }
 
 export default class AccountModel {

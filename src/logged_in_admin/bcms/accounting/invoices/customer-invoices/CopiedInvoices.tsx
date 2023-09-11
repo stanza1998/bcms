@@ -43,9 +43,9 @@ export const CopiedInvoices = observer(() => {
       <Toolbar2
         leftControls={
           <div className="">
-            <IconButton uk-tooltip="Create Invoice">
+            {/* <IconButton uk-tooltip="Create Invoice">
               <CreateNewFolderIcon />
-            </IconButton>
+            </IconButton> */}
           </div>
         }
         rightControls={

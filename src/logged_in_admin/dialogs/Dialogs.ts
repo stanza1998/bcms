@@ -24,7 +24,10 @@ const DIALOG_NAMES = {
     BANK_ACCOUNT: "bank-account",
     BANK_ACCOUNT_UPDATE: "bank-account-update",
     PROPERTY_ACCOUNT: "property-account",
-    CREATE_RECEIPT:"create-receipt"
+    CREATE_RECEIPT: "create-receipt",
+    CREATE_SUPPLIER_RETURN: "create-supplier-return",
+    CREATE_SUPPLIER_PAYMENT: "create-supplier-payment",
+    CREATE_ACCOUNT_CATEGORY: "create-account-category",
   },
 
   OWNER: {

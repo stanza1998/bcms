@@ -1,19 +1,21 @@
 import { observer } from "mobx-react-lite";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAppContext } from "../../../../../shared/functions/Context";
+import { useAppContext } from "../../../../../../shared/functions/Context";
 import { useEffect, useState } from "react";
-import { IUnit, defaultUnit } from "../../../../../shared/models/bcms/Units";
-import Loading from "../../../../../shared/components/Loading";
-import showModalFromId from "../../../../../shared/functions/ModalShow";
-import DIALOG_NAMES from "../../../../dialogs/Dialogs";
-import Modal from "../../../../../shared/components/Modal";
-import { FinacialYearDialog } from "../../../../dialogs/financial-year-dialog/FinancialYearDialog";
-import folder from "./assets/folder (3).png";
+import { IUnit, defaultUnit } from "../../../../../../shared/models/bcms/Units";
+import Loading from "../../../../../../shared/components/Loading";
 import {
   IBodyCop,
   defaultBodyCop,
-} from "../../../../../shared/models/bcms/BodyCorperate";
-import { Tab } from "../../../../../Tab";
+} from "../../../../../../shared/models/bcms/BodyCorperate";
+import { Tab } from "../../../../../../Tab";
+import { FinacialRecords } from "../unit-info-components/financial-records/FinancialRecords";
+import Dashboard from "../../../../../dashboard/Dashboard";
+import { Maintenance } from "../unit-info-components/maintenance/Maintenance";
+import { Communication } from "../unit-info-components/communication/Communication";
+import { Documents } from "../unit-info-components/documents/Documents";
+
+
 
 export const UnitInfor = observer(() => {
   const { propertyId, id } = useParams();
@@ -243,220 +245,3 @@ export const UnitInfor = observer(() => {
     </div>
   );
 });
-
-const Dashboard = () => {
-  return (
-    <div className="sales-order">
-      <h3
-        style={{ textTransform: "uppercase", color: "grey", fontWeight: "600" }}
-      >
-        Dashboard
-      </h3>
-
-      <h5
-        style={{ textTransform: "uppercase", color: "grey", fontWeight: "500" }}
-      >
-        Financial Records
-      </h5>
-      <div
-        className="uk-child-width-1-3@m uk-grid-small uk-grid-match"
-        data-uk-grid
-      >
-        <div>
-          <div className="uk-card uk-card-primary uk-card-body">
-            <h3 className="uk-card-title">0</h3>
-            <p
-              style={{
-                textTransform: "uppercase",
-                color: "black",
-                fontSize: "14px",
-                fontWeight: "400",
-              }}
-            >
-              Invoices
-            </p>
-          </div>
-        </div>
-        <div>
-          <div className="uk-card uk-card-primary uk-card-body">
-            <h3 className="uk-card-title">0</h3>
-            <p
-              style={{
-                textTransform: "uppercase",
-                color: "black",
-                fontSize: "14px",
-                fontWeight: "400",
-              }}
-            >
-              Expenses
-            </p>
-          </div>
-        </div>
-        <div>
-          <div className="uk-card uk-card-primary uk-card-body">
-            <h3 className="uk-card-title">0</h3>
-            <p
-              style={{
-                textTransform: "uppercase",
-                color: "black",
-                fontSize: "14px",
-                fontWeight: "400",
-              }}
-            >
-              Outstanding Payments
-            </p>
-          </div>
-        </div>
-      </div>
-      <h5
-        style={{ textTransform: "uppercase", color: "grey", fontWeight: "500" }}
-      >
-        Maintenance and Records
-      </h5>
-      <div
-        className="uk-child-width-1-3@m uk-grid-small uk-grid-match"
-        data-uk-grid
-      >
-        <div>
-          <div className="uk-card uk-card-primary uk-card-body">
-            <h3 className="uk-card-title">0</h3>
-            <p
-              style={{
-                textTransform: "uppercase",
-                color: "black",
-                fontSize: "14px",
-                fontWeight: "400",
-              }}
-            >
-              Scheduled Maintenance
-            </p>
-          </div>
-        </div>
-        <div>
-          <div className="uk-card uk-card-primary uk-card-body">
-            <h3 className="uk-card-title">0</h3>
-            <p
-              style={{
-                textTransform: "uppercase",
-                color: "black",
-                fontSize: "14px",
-                fontWeight: "400",
-              }}
-            >
-              Repairs
-            </p>
-          </div>
-        </div>
-        <div>
-          <div className="uk-card uk-card-primary uk-card-body">
-            <h3 className="uk-card-title">0</h3>
-            <p
-              style={{
-                textTransform: "uppercase",
-                color: "black",
-                fontSize: "14px",
-                fontWeight: "400",
-              }}
-            >
-              Ongoing Issues
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const FinacialRecords = observer(() => {
-  const { store, api, ui } = useAppContext();
-  const { propertyId, id } = useParams();
-  const navigate = useNavigate();
-  const me = store.user.meJson;
-  const onCreate = () => {
-    showModalFromId(DIALOG_NAMES.BODY.FINANCIAL_YEAR);
-  };
-
-  useEffect(() => {
-    const getData = async () => {
-      if (!me?.property) return;
-      await api.body.financialYear.getAll(me.property);
-    };
-    getData();
-  }, [api.body.financialYear, me?.property]);
-
-  const viewYear = (yearId: string) => {
-    navigate(`/c/body/body-corperate/${propertyId}/${id}/${yearId}`);
-  };
-
-  return (
-    <div className="sales-order">
-      <h3
-        style={{ textTransform: "uppercase", color: "grey", fontWeight: "600" }}
-      >
-        Financial Records
-      </h3>
-      <button className="uk-button primary" onClick={onCreate}>
-        New Year
-      </button>
-
-      <div
-        className="uk-child-width-1-6@m uk-grid-small uk-grid-match"
-        data-uk-grid
-      >
-        {store.bodyCorperate.financialYear.all
-          .sort((a, b) => a.asJson.year - b.asJson.year)
-          .map((year) => (
-            <div key={year.asJson.id}>
-              <div
-                className="uk-card-body folders"
-                onClick={() => viewYear(year.asJson.id)}
-              >
-                <img src={folder} alt="" />
-                <p style={{ textAlign: "center", marginTop: "-0.5rem" }}>
-                  {year.asJson.year}
-                </p>
-              </div>
-            </div>
-          ))}
-      </div>
-
-      <Modal modalId={DIALOG_NAMES.BODY.FINANCIAL_YEAR}>
-        <FinacialYearDialog />
-      </Modal>
-    </div>
-  );
-});
-
-const Maintenance = () => {
-  return (
-    <div>
-      <h3
-        style={{ textTransform: "uppercase", color: "grey", fontWeight: "600" }}
-      >
-        Maintenance and Repairs
-      </h3>
-    </div>
-  );
-};
-const Communication = () => {
-  return (
-    <div>
-      <h3
-        style={{ textTransform: "uppercase", color: "grey", fontWeight: "600" }}
-      >
-        Communication
-      </h3>
-    </div>
-  );
-};
-const Documents = () => {
-  return (
-    <div>
-      <h3
-        style={{ textTransform: "uppercase", color: "grey", fontWeight: "600" }}
-      >
-        Documents
-      </h3>
-    </div>
-  );
-};

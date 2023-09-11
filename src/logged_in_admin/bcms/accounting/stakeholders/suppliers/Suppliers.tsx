@@ -3,7 +3,7 @@ import { Tab } from "../../../../../Tab";
 import SupplierPayment from "../../receiprs-payments/payments-suppliers/SupplierPayments";
 import { SupplierInvoices } from "../../invoices/supplier-invoices/invoices/SupplierInvoices";
 import { useState } from "react";
-import { SupplierReturns } from "../../supplier-returns/SupplierReturns";
+import { SupplierReturns } from "../../returns-credit-notes/supplier-returns/SupplierReturns";
 
 export const SuppliersView = observer(() => {
   const [activeTab, setActiveTab] = useState("invoices");
@@ -19,6 +19,17 @@ export const SuppliersView = observer(() => {
             style={{ padding: "10px" }}
             className="uk-margin  uk-card-default"
           >
+            <span
+              style={{
+                fontSize: "16px",
+                color: "#01aced",
+                cursor: "not-allowed",
+              }}
+              uk-tooltip="Transactions"
+              className="uk-margin-right"
+            >
+              (T)
+            </span>
             <Tab
               label="Supplier Tax Invoices"
               isActive={activeTab === "invoices"}
@@ -34,6 +45,17 @@ export const SuppliersView = observer(() => {
               isActive={activeTab === "receipts"}
               onClick={() => handleTabClick("receipts")}
             />
+            <span
+              style={{
+                fontSize: "16px",
+                color: "#01aced",
+                cursor: "not-allowed",
+              }}
+              uk-tooltip="Reports"
+              className="uk-margin-right"
+            >
+              (R)
+            </span>
             <Tab
               label="Supplier Balance"
               isActive={activeTab === "balance"}

@@ -20,7 +20,7 @@ import { Communication } from "./logged_in_admin/bcms/communication/Communicatio
 import { BodyCorperates } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/BodyCorperates";
 import Owners from "./logged_in_admin/bcms/bodyCorperates/Owners";
 import { ViewUnit } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/ViewUnits";
-import { UnitInfor } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/UnitInfo";
+import { UnitInfor } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/unit-details/UnitInfo";
 import { OwnerAccount } from "./logged_in_admin/bcms/owner-accounts/invoices/OwnerAccounts";
 import Settings from "./logged_in_admin/profiles/Settings";
 import Departments from "./logged_in_admin/team/departments/Departments";
@@ -33,7 +33,7 @@ import { OwnerViewInvoice } from "./logged_in_admin/bcms/owner-accounts/invoices
 import { VerifyInvoice } from "./logged_in_admin/bcms/accounting/invoices/customer-invoices/verify/VerifyInvoice";
 import { ViewInvoice } from "./logged_in_admin/bcms/accounting/invoices/customer-invoices/verify/ViewInvoice";
 import { OwnerRecuringInvoices } from "./logged_in_admin/bcms/owner-accounts/recuring-invoices/OwnerRecuringInvoices";
-import { UnitDetails } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/UnitDetails";
+import { UnitDetails } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/unit-details/UnitDetails";
 import { Supplier } from "./logged_in_admin/bcms/Types/suppliers/Supplier";
 import { Transfer } from "./logged_in_admin/bcms/Types/transfers/Transfer";
 import { AccountType } from "./logged_in_admin/bcms/Types/accounts/Account";
@@ -48,6 +48,9 @@ import Accounts from "./logged_in_admin/bcms/accounting/stakeholders/accounts/Ac
 import { CopiedInvoices } from "./logged_in_admin/bcms/accounting/invoices/customer-invoices/CopiedInvoicesView";
 import { SuppliersView } from "./logged_in_admin/bcms/accounting/stakeholders/suppliers/Suppliers";
 import { CopiedInvoicesAcc } from "./logged_in_admin/bcms/accounting/invoices/customer-invoices/CopiedInvoicesAccView";
+import Hub from "./logged_in_admin/bcms/accounting/accountants-hub/Hub";
+import Categories from "./logged_in_admin/bcms/Types/accounts/categories/Categories";
+import { BankingTransactions } from "./logged_in_admin/bcms/accounting/banking-transactions/BankingTransaction";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -96,7 +99,7 @@ const ADMIN_USER_ROUTES = () => {
             element={<RecurringInvoices />}
           /> */}
           <Route path={`accounting/account`} element={<Accounts />} />
-
+          <Route path={`accounting/accountants-hub`} element={<Hub />} />
           <Route
             path={`accounting/expense-tracking`}
             element={<ExpenseTracking />}
@@ -110,20 +113,31 @@ const ADMIN_USER_ROUTES = () => {
             path={`accounting/statements/customer-nedbank`}
             element={<CustomerReportNEDBANK />}
           />
-          {/* <Route path={`accounting/statements/customer-windhoek`} element={<CustomerReportsFNB />} /> */}
           <Route
             path={`accounting/statements/supplier`}
             element={<SupplierReportsNEDBANK />}
+          />a
+          <Route
+            path={`accounting/banking`}
+            element={<BankingTransactions />}
           />
           <Route
             path={`accounting/statements/supplier-fnb`}
             element={<SupplierReportsFNB />}
           />
+          <Route
+            path={`/c/accounting/invoices/copiedAcc/:propertyId/:id/:yearId/:invoiceId`}
+            element={<CopiedInvoicesAcc />}
+          />
+          {/* <Route path={`accounting/statements/customer-windhoek`} element={<CustomerReportsFNB />} /> */}
           {/* <Route path={`accounting/statements/account`} element={<Statements />} /> */}
+
+          {/* property */}
 
           <Route path={`body/transfer`} element={<Transfer />} />
           <Route path={`body/suppliers`} element={<Supplier />} />
           <Route path={`body/accountType`} element={<AccountType />} />
+          <Route path={`body/account-categories`} element={<Categories />} />
 
           <Route path={`body/body-corperate`} element={<BodyCorperates />} />
           <Route
@@ -142,10 +156,6 @@ const ADMIN_USER_ROUTES = () => {
           <Route
             path={`/c/body/body-corperate/copied/:propertyId/:id/:yearId/:invoiceId`}
             element={<CopiedInvoices />}
-          />
-          <Route
-            path={`/c/accounting/invoices/copiedAcc/:propertyId/:id/:yearId/:invoiceId`}
-            element={<CopiedInvoicesAcc />}
           />
 
           <Route

@@ -82,6 +82,14 @@ const ADMIN_DRAWER = () => {
                 Accounts list
               </NavLink>
             </li>
+            <li>
+              <NavLink to={`body/account-categories`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Account Categories
+              </NavLink>
+            </li>
             {/* <li>
               <NavLink to={`body/transfer`} className="navlink">
                 <span className="uk-margin-small-right">
@@ -135,6 +143,22 @@ const ADMIN_DRAWER = () => {
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
                 Accounts
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={`accounting/accountants-hub`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Accountant's hub
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={`accounting/banking`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Banking
               </NavLink>
             </li>
             <li>

@@ -257,6 +257,8 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
       id: "",
       name: name,
       description: description,
+      category: "",
+      balance: 0
     };
     try {
       if (me?.property) await api.body.account.create(Account, me.property);
@@ -295,7 +297,7 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
   const createTransfer = async (e: any) => {
     e.preventDefault();
     setCreateLOader(true);
-    const Account: INormalAccount = {
+    const Account = {
       id: "",
       name: name,
       description: description,

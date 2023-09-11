@@ -25,7 +25,7 @@ export const SupplierTable = observer(({ data }: IProp) => {
           //   columns={column}
           columns={columns}
           //   getRowId={(row) => row.id}
-          rowHeight={50}
+          rowHeight={40}
         />
       </Box>
     </>

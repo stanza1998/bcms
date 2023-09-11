@@ -193,10 +193,13 @@ const NavBar = observer(() => {
                   fontSize: "12px",
                 }}
               >
+                <IconButton
+                  onClick={onCreateAccount}
+                  uk-tooltip="Create new account"
+                >
+                  <AddIcon style={{ color: "white", fontSize: "16px" }} />
+                </IconButton>
                 <span style={{ cursor: "pointer" }} onClick={onUpdateAccoount}>
-                  <IconButton onClick={onCreateAccount}>
-                    <AddIcon style={{ color: "white", fontSize: "11px" }} />
-                  </IconButton>{" "}
                   Bank Account Name:{" "}
                   {bank_accounts
                     .filter((p) => p.id === me?.bankAccountInUse)
@@ -350,7 +353,7 @@ const NavBar = observer(() => {
             data-uk-close
           ></button>
           {loading && <p>loading....</p>}
-          <h5 className="uk-modal-title">Switch Acconts</h5>
+          <h5 className="uk-modal-title">Switch Accounts</h5>
           <select
             className="uk-input"
             onChange={(e) => setAccount(e.target.value)}

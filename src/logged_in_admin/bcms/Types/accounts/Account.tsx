@@ -22,12 +22,17 @@ export const AccountType = observer(() => {
     const getData = async () => {
       if (!me?.property) return;
       await api.body.account.getAll(me?.property);
+      await api.body.accountCategory.getAll(me?.property);
     };
     getData();
   }, []);
 
   const accounts = store.bodyCorperate.account.all.map((acc) => {
     return acc.asJson;
+  });
+
+  const categories = store.bodyCorperate.accountCategory.all.map((c) => {
+    return c.asJson;
   });
 
   return (
@@ -47,7 +52,7 @@ export const AccountType = observer(() => {
             </div>
           </div>
         </div>
-        <AccountTable data={accounts} />
+        <AccountTable data={accounts} categories={categories} />
       </div>
       <Modal modalId={DIALOG_NAMES.BODY.ALLOCATE_DIALOGS}>
         <AccountDialog />

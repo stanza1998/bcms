@@ -1,33 +1,40 @@
 import React, { useState } from "react";
 import { observer } from "mobx-react-lite";
-import { useAppContext } from "../../../../shared/functions/Context";
-import showModalFromId from "../../../../shared/functions/ModalShow";
-import DIALOG_NAMES from "../../../dialogs/Dialogs";
-import { FailedAction } from "../../../../shared/models/Snackbar";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { Box, IconButton } from "@mui/material";
+import { Box } from "@mui/material";
 import { INormalAccount } from "../../../../shared/models/Types/Account";
+import { IAccountCategory } from "../../../../shared/models/Types/AccountCategories";
 
 interface IProp {
   data: INormalAccount[];
+  categories: IAccountCategory[];
 }
 
-export const AccountTable = observer(({ data }: IProp) => {
-  const { store, api, ui } = useAppContext();
+export const AccountTable = observer(({ data, categories }: IProp) => {
   const columns: GridColDef[] = [
-    { field: "name", headerName: "Name", width: 400 },
-    { field: "description", headerName: "Description", width: 400 },
+    { field: "name", headerName: "Name", width: 300 },
+    {
+      field: "category",
+      headerName: "Category",
+      width: 300,
+      renderCell: (params) => {
+        const category = categories.find((c) => c.id === params.row.category);
+        return <>{category ? category.name : "Unknown"}</>;
+      },
+    },
+    { field: "description", headerName: "Description", width: 300 },
+    { field: "balance", headerName: "Balance", width: 100 },
   ];
 
   return (
     <>
-      <Box sx={{ height: 450 }} className="companies-grid">
+      <Box sx={{ height: 350 }} className="companies-grid">
         <DataGrid
           rows={data}
           //   columns={column}
           columns={columns}
           //   getRowId={(row) => row.id}
-          rowHeight={50}
+          rowHeight={40}
         />
       </Box>
     </>
