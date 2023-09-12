@@ -3,6 +3,7 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import { Box } from "@mui/material";
 import { IReceiptsPayments } from "../../../../../../shared/models/receipts-payments/ReceiptsPayments";
+import { nadFormatter } from "../../../../../shared/NADFormatter";
 
 interface IProp {
   data: IReceiptsPayments[];
@@ -20,9 +21,14 @@ const PaymentGrid = observer(({ data }: IProp) => {
       field: "credit",
       headerName: "Credit",
       width: 140,
-      valueFormatter: (params) => `NAD ${parseInt(params.value).toFixed(2)}`,
+      renderCell: (params) => <> {nadFormatter.format(params.row.credit)}</>,
     },
-    { field: "balance", headerName: "Balance", width: 0 },
+    {
+      field: "balance",
+      headerName: "Balance",
+      width: 0,
+      renderCell: (params) => <> {nadFormatter.format(params.row.balance)}</>,
+    },
   ];
 
   return (

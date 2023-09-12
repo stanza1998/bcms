@@ -5,6 +5,7 @@ import { Box } from "@mui/material";
 import { ICreditNote } from "../../../../../../shared/models/credit-notes-returns/CreditNotesReturns";
 import { ISupplier } from "../../../../../../shared/models/Types/Suppliers";
 import { ISupplierReturns } from "../../../../../../shared/models/credit-notes-returns/SupplierReturns";
+import { nadFormatter } from "../../../../../shared/NADFormatter";
 
 interface IProp {
   data: ISupplierReturns[];
@@ -30,7 +31,7 @@ const SupplierReturnGrid = observer(({ data, suppliers }: IProp) => {
       field: "balance",
       headerName: "balance",
       width: 390,
-      valueFormatter: (params) => `NAD ${params.value.toFixed(2)}`,
+      renderCell: (params) => <> {nadFormatter.format(params.row.balance)}</>,
     },
     {
       field: "referecnce",

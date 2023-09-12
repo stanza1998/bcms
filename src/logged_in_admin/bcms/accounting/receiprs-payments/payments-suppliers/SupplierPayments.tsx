@@ -19,6 +19,8 @@ import SaveIcon from "@mui/icons-material/Save";
 import { IBankingTransactions } from "../../../../../shared/models/banks/banking/BankTransactions";
 import ArrowCircleUpSharpIcon from "@mui/icons-material/ArrowCircleUpSharp";
 import { nadFormatter } from "../../../../shared/NADFormatter";
+import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../../../../shared/database/FirebaseConfig";
 
 const SupplierPayment = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -74,6 +76,29 @@ const SupplierPayment = observer(() => {
       } catch (error) {
         console.log(error);
       }
+
+    try {
+      const supplierPath = `BodyCoperate/${me?.property}`;
+      const supplierRef = doc(
+        collection(db, supplierPath, "Suppliers"),
+        supplierId
+      );
+
+      const supplierSnapShot = await getDoc(supplierRef);
+      if (supplierSnapShot.exists()) {
+        const supplierData = supplierSnapShot.data();
+        const supplierBalance = supplierData.balance || 0;
+        const supplierNewBalance = supplierBalance + credit;
+        await updateDoc(supplierRef, { balance: supplierNewBalance });
+
+        console.log("Balance updated successfully");
+      } else {
+        console.log("Docuemnt not found");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
     const bank_transaction: IBankingTransactions = {
       id: "",
       date: date,
@@ -159,7 +184,7 @@ const SupplierPayment = observer(() => {
         }
         rightControls={
           <div>
-            <IconButton uk-tooltip="Create Invoice" onClick={onCreate}>
+            <IconButton uk-tooltip="Create Supplier Payment" onClick={onCreate}>
               <CreateNewFolderIcon />
             </IconButton>
             <IconButton uk-tooltip="Print invoices">

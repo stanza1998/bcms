@@ -6,6 +6,7 @@ import { IUnit } from "../../../../../shared/models/bcms/Units";
 import { INormalAccount } from "../../../../../shared/models/Types/Account";
 import { ISupplier } from "../../../../../shared/models/Types/Suppliers";
 import ViewHeadlineIcon from "@mui/icons-material/ViewHeadline";
+import { nadFormatter } from "../../../../shared/NADFormatter";
 
 interface IProp {
   data: IBankingTransactions[];
@@ -60,7 +61,7 @@ const BankingTransactionGrid = ({
     {
       field: "selection",
       headerName: "Selection",
-      width: 180,
+      width: 150,
       renderCell: (params) => {
         const account = accounts.find((acc) => acc.id === params.row.selection);
         return <>{account ? account.name : "Unknown Unit"}</>;
@@ -69,22 +70,24 @@ const BankingTransactionGrid = ({
     {
       field: "reference",
       headerName: "Reference",
-      width: 130,
+      width: 100,
     },
     {
       field: "VAT",
       headerName: "VAT",
-      width: 70,
+      width: 50,
     },
     {
       field: "credit",
       headerName: "Outflows",
-      width: 80,
+      width: 120,
+      renderCell: (params) => <> {nadFormatter.format(params.row.credit)}</>,
     },
     {
       field: "debit",
       headerName: "Inflows",
-      width: 80,
+      width: 120,
+      renderCell: (params) => <> {nadFormatter.format(params.row.debit)}</>,
     },
     {
       field: "Action",

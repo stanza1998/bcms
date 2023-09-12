@@ -73,11 +73,11 @@ const CustomerCreditNotes = observer(() => {
       };
       try {
         if (me?.property && me?.bankAccountInUse)
-          await api.body.banking_transaction.create(
-            bank_transaction,
-            me.property,
-            me.bankAccountInUse
-          );
+          // await api.body.banking_transaction.create(
+          //   bank_transaction,
+          //   me.property,
+          //   me.bankAccountInUse
+          // );
         console.log("transaction created");
       } catch (error) {
         console.log(error);

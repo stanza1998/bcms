@@ -21,12 +21,16 @@ import {
   updateDoc,
   runTransaction,
   Transaction,
+  getDocs,
 } from "firebase/firestore";
 import { db } from "../../../../../shared/database/FirebaseConfig";
 import { FailedAction } from "../../../../../shared/models/Snackbar";
 import { IInvoice } from "../../../../../shared/models/invoices/Invoices";
 
 import GridViewIcon from "@mui/icons-material/GridView";
+import { nadFormatter } from "../../../../shared/NADFormatter";
+import { IReceiptsPayments } from "../../../../../shared/models/receipts-payments/ReceiptsPayments";
+import { IBankingTransactions } from "../../../../../shared/models/banks/banking/BankTransactions";
 
 export const ViewUnit = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -36,6 +40,7 @@ export const ViewUnit = observer(() => {
   const [newDateIssued, setNewDateIssued] = useState("");
   const [ref, setRef] = useState("");
   const me = store.user.meJson;
+  const [selection, setSelection] = useState<string>("");
 
   const [viewBody, setBody] = useState<IBodyCop | undefined>({
     ...defaultBodyCop,
@@ -69,13 +74,14 @@ export const ViewUnit = observer(() => {
   const [masterInvoices, setMasterInvoices] = useState<IInvoice[]>([]);
 
   useEffect(() => {
-    const getData = () => {
+    const getData = async () => {
       const masterInvoices = store.bodyCorperate.invoice.all
         .filter((inv) => inv.asJson.propertyId === propertyId)
         .map((inv) => {
           return inv.asJson;
         });
       setMasterInvoices(masterInvoices);
+      if (me?.property) await api.body.account.getAll(me.property);
     };
     getData();
   }, [propertyId, store.bodyCorperate.invoice.all]);
@@ -169,6 +175,12 @@ export const ViewUnit = observer(() => {
     const generatedInvoiceNumber = `INV000${formattedNumber}`; // Add the prefix "INV" to the number
     return generatedInvoiceNumber;
   };
+  const generateRCPNumber = () => {
+    const randomNumber = Math.floor(Math.random() * 10000); // Generate a random number between 0 and 9999
+    const formattedNumber = randomNumber.toString().padStart(4, "0"); // Pad the number with leading zeros if necessary
+    const generatedInvoiceNumber = `RCP000${formattedNumber}`; // Add the prefix "INV" to the number
+    return generatedInvoiceNumber;
+  };
 
   //duplicate function
   const onDupicate = () => {
@@ -181,23 +193,22 @@ export const ViewUnit = observer(() => {
       if (!me?.property || !me?.year) {
         throw new Error("Invalid 'property' or 'year' value for duplication.");
       }
-
       const copiedInvoicePath = `/BodyCoperate/${me.property}/FinancialYear/${me.year}`;
       const unitPath = `/BodyCoperate/${me.property}/Units`;
-
+      // Fetch units with balance less than zero
+      const units0 = store.bodyCorperate.unit.all
+        .filter((u) => u.asJson.balance < 0)
+        .map((u) => u.asJson.id);
       if (masterInvoices.length === 0) {
         throw new Error("No master invoices to duplicate.");
       }
-
       const copiedInvoicesCollection = collection(
         db,
         copiedInvoicePath,
         "CopiedInvoices"
       );
 
-      const updateUnitBalancesTransaction = async (
-        transaction: Transaction
-      ) => {
+      const updateUnitBalancesTransaction = async (transaction: any) => {
         const unitCollectionRef = collection(db, unitPath);
         const updates = [];
 
@@ -207,13 +218,64 @@ export const ViewUnit = observer(() => {
           const unitDoc = await transaction.get(unitDocRef);
 
           if (unitDoc.exists()) {
-            // Check if the document exists
-            const currentBalance = unitDoc.data().balance || 0; // Use default value if balance is undefined
+            const currentBalance = unitDoc.data().balance || 0;
             const newBalance = currentBalance + totalDue;
 
             updates.push({ ref: unitDocRef, data: { balance: newBalance } });
-          } else {
-            console.error(`Unit document ${unitId} does not exist.`);
+
+            // Check if balance is less than zero
+            if (currentBalance < 0) {
+              // Create a customer receipt
+              const receiptData = {
+                unitId,
+                id: "",
+                date: newDateIssued,
+                reference: ref,
+                transactionType: "Customer Receipt",
+                description: "Credit Payment",
+                debit: totalDue.toFixed(2),
+                credit: "",
+                balance: "",
+                propertyId: me.property || "",
+                invoiceNumber: "",
+                rcp: generateRCPNumber(),
+                supplierId: "",
+              };
+
+              if (me?.property && me?.year && me?.month) {
+                await api.body.receiptPayments.create(
+                  receiptData,
+                  me.property,
+                  me.year,
+                  me.month
+                );
+              }
+              const bank_transaction: IBankingTransactions = {
+                id: "",
+                date: newDateIssued,
+                payee: unitId,
+                description: "Credit Payment",
+                type: "Customer",
+                selection: selection,
+                reference: "Customer Receipt",
+                VAT: "Exempted",
+                credit: "",
+                debit: totalDue.toFixed(2),
+              };
+              try {
+                if (me?.property && me?.bankAccountInUse)
+                  await api.body.banking_transaction.create(
+                    bank_transaction,
+                    me.property,
+                    me.bankAccountInUse
+                  );
+                console.log("transaction created");
+              } catch (error) {
+                console.log(error);
+              }
+            } else {
+              console.error(`Unit document ${unitId} does not exist.`);
+            }
           }
         }
 
@@ -232,9 +294,27 @@ export const ViewUnit = observer(() => {
         copiedInvoice.dateIssued = newDateIssued;
 
         const newInvoiceRef = doc(copiedInvoicesCollection);
-        await setDoc(newInvoiceRef, copiedInvoice);
         const generatedDocId = newInvoiceRef.id;
         copiedInvoice.invoiceId = generatedDocId;
+
+        // Debug Logging: Check masterInvoice.totalDue
+        console.log("masterInvoice.totalDue:", masterInvoice.totalDue);
+
+        // Check if the unit ID exists in units0
+        if (units0.includes(masterInvoice.unitId)) {
+          copiedInvoice.totalPaid = masterInvoice.totalDue;
+        }
+
+        // Debug Logging: Check copiedInvoice before setDoc
+        console.log("copiedInvoice before setDoc:", copiedInvoice);
+
+        // Set copiedInvoice in Firestore
+        await setDoc(newInvoiceRef, copiedInvoice);
+
+        // Debug Logging: Check copiedInvoice after setDoc
+        console.log("copiedInvoice after setDoc:", copiedInvoice);
+
+        // Update invoiceId
         await updateDoc(newInvoiceRef, { invoiceId: generatedDocId });
 
         console.log("Invoice duplicated and saved:", copiedInvoice);
@@ -365,7 +445,15 @@ export const ViewUnit = observer(() => {
                             return "+264" + user.cellphone;
                           })}
                       </td>
-                      <td>N$ {unit.asJson.balance.toFixed(2)}</td>
+                      <td
+                        style={{
+                          background:
+                            unit.asJson.balance >= 0 ? "green" : "red",
+                          color: "white",
+                        }}
+                      >
+                        {nadFormatter.format(unit.asJson.balance)}
+                      </td>
                       <td className="uk-text-right">
                         <span
                           style={{
@@ -554,6 +642,17 @@ export const ViewUnit = observer(() => {
                 value={newDate}
                 onChange={(e) => setNewDate(e.target.value)}
               />
+              <br />
+              <br />
+              <label htmlFor="">select sccount</label>
+              <br />
+              <br />
+              <select className="uk-input" onChange={(e) => setSelection}>
+                <option>select account</option>
+                {store.bodyCorperate.account.all.map((a) => (
+                  <option value={a.asJson.id}>{a.asJson.name}</option>
+                ))}
+              </select>
               <button
                 onClick={duplicated}
                 disabled={loadingF}
@@ -644,4 +743,80 @@ export const ViewUnit = observer(() => {
 //   hideModalFromId(DIALOG_NAMES.BODY.VIEW_INVOICE);
 //   navigate("/c/body/body-corperate");
 //   window.location.reload();
+// };
+
+// const duplicated = async () => {
+//   setLoadingF(true);
+//   try {
+//     if (!me?.property || !me?.year) {
+//       throw new Error("Invalid 'property' or 'year' value for duplication.");
+//     }
+
+//     const copiedInvoicePath = `/BodyCoperate/${me.property}/FinancialYear/${me.year}`;
+//     const unitPath = `/BodyCoperate/${me.property}/Units`;
+
+//     if (masterInvoices.length === 0) {
+//       throw new Error("No master invoices to duplicate.");
+//     }
+
+//     const copiedInvoicesCollection = collection(
+//       db,
+//       copiedInvoicePath,
+//       "CopiedInvoices"
+//     );
+
+//     const updateUnitBalancesTransaction = async (
+//       transaction: Transaction
+//     ) => {
+//       const unitCollectionRef = collection(db, unitPath);
+//       const updates = [];
+
+//       for (const masterInvoice of masterInvoices) {
+//         const { unitId, totalDue } = masterInvoice;
+//         const unitDocRef = doc(unitCollectionRef, unitId);
+//         const unitDoc = await transaction.get(unitDocRef);
+
+//         if (unitDoc.exists()) {
+//           // Check if the document exists
+//           const currentBalance = unitDoc.data().balance || 0; // Use default value if balance is undefined
+//           const newBalance = currentBalance + totalDue;
+
+//           updates.push({ ref: unitDocRef, data: { balance: newBalance } });
+//         } else {
+//           console.error(`Unit document ${unitId} does not exist.`);
+//         }
+//       }
+
+//       for (const update of updates) {
+//         transaction.update(update.ref, update.data);
+//       }
+//     };
+
+//     await runTransaction(db, updateUnitBalancesTransaction);
+
+//     for (const masterInvoice of masterInvoices) {
+//       const copiedInvoice = { ...masterInvoice };
+//       copiedInvoice.invoiceNumber = generateInvoiceNumber();
+//       copiedInvoice.dueDate = newDate;
+//       copiedInvoice.references = ref;
+//       copiedInvoice.dateIssued = newDateIssued;
+
+//       const newInvoiceRef = doc(copiedInvoicesCollection);
+//       await setDoc(newInvoiceRef, copiedInvoice);
+//       const generatedDocId = newInvoiceRef.id;
+//       copiedInvoice.invoiceId = generatedDocId;
+//       await updateDoc(newInvoiceRef, { invoiceId: generatedDocId });
+
+//       console.log("Invoice duplicated and saved:", copiedInvoice);
+//     }
+
+//     hideModalFromId(DIALOG_NAMES.BODY.VIEW_INVOICE);
+//     navigate("/c/body/body-corperate");
+//     window.location.reload();
+//   } catch (error) {
+//     console.error("Error duplicating invoice:", error);
+//     FailedAction(ui);
+//   } finally {
+//     setLoadingF(false);
+//   }
 // };

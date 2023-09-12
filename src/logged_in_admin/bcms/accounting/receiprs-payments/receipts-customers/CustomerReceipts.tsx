@@ -19,6 +19,8 @@ import SaveIcon from "@mui/icons-material/Save";
 import { IBankingTransactions } from "../../../../../shared/models/banks/banking/BankTransactions";
 import ArrowCircleUpSharpIcon from "@mui/icons-material/ArrowCircleUpSharp";
 import { nadFormatter } from "../../../../shared/NADFormatter";
+import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../../../../shared/database/FirebaseConfig";
 
 const CustomerReceipts = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -75,6 +77,45 @@ const CustomerReceipts = observer(() => {
       } catch (error) {
         console.log(error);
       }
+    try {
+      const copiedInvoicesPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
+      const invoiceRef = doc(
+        collection(db, copiedInvoicesPath, "CopiedInvoices"),
+        invoiceNumber
+      );
+      const invoiceSnapshot = await getDoc(invoiceRef);
+      if (invoiceSnapshot.exists()) {
+        const invoiceData = invoiceSnapshot.data();
+        const existingTotalPaid = invoiceData.totalPaid || 0; // Default to 0 if totalPaid doesn't exist
+        const updatedTotalPaid = existingTotalPaid + debit;
+        await updateDoc(invoiceRef, {
+          totalPaid: updatedTotalPaid,
+        });
+      } else {
+        console.log("Invoice not found.");
+        return; // Return early if the invoice doesn't exist
+      }
+
+      const myPath = `BodyCoperate/${me?.property}`;
+      const accountRef = doc(collection(db, myPath, "Units"), unitId);
+      const userSnapshot = await getDoc(accountRef);
+
+      if (userSnapshot.exists()) {
+        const userData = userSnapshot.data();
+        const currentBalance = userData.balance || 0;
+        const newBalance = currentBalance - debit;
+
+        await updateDoc(accountRef, {
+          balance: newBalance,
+        });
+        console.log("Balance updated successfully unit");
+      } else {
+        console.log("Document not found");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+
     const bank_transaction: IBankingTransactions = {
       id: "",
       date: date,
@@ -259,7 +300,7 @@ const CustomerReceipts = observer(() => {
                 {invoices
                   .filter((inv) => inv.unitId === unitId)
                   .map((inv) => (
-                    <option value={inv.invoiceNumber}>
+                    <option value={inv.invoiceId}>
                       Invoice Number: {inv.invoiceNumber} | Total Paid:{" "}
                       {inv.totalPaid} | Total Due {inv.totalDue}
                     </option>

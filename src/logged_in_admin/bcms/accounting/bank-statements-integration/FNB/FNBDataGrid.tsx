@@ -204,6 +204,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
         credit: "",
         debit: Math.abs(amount).toFixed(2),
       };
+
       try {
         if (me?.property && me?.bankAccountInUse)
           await api.body.banking_transaction.create(
@@ -256,7 +257,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
         const myPath = `BodyCoperate/${me?.property}`;
         const accountRef = doc(
           collection(db, myPath, "BankAccount"),
-          "SqJqFv8O6bS7YUWJLHeg"
+          me?.bankAccountInUse
         );
         const userSnapshot = await getDoc(accountRef);
 
@@ -275,6 +276,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       } catch (error) {
         console.error("Error:", error);
       }
+
       const trans = store.bodyCorperate.fnb.getById(id);
       const bank_transaction: IBankingTransactions = {
         id: "",

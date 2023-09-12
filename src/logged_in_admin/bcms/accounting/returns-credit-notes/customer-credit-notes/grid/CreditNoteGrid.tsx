@@ -4,6 +4,7 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Box } from "@mui/material";
 import { ICreditNote } from "../../../../../../shared/models/credit-notes-returns/CreditNotesReturns";
 import { IUnit } from "../../../../../../shared/models/bcms/Units";
+import { nadFormatter } from "../../../../../shared/NADFormatter";
 
 interface IProp {
   data: ICreditNote[];
@@ -30,7 +31,7 @@ const CreditNoteGrid = observer(({ data, units }: IProp) => {
       field: "balance",
       headerName: "balance",
       width: 200,
-      valueFormatter: (params) => `NAD ${params.value.toFixed(2)}`,
+      renderCell: (params) => <> {nadFormatter.format(params.row.balance)}</>,
     },
     { field: "invoiceNumber", headerName: "Invoice Number", width: 250 },
     {

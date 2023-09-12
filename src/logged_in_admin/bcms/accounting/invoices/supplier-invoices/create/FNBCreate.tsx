@@ -3,14 +3,6 @@ import { useState, useEffect } from "react";
 import { useAppContext } from "../../../../../../shared/functions/Context";
 import { IFNB } from "../../../../../../shared/models/banks/FNBModel";
 import { useNavigate } from "react-router-dom";
-import {
-  IBodyCop,
-  defaultBodyCop,
-} from "../../../../../../shared/models/bcms/BodyCorperate";
-import {
-  ISupplier,
-  defaultSupplier,
-} from "../../../../../../shared/models/Types/Suppliers";
 import showModalFromId, {
   hideModalFromId,
 } from "../../../../../../shared/functions/ModalShow";
@@ -25,6 +17,7 @@ import { ISupplierInvoices } from "../../../../../../shared/models/invoices/Supp
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import Modal from "../../../../../../shared/components/Modal";
 import { Box } from "@mui/material";
+import { IReceiptsPayments } from "../../../../../../shared/models/receipts-payments/ReceiptsPayments";
 
 export const FNBCreate = observer(() => {
   const { store, api } = useAppContext();
@@ -45,7 +38,7 @@ export const FNBCreate = observer(() => {
     return p.asJson;
   });
 
-  const transactions = store.bodyCorperate.fnb.all
+  const transactions = store.bodyCorperate.receiptsPayments.all
     .filter(
       (t) =>
         t.asJson.propertyId === me?.property &&
@@ -83,7 +76,7 @@ export const FNBCreate = observer(() => {
 });
 
 interface IProp {
-  data: IFNB[];
+  data: IReceiptsPayments[];
   supplierId: string;
 }
 
@@ -95,10 +88,6 @@ interface ServiceDetails {
 }
 
 const FNBGrid = observer(({ data, supplierId }: IProp) => {
-  console.log(
-    "🚀 ~ file: FNBCreate.tsx:98 ~ FNBGrid ~ supplierId:",
-    supplierId
-  );
   const { store, api, ui } = useAppContext();
   const navigate = useNavigate();
   const currentDate1 = new Date().toISOString().slice(0, 10);
@@ -261,12 +250,13 @@ const FNBGrid = observer(({ data, supplierId }: IProp) => {
     { field: "date", headerName: "Date", width: 150 },
     { field: "description", headerName: "Description", width: 150 },
     {
-      field: "references",
+      field: "reference",
       headerName: "Reference",
       width: 150,
     },
-    { field: "amount", headerName: "Amount", width: 150 },
-    { field: "balance", headerName: "Balance", width: 150 },
+    { field: "transactionType", headerName: "Transaction Type", width: 150 },
+    { field: "debit", headerName: "Debit", width: 150 },
+    { field: "credit", headerName: "Credit", width: 150 },
     {
       field: "Action",
       headerName: "Action",
@@ -285,13 +275,13 @@ const FNBGrid = observer(({ data, supplierId }: IProp) => {
 
   return (
     <>
-      <Box className="companies-grid">
+      <Box sx={{ height: 300 }} className="companies-grid">
         <DataGrid
           rows={data}
           //   columns={column}
           columns={columns}
           getRowId={(row) => row.id}
-          rowHeight={50}
+          rowHeight={40}
         />
       </Box>
       <button className="uk-button primary uk-margin" onClick={createInvoice}>

@@ -42,9 +42,6 @@ export const NEDBANKCreate = observer(() => {
     getData();
   }, [me?.property]);
 
-  const properties = store.bodyCorperate.bodyCop.all.map((p) => {
-    return p.asJson;
-  });
   const accounts = store.bodyCorperate.supplier.all.map((p) => {
     return p.asJson;
   });
@@ -61,23 +58,6 @@ export const NEDBANKCreate = observer(() => {
   return (
     <div>
       <div>
-        <label htmlFor="">Select Property</label>
-        <br />
-        <select
-          name=""
-          id=""
-          className="uk-input"
-          onChange={(e) => setPropertyId(e.target.value)}
-          style={{ width: "30%" }}
-        >
-          <option value="">Select Property</option>
-          {properties.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.BodyCopName}
-            </option>
-          ))}
-        </select>
-        <br />
         <br />
         <label htmlFor="">Select Supplier Account</label>
         <br />

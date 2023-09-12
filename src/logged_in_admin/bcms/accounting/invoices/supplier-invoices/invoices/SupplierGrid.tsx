@@ -28,6 +28,7 @@ import {
   ISupplierInvoices,
   defaultSupplierInvoices,
 } from "../../../../../../shared/models/invoices/SupplierInvoice";
+import { nadFormatter } from "../../../../../shared/NADFormatter";
 
 interface IProp {
   data: ISupplierInvoices[];
@@ -106,12 +107,25 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
   };
 
   const columns: GridColDef[] = [
-    { field: "invoiceNumber", headerName: "Invoice Number", width: 250 },
-    { field: "dateIssued", headerName: "Date Issued", width: 250 },
-    { field: "dueDate", headerName: "Due Date", width: 250 },
+    { field: "invoiceNumber", headerName: "Invoice Number", width: 180 },
+    { field: "dateIssued", headerName: "Date Issued", width: 180 },
+    { field: "dueDate", headerName: "Due Date", width: 180 },
+    {
+      field: "totalPaid",
+      headerName: "Total Paid",
+      width: 100,
+      renderCell: (params) => <>{nadFormatter.format(params.row.totalPaid)}</>,
+    },
+    {
+      field: "totalDue",
+      headerName: "Total Amount",
+      width: 180,
+      renderCell: (params) => <>{nadFormatter.format(params.row.totalDue)}</>,
+    },
     {
       field: "Status",
       headerName: "Status",
+      width: 120,
       renderCell: (params) => (
         <div>
           {params.row.totalPaid >= params.row.totalDue && (

@@ -25,6 +25,7 @@ import DIALOG_NAMES from "../../../../dialogs/Dialogs";
 import Modal from "../../../../../shared/components/Modal";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import PreviewIcon from "@mui/icons-material/Preview";
+import { nadFormatter } from "../../../../shared/NADFormatter";
 
 interface IProp {
   data: ICopiedInvoice[];
@@ -119,13 +120,13 @@ const InvoicesGrid = observer(({ data }: IProp) => {
       field: "totalPaid",
       headerName: "Total Paid",
       width: 200,
-      valueFormatter: (params) => `NAD ${params.value.toFixed(2)}`,
+      renderCell: (params) => <> {nadFormatter.format(params.row.totalPaid)}</>,
     },
     {
       field: "totalDue",
       headerName: "Total Amount",
       width: 200,
-      valueFormatter: (params) => `NAD ${params.value.toFixed(2)}`,
+      renderCell: (params) => <> {nadFormatter.format(params.row.totalDue)}</>,
     },
     {
       field: "Status",

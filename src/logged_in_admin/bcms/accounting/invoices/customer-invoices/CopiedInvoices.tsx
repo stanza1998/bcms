@@ -59,8 +59,8 @@ export const CopiedInvoices = observer(() => {
         leftControls={
           <div className="">
             <span className="uk-margin-right" style={{ fontSize: "18px" }}>
-              <ArrowCircleDownSharpIcon style={{ color: "red" }} /> Total Due:{" "}
-              {formattedTotalDue}
+              <ArrowCircleDownSharpIcon style={{ color: "red" }} /> Total
+              Amount: {formattedTotalDue}
             </span>
             <span style={{ fontSize: "18px" }}>
               <ArrowCircleUpSharpIcon style={{ color: "green" }} /> Total Paid:{" "}

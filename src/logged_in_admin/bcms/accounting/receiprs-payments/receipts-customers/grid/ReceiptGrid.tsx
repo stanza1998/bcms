@@ -4,6 +4,7 @@ import React from "react";
 import { Box } from "@mui/material";
 import { IReceiptsPayments } from "../../../../../../shared/models/receipts-payments/ReceiptsPayments";
 import { param } from "jquery";
+import { nadFormatter } from "../../../../../shared/NADFormatter";
 
 interface IProp {
   data: IReceiptsPayments[];
@@ -20,10 +21,15 @@ const ReceiptGrid = observer(({ data }: IProp) => {
       field: "debit",
       headerName: "Debit",
       width: 140,
-      valueFormatter: (params) => `NAD ${parseInt(params.value).toFixed(2)}`,
+      renderCell: (params) => <> {nadFormatter.format(params.row.debit)}</>,
     },
     { field: "credit", headerName: "Credit", width: 140 },
-    { field: "balance", headerName: "Balance", width: 0 },
+    {
+      field: "balance",
+      headerName: "Balance",
+      width: 0,
+      renderCell: (params) => <> {nadFormatter.format(params.row.balance)}</>,
+    },
   ];
 
   return (

@@ -33,34 +33,7 @@ export const CreateSupplierInvoice = observer(() => {
           </div>
         </div>
         <div className="uk-margin">
-          <div>
-            <div
-              style={{ padding: "10px" }}
-              className="uk-margin  uk-card-default"
-            >
-              <Tab
-                label="First National Bank"
-                isActive={activeTab === "fnb"}
-                onClick={() => handleTabClick("fnb")}
-              />
-              <Tab
-                label="NEDBANK"
-                isActive={activeTab === "nedbank"}
-                onClick={() => handleTabClick("nedbank")}
-              />
-
-              <Tab
-                label="Bank Windhoek"
-                isActive={activeTab === "whk"}
-                onClick={() => handleTabClick("whk")}
-              />
-            </div>
-            <div className="tab-content">
-              {activeTab === "nedbank" && <NEDBANKCreate />}
-              {activeTab === "fnb" && <FNBCreate />}
-              {/* {activeTab === "whk" && <WHKCreate />} */}
-            </div>
-          </div>
+          <NEDBANKCreate />
         </div>
       </div>
     </div>
