@@ -20,17 +20,14 @@ import {
   setDoc,
   updateDoc,
   runTransaction,
-  Transaction,
-  getDocs,
 } from "firebase/firestore";
 import { db } from "../../../../../shared/database/FirebaseConfig";
 import { FailedAction } from "../../../../../shared/models/Snackbar";
 import { IInvoice } from "../../../../../shared/models/invoices/Invoices";
-
 import GridViewIcon from "@mui/icons-material/GridView";
 import { nadFormatter } from "../../../../shared/NADFormatter";
-import { IReceiptsPayments } from "../../../../../shared/models/receipts-payments/ReceiptsPayments";
 import { IBankingTransactions } from "../../../../../shared/models/banks/banking/BankTransactions";
+import { IReceiptsPayments } from "../../../../../shared/models/receipts-payments/ReceiptsPayments";
 
 export const ViewUnit = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -193,15 +190,20 @@ export const ViewUnit = observer(() => {
       if (!me?.property || !me?.year) {
         throw new Error("Invalid 'property' or 'year' value for duplication.");
       }
+      //gets path for collections
       const copiedInvoicePath = `/BodyCoperate/${me.property}/FinancialYear/${me.year}`;
       const unitPath = `/BodyCoperate/${me.property}/Units`;
       // Fetch units with balance less than zero
+
       const units0 = store.bodyCorperate.unit.all
         .filter((u) => u.asJson.balance < 0)
         .map((u) => u.asJson.id);
+        //check if matser inivoices are 0
       if (masterInvoices.length === 0) {
         throw new Error("No master invoices to duplicate.");
       }
+
+      //copied invoices operation
       const copiedInvoicesCollection = collection(
         db,
         copiedInvoicePath,
@@ -226,7 +228,7 @@ export const ViewUnit = observer(() => {
             // Check if balance is less than zero
             if (currentBalance < 0) {
               // Create a customer receipt
-              const receiptData = {
+              const receiptData:IReceiptsPayments = {
                 unitId,
                 id: "",
                 date: newDateIssued,

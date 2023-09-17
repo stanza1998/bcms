@@ -1,79 +1,30 @@
 import { observer } from "mobx-react-lite";
-import { useState, useEffect } from "react";
-import { useAppContext } from "../../../../../../shared/functions/Context";
-import { IFNB } from "../../../../../../shared/models/banks/FNBModel";
+import { IReceiptsPayments } from "../../../../../../../shared/models/receipts-payments/ReceiptsPayments";
+import { useAppContext } from "../../../../../../../shared/functions/Context";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import {
+  IBodyCop,
+  defaultBodyCop,
+} from "../../../../../../../shared/models/bcms/BodyCorperate";
+import {
+  ISupplier,
+  defaultSupplier,
+} from "../../../../../../../shared/models/Types/Suppliers";
 import showModalFromId, {
   hideModalFromId,
-} from "../../../../../../shared/functions/ModalShow";
-import DIALOG_NAMES from "../../../../../dialogs/Dialogs";
+} from "../../../../../../../shared/functions/ModalShow";
+import DIALOG_NAMES from "../../../../../../dialogs/Dialogs";
+import { ISupplierInvoices } from "../../../../../../../shared/models/invoices/SupplierInvoice";
+import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../../../../../../shared/database/FirebaseConfig";
 import {
   FailedAction,
   SuccessfulAction,
-} from "../../../../../../shared/models/Snackbar";
-import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../../../../../../shared/database/FirebaseConfig";
-import { ISupplierInvoices } from "../../../../../../shared/models/invoices/SupplierInvoice";
+} from "../../../../../../../shared/models/Snackbar";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import Modal from "../../../../../../shared/components/Modal";
 import { Box } from "@mui/material";
-import { IReceiptsPayments } from "../../../../../../shared/models/receipts-payments/ReceiptsPayments";
-
-export const FNBCreate = observer(() => {
-  const { store, api } = useAppContext();
-  const [supplierId, setSupplierId] = useState<string>("");
-  const me = store.user.meJson;
-
-  useEffect(() => {
-    const getData = async () => {
-      if (me?.property && !me?.year && !me?.month)
-        await api.body.fnb.getAll(me.property, me.year, me.month);
-      await api.body.body.getAll();
-      if (me?.property) await api.body.supplier.getAll(me.property);
-    };
-    getData();
-  }, [me?.property, me?.year, me?.month]);
-
-  const accounts = store.bodyCorperate.supplier.all.map((p) => {
-    return p.asJson;
-  });
-
-  const transactions = store.bodyCorperate.receiptsPayments.all
-    .filter(
-      (t) =>
-        t.asJson.propertyId === me?.property &&
-        t.asJson.supplierId === supplierId
-    )
-    .map((t) => {
-      return t.asJson;
-    });
-
-  return (
-    <div>
-      <div>
-        <label htmlFor="">Select Supplier Account</label>
-        <br />
-        <select
-          name=""
-          id=""
-          className="uk-input"
-          onChange={(e) => setSupplierId(e.target.value)}
-          style={{ width: "30%" }}
-        >
-          <option value="">Select Supplier Account</option>
-          {accounts.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name} , {p.description}
-            </option>
-          ))}
-        </select>
-      </div>
-      <br />
-      <br />
-      <FNBGrid supplierId={supplierId} data={transactions} />
-    </div>
-  );
-});
+import Modal from "../../../../../../../shared/components/Modal";
 
 interface IProp {
   data: IReceiptsPayments[];
@@ -87,12 +38,9 @@ interface ServiceDetails {
   total: number;
 }
 
-const FNBGrid = observer(({ data, supplierId }: IProp) => {
+export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
   const { store, api, ui } = useAppContext();
   const navigate = useNavigate();
-  const currentDate1 = new Date().toISOString().slice(0, 10);
-  const [selectedDateIssued, setSelectedDateIssued] = useState(currentDate1);
-  const [selectedDate, setSelectedDate] = useState(currentDate1);
   const me = store.user.meJson;
   const [transactionId, setTransactionId] = useState<string[]>([]);
 
@@ -104,32 +52,51 @@ const FNBGrid = observer(({ data, supplierId }: IProp) => {
     }
   };
 
+  const currentDate = new Date();
+  const currentDate1 = new Date().toISOString().slice(0, 10);
+  const [selectedDateIssued, setSelectedDateIssued] = useState(currentDate1);
+  const [selectedDate, setSelectedDate] = useState(currentDate1);
+  const [supplier, setSupplier] = useState<ISupplier | undefined>({
+    ...defaultSupplier,
+  });
+
   useEffect(() => {
     const getProperty = async () => {
       await api.body.body.getAll();
       if (me?.property) await api.body.supplier.getAll(me.property);
-      if (me?.property && me?.year && me?.month)
-        await api.body.fnb.getAll(me.property, me.year, me.month);
+      const supplier = store.bodyCorperate.supplier.getById(supplierId);
+      setSupplier(supplier?.asJson);
     };
     getProperty();
-  }, []);
+  }, [
+    api.body.body,
+    api.body.supplier,
+    store.bodyCorperate.bodyCop,
+    store.bodyCorperate.supplier,
+    supplierId,
+    me?.property,
+  ]);
 
   //create invoice
+  // invoice
   const createInvoice = () => {
     showModalFromId(DIALOG_NAMES.BODY.CREATE_INVOICE);
   };
 
+  // generate invoice number
+
   const [invoiceNumber, setInvoiceNumber] = useState("");
 
   useEffect(() => {
+    // Generate the invoice number
     const generateInvoiceNumber = () => {
-      const randomNumber = Math.floor(Math.random() * 100000);
-      const formattedNumber = randomNumber.toString().padStart(4, "0");
-      const generatedInvoiceNumber = `SIV000${formattedNumber}`;
-      setInvoiceNumber(generatedInvoiceNumber);
+      const randomNumber = Math.floor(Math.random() * 100000); // Generate a random number between 0 and 9999
+      const formattedNumber = randomNumber.toString().padStart(4, "0"); // Pad the number with leading zeros if necessary
+      const generatedInvoiceNumber = `SIV000${formattedNumber}`; // Add the prefix "INV" to the number
+      setInvoiceNumber(generatedInvoiceNumber); // Update the state with the generated invoice number
     };
-    generateInvoiceNumber();
-
+    generateInvoiceNumber(); // Generate the invoice number when the component mounts
+    // Clean up the effect (optional)
     return () => {
       // Any cleanup code if necessary
     };
@@ -181,17 +148,18 @@ const FNBGrid = observer(({ data, supplierId }: IProp) => {
       reminderDate: "",
       totalPaid: 0,
       propertyId: me?.property || "",
-      supplierId: supplierId,
+      supplierId: supplier?.id || "",
     };
     try {
-      if (me?.property && me.year) {
+      if (me?.property && me.year)
         await api.body.supplierInvoice.create(
           InvoiceData,
           me.property,
           me.year
         );
-
-        const supplierPath = `BodyCoperate/${me.property}`;
+      //update supplierBalance
+      try {
+        const supplierPath = `BodyCoperate/${me?.property}`;
         const supplierRef = doc(
           collection(db, supplierPath, "Suppliers"),
           supplierId
@@ -208,25 +176,30 @@ const FNBGrid = observer(({ data, supplierId }: IProp) => {
         } else {
           console.log("Docuemnt not found");
         }
-        addInvoiceNumber(InvoiceData.invoiceNumber);
-        SuccessfulAction(ui);
+      } catch (error) {
+        console.log(error);
       }
+
+      //add invoice to receipts and payemnts
+      addInvoiceNumber(InvoiceData.invoiceNumber);
+      SuccessfulAction(ui);
     } catch (error) {
       FailedAction(ui);
     }
 
     setLoadingInvoice(false);
     setInvoiceNumber("");
-    setSelectedDate("");
+    // setSelectedDate("");
     hideModalFromId(DIALOG_NAMES.BODY.CREATE_INVOICE);
     navigate("/c/accounting/supplier-invoices");
   };
 
   const addInvoiceNumber = (invoiceNumber: string) => {
-    const myPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
+    const receiptsAndPaymentsPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
+
     transactionId.forEach(async (ids) => {
       const fnbStatementsRef = doc(
-        collection(db, myPath, "FNBTransactions"),
+        collection(db, receiptsAndPaymentsPath, "ReceiptsPayments"),
         ids
       );
       const fnbStatementsSnapshot = await getDoc(fnbStatementsRef);
@@ -237,26 +210,27 @@ const FNBGrid = observer(({ data, supplierId }: IProp) => {
         SuccessfulAction(ui);
         window.location.reload();
       } else {
-        console.log("NedBankStatements document not found.");
+        console.log("ReceiptsPayments document not found.");
         FailedAction(ui);
       }
     });
   };
 
+  // create the invoice
   //update transaction with supplier invoiceNumber
 
   const columns: GridColDef[] = [
-    { field: "invoiceNumber", headerName: "InvoiceNumber", width: 150 },
-    { field: "date", headerName: "Date", width: 150 },
-    { field: "description", headerName: "Description", width: 150 },
+    { field: "invoiceNumber", headerName: "InvoiceNumber", width: 130 },
+    { field: "date", headerName: "Date", width: 130 },
+    { field: "description", headerName: "Description", width: 130 },
     {
       field: "reference",
       headerName: "Reference",
-      width: 150,
+      width: 170,
     },
-    { field: "transactionType", headerName: "Transaction Type", width: 150 },
-    { field: "debit", headerName: "Debit", width: 150 },
-    { field: "credit", headerName: "Credit", width: 150 },
+    { field: "debit", headerName: "Debit", width: 130 },
+    { field: "credit", headerName: "Credit", width: 130 },
+    { field: "balance", headerName: "Balance", width: 130 },
     {
       field: "Action",
       headerName: "Action",
@@ -275,13 +249,13 @@ const FNBGrid = observer(({ data, supplierId }: IProp) => {
 
   return (
     <>
-      <Box sx={{ height: 300 }} className="companies-grid">
+      <Box className="companies-grid">
         <DataGrid
           rows={data}
           //   columns={column}
           columns={columns}
           getRowId={(row) => row.id}
-          rowHeight={40}
+          rowHeight={50}
         />
       </Box>
       <button className="uk-button primary uk-margin" onClick={createInvoice}>
@@ -303,26 +277,7 @@ const FNBGrid = observer(({ data, supplierId }: IProp) => {
           <div className="dialog-content uk-position-relative">
             <div className="reponse-form">
               <div className="uk-grid-small uk-child-width-1-1@m" data-uk-grid>
-                <div className="uk-width-1-5@m">
-                  <div className="uk-margin">
-                    <label className="uk-form-label">Property Name</label>
-                    <div className="uk-form-controls">
-                      <input
-                        id="first-name"
-                        className="uk-input uk-form-small"
-                        type="text"
-                        value={store.bodyCorperate.bodyCop.all
-                          .filter((p) => p.asJson.id === me?.property)
-                          .map((p) => {
-                            return p.asJson.BodyCopName;
-                          })}
-                        disabled
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="uk-width-1-5@m">
+                <div className="uk-width-1-3@m">
                   <div className="uk-margin">
                     <label className="uk-form-label">Invoice Number</label>
                     <div className="uk-form-controls">
@@ -335,21 +290,7 @@ const FNBGrid = observer(({ data, supplierId }: IProp) => {
                     </div>
                   </div>
                 </div>
-                <div className="uk-width-1-5@m">
-                  <div className="uk-margin">
-                    <label className="uk-form-label">Reference</label>
-                    <div className="uk-form-controls">
-                      <input
-                        id="first-name"
-                        className="uk-input uk-form-small"
-                        type="text"
-                        // value={property?.BodyCopName}
-                        disabled
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="uk-width-1-5@m">
+                <div className="uk-width-1-3@m">
                   <div className="uk-margin">
                     <label className="uk-form-label">Date</label>
                     <div className="uk-form-controls">
@@ -362,7 +303,7 @@ const FNBGrid = observer(({ data, supplierId }: IProp) => {
                     </div>
                   </div>
                 </div>
-                <div className="uk-width-1-5@m">
+                <div className="uk-width-1-3@m">
                   <div className="uk-margin">
                     <label className="uk-form-label">Due Date</label>
                     <div className="uk-form-controls">

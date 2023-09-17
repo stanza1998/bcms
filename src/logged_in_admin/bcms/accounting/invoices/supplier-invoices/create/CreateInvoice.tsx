@@ -1,18 +1,9 @@
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Tab } from "../../../../../../Tab";
-import { useAppContext } from "../../../../../../shared/functions/Context";
 import { NEDBANKCreate } from "./NEDBANK";
-import { FNBCreate } from "./FNBCreate";
 
 export const CreateSupplierInvoice = observer(() => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("fnb");
-
-  const handleTabClick = (tabLabel: string) => {
-    setActiveTab(tabLabel);
-  };
   const back = () => {
     navigate("/c/accounting/supplier-invoices");
   };

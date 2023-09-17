@@ -88,7 +88,7 @@ const SupplierPayment = observer(() => {
       if (supplierSnapShot.exists()) {
         const supplierData = supplierSnapShot.data();
         const supplierBalance = supplierData.balance || 0;
-        const supplierNewBalance = supplierBalance + credit;
+        const supplierNewBalance = supplierBalance - credit;
         await updateDoc(supplierRef, { balance: supplierNewBalance });
 
         console.log("Balance updated successfully");
