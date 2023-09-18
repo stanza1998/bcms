@@ -107,25 +107,33 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
   };
 
   const columns: GridColDef[] = [
-    { field: "invoiceNumber", headerName: "Invoice Number", width: 180 },
-    { field: "dateIssued", headerName: "Date Issued", width: 180 },
-    { field: "dueDate", headerName: "Due Date", width: 180 },
+    { field: "invoiceNumber", headerName: "Invoice Number", width: 150 },
+    { field: "dateIssued", headerName: "Date Issued", width: 150 },
+    { field: "dueDate", headerName: "Due Date", width: 100 },
     {
       field: "totalPaid",
       headerName: "Total Paid",
-      width: 100,
+      width: 150,
       renderCell: (params) => <>{nadFormatter.format(params.row.totalPaid)}</>,
     },
     {
       field: "totalDue",
       headerName: "Total Amount",
-      width: 180,
+      width: 150,
       renderCell: (params) => <>{nadFormatter.format(params.row.totalDue)}</>,
+    },
+    {
+      field: "TotalDue",
+      headerName: "Total Due",
+      width: 150,
+      renderCell: (params) => (
+        <>{nadFormatter.format(params.row.totalDue - params.row.totalPaid)}</>
+      ),
     },
     {
       field: "Status",
       headerName: "Status",
-      width: 120,
+      width: 100,
       renderCell: (params) => (
         <div>
           {params.row.totalPaid >= params.row.totalDue && (
@@ -140,7 +148,7 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
     {
       field: "Action",
       headerName: "Action",
-      width: 150,
+      width: 0,
       renderCell: (params) => (
         <div>
           <IconButton

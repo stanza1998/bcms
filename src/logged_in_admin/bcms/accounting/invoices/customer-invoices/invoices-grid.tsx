@@ -119,14 +119,22 @@ const InvoicesGrid = observer(({ data }: IProp) => {
     {
       field: "totalPaid",
       headerName: "Total Paid",
-      width: 200,
+      width: 150,
       renderCell: (params) => <> {nadFormatter.format(params.row.totalPaid)}</>,
     },
     {
       field: "totalDue",
       headerName: "Total Amount",
-      width: 200,
+      width: 150,
       renderCell: (params) => <> {nadFormatter.format(params.row.totalDue)}</>,
+    },
+    {
+      field: "TotalDue",
+      headerName: "Total Due",
+      width: 120,
+      renderCell: (params) => (
+        <> {nadFormatter.format(params.row.totalDue - params.row.totalPaid)}</>
+      ),
     },
     {
       field: "Status",

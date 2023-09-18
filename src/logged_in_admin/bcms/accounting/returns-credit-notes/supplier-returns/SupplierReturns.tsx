@@ -41,6 +41,7 @@ export const SupplierReturns = observer(() => {
 
       const creditNote: ISupplierReturns = {
         id: "",
+        date: date,
         supplierId: supplierId,
         balance: balance,
         referecnce: reference,

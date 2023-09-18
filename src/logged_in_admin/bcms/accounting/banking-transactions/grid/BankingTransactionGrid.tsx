@@ -50,7 +50,7 @@ const BankingTransactionGrid = ({
       width: 170,
       renderCell: (params) => {
         const account = accounts.find((acc) => acc.id === params.row.selection);
-        return <>{account ? account.name : "Unknown Unit"}</>;
+        return <>{account ? account.name : "Unknown"}</>;
       },
     },
     {
@@ -64,7 +64,7 @@ const BankingTransactionGrid = ({
       width: 150,
       renderCell: (params) => {
         const account = accounts.find((acc) => acc.id === params.row.selection);
-        return <>{account ? account.name : "Unknown Unit"}</>;
+        return <>{account ? account.name : "Unknown"}</>;
       },
     },
     {

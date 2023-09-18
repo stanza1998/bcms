@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
-import { NEDBANKCreate } from "./NEDBANK";
+import { SupplierPayment } from "./SupplierPayment";
 
 export const CreateSupplierInvoice = observer(() => {
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ export const CreateSupplierInvoice = observer(() => {
           </div>
         </div>
         <div className="uk-margin">
-          <NEDBANKCreate />
+          <SupplierPayment />
         </div>
       </div>
     </div>

@@ -16,28 +16,27 @@ const CreditNoteGrid = observer(({ data, units }: IProp) => {
     {
       field: "date",
       headerName: "Date",
-      width: 200,
+      width: 270,
     },
     {
       field: "unitId",
       headerName: "Customer (Unit)",
-      width: 200,
+      width: 270,
       renderCell: (params) => {
         const unit = units.find((unit) => unit.id === params.row.unitId);
-        return <>{unit ? "Unit " + unit.unitName : "Unknown Unit"}</>;
+        return <>{unit ? "Unit " + unit.unitName : "Unknown"}</>;
       },
     },
     {
       field: "balance",
       headerName: "balance",
-      width: 200,
+      width: 270,
       renderCell: (params) => <> {nadFormatter.format(params.row.balance)}</>,
     },
-    { field: "invoiceNumber", headerName: "Invoice Number", width: 250 },
     {
       field: "customerReference",
       headerName: "Customer Reference",
-      width: 220,
+      width: 270,
     },
   ];
   return (

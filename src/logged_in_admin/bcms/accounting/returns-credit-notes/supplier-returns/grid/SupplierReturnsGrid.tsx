@@ -15,9 +15,14 @@ interface IProp {
 const SupplierReturnGrid = observer(({ data, suppliers }: IProp) => {
   const columns: GridColDef[] = [
     {
+      field: "date",
+      headerName: "Date",
+      width: 270,
+    },
+    {
       field: "supplierId",
       headerName: "Customer (supplier)",
-      width: 350,
+      width: 270,
       renderCell: (params) => {
         const supplier = suppliers.find(
           (supplier) => supplier.id === params.row.supplierId
@@ -30,13 +35,13 @@ const SupplierReturnGrid = observer(({ data, suppliers }: IProp) => {
     {
       field: "balance",
       headerName: "balance",
-      width: 390,
+      width: 270,
       renderCell: (params) => <> {nadFormatter.format(params.row.balance)}</>,
     },
     {
       field: "referecnce",
-      headerName: "Customer Reference",
-      width: 300,
+      headerName: "Supplier Reference",
+      width: 270,
     },
   ];
   return (

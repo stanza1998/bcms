@@ -3,6 +3,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDocs,
   onSnapshot,
   query,
   setDoc,
@@ -57,6 +58,24 @@ export default class SupplierInvoiceApi {
     });
 
     return unsubscribe;
+  }
+  async getByInvoiceNumber(invoiceNumber: string, pid: string, yid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierInvoices`;
+
+    try {
+      const querySnapshot = await getDocs(collection(db, myPath));
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.invoiceNumber === invoiceNumber) {
+          const item = { invoiceId: doc.id, ...data } as ISupplierInvoices;
+          this.store.bodyCorperate.supplierInvoice.load([item]);
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching invoice by invoice number:", error);
+      // Handle errors here
+    }
   }
 
   async create(item: ISupplierInvoices, pid: string, yid: string) {

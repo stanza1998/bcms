@@ -6,11 +6,13 @@ export const defaultSupplierReturns: ISupplierReturns = {
   supplierId: "",
   balance: 0,
   referecnce: "",
+  date: "",
 };
 
 export interface ISupplierReturns {
   id: string;
   supplierId: string;
+  date: string;
   balance: number;
   referecnce: string | "";
 }

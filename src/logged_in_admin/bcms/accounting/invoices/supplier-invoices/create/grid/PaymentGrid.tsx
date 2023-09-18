@@ -157,6 +157,13 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
           me.property,
           me.year
         );
+
+      const id = InvoiceData.invoiceId;
+      console.log(
+        "🚀 ~ file: PaymentGrid.tsx:162 ~ onSaveInvoice ~ invoiceId:",
+        id
+      );
+
       //update supplierBalance
       try {
         const supplierPath = `BodyCoperate/${me?.property}`;
@@ -181,7 +188,7 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
       }
 
       //add invoice to receipts and payemnts
-      addInvoiceNumber(InvoiceData.invoiceNumber);
+      addInvoiceNumber(InvoiceData.invoiceNumber, InvoiceData.invoiceId);
       SuccessfulAction(ui);
     } catch (error) {
       FailedAction(ui);
@@ -194,26 +201,83 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
     navigate("/c/accounting/supplier-invoices");
   };
 
-  const addInvoiceNumber = (invoiceNumber: string) => {
+  const calculateTotalCredit = async () => {
     const receiptsAndPaymentsPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
+    const creditSum = 0;
+  };
 
-    transactionId.forEach(async (ids) => {
-      const fnbStatementsRef = doc(
-        collection(db, receiptsAndPaymentsPath, "ReceiptsPayments"),
-        ids
-      );
-      const fnbStatementsSnapshot = await getDoc(fnbStatementsRef);
-      if (fnbStatementsSnapshot.exists()) {
-        await updateDoc(fnbStatementsRef, {
-          invoiceNumber: invoiceNumber,
-        });
-        SuccessfulAction(ui);
-        window.location.reload();
-      } else {
-        console.log("ReceiptsPayments document not found.");
-        FailedAction(ui);
+  // const addInvoiceNumber = (invoiceNumber: string) => {
+  //   const receiptsAndPaymentsPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
+
+  //   transactionId.forEach(async (ids) => {
+  //     const fnbStatementsRef = doc(
+  //       collection(db, receiptsAndPaymentsPath, "ReceiptsPayments"),
+  //       ids
+  //     );
+  //     const fnbStatementsSnapshot = await getDoc(fnbStatementsRef);
+  //     if (fnbStatementsSnapshot.exists()) {
+  //       await updateDoc(fnbStatementsRef, {
+  //         invoiceNumber: invoiceNumber,
+  //       });
+  //       SuccessfulAction(ui);
+  //       window.location.reload();
+  //     } else {
+  //       console.log("ReceiptsPayments document not found.");
+  //       FailedAction(ui);
+  //     }
+  //   });
+  // };
+
+  const addInvoiceNumber = async (invoiceNumber: string, invoiceId: string) => {
+    try {
+      const receiptsAndPaymentsPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
+      const supplierPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}/`;
+
+      let creditSum = 0; // Initialize the sum of credits
+
+      // Use a for loop to iterate through transactionId array
+      for (const id of transactionId) {
+        const fnbStatementsRef = doc(
+          collection(db, receiptsAndPaymentsPath, "ReceiptsPayments"),
+          id
+        );
+        const fnbStatementsSnapshot = await getDoc(fnbStatementsRef);
+
+        if (fnbStatementsSnapshot.exists()) {
+          const credit = fnbStatementsSnapshot.data().credit || 0;
+          creditSum += parseFloat(credit); // Assuming credit is a string representation of a number
+          await updateDoc(fnbStatementsRef, {
+            invoiceNumber: invoiceNumber,
+          });
+
+          const supplierRef = doc(
+            collection(db, supplierPath, "SupplierInvoices"),
+            invoiceId
+          );
+          const supplierSnapShot = await getDoc(supplierRef);
+          try {
+            if (supplierSnapShot.exists()) {
+              await updateDoc(supplierRef, {
+                totalPaid: creditSum,
+              });
+            }
+          } catch (error) {
+            FailedAction(error);
+          }
+        } else {
+          console.log("ReceiptsPayments document not found.");
+        }
       }
-    });
+
+      // Now, creditSum contains the sum of credits from all ReceiptsPayments documents
+      console.log("Sum of credits:", creditSum);
+
+      SuccessfulAction(ui);
+      window.location.reload();
+    } catch (error) {
+      console.error("Error updating invoice numbers:", error);
+      FailedAction(ui);
+    }
   };
 
   // create the invoice
@@ -249,7 +313,7 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
 
   return (
     <>
-      <Box className="companies-grid">
+      <Box sx={{ height: 300 }} className="companies-grid">
         <DataGrid
           rows={data}
           //   columns={column}

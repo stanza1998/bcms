@@ -1,33 +1,9 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../../../../../shared/functions/Context";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { Box } from "@mui/material";
-import showModalFromId, {
-  hideModalFromId,
-} from "../../../../../../shared/functions/ModalShow";
-import DIALOG_NAMES from "../../../../../dialogs/Dialogs";
-import { ISupplierInvoices } from "../../../../../../shared/models/invoices/SupplierInvoice";
-import {
-  FailedAction,
-  SuccessfulAction,
-} from "../../../../../../shared/models/Snackbar";
-import Modal from "../../../../../../shared/components/Modal";
-import {
-  IBodyCop,
-  defaultBodyCop,
-} from "../../../../../../shared/models/bcms/BodyCorperate";
-import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../../../../../../shared/database/FirebaseConfig";
-import { useNavigate } from "react-router-dom";
-import {
-  ISupplier,
-  defaultSupplier,
-} from "../../../../../../shared/models/Types/Suppliers";
-import { IReceiptsPayments } from "../../../../../../shared/models/receipts-payments/ReceiptsPayments";
 import { PaymentGrid } from "./grid/PaymentGrid";
 
-export const NEDBANKCreate = observer(() => {
+export const SupplierPayment = observer(() => {
   const { store, api } = useAppContext();
   const [supplierId, setSupplierId] = useState<string>("");
   const me = store.user.meJson;

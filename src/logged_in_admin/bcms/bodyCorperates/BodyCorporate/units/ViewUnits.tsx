@@ -190,15 +190,9 @@ export const ViewUnit = observer(() => {
       if (!me?.property || !me?.year) {
         throw new Error("Invalid 'property' or 'year' value for duplication.");
       }
-      //gets path for collections
       const copiedInvoicePath = `/BodyCoperate/${me.property}/FinancialYear/${me.year}`;
       const unitPath = `/BodyCoperate/${me.property}/Units`;
-      // Fetch units with balance less than zero
-
-      const units0 = store.bodyCorperate.unit.all
-        .filter((u) => u.asJson.balance < 0)
-        .map((u) => u.asJson.id);
-        //check if matser inivoices are 0
+      //check if matser inivoices are 0
       if (masterInvoices.length === 0) {
         throw new Error("No master invoices to duplicate.");
       }
@@ -227,15 +221,17 @@ export const ViewUnit = observer(() => {
 
             // Check if balance is less than zero
             if (currentBalance < 0) {
-              // Create a customer receipt
-              const receiptData:IReceiptsPayments = {
+              const receiptData: IReceiptsPayments = {
                 unitId,
                 id: "",
                 date: newDateIssued,
                 reference: ref,
                 transactionType: "Customer Receipt",
                 description: "Credit Payment",
-                debit: totalDue.toFixed(2),
+                debit:
+                  Math.abs(currentBalance) > totalDue
+                    ? masterInvoice.totalDue.toFixed(2)
+                    : Math.abs(currentBalance).toFixed(2),
                 credit: "",
                 balance: "",
                 propertyId: me.property || "",
@@ -262,7 +258,10 @@ export const ViewUnit = observer(() => {
                 reference: "Customer Receipt",
                 VAT: "Exempted",
                 credit: "",
-                debit: totalDue.toFixed(2),
+                debit:
+                  Math.abs(currentBalance) > totalDue
+                    ? masterInvoice.totalDue.toFixed(2)
+                    : Math.abs(currentBalance).toFixed(2),
               };
               try {
                 if (me?.property && me?.bankAccountInUse)
@@ -280,47 +279,39 @@ export const ViewUnit = observer(() => {
             }
           }
         }
-
+        for (const masterInvoice of masterInvoices) {
+          const { unitId, totalDue } = masterInvoice;
+          const unitDocRef = doc(unitCollectionRef, unitId);
+          const unitDoc = await transaction.get(unitDocRef);
+          if (unitDoc.exists()) {
+            const currentBalance = unitDoc.data().balance || 0;
+            const copiedInvoice = { ...masterInvoice };
+            copiedInvoice.invoiceNumber = generateInvoiceNumber();
+            copiedInvoice.dueDate = newDate;
+            copiedInvoice.references = ref;
+            copiedInvoice.dateIssued = newDateIssued;
+            const newInvoiceRef = doc(copiedInvoicesCollection);
+            const generatedDocId = newInvoiceRef.id;
+            copiedInvoice.invoiceId = generatedDocId;
+            const absoluteCurrentBalance = Math.abs(currentBalance);
+            if (currentBalance < 0) {
+              copiedInvoice.totalPaid =
+                absoluteCurrentBalance > masterInvoice.totalDue
+                  ? masterInvoice.totalDue
+                  : absoluteCurrentBalance;
+            } else {
+              copiedInvoice.totalPaid = 0;
+            }
+            await setDoc(newInvoiceRef, copiedInvoice);
+            await updateDoc(newInvoiceRef, { invoiceId: generatedDocId });
+          }
+        }
         for (const update of updates) {
           transaction.update(update.ref, update.data);
         }
       };
 
       await runTransaction(db, updateUnitBalancesTransaction);
-
-      for (const masterInvoice of masterInvoices) {
-        const copiedInvoice = { ...masterInvoice };
-        copiedInvoice.invoiceNumber = generateInvoiceNumber();
-        copiedInvoice.dueDate = newDate;
-        copiedInvoice.references = ref;
-        copiedInvoice.dateIssued = newDateIssued;
-
-        const newInvoiceRef = doc(copiedInvoicesCollection);
-        const generatedDocId = newInvoiceRef.id;
-        copiedInvoice.invoiceId = generatedDocId;
-
-        // Debug Logging: Check masterInvoice.totalDue
-        console.log("masterInvoice.totalDue:", masterInvoice.totalDue);
-
-        // Check if the unit ID exists in units0
-        if (units0.includes(masterInvoice.unitId)) {
-          copiedInvoice.totalPaid = masterInvoice.totalDue;
-        }
-
-        // Debug Logging: Check copiedInvoice before setDoc
-        console.log("copiedInvoice before setDoc:", copiedInvoice);
-
-        // Set copiedInvoice in Firestore
-        await setDoc(newInvoiceRef, copiedInvoice);
-
-        // Debug Logging: Check copiedInvoice after setDoc
-        console.log("copiedInvoice after setDoc:", copiedInvoice);
-
-        // Update invoiceId
-        await updateDoc(newInvoiceRef, { invoiceId: generatedDocId });
-
-        console.log("Invoice duplicated and saved:", copiedInvoice);
-      }
 
       hideModalFromId(DIALOG_NAMES.BODY.VIEW_INVOICE);
       navigate("/c/body/body-corperate");
