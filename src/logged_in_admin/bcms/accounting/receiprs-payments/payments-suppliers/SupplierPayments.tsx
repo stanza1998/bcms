@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAppContext } from "../../../../../shared/functions/Context";
 import { IReceiptsPayments } from "../../../../../shared/models/receipts-payments/ReceiptsPayments";
 import PrintIcon from "@mui/icons-material/Print";
@@ -21,6 +21,9 @@ import ArrowCircleUpSharpIcon from "@mui/icons-material/ArrowCircleUpSharp";
 import { nadFormatter } from "../../../../shared/NADFormatter";
 import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../../shared/database/FirebaseConfig";
+import NumberInput from "../../../../../shared/functions/number-input/NumberInput";
+import { Toast } from "primereact/toast";
+import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 
 const SupplierPayment = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -47,8 +50,7 @@ const SupplierPayment = observer(() => {
     return generatedInvoiceNumber;
   };
 
-  const createPayment = async (e: any) => {
-    e.preventDefault();
+  const createPayment = async () => {
     setLoading(true);
     const receipt: IReceiptsPayments = {
       id: "",
@@ -171,12 +173,46 @@ const SupplierPayment = observer(() => {
 
   const formattedCredit = nadFormatter.format(totalCredits);
 
+  //confirm dialog
+  const toast = useRef<Toast>(null);
+
+  const accept = () => {
+    createPayment();
+    toast.current?.show({
+      severity: "info",
+      summary: "Payment successfully created",
+      detail: "Cusomer Receipt",
+      life: 3000,
+    });
+  };
+
+  const reject = () => {
+    toast.current?.show({
+      severity: "warn",
+      summary: "Payment Not Created",
+      detail: "Supplier Payment Not created",
+      life: 3000,
+    });
+    hideModalFromId(DIALOG_NAMES.BODY.CREATE_SUPPLIER_PAYMENT);
+  };
+
+  const confirm = (position: any) => {
+    confirmDialog({
+      message: "Do you want to create a Supplier Payment?",
+      header: "Supplier Payment Confirmation",
+      icon: "pi pi-info-circle",
+      position,
+      accept,
+      reject,
+    });
+  };
+
   return (
     <div>
       <Toolbar2
         leftControls={
           <div className="">
-            <span className="uk-margin-right" style={{ fontSize: "18px" }}>
+            <span className="uk-width-1-2-right" style={{ fontSize: "18px" }}>
               <ArrowCircleUpSharpIcon style={{ color: "red" }} /> Total
               Outflows: {formattedCredit}
             </span>
@@ -200,8 +236,13 @@ const SupplierPayment = observer(() => {
         }
       />
       <PaymentGrid data={rcp} />
+      <Toast ref={toast} />
+      <ConfirmDialog />
       <Modal modalId={DIALOG_NAMES.BODY.CREATE_SUPPLIER_PAYMENT}>
-        <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
+        <div
+          className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical"
+          style={{ width: "70%" }}
+        >
           <button
             className="uk-modal-close-default"
             type="button"
@@ -211,10 +252,9 @@ const SupplierPayment = observer(() => {
           <h4 style={{ textTransform: "uppercase" }} className="uk-modal-title">
             Create supplier payment
           </h4>
-          <form onSubmit={createPayment}>
-            <div className="uk-margin">
+          <div className="uk-grid-small" data-uk-grid>
+            <div className="uk-width-1-2">
               <label>Supplier</label>
-              <br />
               <select
                 className="uk-input"
                 onChange={(e) => setSupplierId(e.target.value)}
@@ -227,9 +267,8 @@ const SupplierPayment = observer(() => {
                 ))}
               </select>
             </div>
-            <div className="uk-margin">
+            <div className="uk-width-1-2">
               <label>date</label>
-              <br />
               <input
                 className="uk-input"
                 type="date"
@@ -237,9 +276,8 @@ const SupplierPayment = observer(() => {
                 onChange={(e) => setDate(e.target.value)}
               />
             </div>
-            <div className="uk-margin">
+            <div className="uk-width-1-2">
               <label>Reference</label>
-              <br />
               <input
                 className="uk-input"
                 type="text"
@@ -247,9 +285,8 @@ const SupplierPayment = observer(() => {
                 onChange={(e) => setReference(e.target.value)}
               />
             </div>
-            <div className="uk-margin">
+            <div className="uk-width-1-2">
               <label>Select Acount</label>
-              <br />
               <select
                 className="uk-input"
                 onChange={(e) => setSelection(e.target.value)}
@@ -262,9 +299,8 @@ const SupplierPayment = observer(() => {
                 ))}
               </select>
             </div>
-            <div className="uk-margin">
+            <div className="uk-width-1-2">
               <label>Description</label>
-              <br />
               <input
                 className="uk-input"
                 type="text"
@@ -272,22 +308,19 @@ const SupplierPayment = observer(() => {
                 onChange={(e) => setDescriptioin(e.target.value)}
               />
             </div>
-            <div className="uk-margin">
+            <div className="uk-width-1-2">
               <label>Credit</label>
-              <br />
-              <input
-                className="uk-input"
-                type="number"
+              <NumberInput
                 value={credit}
-                onChange={(e) => setCredit(Number(e.target.value))}
+                onChange={(e) => setCredit(Number(e))}
               />
             </div>
 
-            <IconButton type="submit">
+            <IconButton onClick={() => confirm("right")}>
               <SaveIcon />
             </IconButton>
             {loading && <p>loading...</p>}
-          </form>
+          </div>
         </div>
       </Modal>
     </div>

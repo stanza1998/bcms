@@ -40,7 +40,7 @@ const NumberInput = (props: INumberInputProps) => {
   const [_value, _setValue] = useState<string | number | null>("");
   const [_nan, _setNaN] = useState(false);
 
-  const _className = _nan ? `${className} uk-form-danger` : `${className}`;
+  const _className = _nan ? `uk-input` : `uk-input`;
 
   /**
    * Returns the value of the input
@@ -75,7 +75,7 @@ const NumberInput = (props: INumberInputProps) => {
 
   return (
     <ErrorBoundary>
-      <div className="number-input">
+      <div className="">
         <NumberFormat
           id={id}
           className={_className}

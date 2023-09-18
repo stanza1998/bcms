@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAppContext } from "../../../../../shared/functions/Context";
 import ReceiptGrid from "./grid/ReceiptGrid";
 import { IReceiptsPayments } from "../../../../../shared/models/receipts-payments/ReceiptsPayments";
@@ -21,6 +21,10 @@ import ArrowCircleUpSharpIcon from "@mui/icons-material/ArrowCircleUpSharp";
 import { nadFormatter } from "../../../../shared/NADFormatter";
 import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../../shared/database/FirebaseConfig";
+import NumberInput from "../../../../../shared/functions/number-input/NumberInput";
+import { Toast } from "primereact/toast";
+import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+
 
 const CustomerReceipts = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -48,8 +52,7 @@ const CustomerReceipts = observer(() => {
     return generatedInvoiceNumber;
   };
 
-  const createReceipt = async (e: any) => {
-    e.preventDefault();
+  const createReceipt = async () => {
     setLoading(true);
     const receipt: IReceiptsPayments = {
       id: "",
@@ -195,6 +198,40 @@ const CustomerReceipts = observer(() => {
 
   const formattedDebits = nadFormatter.format(totalDebits);
 
+  //confirm-dialog
+  const toast = useRef<Toast>(null);
+
+  const accept = () => {
+    createReceipt();
+    toast.current?.show({
+      severity: "info",
+      summary: "Receipt successfully created",
+      detail: "Cusomer Receipt",
+      life: 3000,
+    });
+  };
+
+  const reject = () => {
+    toast.current?.show({
+      severity: "warn",
+      summary: "Receipt Not Created",
+      detail: "Customer Receipt Not created",
+      life: 3000,
+    });
+    hideModalFromId(DIALOG_NAMES.BODY.CREATE_RECEIPT);
+  };
+
+  const confirm = (position: any) => {
+    confirmDialog({
+      message: "Do you want to create a customer receipt?",
+      header: "Customer Receipt Confirmation",
+      icon: "pi pi-info-circle",
+      position,
+      accept,
+      reject,
+    });
+  };
+
   return (
     <div>
       <Toolbar2
@@ -224,8 +261,13 @@ const CustomerReceipts = observer(() => {
         }
       />
       <ReceiptGrid data={rcp} />
+      <Toast ref={toast} />
+      <ConfirmDialog />
       <Modal modalId={DIALOG_NAMES.BODY.CREATE_RECEIPT}>
-        <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
+        <div
+          className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical"
+          style={{ width: "70%" }}
+        >
           <button
             className="uk-modal-close-default"
             type="button"
@@ -235,10 +277,9 @@ const CustomerReceipts = observer(() => {
           <h4 style={{ textTransform: "uppercase" }} className="uk-modal-title">
             Create customer receipt
           </h4>
-          <form onSubmit={createReceipt}>
-            <div className="uk-margin">
-              <label>Customer (Unit)</label>
-              <br />
+          <div className="uk-grid-small" data-uk-grid>
+            <div className=" uk-width-1-2 ">
+              <label>Customer</label>
               <select
                 className="uk-input"
                 onChange={(e) => setUnitId(e.target.value)}
@@ -249,9 +290,8 @@ const CustomerReceipts = observer(() => {
                 ))}
               </select>
             </div>
-            <div className="uk-margin">
+            <div className=" uk-width-1-2 ">
               <label>date</label>
-              <br />
               <input
                 className="uk-input"
                 type="date"
@@ -259,9 +299,8 @@ const CustomerReceipts = observer(() => {
                 onChange={(e) => setDate(e.target.value)}
               />
             </div>
-            <div className="uk-margin">
+            <div className=" uk-width-1-2 ">
               <label>Reference</label>
-              <br />
               <input
                 className="uk-input"
                 type="text"
@@ -269,9 +308,8 @@ const CustomerReceipts = observer(() => {
                 onChange={(e) => setReference(e.target.value)}
               />
             </div>
-            <div className="uk-margin">
+            <div className=" uk-width-1-2 ">
               <label>Description</label>
-              <br />
               <input
                 className="uk-input"
                 type="text"
@@ -279,19 +317,15 @@ const CustomerReceipts = observer(() => {
                 onChange={(e) => setDescriptioin(e.target.value)}
               />
             </div>
-            <div className="uk-margin">
+            <div className=" uk-width-1-2 ">
               <label>Debit</label>
-              <br />
-              <input
-                className="uk-input"
-                type="number"
+              <NumberInput
                 value={debit}
-                onChange={(e) => setDebit(Number(e.target.value))}
+                onChange={(e) => setDebit(Number(e))}
               />
             </div>
-            <div className="uk-margin">
+            <div className=" uk-width-1-2 ">
               <label>Invoice</label>
-              <br />
               <select
                 className="uk-input"
                 onChange={(e) => setInvoiceNumber(e.target.value)}
@@ -307,9 +341,9 @@ const CustomerReceipts = observer(() => {
                   ))}
               </select>
             </div>
-            <div className="uk-margin">
+            <div className=" uk-width-1-2 ">
               <label>Account (Selection)</label>
-              <br />
+
               <select
                 className="uk-input"
                 onChange={(e) => setSelection(e.target.value)}
@@ -320,11 +354,14 @@ const CustomerReceipts = observer(() => {
                 ))}
               </select>
             </div>
-            <IconButton type="submit">
-              <SaveIcon />
-            </IconButton>
+            <div className=" uk-width-1-1 ">
+              <IconButton onClick={() => confirm("right")}>
+                <SaveIcon />
+              </IconButton>
+            </div>
+
             {loading && <p>loading...</p>}
-          </form>
+          </div>
         </div>
       </Modal>
     </div>

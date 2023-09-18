@@ -19,6 +19,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import { IBankingTransactions } from "../../../../../shared/models/banks/banking/BankTransactions";
 import ArrowCircleUpSharpIcon from "@mui/icons-material/ArrowCircleUpSharp";
 import { nadFormatter } from "../../../../shared/NADFormatter";
+import NumberInput from "../../../../../shared/functions/number-input/NumberInput";
 
 const CustomerCreditNotes = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -78,7 +79,7 @@ const CustomerCreditNotes = observer(() => {
           //   me.property,
           //   me.bankAccountInUse
           // );
-        console.log("transaction created");
+          console.log("transaction created");
       } catch (error) {
         console.log(error);
       }
@@ -165,7 +166,10 @@ const CustomerCreditNotes = observer(() => {
       />
 
       <Modal modalId={DIALOG_NAMES.BODY.CREDIT_NOTE}>
-        <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
+        <div
+          className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical"
+          style={{ width: "70%" }}
+        >
           <button
             className="uk-modal-close-default"
             type="button"
@@ -180,7 +184,7 @@ const CustomerCreditNotes = observer(() => {
             onSubmit={createCreditNote}
             data-uk-grid
           >
-            <div className="uk-width-1-1 ">
+            <div className="uk-width-1-3 ">
               <label>Date</label>
               <input
                 className="uk-input"
@@ -190,8 +194,8 @@ const CustomerCreditNotes = observer(() => {
                 required
               />
             </div>
-            <div className="uk-width-1-1 ">
-              <label>Select Customer (Unit)</label>
+            <div className="uk-width-1-3 ">
+              <label>Customer</label>
               <select
                 className="uk-input"
                 onChange={(e) => setUnitId(e.target.value)}
@@ -203,18 +207,15 @@ const CustomerCreditNotes = observer(() => {
                 ))}
               </select>
             </div>
-            <div className="uk-width-1-1 ">
+            <div className="uk-width-1-3 ">
               <label>Balance</label>
-              <input
-                className="uk-input"
-                type="number"
+              <NumberInput
                 value={balance}
-                onChange={(e) => setBalance(Number(e.target.value))}
-                required
+                onChange={(e) => setBalance(Number(e))}
               />
             </div>
-            <div className="uk-width-1-1 ">
-              <label>Select Invoice</label>
+            <div className="uk-width-1-3 ">
+              <label>Invoice</label>
               <select
                 className="uk-input"
                 onChange={(e) => setInvoiceNumber(e.target.value)}
@@ -232,7 +233,7 @@ const CustomerCreditNotes = observer(() => {
                   ))}
               </select>
             </div>
-            <div className="uk-width-1-1 ">
+            <div className="uk-width-1-3 ">
               <label>Account</label>
               <select
                 className="uk-input"
@@ -244,7 +245,7 @@ const CustomerCreditNotes = observer(() => {
                 ))}
               </select>
             </div>
-            <div className="uk-width-1-1 uk-margin">
+            <div className="uk-width-1-3 ">
               <label>Customer Reference</label>
               <input
                 value={customerRef}

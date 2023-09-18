@@ -25,6 +25,7 @@ import {
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Box } from "@mui/material";
 import Modal from "../../../../../../../shared/components/Modal";
+import NumberInput from "../../../../../../../shared/functions/number-input/NumberInput";
 
 interface IProp {
   data: IReceiptsPayments[];
@@ -346,7 +347,7 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
                     <label className="uk-form-label">Invoice Number</label>
                     <div className="uk-form-controls">
                       <input
-                        className="uk-input uk-form-small"
+                        className="uk-input "
                         type="text"
                         value={invoiceNumber}
                         disabled
@@ -359,7 +360,7 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
                     <label className="uk-form-label">Date</label>
                     <div className="uk-form-controls">
                       <input
-                        className="uk-input uk-form-small"
+                        className="uk-input "
                         type="date"
                         value={selectedDateIssued}
                         onChange={(e) => setSelectedDateIssued(e.target.value)}
@@ -372,7 +373,7 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
                     <label className="uk-form-label">Due Date</label>
                     <div className="uk-form-controls">
                       <input
-                        className="uk-input uk-form-small"
+                        className="uk-input "
                         type="date"
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
@@ -389,7 +390,7 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
                     <label className="uk-form-label">Description</label>
                     <div className="uk-form-controls">
                       <input
-                        className="uk-input uk-form-small"
+                        className="uk-input "
                         type="text"
                         required
                         value={description}
@@ -404,7 +405,7 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
                     <label className="uk-form-label">QTY</label>
                     <div className="uk-form-controls">
                       <input
-                        className="uk-input uk-form-small"
+                        className="uk-input "
                         type="text"
                         required
                         onChange={(e) => setQty(Number(e.target.value))}
@@ -417,13 +418,17 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
                   <div className="uk-margin">
                     <label className="uk-form-label">Price</label>
                     <div className="uk-form-controls">
-                      <input
-                        className="uk-input uk-form-small"
+                      <NumberInput
+                        value={price}
+                        onChange={(e) => setPrice(Number(e))}
+                      />
+                      {/* <input
+                        className="uk-input "
                         type="text"
                         required
                         onChange={(e) => setPrice(Number(e.target.value))}
                         value={price}
-                      />
+                      /> */}
                     </div>
                   </div>
                 </div>

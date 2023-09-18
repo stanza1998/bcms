@@ -11,15 +11,6 @@ import {
   defaultBodyCop,
 } from "../../../../../../shared/models/bcms/BodyCorperate";
 import { IUnit, defaultUnit } from "../../../../../../shared/models/bcms/Units";
-import { defaultInvoice } from "../../../../../../shared/models/invoices/Invoices";
-import {
-  IFinancialMonth,
-  defaultFinancialMonth,
-} from "../../../../../../shared/models/monthModels/FinancialMonth";
-import {
-  IFinancialYear,
-  defaultFinancialYear,
-} from "../../../../../../shared/models/yearModels/FinancialYear";
 import DIALOG_NAMES from "../../../../../dialogs/Dialogs";
 import Modal from "../../../../../../shared/components/Modal";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";

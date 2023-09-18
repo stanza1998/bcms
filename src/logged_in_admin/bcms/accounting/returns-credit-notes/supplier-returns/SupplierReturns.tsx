@@ -19,6 +19,7 @@ import Modal from "../../../../../shared/components/Modal";
 import { IBankingTransactions } from "../../../../../shared/models/banks/banking/BankTransactions";
 import ArrowCircleUpSharpIcon from "@mui/icons-material/ArrowCircleUpSharp";
 import { nadFormatter } from "../../../../shared/NADFormatter";
+import NumberInput from "../../../../../shared/functions/number-input/NumberInput";
 
 export const SupplierReturns = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -152,7 +153,10 @@ export const SupplierReturns = observer(() => {
       />
 
       <Modal modalId={DIALOG_NAMES.BODY.CREATE_SUPPLIER_RETURN}>
-        <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
+        <div
+          className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical"
+          style={{ width: "70%" }}
+        >
           <button
             className="uk-modal-close-default"
             type="button"
@@ -164,10 +168,10 @@ export const SupplierReturns = observer(() => {
           </h4>
           <form
             className="uk-grid-small"
-            onSubmit={createSupplierReturn}
             data-uk-grid
+            onSubmit={createSupplierReturn}
           >
-            <div className="uk-width-1-1 ">
+            <div className="uk-width-1-2 ">
               <label>Date</label>
               <input
                 value={date}
@@ -177,8 +181,8 @@ export const SupplierReturns = observer(() => {
                 aria-label="25"
               />
             </div>
-            <br />
-            <div className="uk-width-1-1 ">
+
+            <div className="uk-width-1-2 ">
               <label>Supplier</label>
               <select
                 className="uk-input"
@@ -193,19 +197,17 @@ export const SupplierReturns = observer(() => {
                 ))}
               </select>
             </div>
-            <br />
-            <div className="uk-width-1-1 ">
+
+            <div className="uk-width-1-2 ">
               <label>Balance</label>
-              <input
-                className="uk-input"
-                type="number"
+
+              <NumberInput
                 value={balance}
-                onChange={(e) => setBalance(Number(e.target.value))}
-                required
+                onChange={(e) => setBalance(Number(e))}
               />
             </div>
-            <br />
-            <div className="uk-width-1-1 ">
+
+            <div className="uk-width-1-2 ">
               <label>Reference</label>
               <input
                 value={reference}
@@ -215,7 +217,7 @@ export const SupplierReturns = observer(() => {
                 aria-label="25"
               />
             </div>
-            <br />
+
             <div className="uk-width-1-1 ">
               <label>Account </label>
               <select
