@@ -6,6 +6,7 @@ import Toolbar2 from "../../../../shared/Toolbar2";
 import { IconButton } from "@mui/material";
 import FiberSmartRecordIcon from "@mui/icons-material/FiberSmartRecord";
 import CustomerCreditNotes from "../../returns-credit-notes/customer-credit-notes/CustomerCreditNotes";
+import CustomerBalance from "../../reports-customers/customer-balance/CustomerBalance";
 
 export const Customer = () => {
   const [activeTab, setActiveTab] = useState("invoices");
@@ -79,6 +80,7 @@ export const Customer = () => {
             {activeTab === "invoices" && <CopiedInvoices />}
             {activeTab === "receipts" && <CustomerReceipts />}
             {activeTab === "credit-notes" && <CustomerCreditNotes />}
+            {activeTab === "balance" && <CustomerBalance />}
           </div>
         </div>
       </div>

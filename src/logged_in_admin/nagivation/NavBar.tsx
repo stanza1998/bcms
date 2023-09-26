@@ -155,6 +155,11 @@ const NavBar = observer(() => {
                     .map((p) => {
                       return p.asJson.BodyCopName;
                     })}
+                  {properties
+                    .filter((p) => p.asJson.id === me?.property)
+                    .map((p) => {
+                      return p.asJson.BodyCopName;
+                    }).length === 0 && <>click</>}
                 </span>
                 <span
                   onClick={onUpdateYear}
@@ -166,6 +171,11 @@ const NavBar = observer(() => {
                     .map((p) => {
                       return p.asJson.year + "-";
                     })}
+                  {years
+                    .filter((p) => p.asJson.id === me?.year)
+                    .map((p) => {
+                      return p.asJson.year + "-";
+                    }).length === 0 && <>select year</>}
                 </span>
                 <span
                   onClick={onUpdateMonth}
@@ -177,6 +187,11 @@ const NavBar = observer(() => {
                     .map((p) => {
                       return p.month.slice(-2);
                     })}
+                  {months
+                    .filter((p) => p.month === me?.month)
+                    .map((p) => {
+                      return p.month.slice(-2);
+                    }).length === 0 && <> select month</>}
                 </span>
               </h6>
             </li>

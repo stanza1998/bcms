@@ -19,6 +19,7 @@ import Loading from "../../../../../../shared/components/Loading";
 import { SuccessfulAction } from "../../../../../../shared/models/Snackbar";
 import { db } from "../../../../../../shared/database/FirebaseConfig";
 import React from "react";
+import { nadFormatter } from "../../../../../shared/NADFormatter";
 
 interface ServiceDetails {
   description: string;
@@ -388,7 +389,8 @@ export const VerifyInvoice = observer(() => {
                       Number: {invoice?.invoiceNumber} <br />
                       Date: {invoice?.dateIssued} <br />
                       Due Date: {invoice?.dueDate} <br />
-                      Total Due: N$ {invoice?.totalDue.toFixed(2)}
+                      Total Due: N${" "}
+                      {nadFormatter.format(invoice?.totalDue || 0)}
                     </p>
                   </div>
                 </div>
@@ -553,11 +555,12 @@ export const VerifyInvoice = observer(() => {
               <div className="uk-inline">
                 <div className="uk-text-right">
                   Total Discount: N$0.00 <br />
-                  Total Exclusive: N${invoice?.totalDue.toFixed(2)} <br />
-                  Total VAT: N$0.00
+                  Total Exclusive:
+                  {nadFormatter.format(invoice?.priceBeforeTax || 0)} <br />
+                  Total VAT: {nadFormatter.format(invoice?.vatPrice || 0)}
                   <br />
                   <hr />
-                  Sub Total: N${invoice?.totalDue.toFixed(2)}
+                  Sub Total: {nadFormatter.format(invoice?.totalDue || 0)}
                   <hr />
                 </div>
               </div>

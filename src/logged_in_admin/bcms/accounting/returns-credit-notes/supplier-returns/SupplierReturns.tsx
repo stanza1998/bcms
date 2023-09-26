@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PrintIcon from "@mui/icons-material/Print";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ArticleIcon from "@mui/icons-material/Article";
@@ -20,6 +20,8 @@ import { IBankingTransactions } from "../../../../../shared/models/banks/banking
 import ArrowCircleUpSharpIcon from "@mui/icons-material/ArrowCircleUpSharp";
 import { nadFormatter } from "../../../../shared/NADFormatter";
 import NumberInput from "../../../../../shared/functions/number-input/NumberInput";
+import { Toast } from "primereact/toast";
+import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 
 export const SupplierReturns = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -31,9 +33,8 @@ export const SupplierReturns = observer(() => {
   const [selection, setSelection] = useState<string>("");
   const [date, setDate] = useState<string>("");
 
-  const createSupplierReturn = async (e: any) => {
+  const createSupplierReturn = async () => {
     try {
-      e.preventDefault();
       setLoading(true);
 
       if (!me?.property || !me?.year || !me?.month) {
@@ -117,6 +118,40 @@ export const SupplierReturns = observer(() => {
 
   const formattedTotal = nadFormatter.format(totalDebit);
 
+  //confirm dialog
+  const toast = useRef<Toast>(null);
+
+  const accept = () => {
+    createSupplierReturn();
+    toast.current?.show({
+      severity: "info",
+      summary: "Return successfully created",
+      detail: "Supplier Return",
+      life: 3000,
+    });
+  };
+
+  const reject = () => {
+    toast.current?.show({
+      severity: "warn",
+      summary: "Return Not Created",
+      detail: "Supplier Return Not created",
+      life: 3000,
+    });
+    hideModalFromId(DIALOG_NAMES.BODY.CREATE_SUPPLIER_RETURN);
+  };
+
+  const confirm = (position: any) => {
+    confirmDialog({
+      message: "Do you want to create a Supplier Return?",
+      header: "Supplier Return Confirmation",
+      icon: "pi pi-info-circle",
+      position,
+      accept,
+      reject,
+    });
+  };
+
   return (
     <div>
       <Toolbar2
@@ -166,11 +201,7 @@ export const SupplierReturns = observer(() => {
           <h4 style={{ textTransform: "uppercase" }} className="uk-modal-title">
             Create supplier return
           </h4>
-          <form
-            className="uk-grid-small"
-            data-uk-grid
-            onSubmit={createSupplierReturn}
-          >
+          <div className="uk-grid-small" data-uk-grid>
             <div className="uk-width-1-2 ">
               <label>Date</label>
               <input
@@ -232,13 +263,15 @@ export const SupplierReturns = observer(() => {
               </select>
             </div>
 
-            <IconButton disabled={loading} type="submit">
+            <IconButton disabled={loading} onClick={() => confirm("right")}>
               <SaveIcon />
             </IconButton>
             {loading && <>loading...</>}
-          </form>
+          </div>
         </div>
       </Modal>
+      <Toast ref={toast} />
+      <ConfirmDialog />
     </div>
   );
 });

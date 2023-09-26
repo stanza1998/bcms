@@ -19,6 +19,9 @@ export const defaultCopiedInvoice: ICopiedInvoice = {
   reminder: false,
   reminderDate: "",
   totalPaid: 0,
+  vat: false,
+  priceBeforeTax: 0,
+  vatPrice: 0
 };
 
 export interface IService {
@@ -44,6 +47,9 @@ export interface ICopiedInvoice {
   reminder: false;
   reminderDate: string;
   totalPaid: number;
+  vat: boolean;
+  priceBeforeTax: number;
+  vatPrice: number;
 }
 
 export default class CopiedInvoiceModel {

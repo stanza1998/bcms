@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { useAppContext } from "../../../../../shared/functions/Context";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ICreditNote } from "../../../../../shared/models/credit-notes-returns/CreditNotesReturns";
 import showModalFromId, {
   hideModalFromId,
@@ -16,10 +16,11 @@ import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ArticleIcon from "@mui/icons-material/Article";
 import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
 import SaveIcon from "@mui/icons-material/Save";
-import { IBankingTransactions } from "../../../../../shared/models/banks/banking/BankTransactions";
 import ArrowCircleUpSharpIcon from "@mui/icons-material/ArrowCircleUpSharp";
 import { nadFormatter } from "../../../../shared/NADFormatter";
 import NumberInput from "../../../../../shared/functions/number-input/NumberInput";
+import { Toast } from "primereact/toast";
+import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 
 const CustomerCreditNotes = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -32,9 +33,8 @@ const CustomerCreditNotes = observer(() => {
   const [loading, setLoading] = useState(false);
   const [selection, setSelection] = useState<string>("");
 
-  const createCreditNote = async (e: any) => {
+  const createCreditNote = async () => {
     try {
-      e.preventDefault();
       setLoading(true);
 
       if (!me?.property || !me?.year || !me?.month) {
@@ -57,29 +57,6 @@ const CustomerCreditNotes = observer(() => {
           me.month,
           unitId
         );
-      } catch (error) {
-        console.log(error);
-      }
-      const bank_transaction: IBankingTransactions = {
-        id: "",
-        date: date,
-        payee: unitId,
-        description: selection,
-        type: "Customer",
-        selection: selection,
-        reference: "Credit Note",
-        VAT: "Exempted",
-        credit: balance.toFixed(2),
-        debit: "",
-      };
-      try {
-        if (me?.property && me?.bankAccountInUse)
-          // await api.body.banking_transaction.create(
-          //   bank_transaction,
-          //   me.property,
-          //   me.bankAccountInUse
-          // );
-          console.log("transaction created");
       } catch (error) {
         console.log(error);
       }
@@ -127,6 +104,40 @@ const CustomerCreditNotes = observer(() => {
 
   const formattedTotal = nadFormatter.format(total);
 
+  //confirm dialog
+  const toast = useRef<Toast>(null);
+
+  const accept = () => {
+    createCreditNote();
+    toast.current?.show({
+      severity: "info",
+      summary: "Credit Note successfully created",
+      detail: "Customer Credit Note",
+      life: 3000,
+    });
+  };
+
+  const reject = () => {
+    toast.current?.show({
+      severity: "warn",
+      summary: "Customer Credit Note Not Created",
+      detail: "Customer Credit Note",
+      life: 3000,
+    });
+    hideModalFromId(DIALOG_NAMES.BODY.CREDIT_NOTE);
+  };
+
+  const confirm = (position: any) => {
+    confirmDialog({
+      message: "Do you want to create a Customer Credit Note?",
+      header: "Customer Credit Note Confirmation",
+      icon: "pi pi-info-circle",
+      position,
+      accept,
+      reject,
+    });
+  };
+
   return (
     <div>
       <Toolbar2
@@ -164,7 +175,8 @@ const CustomerCreditNotes = observer(() => {
         })}
         units={units}
       />
-
+      <Toast ref={toast} />
+      <ConfirmDialog />
       <Modal modalId={DIALOG_NAMES.BODY.CREDIT_NOTE}>
         <div
           className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical"
@@ -179,11 +191,7 @@ const CustomerCreditNotes = observer(() => {
           <h4 style={{ textTransform: "uppercase" }} className="uk-modal-title">
             Create credit note
           </h4>
-          <form
-            className="uk-grid-small"
-            onSubmit={createCreditNote}
-            data-uk-grid
-          >
+          <div className="uk-grid-small" data-uk-grid>
             <div className="uk-width-1-3 ">
               <label>Date</label>
               <input
@@ -256,12 +264,12 @@ const CustomerCreditNotes = observer(() => {
               />
             </div>
 
-            <IconButton disabled={loading} type="submit">
+            <IconButton disabled={loading} onClick={() => confirm("right")}>
               <SaveIcon />
             </IconButton>
             <br />
             {loading && <>loading...</>}
-          </form>
+          </div>
         </div>
       </Modal>
     </div>

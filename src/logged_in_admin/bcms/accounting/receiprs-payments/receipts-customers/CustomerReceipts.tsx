@@ -206,7 +206,7 @@ const CustomerReceipts = observer(() => {
     toast.current?.show({
       severity: "info",
       summary: "Receipt successfully created",
-      detail: "Cusomer Receipt",
+      detail: "Customer Receipt",
       life: 3000,
     });
   };

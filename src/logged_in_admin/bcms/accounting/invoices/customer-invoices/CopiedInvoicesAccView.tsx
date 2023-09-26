@@ -4,10 +4,17 @@ import { useEffect, useState } from "react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import React from "react";
 import { useAppContext } from "../../../../../shared/functions/Context";
-import { ICopiedInvoice, defaultCopiedInvoice } from "../../../../../shared/models/invoices/CopyInvoices";
-import { IBodyCop, defaultBodyCop } from "../../../../../shared/models/bcms/BodyCorperate";
+import {
+  ICopiedInvoice,
+  defaultCopiedInvoice,
+} from "../../../../../shared/models/invoices/CopyInvoices";
+import {
+  IBodyCop,
+  defaultBodyCop,
+} from "../../../../../shared/models/bcms/BodyCorperate";
 import { IUnit, defaultUnit } from "../../../../../shared/models/bcms/Units";
 import Loading from "../../../../../shared/components/Loading";
+import { nadFormatter } from "../../../../shared/NADFormatter";
 
 export const CopiedInvoicesAcc = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -154,7 +161,7 @@ export const CopiedInvoicesAcc = observer(() => {
                       Number: {invoice?.invoiceNumber} <br />
                       Date: {invoice?.dateIssued} <br />
                       Due Date: {invoice?.dueDate} <br />
-                      Total Due: N$ {invoice?.totalDue.toFixed(2)}
+                      {nadFormatter.format(invoice?.totalDue || 0)}
                     </p>
                   </div>
                 </div>
@@ -204,11 +211,12 @@ export const CopiedInvoicesAcc = observer(() => {
               <div className="uk-inline">
                 <div className="uk-text-right">
                   Total Discount: N$0.00 <br />
-                  Total Exclusive: N${invoice?.totalDue.toFixed(2)} <br />
-                  Total VAT: N$0.00
+                  Total Exclusive:
+                  {nadFormatter.format(invoice?.priceBeforeTax || 0)} <br />
+                  Total VAT: {nadFormatter.format(invoice?.vatPrice || 0)}
                   <br />
                   <hr />
-                  Sub Total: N${invoice?.totalDue.toFixed(2)}
+                  Sub Total: {nadFormatter.format(invoice?.totalDue || 0)}
                   <hr />
                 </div>
               </div>

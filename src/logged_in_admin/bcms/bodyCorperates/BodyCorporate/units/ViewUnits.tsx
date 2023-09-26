@@ -81,6 +81,7 @@ export const ViewUnit = observer(() => {
       if (me?.property) await api.body.account.getAll(me.property);
     };
     getData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propertyId, store.bodyCorperate.invoice.all]);
 
   const back = () => {
@@ -104,6 +105,7 @@ export const ViewUnit = observer(() => {
     if (!me?.property) return;
     try {
       if (store.bodyCorperate.unit.selected) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const supp = await api.unit.update(unit, me.property);
         await store.bodyCorperate.unit.load();
         ui.snackbar.load({
@@ -184,6 +186,8 @@ export const ViewUnit = observer(() => {
     showModalFromId(DIALOG_NAMES.BODY.VIEW_INVOICE);
   };
 
+  //very important feature, needs focus and proper mentainance.
+  //sending email notification is still missing in the duplicate function
   const duplicated = async () => {
     setLoadingF(true);
     try {
@@ -207,6 +211,7 @@ export const ViewUnit = observer(() => {
       const updateUnitBalancesTransaction = async (transaction: any) => {
         const unitCollectionRef = collection(db, unitPath);
         const updates = [];
+        const unitBalances: { [unitId: string]: number } = {};
 
         for (const masterInvoice of masterInvoices) {
           const { unitId, totalDue } = masterInvoice;
@@ -214,73 +219,79 @@ export const ViewUnit = observer(() => {
           const unitDoc = await transaction.get(unitDocRef);
 
           if (unitDoc.exists()) {
-            const currentBalance = unitDoc.data().balance || 0;
+            // Check if the unit's balance is already tracked
+            if (unitBalances[unitId] === undefined) {
+              unitBalances[unitId] = unitDoc.data().balance || 0;
+            }
+
+            const currentBalance = unitBalances[unitId]; // Get the current balance from the tracker
             const newBalance = currentBalance + totalDue;
+            unitBalances[unitId] = newBalance;
 
             updates.push({ ref: unitDocRef, data: { balance: newBalance } });
 
             // Check if balance is less than zero
             if (currentBalance < 0) {
-              const receiptData: IReceiptsPayments = {
-                unitId,
-                id: "",
-                date: newDateIssued,
-                reference: ref,
-                transactionType: "Customer Receipt",
-                description: "Credit Payment",
-                debit:
-                  Math.abs(currentBalance) > totalDue
-                    ? masterInvoice.totalDue.toFixed(2)
-                    : Math.abs(currentBalance).toFixed(2),
-                credit: "",
-                balance: "",
-                propertyId: me.property || "",
-                invoiceNumber: "",
-                rcp: generateRCPNumber(),
-                supplierId: "",
-              };
-
-              if (me?.property && me?.year && me?.month) {
-                await api.body.receiptPayments.create(
-                  receiptData,
-                  me.property,
-                  me.year,
-                  me.month
-                );
-              }
-              const bank_transaction: IBankingTransactions = {
-                id: "",
-                date: newDateIssued,
-                payee: unitId,
-                description: "Credit Payment",
-                type: "Customer",
-                selection: selection,
-                reference: "Customer Receipt",
-                VAT: "Exempted",
-                credit: "",
-                debit:
-                  Math.abs(currentBalance) > totalDue
-                    ? masterInvoice.totalDue.toFixed(2)
-                    : Math.abs(currentBalance).toFixed(2),
-              };
-              try {
-                if (me?.property && me?.bankAccountInUse)
-                  await api.body.banking_transaction.create(
-                    bank_transaction,
-                    me.property,
-                    me.bankAccountInUse
-                  );
-                console.log("transaction created");
-              } catch (error) {
-                console.log(error);
-              }
+              // only transactions
+              // const receiptData: IReceiptsPayments = {
+              //   unitId,
+              //   id: "",
+              //   date: newDateIssued,
+              //   reference: ref,
+              //   transactionType: "Customer Receipt",
+              //   description: "Credit Payment",
+              //   debit:
+              //     Math.abs(currentBalance) > totalDue
+              //       ? masterInvoice.totalDue.toFixed(2)
+              //       : Math.abs(currentBalance).toFixed(2),
+              //   credit: "",
+              //   balance: "",
+              //   propertyId: me.property || "",
+              //   invoiceNumber: "",
+              //   rcp: generateRCPNumber(),
+              //   supplierId: "",
+              // };
+              // if (me?.property && me?.year && me?.month) {
+              //   await api.body.receiptPayments.create(
+              //     receiptData,
+              //     me.property,
+              //     me.year,
+              //     me.month
+              //   );
+              // }
+              // const bank_transaction: IBankingTransactions = {
+              //   id: "",
+              //   date: newDateIssued,
+              //   payee: unitId,
+              //   description: "Credit Payment",
+              //   type: "Customer",
+              //   selection: selection,
+              //   reference: "Customer Receipt",
+              //   VAT: "Exempted",
+              //   credit: "",
+              //   debit:
+              //     Math.abs(currentBalance) > totalDue
+              //       ? masterInvoice.totalDue.toFixed(2)
+              //       : Math.abs(currentBalance).toFixed(2),
+              // };
+              // try {
+              //   if (me?.property && me?.bankAccountInUse)
+              //     await api.body.banking_transaction.create(
+              //       bank_transaction,
+              //       me.property,
+              //       me.bankAccountInUse
+              //     );
+              //   console.log("transaction created");
+              // } catch (error) {
+              //   console.log(error);
+              // }
             } else {
               console.error(`Unit document ${unitId} does not exist.`);
             }
           }
         }
         for (const masterInvoice of masterInvoices) {
-          const { unitId, totalDue } = masterInvoice;
+          const { unitId } = masterInvoice;
           const unitDocRef = doc(unitCollectionRef, unitId);
           const unitDoc = await transaction.get(unitDocRef);
           if (unitDoc.exists()) {
@@ -294,6 +305,7 @@ export const ViewUnit = observer(() => {
             const generatedDocId = newInvoiceRef.id;
             copiedInvoice.invoiceId = generatedDocId;
             const absoluteCurrentBalance = Math.abs(currentBalance);
+
             if (currentBalance < 0) {
               copiedInvoice.totalPaid =
                 absoluteCurrentBalance > masterInvoice.totalDue

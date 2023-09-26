@@ -2,14 +2,26 @@ import { observer } from "mobx-react-lite";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppContext } from "../../../../../../../shared/functions/Context";
 import { useEffect, useState } from "react";
-import { IBodyCop, defaultBodyCop } from "../../../../../../../shared/models/bcms/BodyCorperate";
-import { IUnit, defaultUnit } from "../../../../../../../shared/models/bcms/Units";
-import { IFinancialYear, defaultFinancialYear } from "../../../../../../../shared/models/yearModels/FinancialYear";
-import showModalFromId, { hideModalFromId } from "../../../../../../../shared/functions/ModalShow";
+import {
+  IBodyCop,
+  defaultBodyCop,
+} from "../../../../../../../shared/models/bcms/BodyCorperate";
+import {
+  IUnit,
+  defaultUnit,
+} from "../../../../../../../shared/models/bcms/Units";
+import {
+  IFinancialYear,
+  defaultFinancialYear,
+} from "../../../../../../../shared/models/yearModels/FinancialYear";
+import showModalFromId, {
+  hideModalFromId,
+} from "../../../../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../../../../../dialogs/Dialogs";
 import { IInvoice } from "../../../../../../../shared/models/invoices/Invoices";
 import { SuccessfulAction } from "../../../../../../../shared/models/Snackbar";
 import Modal from "../../../../../../../shared/components/Modal";
+import { nadFormatter } from "../../../../../../shared/NADFormatter";
 
 interface ServiceDetails {
   description: string;
@@ -26,6 +38,8 @@ export const Invoicing = observer(() => {
   const currentDate = new Date();
   const currentDate1 = new Date().toISOString().slice(0, 10);
   const [selectedDate, setSelectedDate] = useState(currentDate1);
+  const [VAT, setVAT] = useState<boolean>(false);
+  console.log("🚀 ~  ~ VAT:", VAT);
 
   // generate invoice number
   const [invoiceNumber, setInvoiceNumber] = useState("");
@@ -92,6 +106,16 @@ export const Invoicing = observer(() => {
 
   const [details, setDetails] = useState<ServiceDetails[]>([]);
   const totalPrice = details.reduce((sum, detail) => sum + detail.price, 0);
+  console.log(
+    "🚀 ~ file: Invoicing.tsx:108 ~ Invoicing ~ totalPrice:",
+    totalPrice
+  );
+  //vat inclusive
+  const VATINclusivePrice = (15 / 100) * totalPrice;
+  console.log("🚀VATINclusivePrice:", VATINclusivePrice);
+
+  const finalPrice = VATINclusivePrice + totalPrice;
+  console.log("🚀  finalPrice:", finalPrice);
 
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(0);
@@ -127,7 +151,7 @@ export const Invoicing = observer(() => {
       dateIssued: currentDate.toLocaleString(),
       dueDate: selectedDate,
       references: "",
-      totalDue: totalPrice,
+      totalDue: !VAT ? totalPrice : finalPrice,
       serviceId: details,
       pop: "",
       confirmed: false,
@@ -136,6 +160,9 @@ export const Invoicing = observer(() => {
       reminder: false,
       reminderDate: "",
       totalPaid: 0,
+      vat: VAT,
+      priceBeforeTax: totalPrice,
+      vatPrice: !VAT ? 0 : VATINclusivePrice,
     };
     try {
       if (!me?.property) return;
@@ -226,7 +253,7 @@ export const Invoicing = observer(() => {
               className="uk-button primary uk-text-left uk-align-left"
               onClick={createInvoice}
               disabled={maxValue === 1}
-              style={{ background: maxValue ? "grey" : "#000c37" }}
+              style={{ background: maxValue === 1 ? "grey" : "#000c37" }}
             >
               Create Master Invoice
             </button>
@@ -433,7 +460,21 @@ export const Invoicing = observer(() => {
                   </div>
                 </div>
                 <h3 className="uk-modal-title">Total Due</h3>
-                <p style={{ fontWeight: "600" }}>N$ {totalPrice.toFixed(2)}</p>
+                <p style={{ fontWeight: "600" }}>
+                  {!VAT ? (
+                    <>{nadFormatter.format(totalPrice)}</>
+                  ) : (
+                    <>{nadFormatter.format(finalPrice)}</>
+                  )}
+                </p>
+                <span>
+                  <input
+                    onChange={(e) => setVAT(e.target.checked)}
+                    className="uk-checkbox"
+                    type="checkbox"
+                  />{" "}
+                  VAT
+                </span>
 
                 <h3 className="uk-modal-title">Service(s) details</h3>
                 <div className="uk-width-1-2@m">
@@ -495,8 +536,8 @@ export const Invoicing = observer(() => {
                         <td style={{ textTransform: "uppercase" }}>
                           {details.description}
                         </td>
-                        <td>N$ {details.price.toFixed(2)}</td>
-                        <td>N$ {details.price.toFixed(2)}</td>
+                        <td>{nadFormatter.format(details.price)}</td>
+                        <td>{nadFormatter.format(details.price)}</td>
                       </tr>
                     ))}
                   </tbody>

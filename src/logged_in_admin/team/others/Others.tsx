@@ -23,9 +23,6 @@ export const Others = observer(() => {
   const [year, setYear] = useState(0);
   const [month, setMonth] = useState("");
   const [loading, setLoading] = useState(false);
-  const [selectedProperty, setSelectedProperty] = useState("");
-  const [selectedYear, setSelectedYear] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState("");
 
   const getData = async () => {
     if (!me?.property) return FailedAction("property not set.");
@@ -46,7 +43,9 @@ export const Others = observer(() => {
     getData();
   }, []);
 
-  const years = store.bodyCorperate.financialYear.all.map((y) => y.asJson);
+  const years = store.bodyCorperate.financialYear.all
+    .filter((y) => y.asJson.id === me?.year)
+    .map((y) => y.asJson);
   const months = store.bodyCorperate.financialMonth.all.map((m) => m.asJson);
 
   const onCreateProperty = () => {
@@ -107,13 +106,6 @@ export const Others = observer(() => {
               <button
                 className="uk-button primary uk-margin-right"
                 type="button"
-                onClick={onCreateProperty}
-              >
-                Create Property
-              </button>
-              <button
-                className="uk-button primary uk-margin-right"
-                type="button"
                 onClick={onCreateYear}
               >
                 Create Year
@@ -131,77 +123,48 @@ export const Others = observer(() => {
 
         {loading && <>loading...</>}
 
-        <div className="uk-child-width-expand@s" data-uk-grid>
-          <div>
-            <h6
-              style={{ textTransform: "uppercase", fontSize: "14px" }}
-              className="uk-modal-title"
-            >
-              Properties
-            </h6>
-            <table className="uk-table uk-table-small uk-table-divider">
-              <thead>
-                <tr>
-                  <th>property name</th>
-                  <th>location</th>
-                  <th>bank</th>
-                </tr>
-              </thead>
-              <tbody>
-                {store.bodyCorperate.bodyCop.all.map((p) => (
-                  <tr key={p.asJson.id}>
-                    <td>{p.asJson.BodyCopName}</td>
-                    <td>{p.asJson.location}</td>
-                    <td>{p.asJson.bankName}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div>
-            <h6
-              style={{ textTransform: "uppercase", fontSize: "14px" }}
-              className="uk-modal-title"
-            >
-              Years
-            </h6>
-            <table className="uk-table uk-table-small uk-table-divider">
-              <thead>
-                <tr>
-                  <th>year</th>
-                </tr>
-              </thead>
-              <tbody>
-                {years.map((m) => (
-                  <tr key={m.id}>
-                    <td>{m.year}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div>
-            <h6
-              style={{ textTransform: "uppercase", fontSize: "14px" }}
-              className="uk-modal-title"
-            >
-              Months
-            </h6>
-            <table className="uk-table uk-table-small uk-table-divider">
-              <thead>
-                <tr>
-                  <th>month</th>
-                </tr>
-              </thead>
-              <tbody>
-                {months.map((m) => (
-                  <tr key={m.month}>
-                    <td>{m.month}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <div className="uk-card uk-card-default uk-card-body uk-width-1-1@m">
+          <h5
+            style={{
+              color: "grey",
+              textTransform: "uppercase",
+              fontWeight: "600",
+              fontSize: "21px",
+            }}
+            className="uk-modal-title"
+          >
+            Active Financial Year:{" "}
+            <span style={{ color: "#01aced" }}>
+              {years.map((y) => {
+                return y.year;
+              })}
+            </span>
+          </h5>
+          <p></p>
+        </div>
+        <br />
+        <br />
+        <div
+          className="uk-child-width-1-3@m uk-grid-small uk-grid-match"
+          data-uk-grid
+        >
+          {months.map((m) => (
+            <div>
+              <div className="uk-card uk-card-default uk-card-body">
+                <h3
+                  style={{
+                    color: "grey",
+                    textTransform: "uppercase",
+                    fontWeight: "600",
+                    fontSize: "21px",
+                  }}
+                  className="uk-modal-title"
+                >
+                  {m.month}
+                </h3>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
       <Modal modalId={DIALOG_NAMES.BODY.BODY_CORPORATE_DIALOG}>

@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import Loading from "../../../../shared/components/Loading";
 import { PropertyDialog } from "../../../dialogs/property-dialog/PropertyDialog";
 import CustomerGrid from "./CustomerGrid";
+import showModalFromId from "../../../../shared/functions/ModalShow";
 
 export const BodyCorperates = observer(() => {
   const { store, api } = useAppContext();
@@ -34,6 +35,10 @@ export const BodyCorperates = observer(() => {
     return 0; // keep the order for non-'abc' elements
   });
 
+  const onCreate = () => {
+    showModalFromId(DIALOG_NAMES.BODY.BODY_CORPORATE_DIALOG);
+  };
+
   return (
     <div className="uk-section leave-analytics-page sales-order">
       {loading ? (
@@ -49,7 +54,15 @@ export const BodyCorperates = observer(() => {
                 Properties
               </h4>
               <div className="controls">
-                <div className="uk-inline"></div>
+                <div className="uk-inline">
+                  <button
+                    className="uk-button primary uk-margin-right"
+                    type="button"
+                    onClick={onCreate}
+                  >
+                    Create Property
+                  </button>
+                </div>
               </div>
             </div>
             <CustomerGrid

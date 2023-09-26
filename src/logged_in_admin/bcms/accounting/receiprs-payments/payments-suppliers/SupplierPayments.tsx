@@ -181,7 +181,7 @@ const SupplierPayment = observer(() => {
     toast.current?.show({
       severity: "info",
       summary: "Payment successfully created",
-      detail: "Cusomer Receipt",
+      detail: "Supplier Payment",
       life: 3000,
     });
   };
@@ -236,8 +236,7 @@ const SupplierPayment = observer(() => {
         }
       />
       <PaymentGrid data={rcp} />
-      <Toast ref={toast} />
-      <ConfirmDialog />
+
       <Modal modalId={DIALOG_NAMES.BODY.CREATE_SUPPLIER_PAYMENT}>
         <div
           className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical"
@@ -323,6 +322,8 @@ const SupplierPayment = observer(() => {
           </div>
         </div>
       </Modal>
+      <Toast ref={toast} />
+      <ConfirmDialog />
     </div>
   );
 });

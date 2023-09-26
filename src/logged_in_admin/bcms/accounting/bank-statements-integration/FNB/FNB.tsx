@@ -1,14 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FNBUploadState } from "./UploadStatement";
 import { Allocatate } from "./Allocatate";
 import { Tab } from "../../../../../Tab";
+import { observer } from "mobx-react-lite";
+import { useAppContext } from "../../../../../shared/functions/Context";
 
-export const FNB = () => {
+export const FNB = observer(() => {
+  const { store, api } = useAppContext();
   const [activeTab, setActiveTab] = useState("upload-statement");
+  const me = store.user.meJson;
 
   const handleTabClick = (tabLabel: string) => {
     setActiveTab(tabLabel);
   };
+
+  const storeData = store.bodyCorperate.fnb.all;
+
+  useEffect(() => {
+    const getData = async () => {
+      if (me?.property && me?.year && me?.month)
+        await api.body.fnb.getAll(me.property, me.year, me.month);
+    };
+    getData();
+  }, []);
 
   return (
     <div>
@@ -37,4 +51,4 @@ export const FNB = () => {
       </div>
     </div>
   );
-};
+});

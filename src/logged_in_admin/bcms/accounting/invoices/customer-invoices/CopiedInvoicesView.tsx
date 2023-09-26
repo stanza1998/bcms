@@ -13,6 +13,7 @@ import {
   ICopiedInvoice,
   defaultCopiedInvoice,
 } from "../../../../../shared/models/invoices/CopyInvoices";
+import { nadFormatter } from "../../../../shared/NADFormatter";
 
 export const CopiedInvoices = observer(() => {
   const { store, api } = useAppContext();
@@ -150,7 +151,7 @@ export const CopiedInvoices = observer(() => {
                       Number: {invoice?.invoiceNumber} <br />
                       Date: {invoice?.dateIssued} <br />
                       Due Date: {invoice?.dueDate} <br />
-                      Total Due: N$ {invoice?.totalDue.toFixed(2)}
+                      {nadFormatter.format(invoice?.totalDue || 0)}
                     </p>
                   </div>
                 </div>
@@ -199,11 +200,12 @@ export const CopiedInvoices = observer(() => {
               <div className="uk-inline">
                 <div className="uk-text-right">
                   Total Discount: N$0.00 <br />
-                  Total Exclusive: N${invoice?.totalDue.toFixed(2)} <br />
-                  Total VAT: N$0.00
+                  Total Exclusive:
+                  {nadFormatter.format(invoice?.priceBeforeTax || 0)} <br />
+                  Total VAT: {nadFormatter.format(invoice?.vatPrice || 0)}
                   <br />
                   <hr />
-                  Sub Total: N${invoice?.totalDue.toFixed(2)}
+                  Sub Total: {nadFormatter.format(invoice?.totalDue || 0)}
                   <hr />
                 </div>
               </div>
