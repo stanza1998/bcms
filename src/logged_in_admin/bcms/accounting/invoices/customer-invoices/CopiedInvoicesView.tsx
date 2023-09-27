@@ -149,6 +149,7 @@ export const CopiedInvoices = observer(() => {
                     >
                       {" "}
                       Number: {invoice?.invoiceNumber} <br />
+                      Reference: {invoice?.references} <br />
                       Date: {invoice?.dateIssued} <br />
                       Due Date: {invoice?.dueDate} <br />
                       {nadFormatter.format(invoice?.totalDue || 0)}

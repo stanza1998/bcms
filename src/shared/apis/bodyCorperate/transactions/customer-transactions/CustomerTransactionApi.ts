@@ -3,24 +3,22 @@ import {
   collection,
   deleteDoc,
   doc,
-  getDoc,
-  getDocs,
   onSnapshot,
   query,
   setDoc,
   updateDoc,
-  where,
 } from "firebase/firestore";
-import AppApi from "../../AppApi";
-import AppStore from "../../../stores/AppStore";
-import { db } from "../../../database/FirebaseConfig";
-import { IReceiptsPayments } from "../../../models/receipts-payments/ReceiptsPayments";
+import AppApi from "../../../AppApi";
+import AppStore from "../../../../stores/AppStore";
+import { db } from "../../../../database/FirebaseConfig";
+import { ICustomerTransactions } from "../../../../models/transactions/customer-transactions/CustomerTransactionModel";
 
-export default class ReceiptPaymentsApi {
+export default class CustomerTransactionApi {
   constructor(private api: AppApi, private store: AppStore) {}
 
   async getAll(pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/ReceiptsPayments`;
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/CustomerTransactions`;
+
     const $query = query(collection(db, myPath));
     // new promise
     return await new Promise<Unsubscribe>((resolve, reject) => {
@@ -29,12 +27,12 @@ export default class ReceiptPaymentsApi {
         $query,
         // onNext
         (querySnapshot) => {
-          const items: IReceiptsPayments[] = [];
+          const items: ICustomerTransactions[] = [];
           querySnapshot.forEach((doc) => {
-            items.push({ id: doc.id, ...doc.data() } as IReceiptsPayments);
+            items.push({ id: doc.id, ...doc.data() } as ICustomerTransactions);
           });
 
-          this.store.bodyCorperate.receiptsPayments.load(items);
+          this.store.bodyCorperate.customerTransactions.load(items);
           resolve(unsubscribe);
         },
         // onError
@@ -46,18 +44,21 @@ export default class ReceiptPaymentsApi {
   }
 
   async getById(id: string, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/ReceiptsPayments`;
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/CustomerTransactions`;
 
     const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
       if (!doc.exists) return;
-      const item = { id: doc.id, ...doc.data() } as IReceiptsPayments;
-      this.store.bodyCorperate.receiptsPayments.load([item]);
+      const item = { id: doc.id, ...doc.data() } as ICustomerTransactions;
+
+      this.store.bodyCorperate.customerTransactions.load([item]);
     });
+
     return unsubscribe;
   }
 
-  async create(item: IReceiptsPayments, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/ReceiptsPayments`;
+  async create(item: ICustomerTransactions, pid: string, yid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/CustomerTransactions`;
+
     const itemRef = doc(collection(db, myPath));
     item.id = itemRef.id;
 
@@ -67,33 +68,28 @@ export default class ReceiptPaymentsApi {
         merge: true,
       });
       // create in store
-      this.store.bodyCorperate.receiptsPayments.load([item]);
+      this.store.bodyCorperate.customerTransactions.load([item]);
     } catch (error) {
       // console.log(error);
     }
   }
 
-  async update(
-    product: IReceiptsPayments,
-    pid: string,
-    yid: string,
-    mid: string
-  ) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/ReceiptsPayments`;
+  async update(product: ICustomerTransactions, pid: string, yid: string) {
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/CustomerTransactions`;
     try {
       await updateDoc(doc(db, myPath, product.id), {
         ...product,
       });
 
-      this.store.bodyCorperate.receiptsPayments.load([product]);
+      this.store.bodyCorperate.customerTransactions.load([product]);
     } catch (error) {}
   }
 
   async delete(id: string, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/ReceiptsPayments`;
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/CustomerTransactions`;
     try {
       await deleteDoc(doc(db, myPath, id));
-      this.store.bodyCorperate.receiptsPayments.remove(id);
+      this.store.bodyCorperate.customerTransactions.remove(id);
     } catch (error) {
       console.log(error);
     }

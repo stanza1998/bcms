@@ -69,12 +69,7 @@ const SupplierPayment = observer(() => {
     };
     if ((me?.property, me?.year, me?.month))
       try {
-        await api.body.receiptPayments.create(
-          receipt,
-          me.property,
-          me.year,
-          me.month
-        );
+        await api.body.receiptPayments.create(receipt, me.property, me.year);
       } catch (error) {
         console.log(error);
       }
@@ -134,8 +129,18 @@ const SupplierPayment = observer(() => {
   useEffect(() => {
     const getData = async () => {
       if (me?.property && me?.year && me?.month) {
-        await api.body.receiptPayments.getAll(me.property, me?.year, me?.month);
+        await api.body.receiptPayments.getAll(me.property, me?.year);
         const rcp = store.bodyCorperate.receiptsPayments.all
+          .sort(
+            (a, b) =>
+              new Date(b.asJson.date).getTime() -
+              new Date(a.asJson.date).getTime()
+          )
+          .sort(
+            (a, b) =>
+              new Date(b.asJson.date).getTime() -
+              new Date(a.asJson.date).getTime()
+          )
           .filter((rcp) => rcp.asJson.transactionType === "Supplier Payment")
           .map((rcp) => {
             return rcp.asJson;
@@ -148,7 +153,7 @@ const SupplierPayment = observer(() => {
 
   const getData = async () => {
     if (me?.property && me?.year && me?.month) {
-      await api.body.receiptPayments.getAll(me.property, me?.year, me?.month);
+      await api.body.receiptPayments.getAll(me.property, me?.year);
       const rcp = store.bodyCorperate.receiptsPayments.all
         .filter((rcp) => rcp.asJson.transactionType === "Supplier Payment")
         .map((rcp) => {
@@ -157,7 +162,6 @@ const SupplierPayment = observer(() => {
       setRCP(rcp);
     }
   };
-  getData();
 
   const suppliers = store.bodyCorperate.supplier.all.map((inv) => {
     return inv.asJson;

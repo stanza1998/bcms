@@ -11,7 +11,7 @@ export const SupplierPayment = observer(() => {
   useEffect(() => {
     const getData = async () => {
       if (me?.property && me?.year && me?.month)
-        await api.body.receiptPayments.getAll(me.property, me.year, me.month);
+        await api.body.receiptPayments.getAll(me.property, me.year);
       await api.body.body.getAll();
       if (me?.property) await api.body.supplier.getAll(me.property);
     };

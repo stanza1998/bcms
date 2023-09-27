@@ -25,7 +25,6 @@ import NumberInput from "../../../../../shared/functions/number-input/NumberInpu
 import { Toast } from "primereact/toast";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 
-
 const CustomerReceipts = observer(() => {
   const { store, api, ui } = useAppContext();
   const me = store.user.meJson;
@@ -71,12 +70,7 @@ const CustomerReceipts = observer(() => {
     };
     if ((me?.property, me?.year, me?.month))
       try {
-        await api.body.receiptPayments.create(
-          receipt,
-          me.property,
-          me.year,
-          me.month
-        );
+        await api.body.receiptPayments.create(receipt, me.property, me.year);
       } catch (error) {
         console.log(error);
       }
@@ -154,8 +148,13 @@ const CustomerReceipts = observer(() => {
       if (me?.property && me?.year && me?.month) {
         await api.body.copiedInvoice.getAll(me.property, me.year);
         await api.unit.getAll(me.property);
-        await api.body.receiptPayments.getAll(me.property, me?.year, me?.month);
+        await api.body.receiptPayments.getAll(me.property, me?.year);
         const rcp = store.bodyCorperate.receiptsPayments.all
+          .sort(
+            (a, b) =>
+              new Date(b.asJson.date).getTime() -
+              new Date(a.asJson.date).getTime()
+          )
           .filter((rcp) => rcp.asJson.transactionType === "Customer Receipt")
           .map((rcp) => {
             return rcp.asJson;
@@ -171,7 +170,7 @@ const CustomerReceipts = observer(() => {
       await api.body.copiedInvoice.getAll(me.property, me.year);
       await api.unit.getAll(me.property);
       await api.body.account.getAll(me.property);
-      await api.body.receiptPayments.getAll(me.property, me?.year, me?.month);
+      await api.body.receiptPayments.getAll(me.property, me?.year);
       const rcp = store.bodyCorperate.receiptsPayments.all
         .filter((rcp) => rcp.asJson.transactionType === "Customer Receipt")
         .map((rcp) => {

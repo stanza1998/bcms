@@ -233,58 +233,6 @@ export const ViewUnit = observer(() => {
             // Check if balance is less than zero
             if (currentBalance < 0) {
               // only transactions
-              // const receiptData: IReceiptsPayments = {
-              //   unitId,
-              //   id: "",
-              //   date: newDateIssued,
-              //   reference: ref,
-              //   transactionType: "Customer Receipt",
-              //   description: "Credit Payment",
-              //   debit:
-              //     Math.abs(currentBalance) > totalDue
-              //       ? masterInvoice.totalDue.toFixed(2)
-              //       : Math.abs(currentBalance).toFixed(2),
-              //   credit: "",
-              //   balance: "",
-              //   propertyId: me.property || "",
-              //   invoiceNumber: "",
-              //   rcp: generateRCPNumber(),
-              //   supplierId: "",
-              // };
-              // if (me?.property && me?.year && me?.month) {
-              //   await api.body.receiptPayments.create(
-              //     receiptData,
-              //     me.property,
-              //     me.year,
-              //     me.month
-              //   );
-              // }
-              // const bank_transaction: IBankingTransactions = {
-              //   id: "",
-              //   date: newDateIssued,
-              //   payee: unitId,
-              //   description: "Credit Payment",
-              //   type: "Customer",
-              //   selection: selection,
-              //   reference: "Customer Receipt",
-              //   VAT: "Exempted",
-              //   credit: "",
-              //   debit:
-              //     Math.abs(currentBalance) > totalDue
-              //       ? masterInvoice.totalDue.toFixed(2)
-              //       : Math.abs(currentBalance).toFixed(2),
-              // };
-              // try {
-              //   if (me?.property && me?.bankAccountInUse)
-              //     await api.body.banking_transaction.create(
-              //       bank_transaction,
-              //       me.property,
-              //       me.bankAccountInUse
-              //     );
-              //   console.log("transaction created");
-              // } catch (error) {
-              //   console.log(error);
-              // }
             } else {
               console.error(`Unit document ${unitId} does not exist.`);
             }

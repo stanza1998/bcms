@@ -6,14 +6,14 @@ import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ArticleIcon from "@mui/icons-material/Article";
 import { IconButton } from "@mui/material";
 import { useAppContext } from "../../../../../shared/functions/Context";
-import CustomerBalanceGrid, {
-  IAgingAnalysis,
-} from "./grid/CustomerBalanceGrid";
+import SupplierBalanceGrid, {
+  IAgingAnalysisSupplier,
+} from "./grid/SupplierBalanceGrid";
 
-const CustomerBalance = observer(() => {
+const SupplierBalance = observer(() => {
   const { store, api } = useAppContext();
   const me = store.user.meJson;
-  const invoices = store.bodyCorperate.copiedInvoices.all
+  const invoices = store.bodyCorperate.supplierInvoice.all
     .filter((inv) => inv.asJson.totalPaid < inv.asJson.totalDue)
     .map((inv) => {
       return inv.asJson;
@@ -25,12 +25,12 @@ const CustomerBalance = observer(() => {
   const unitAgingTotals: Record<string, Record<string, number>> = {};
 
   invoices.forEach((invoice) => {
-    const unitId = invoice.unitId;
+    const supplierId = invoice.supplierId;
     const totalDue = invoice.totalDue - invoice.totalPaid;
     const dueDate = new Date(invoice.dueDate);
 
-    if (!unitAgingTotals[unitId]) {
-      unitAgingTotals[unitId] = {
+    if (!unitAgingTotals[supplierId]) {
+      unitAgingTotals[supplierId] = {
         current: 0,
         days30: 0,
         days60: 0,
@@ -45,28 +45,28 @@ const CustomerBalance = observer(() => {
     );
 
     if (differenceInDays <= 30) {
-      unitAgingTotals[unitId].current += totalDue;
+      unitAgingTotals[supplierId].current += totalDue;
     } else if (differenceInDays <= 60) {
-      unitAgingTotals[unitId].days30 += totalDue;
+      unitAgingTotals[supplierId].days30 += totalDue;
     } else if (differenceInDays <= 90) {
-      unitAgingTotals[unitId].days60 += totalDue;
+      unitAgingTotals[supplierId].days60 += totalDue;
     } else if (differenceInDays <= 120) {
-      unitAgingTotals[unitId].days90 += totalDue;
+      unitAgingTotals[supplierId].days90 += totalDue;
     } else {
-      unitAgingTotals[unitId].days120Plus += totalDue;
+      unitAgingTotals[supplierId].days120Plus += totalDue;
     }
   });
 
-  const unitAgingTotalsArray: IAgingAnalysis[] = Object.entries(
+  const supplierAgingTotalsArray: IAgingAnalysisSupplier[] = Object.entries(
     unitAgingTotals
-  ).map(([unitId, agingData]) => {
-    return { unitId, ...agingData } as IAgingAnalysis;
+  ).map(([supplierId, agingData]) => {
+    return { supplierId, ...agingData } as IAgingAnalysisSupplier;
   });
 
   useEffect(() => {
     const getData = async () => {
       if (me?.property && me?.year)
-        await api.body.copiedInvoice.getAll(me?.property, me?.year);
+        await api.body.supplierInvoice.getAll(me?.property, me?.year);
     };
     getData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -90,9 +90,9 @@ const CustomerBalance = observer(() => {
           </div>
         }
       />
-      <CustomerBalanceGrid data={unitAgingTotalsArray} />
+      <SupplierBalanceGrid data={supplierAgingTotalsArray} />
     </div>
   );
 });
 
-export default CustomerBalance;
+export default SupplierBalance;

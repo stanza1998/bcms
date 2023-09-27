@@ -7,6 +7,8 @@ import { IconButton } from "@mui/material";
 import FiberSmartRecordIcon from "@mui/icons-material/FiberSmartRecord";
 import CustomerCreditNotes from "../../returns-credit-notes/customer-credit-notes/CustomerCreditNotes";
 import CustomerBalance from "../../reports-customers/customer-balance/CustomerBalance";
+import { CustomerStatements } from "../../reports-customers/customer-statements/CustomerStatements";
+import { CustomerTransaction } from "../../reports-customers/customer-transactions/CustomerTransaction";
 
 export const Customer = () => {
   const [activeTab, setActiveTab] = useState("invoices");
@@ -81,6 +83,8 @@ export const Customer = () => {
             {activeTab === "receipts" && <CustomerReceipts />}
             {activeTab === "credit-notes" && <CustomerCreditNotes />}
             {activeTab === "balance" && <CustomerBalance />}
+            {activeTab === "statements" && <CustomerStatements />}
+            {activeTab === "transaction" && <CustomerTransaction />}
           </div>
         </div>
       </div>

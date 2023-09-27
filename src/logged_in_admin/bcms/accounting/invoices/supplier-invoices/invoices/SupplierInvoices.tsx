@@ -34,6 +34,11 @@ export const SupplierInvoices = observer(() => {
     return inv.asJson;
   });
 
+  const sortedInvoices = invoices.sort(
+    (a, b) =>
+      new Date(b.dateIssued).getTime() - new Date(a.dateIssued).getTime()
+  );
+
   const totalBalance = invoices.reduce(
     (balance, invoice) => balance + invoice.totalDue,
     0
@@ -78,7 +83,7 @@ export const SupplierInvoices = observer(() => {
           </div>
         }
       />
-      <SupplierInvoicesGrid data={invoices} />
+      <SupplierInvoicesGrid data={sortedInvoices} />
     </div>
   );
 });

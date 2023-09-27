@@ -170,9 +170,15 @@ const CustomerCreditNotes = observer(() => {
         }
       />
       <CreditNoteGrid
-        data={store.bodyCorperate.creditNote.all.map((u) => {
-          return u.asJson;
-        })}
+        data={store.bodyCorperate.creditNote.all
+          .sort(
+            (a, b) =>
+              new Date(b.asJson.date).getTime() -
+              new Date(a.asJson.date).getTime()
+          )
+          .map((u) => {
+            return u.asJson;
+          })}
         units={units}
       />
       <Toast ref={toast} />

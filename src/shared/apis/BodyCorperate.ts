@@ -20,6 +20,8 @@ import ProperyBankAccountApi from "./bodyCorperate/prperty-bank-account/Property
 import SupplierReturnApi from "./bodyCorperate/credit-notes-returns/SupplierReturns";
 import AccountCategoryApi from "./bodyCorperate/type/AccountCategoryApi";
 import BankingTransactionsApi from "./bodyCorperate/banks/banking/BankingTransactionApi";
+import CustomerTransactionApi from "./bodyCorperate/transactions/customer-transactions/CustomerTransactionApi";
+import SupplierTransactionApi from "./bodyCorperate/transactions/supplier-transactions/SupplierTransactionApi";
 
 export default class BodyCorpetaApi {
   private BodyCoperateDB = collection(db, "BodyCoperate");
@@ -47,6 +49,8 @@ export default class BodyCorpetaApi {
   propertyBankAccount: ProperyBankAccountApi;
   accountCategory: AccountCategoryApi;
   banking_transaction: BankingTransactionsApi;
+  customer_transactions: CustomerTransactionApi;
+  supplier_transactions: SupplierTransactionApi;
 
   constructor(api: AppApi, store: AppStore) {
     this.body = new BodyCopApi(api, store, this.BodyCoperateDB);
@@ -56,7 +60,6 @@ export default class BodyCorpetaApi {
     this.fnb = new FNBApi(api, store);
     this.receiptPayments = new ReceiptPaymentsApi(api, store);
     this.copiedInvoice = new CopiedInvoiceApi(api, store);
-    this.nedbank = new NEDBANKApi(api, store, this.NEDBANKBB);
     this.transfer = new TransferApi(api, store, this.transferDB);
     this.account = new AccountApi(api, store, this.accountDB);
     this.supplier = new SupplierApi(api, store);
@@ -66,7 +69,10 @@ export default class BodyCorpetaApi {
     this.supplierReturn = new SupplierReturnApi(api, store);
     this.accountCategory = new AccountCategoryApi(api, store);
     this.banking_transaction = new BankingTransactionsApi(api, store);
-
+    this.customer_transactions = new CustomerTransactionApi(api, store);
+    this.supplier_transactions = new SupplierTransactionApi(api, store);
+    //api needs update
+    this.nedbank = new NEDBANKApi(api, store, this.NEDBANKBB);
     //   not needed
     this.recuringInvoice = new RecuringInvoiceApi(
       api,

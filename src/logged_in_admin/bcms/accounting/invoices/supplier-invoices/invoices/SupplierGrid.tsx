@@ -29,6 +29,9 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
   const { store, api } = useAppContext();
   const navigate = useNavigate();
   const me = store.user.meJson;
+  const suppliers = store.bodyCorperate.supplier.all.map((s) => {
+    return s.asJson;
+  });
 
   useEffect(() => {
     const getData = async () => {
@@ -38,9 +41,11 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
       if (me?.property) await api.body.financialYear.getAll(me.property);
       if (me?.property && me?.year)
         await api.body.financialMonth.getAll(me.property, me.year);
+      if (me?.property && me?.year) await api.body.supplier.getAll(me.property);
       await api.auth.loadAll();
     };
     getData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     api.auth,
     api.body.body,
@@ -98,25 +103,43 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
   };
 
   const columns: GridColDef[] = [
-    { field: "invoiceNumber", headerName: "Invoice Number", width: 150 },
-    { field: "dateIssued", headerName: "Date Issued", width: 150 },
+    {
+      field: "dateIssued",
+      headerName: "Date Issued",
+      width: 120,
+    },
+    {
+      field: "supplierId",
+      headerName: "Supplier",
+      width: 120,
+      renderCell: (params) => (
+        <>
+          {suppliers
+            .filter((s) => s.id === params.row.supplierId)
+            .map((s) => {
+              return s.name;
+            })}
+        </>
+      ),
+    },
+    { field: "invoiceNumber", headerName: "Invoice Number", width: 120 },
     { field: "dueDate", headerName: "Due Date", width: 100 },
     {
       field: "totalPaid",
       headerName: "Total Paid",
-      width: 150,
+      width: 120,
       renderCell: (params) => <>{nadFormatter.format(params.row.totalPaid)}</>,
     },
     {
       field: "totalDue",
       headerName: "Total Amount",
-      width: 150,
+      width: 120,
       renderCell: (params) => <>{nadFormatter.format(params.row.totalDue)}</>,
     },
     {
       field: "TotalDue",
       headerName: "Total Due",
-      width: 150,
+      width: 120,
       renderCell: (params) => (
         <>{nadFormatter.format(params.row.totalDue - params.row.totalPaid)}</>
       ),

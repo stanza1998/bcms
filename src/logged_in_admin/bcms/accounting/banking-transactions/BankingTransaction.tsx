@@ -82,7 +82,9 @@ export const BankingTransactions = observer(() => {
           }
         />
         <BankingTransactionGrid
-          data={transactions}
+          data={transactions.sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          )}
           units={units}
           accounts={accounts}
           suppliers={suppliers}

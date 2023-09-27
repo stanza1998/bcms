@@ -40,6 +40,11 @@ export const CopiedInvoices = observer(() => {
     return statements.asJson;
   });
 
+  const sortedInvoices = invoicesC.sort(
+    (a, b) =>
+      new Date(b.dateIssued).getTime() - new Date(a.dateIssued).getTime()
+  );
+
   const totalDue = invoicesC.reduce(
     (amount, invoice) => amount + invoice.totalDue,
     0
@@ -83,7 +88,7 @@ export const CopiedInvoices = observer(() => {
         }
       />
 
-      <InvoicesGrid data={invoicesC} />
+      <InvoicesGrid data={sortedInvoices} />
     </div>
   );
 });

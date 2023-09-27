@@ -34,6 +34,9 @@ interface IProp {
 const InvoicesGrid = observer(({ data }: IProp) => {
   const { store, api } = useAppContext();
   const me = store.user.meJson;
+  const units = store.bodyCorperate.unit.all.map((u) => {
+    return u.asJson;
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,6 +47,7 @@ const InvoicesGrid = observer(({ data }: IProp) => {
       if (me?.property) await api.body.financialYear.getAll(me?.property);
       if ((me?.property, me?.year))
         await api.body.financialMonth.getAll(me.property, me.year);
+      if (me?.property) await api.unit.getAll(me.property);
       await api.auth.loadAll();
     };
     getData();
@@ -114,8 +118,22 @@ const InvoicesGrid = observer(({ data }: IProp) => {
   };
 
   const columns: GridColDef[] = [
-    { field: "invoiceNumber", headerName: "Invoice Number", width: 200 },
-    { field: "dateIssued", headerName: "Date Issued", width: 200 },
+    { field: "dateIssued", headerName: "Date Issued", width: 150 },
+    {
+      field: "unitId",
+      headerName: "Unit",
+      width: 100,
+      renderCell: (params) => (
+        <span>
+          {units
+            .filter((u) => u.id === params.row.unitId)
+            .map((u) => {
+              return "Unit " + u.unitName;
+            })}
+        </span>
+      ),
+    },
+    { field: "invoiceNumber", headerName: "Invoice Number", width: 140 },
     {
       field: "totalPaid",
       headerName: "Total Paid",

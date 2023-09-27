@@ -13,6 +13,8 @@ import BodyCopStore from "../individualStore/properties/BodyCopStore";
 import UnitStore from "../individualStore/properties/UnitStore";
 import PropertyBankAccountStore from "../individualStore/property-bank-account/PropertyBankAccountStore";
 import ReceiptsPaymentStore from "../individualStore/receipts-payments/ReceiptsPaymentStore";
+import CustomerTransactionsStore from "../individualStore/transactions/customer-transactions/CustomerTransactionsStore";
+import SupplierTransactionsStore from "../individualStore/transactions/supplierTransactions/SupplierTransactionsStore";
 import AccountCategoryStore from "../individualStore/type/AccountCategoryStore";
 import AccountStore from "../individualStore/type/AccountStore";
 import SupplierStore from "../individualStore/type/SupplierStore";
@@ -39,6 +41,8 @@ export default class BodyCorporateStore {
   supplierReturn: SupplierReturnStore;
   accountCategory: AccountCategoryStore;
   bankingTransactions: BankingTransactionStore;
+  customerTransactions: CustomerTransactionsStore;
+  supplierTransactions: SupplierTransactionsStore;
 
   constructor(store: AppStore) {
     this.bodyCop = new BodyCopStore(store);
@@ -60,5 +64,7 @@ export default class BodyCorporateStore {
     this.supplierReturn = new SupplierReturnStore(store);
     this.accountCategory = new AccountCategoryStore(store);
     this.bankingTransactions = new BankingTransactionStore(store);
+    this.customerTransactions = new CustomerTransactionsStore(store);
+    this.supplierTransactions = new SupplierTransactionsStore(store);
   }
 }

@@ -181,9 +181,15 @@ export const SupplierReturns = observer(() => {
         }
       />
       <SupplierReturnGrid
-        data={store.bodyCorperate.supplierReturn.all.map((u) => {
-          return u.asJson;
-        })}
+        data={store.bodyCorperate.supplierReturn.all
+          .sort(
+            (a, b) =>
+              new Date(b.asJson.date).getTime() -
+              new Date(a.asJson.date).getTime()
+          )
+          .map((u) => {
+            return u.asJson;
+          })}
         suppliers={suppliers}
       />
 

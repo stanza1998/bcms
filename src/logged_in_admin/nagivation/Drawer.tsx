@@ -46,7 +46,7 @@ const ADMIN_DRAWER = () => {
             <span className="uk-margin-small-right">
               <MapsHomeWorkIcon style={{ fontSize: "16px" }} />
             </span>
-            Body Corperates
+            Properties
             <span className="down-arrow" data-uk-icon="chevron-down" />
           </NavLink>
           <ul className="uk-nav-sub">
@@ -203,7 +203,7 @@ const ADMIN_DRAWER = () => {
             <span className="uk-margin-small-right">
               <EngineeringIcon style={{ fontSize: "16px" }} />
             </span>
-            Maintainance
+            Mentainance
             <span className="down-arrow" data-uk-icon="chevron-down" />
           </NavLink>
           <ul className="uk-nav-sub">

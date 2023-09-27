@@ -138,7 +138,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
         await updateDoc(unitRef, { balance: updatedBalance });
       }
 
-      const transactionsPath = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
+      const transactionsPath = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
       const transactionsCollectionRef = doc(
         collection(db, transactionsPath, "FNBTransactions"),
         transactionId
@@ -180,12 +180,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       if (!me?.property && !me?.year && !me?.month)
         return FailedAction("NOT FOUND");
       try {
-        await api.body.receiptPayments.create(
-          rs,
-          me.property,
-          me.year,
-          me.month
-        );
+        await api.body.receiptPayments.create(rs, me.property, me.year);
       } catch (error) {
         console.log(error);
       } finally {
@@ -232,7 +227,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       setSupplierId("");
       return;
     } else {
-      const myPath1 = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
+      const myPath1 = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
       const transactionsCollectionRef = doc(
         collection(db, myPath1, "FNBTransactions"),
         id
@@ -322,7 +317,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
         setSupplierId("");
         return;
       } else {
-        const myPath1 = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
+        const myPath1 = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
         const transactionsCollectionRef = doc(
           collection(db, myPath1, "FNBTransactions"),
           transactionId
@@ -368,12 +363,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       if (!me?.property && !me?.year && !me?.month)
         return FailedAction("NOT FOUND");
       try {
-        await api.body.receiptPayments.create(
-          rs,
-          me.property,
-          me.year,
-          me.month
-        );
+        await api.body.receiptPayments.create(rs, me.property, me.year);
       } catch (error) {
         console.log(error);
       } finally {
