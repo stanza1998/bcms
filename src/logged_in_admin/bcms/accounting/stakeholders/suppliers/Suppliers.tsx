@@ -5,6 +5,7 @@ import { SupplierInvoices } from "../../invoices/supplier-invoices/invoices/Supp
 import { useState } from "react";
 import { SupplierReturns } from "../../returns-credit-notes/supplier-returns/SupplierReturns";
 import SupplierBalance from "../../reports-supplier/supplier-balance/SupplierBalance";
+import { SupplierTransaction } from "../../reports-supplier/supplier-transactions/SupplierTransactions";
 
 export const SuppliersView = observer(() => {
   const [activeTab, setActiveTab] = useState("invoices");
@@ -78,6 +79,7 @@ export const SuppliersView = observer(() => {
             {activeTab === "receipts" && <SupplierPayment />}
             {activeTab === "returns" && <SupplierReturns />}
             {activeTab === "balance" && <SupplierBalance />}
+            {activeTab === "transaction" && <SupplierTransaction />}
           </div>
         </div>
       </div>

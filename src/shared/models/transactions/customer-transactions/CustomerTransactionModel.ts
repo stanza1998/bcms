@@ -11,6 +11,8 @@ export const defaulCustomerTransaction: ICustomerTransactions = {
   debit: "",
   credit: "",
   balance: "",
+  balanceAtPointOfTime: "",
+  invId: ""
 };
 
 export interface ICustomerTransactions {
@@ -23,6 +25,8 @@ export interface ICustomerTransactions {
   debit: string;
   credit: string;
   balance: string;
+  balanceAtPointOfTime:string;
+  invId:string;
 }
 
 export default class CustomerTransactionModel {

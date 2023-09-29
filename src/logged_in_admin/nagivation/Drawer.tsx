@@ -203,7 +203,7 @@ const ADMIN_DRAWER = () => {
             <span className="uk-margin-small-right">
               <EngineeringIcon style={{ fontSize: "16px" }} />
             </span>
-            Mentainance
+            Maintenance
             <span className="down-arrow" data-uk-icon="chevron-down" />
           </NavLink>
           <ul className="uk-nav-sub">

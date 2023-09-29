@@ -28,7 +28,11 @@ const DIALOG_NAMES = {
     CREATE_SUPPLIER_RETURN: "create-supplier-return",
     CREATE_SUPPLIER_PAYMENT: "create-supplier-payment",
     CREATE_ACCOUNT_CATEGORY: "create-account-category",
-    CREATE_ALLOCATE_SUPPLIER:"create-allocate-suppluer"
+    CREATE_ALLOCATE_SUPPLIER: "create-allocate-suppluer",
+    CUSTOMER_TRANSACTIONS_SEARCH: "customer-transactions-search",
+    SUPPLIER_TRANSACTIONS_SEARCH: "supplier-transactions-search",
+    CUSTOMER_STATEMENTS_SEARCH: "customer-statements-search",
+    SUPPLIER_STATEMENTS_SEARCH: "supplier-statements-search",
   },
 
   OWNER: {

@@ -24,6 +24,7 @@ import { db } from "../../../../../shared/database/FirebaseConfig";
 import NumberInput from "../../../../../shared/functions/number-input/NumberInput";
 import { Toast } from "primereact/toast";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import { ICustomerTransactions } from "../../../../../shared/models/transactions/customer-transactions/CustomerTransactionModel";
 
 const CustomerReceipts = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -135,11 +136,34 @@ const CustomerReceipts = observer(() => {
       console.log("transaction created");
     } catch (error) {
       console.log(error);
+    }
+    const customer_transaction: ICustomerTransactions = {
+      id: "",
+      unitId: unitId,
+      date: date,
+      reference: receipt.rcp,
+      transactionType: "Customer Receipt",
+      description:
+        "unit" + (units.find((u) => u.id === unitId)?.unitName || 0).toFixed(0),
+      debit: "",
+      credit: debit.toFixed(2),
+      balance: "",
+      balanceAtPointOfTime: "",
+      invId: receipt.invoiceNumber,
+    };
+    try {
+      if (me?.property && me?.year) {
+        await api.body.customer_transactions.create(
+          customer_transaction,
+          me?.property,
+          me?.year
+        );
+      }
+    } catch (error) {
+      console.log(error);
     } finally {
       setLoading(false);
-      getData();
       hideModalFromId(DIALOG_NAMES.BODY.CREATE_RECEIPT);
-      SuccessfulAction(ui);
     }
   };
 

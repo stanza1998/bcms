@@ -26,8 +26,8 @@ import { FailedAction } from "../../../../../shared/models/Snackbar";
 import { IInvoice } from "../../../../../shared/models/invoices/Invoices";
 import GridViewIcon from "@mui/icons-material/GridView";
 import { nadFormatter } from "../../../../shared/NADFormatter";
-import { IBankingTransactions } from "../../../../../shared/models/banks/banking/BankTransactions";
 import { IReceiptsPayments } from "../../../../../shared/models/receipts-payments/ReceiptsPayments";
+import { ICustomerTransactions } from "../../../../../shared/models/transactions/customer-transactions/CustomerTransactionModel";
 
 export const ViewUnit = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -217,31 +217,6 @@ export const ViewUnit = observer(() => {
           const { unitId, totalDue } = masterInvoice;
           const unitDocRef = doc(unitCollectionRef, unitId);
           const unitDoc = await transaction.get(unitDocRef);
-
-          if (unitDoc.exists()) {
-            // Check if the unit's balance is already tracked
-            if (unitBalances[unitId] === undefined) {
-              unitBalances[unitId] = unitDoc.data().balance || 0;
-            }
-
-            const currentBalance = unitBalances[unitId]; // Get the current balance from the tracker
-            const newBalance = currentBalance + totalDue;
-            unitBalances[unitId] = newBalance;
-
-            updates.push({ ref: unitDocRef, data: { balance: newBalance } });
-
-            // Check if balance is less than zero
-            if (currentBalance < 0) {
-              // only transactions
-            } else {
-              console.error(`Unit document ${unitId} does not exist.`);
-            }
-          }
-        }
-        for (const masterInvoice of masterInvoices) {
-          const { unitId } = masterInvoice;
-          const unitDocRef = doc(unitCollectionRef, unitId);
-          const unitDoc = await transaction.get(unitDocRef);
           if (unitDoc.exists()) {
             const currentBalance = unitDoc.data().balance || 0;
             const copiedInvoice = { ...masterInvoice };
@@ -262,10 +237,105 @@ export const ViewUnit = observer(() => {
             } else {
               copiedInvoice.totalPaid = 0;
             }
+            // Check if balance is less than zero
+            if (currentBalance < 0) {
+              // create customer receipt
+
+              const customerReceipt: IReceiptsPayments = {
+                unitId,
+                id: "",
+                date: newDateIssued,
+                reference: ref,
+                transactionType: "Customer Receipt",
+                description: "Credit Payment",
+                debit:
+                  Math.abs(currentBalance) > totalDue
+                    ? masterInvoice.totalDue.toFixed(2)
+                    : Math.abs(currentBalance).toFixed(2),
+                credit: "",
+                balance: "",
+                propertyId: me.property || "",
+                invoiceNumber: generatedDocId,
+                rcp: generateRCPNumber(),
+                supplierId: "",
+              };
+              try {
+                if (me.property && me.year) {
+                  await api.body.receiptPayments.create(
+                    customerReceipt,
+                    me.property,
+                    me.year
+                  );
+                }
+              } catch (error) {
+                console.log(error);
+              }
+
+              //IF CREDIT THAN CREATE TRANSACTION HERE
+            } else {
+              console.error(`Unit document ${unitId} does not exist.`);
+            }
+
+            //CREATE TRANSACTION HERE
+            //get unit current balance
+            if (unitDoc.exists()) {
+              // Check if the unit's balance is already tracked
+              if (unitBalances[unitId] === undefined) {
+                unitBalances[unitId] = unitDoc.data().balance || 0;
+              }
+
+              const currentBalance = unitBalances[unitId]; // Get the current balance from the tracker
+
+              const customerTransaction: ICustomerTransactions = {
+                id: "",
+                unitId: copiedInvoice.unitId,
+                date: newDateIssued,
+                reference: copiedInvoice.invoiceNumber,
+                transactionType: "Tax Invoice",
+                description: ref,
+                debit: masterInvoice.totalDue.toFixed(2),
+                credit: "",
+                balance: (totalDue + currentBalance).toFixed(2),
+                balanceAtPointOfTime: currentBalance.toFixed(2),
+                invId: copiedInvoice.invoiceId,
+              };
+              try {
+                if (me?.property && me?.year)
+                  await api.body.customer_transactions.create(
+                    customerTransaction,
+                    me.property,
+                    me.year
+                  );
+              } catch (error) {
+                console.log(error);
+              }
+            }
+
             await setDoc(newInvoiceRef, copiedInvoice);
             await updateDoc(newInvoiceRef, { invoiceId: generatedDocId });
           }
         }
+
+        //updating unit new balances
+        for (const masterInvoice of masterInvoices) {
+          const { unitId, totalDue } = masterInvoice;
+          const unitDocRef = doc(unitCollectionRef, unitId);
+          const unitDoc = await transaction.get(unitDocRef);
+
+          if (unitDoc.exists()) {
+            // Check if the unit's balance is already tracked
+            if (unitBalances[unitId] === undefined) {
+              unitBalances[unitId] = unitDoc.data().balance || 0;
+            }
+
+            const currentBalance = unitBalances[unitId]; // Get the current balance from the tracker
+            const newBalance = currentBalance + totalDue;
+            unitBalances[unitId] = newBalance;
+
+            updates.push({ ref: unitDocRef, data: { balance: newBalance } });
+          }
+        }
+        //updates every operation add once
         for (const update of updates) {
           transaction.update(update.ref, update.data);
         }

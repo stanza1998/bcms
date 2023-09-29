@@ -1,5 +1,8 @@
 import { observer } from "mobx-react-lite";
-import { IReceiptsPayments } from "../../../../../../../shared/models/receipts-payments/ReceiptsPayments";
+import {
+  IReceiptsPayments,
+  defaultReceiptsPayments,
+} from "../../../../../../../shared/models/receipts-payments/ReceiptsPayments";
 import { useAppContext } from "../../../../../../../shared/functions/Context";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -231,7 +234,7 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
 
   const addInvoiceNumber = async (invoiceNumber: string, invoiceId: string) => {
     try {
-      const receiptsAndPaymentsPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
+      const receiptsAndPaymentsPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
       const supplierPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}/`;
 
       let creditSum = 0; // Initialize the sum of credits
@@ -248,7 +251,7 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
           const credit = fnbStatementsSnapshot.data().credit || 0;
           creditSum += parseFloat(credit); // Assuming credit is a string representation of a number
           await updateDoc(fnbStatementsRef, {
-            invoiceNumber: invoiceNumber,
+            invoiceNumber: invoiceId,
           });
 
           const supplierRef = doc(
