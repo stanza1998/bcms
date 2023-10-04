@@ -8,7 +8,7 @@ interface IProp {
   data: ISupplierTransactions[];
 }
 
-const SupplierTransactionsGrid = observer(({ data }: IProp) => {
+const SupplierStatementGrid = observer(({ data }: IProp) => {
   const columns: GridColDef[] = [
     {
       field: "date",
@@ -42,14 +42,6 @@ const SupplierTransactionsGrid = observer(({ data }: IProp) => {
       width: 150,
       renderCell: (params) => <>{nadFormatter.format(params.row.credit)}</>,
     },
-    {
-      field: "balance",
-      headerName: "Balance",
-      width: 150,
-      renderCell: (params) => {
-        return <div>{nadFormatter.format(params.row.balance)}</div>;
-      },
-    },
   ];
 
   return (
@@ -64,4 +56,4 @@ const SupplierTransactionsGrid = observer(({ data }: IProp) => {
   );
 });
 
-export default SupplierTransactionsGrid;
+export default SupplierStatementGrid;

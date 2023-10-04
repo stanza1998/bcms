@@ -56,11 +56,61 @@ export default class SupplierTransactionApi {
     return unsubscribe;
   }
 
-  async create(item: ISupplierTransactions, pid: string, yid: string) {
+  // async create(item: ISupplierTransactions, pid: string, yid: string) {
+  //   const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierTransactions`;
+
+  //   const itemRef = doc(collection(db, myPath));
+  //   // item.id = itemRef.id;
+
+  //   // create in db
+  //   try {
+  //     await setDoc(itemRef, item, {
+  //       merge: true,
+  //     });
+  //     // create in store
+  //     this.store.bodyCorperate.supplierTransactions.load([item]);
+  //   } catch (error) {
+  //     // console.log(error);
+  //   }
+  // }
+  // async create(
+  //   item: ISupplierTransactions,
+  //   pid: string,
+  //   yid: string,
+  //   customId: string
+  // ) {
+  //   const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierTransactions`;
+
+  //   const itemRef = doc(db, myPath, customId); // Use customId as the document ID
+
+  //   // create in db
+  //   try {
+  //     await setDoc(itemRef, item, {
+  //       merge: true,
+  //     });
+  //     // create in store
+  //     this.store.bodyCorperate.supplierTransactions.load([item]);
+  //   } catch (error) {
+  //     // Handle error
+  //   }
+  // }
+
+  async create(
+    item: ISupplierTransactions,
+    pid: string,
+    yid: string,
+    customId?: string
+  ) {
     const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierTransactions`;
 
-    const itemRef = doc(collection(db, myPath));
-    item.id = itemRef.id;
+    let itemRef;
+
+    if (customId && customId.trim() !== "") {
+      itemRef = doc(db, myPath, customId);
+    } else {
+      itemRef = doc(collection(db, myPath));
+      item.id = itemRef.id;
+    }
 
     // create in db
     try {
@@ -70,7 +120,7 @@ export default class SupplierTransactionApi {
       // create in store
       this.store.bodyCorperate.supplierTransactions.load([item]);
     } catch (error) {
-      // console.log(error);
+      // Handle error
     }
   }
 

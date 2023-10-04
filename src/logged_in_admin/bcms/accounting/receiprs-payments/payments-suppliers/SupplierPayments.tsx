@@ -24,6 +24,7 @@ import { db } from "../../../../../shared/database/FirebaseConfig";
 import NumberInput from "../../../../../shared/functions/number-input/NumberInput";
 import { Toast } from "primereact/toast";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import { ISupplierTransactions } from "../../../../../shared/models/transactions/supplier-transactions/SupplierTransactions";
 
 const SupplierPayment = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -87,6 +88,31 @@ const SupplierPayment = observer(() => {
         const supplierBalance = supplierData.balance || 0;
         const supplierNewBalance = supplierBalance - credit;
         await updateDoc(supplierRef, { balance: supplierNewBalance });
+
+        const supplier_transaction: ISupplierTransactions = {
+          id: receipt.id,
+          supplierId: supplierId || "",
+          date: date,
+          reference: receipt.rcp,
+          transactionType: "Supplier Payment",
+          description: "",
+          debit: credit.toFixed(2),
+          credit: "",
+          balance: "",
+          invId: "",
+        };
+
+        try {
+          if (me?.property && me?.year)
+            await api.body.supplier_transactions.create(
+              supplier_transaction,
+              me?.property,
+              me?.year,
+              receipt.id
+            );
+        } catch (error) {
+          console.log(error);
+        }
 
         console.log("Balance updated successfully");
       } else {

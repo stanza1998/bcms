@@ -29,6 +29,7 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { Box } from "@mui/material";
 import Modal from "../../../../../../../shared/components/Modal";
 import NumberInput from "../../../../../../../shared/functions/number-input/NumberInput";
+import { ISupplierTransactions } from "../../../../../../../shared/models/transactions/supplier-transactions/SupplierTransactions";
 
 interface IProp {
   data: IReceiptsPayments[];
@@ -163,10 +164,7 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
         );
 
       const id = InvoiceData.invoiceId;
-      console.log(
-        "🚀 ~ file: PaymentGrid.tsx:162 ~ onSaveInvoice ~ invoiceId:",
-        id
-      );
+      //supplier transaction created here
 
       //update supplierBalance
       try {
@@ -182,6 +180,30 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
           const supplierBalance = supplierData.balance || 0;
           const supplierNewBalance = supplierBalance + totalPrice;
           await updateDoc(supplierRef, { balance: supplierNewBalance });
+
+          const supplier_transaction: ISupplierTransactions = {
+            id: "",
+            supplierId: supplier?.id || "",
+            date: selectedDateIssued,
+            reference: invoiceNumber,
+            transactionType: "Supplier Invoice",
+            description: "",
+            debit: "",
+            credit: totalPrice.toFixed(2),
+            balance: supplierBalance + Math.abs(supplierBalance) + totalPrice,
+            invId: InvoiceData.invoiceId,
+          };
+
+          try {
+            if (me?.property && me?.year)
+              await api.body.supplier_transactions.create(
+                supplier_transaction,
+                me?.property,
+                me?.year
+              );
+          } catch (error) {
+            console.log(error);
+          }
 
           console.log("Balance updated successfully");
         } else {
@@ -210,28 +232,6 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
     const creditSum = 0;
   };
 
-  // const addInvoiceNumber = (invoiceNumber: string) => {
-  //   const receiptsAndPaymentsPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}`;
-
-  //   transactionId.forEach(async (ids) => {
-  //     const fnbStatementsRef = doc(
-  //       collection(db, receiptsAndPaymentsPath, "ReceiptsPayments"),
-  //       ids
-  //     );
-  //     const fnbStatementsSnapshot = await getDoc(fnbStatementsRef);
-  //     if (fnbStatementsSnapshot.exists()) {
-  //       await updateDoc(fnbStatementsRef, {
-  //         invoiceNumber: invoiceNumber,
-  //       });
-  //       SuccessfulAction(ui);
-  //       window.location.reload();
-  //     } else {
-  //       console.log("ReceiptsPayments document not found.");
-  //       FailedAction(ui);
-  //     }
-  //   });
-  // };
-
   const addInvoiceNumber = async (invoiceNumber: string, invoiceId: string) => {
     try {
       const receiptsAndPaymentsPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
@@ -245,13 +245,22 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
           collection(db, receiptsAndPaymentsPath, "ReceiptsPayments"),
           id
         );
-        const fnbStatementsSnapshot = await getDoc(fnbStatementsRef);
+        const transactionsRef = doc(
+          collection(db, receiptsAndPaymentsPath, "SupplierTransactions"),
+          id
+        );
 
-        if (fnbStatementsSnapshot.exists()) {
+        const fnbStatementsSnapshot = await getDoc(fnbStatementsRef);
+        const transactionsSnapshot = await getDoc(transactionsRef);
+
+        if (fnbStatementsSnapshot.exists() && transactionsSnapshot.exists()) {
           const credit = fnbStatementsSnapshot.data().credit || 0;
           creditSum += parseFloat(credit); // Assuming credit is a string representation of a number
           await updateDoc(fnbStatementsRef, {
             invoiceNumber: invoiceId,
+          });
+          await updateDoc(transactionsRef, {
+            invId: invoiceId,
           });
 
           const supplierRef = doc(

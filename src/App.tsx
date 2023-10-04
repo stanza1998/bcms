@@ -51,6 +51,8 @@ import { CopiedInvoicesAcc } from "./logged_in_admin/bcms/accounting/invoices/cu
 import Hub from "./logged_in_admin/bcms/accounting/accountants-hub/Hub";
 import Categories from "./logged_in_admin/bcms/Types/accounts/categories/Categories";
 import { BankingTransactions } from "./logged_in_admin/bcms/accounting/banking-transactions/BankingTransaction";
+import { Announcements } from "./logged_in_admin/bcms/communication/announcements/Announcements";
+import { PrivateMessage } from "./logged_in_admin/bcms/communication/private-message/PrivateMessage";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -67,19 +69,24 @@ const ADMIN_USER_ROUTES = () => {
       <Routes>
         <Route path="c" element={<PrivateLoggedIn />}>
           <Route path={`dashboard`} element={<Dashboard />} />
-
+          {/* communication */}
           <Route
             path={`communication/com-overview`}
             element={<Communication />}
           />
-
+          <Route
+            path={`communication/announcements`}
+            element={<Announcements />}
+          />
+          <Route
+            path={`communication/private-message`}
+            element={<PrivateMessage />}
+          />
           <Route path={`meetings/meetings-overview`} element={<Meetings />} />
-
           <Route
             path={`documents/documents-overview`}
             element={<Documents />}
           />
-
           <Route
             path={`accounting/accounting-overview`}
             element={<Accounting />}
@@ -93,7 +100,6 @@ const ADMIN_USER_ROUTES = () => {
             path={`accounting/supplier-invoices/create`}
             element={<CreateSupplierInvoice />}
           />
-
           {/* <Route
             path={`accounting/recuring-invoices`}
             element={<RecurringInvoices />}
@@ -116,7 +122,8 @@ const ADMIN_USER_ROUTES = () => {
           <Route
             path={`accounting/statements/supplier`}
             element={<SupplierReportsNEDBANK />}
-          />a
+          />
+          a
           <Route
             path={`accounting/banking`}
             element={<BankingTransactions />}
@@ -131,14 +138,11 @@ const ADMIN_USER_ROUTES = () => {
           />
           {/* <Route path={`accounting/statements/customer-windhoek`} element={<CustomerReportsFNB />} /> */}
           {/* <Route path={`accounting/statements/account`} element={<Statements />} /> */}
-
           {/* property */}
-
           <Route path={`body/transfer`} element={<Transfer />} />
           <Route path={`body/suppliers`} element={<Supplier />} />
           <Route path={`body/accountType`} element={<AccountType />} />
           <Route path={`body/account-categories`} element={<Categories />} />
-
           <Route path={`body/body-corperate`} element={<BodyCorperates />} />
           <Route
             path={`body/body-corperate/:propertyId`}
@@ -148,7 +152,6 @@ const ADMIN_USER_ROUTES = () => {
             path={`/c/body/body-corperate/:propertyId/:id`}
             element={<UnitInfor />}
           />
-
           <Route
             path={`/c/body/body-corperate/:propertyId/:id/:yearId`}
             element={<UnitDetails />}
@@ -157,7 +160,6 @@ const ADMIN_USER_ROUTES = () => {
             path={`/c/body/body-corperate/copied/:propertyId/:id/:yearId/:invoiceId`}
             element={<CopiedInvoices />}
           />
-
           <Route
             path={`/c/body/body-corperate/:propertyId/:id/:yearId/:invoiceId`}
             element={<VerifyInvoice />}
@@ -166,12 +168,9 @@ const ADMIN_USER_ROUTES = () => {
             path={`/c/body/body-corperate/:propertyId/:id/:yearId/:invoiceId/accounting-view`}
             element={<ViewInvoice />}
           />
-
           <Route path={`body/owners`} element={<Owners />} />
-
           <Route path={`admin/employees`} element={<Employees />} />
           <Route path={`admin/departments`} element={<Departments />} />
-
           <Route path={`admin/appearance`} element={<AppearanceSettings />} />
           <Route path={`admin/others`} element={<Others />} />
           <Route path={`settings`} element={<Settings />} />

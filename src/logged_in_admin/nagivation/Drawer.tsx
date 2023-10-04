@@ -169,14 +169,6 @@ const ADMIN_DRAWER = () => {
                 Accountant's hub
               </NavLink>
             </li>
-            {/* <li>
-              <NavLink to={`accounting/statements`} className="navlink">
-                <span className="uk-margin-small-right">
-                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
-                </span>
-                Reports
-              </NavLink>
-            </li> */}
           </ul>
         </li>
         <li className="list-item uk-parent">
@@ -194,6 +186,22 @@ const ADMIN_DRAWER = () => {
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
                 Overview
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={`communication/announcements`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Announcements
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={`communication/private-message`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Message Board
               </NavLink>
             </li>
           </ul>

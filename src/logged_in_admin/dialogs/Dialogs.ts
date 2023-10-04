@@ -34,6 +34,10 @@ const DIALOG_NAMES = {
     CUSTOMER_STATEMENTS_SEARCH: "customer-statements-search",
     SUPPLIER_STATEMENTS_SEARCH: "supplier-statements-search",
   },
+  COMMUNICATION: {
+    CREATE_ANNOUNCEMENTS_DIALOG: "create-announcements-dialog",
+    VIEW_ANNOUNCEMENT_DIALOG: "view-announcement-dialog",
+  },
 
   OWNER: {
     UPLOAD_RECURING_POP: "upload-recurring-POP",

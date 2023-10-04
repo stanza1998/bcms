@@ -11,76 +11,33 @@ import showModalFromId from "../../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../../../dialogs/Dialogs";
 import Modal from "../../../../../shared/components/Modal";
 import SupplierTransactionsGrid from "./grid/SupplierTransactionGrid";
+import { ISupplierTransactions } from "../../../../../shared/models/transactions/supplier-transactions/SupplierTransactions";
+import { transaction } from "mobx";
+import { nadFormatter } from "../../../../shared/NADFormatter";
 
-export interface ISupplierTransaction {
-  id: string;
-  supplierId: string;
-  date: string;
-  reference: string;
-  transactionType: string;
-  description: string;
-  debit: string;
-  credit: string;
-  balance: string;
-  invId: string;
+interface Accumulator {
+  oldestTransactionDate: string | null;
+  total: number;
 }
 
 export const SupplierTransaction = observer(() => {
   const { store, api } = useAppContext();
   const me = store.user.meJson;
   const [supplierId, setSupplierId] = useState<string>("");
-  const invoices = store.bodyCorperate.supplierInvoice.all.map((i) => {
-    return i.asJson;
-  });
+  const [supplierTransactions, setSupplierTransactions] = useState<
+    ISupplierTransactions[]
+  >([]);
 
-  
-  const receipts = store.bodyCorperate.receiptsPayments.all
-    .filter((r) => r.asJson.transactionType === "Supplier Payment")
-    .map((r) => {
-      return r.asJson;
-    });
-
-  const combinedTransactions: ISupplierTransaction[] = [];
-
-  invoices.forEach((invoice) => {
-    const transaction: ISupplierTransaction = {
-      id: invoice.invoiceId,
-      supplierId: invoice.supplierId,
-      date: invoice.dateIssued,
-      reference: invoice.invoiceNumber,
-      transactionType: "Supplier Invoice",
-      description: invoice.references,
-      debit: "",
-      credit: invoice.totalDue.toFixed(2),
-      balance: invoice.totalDue.toFixed(2),
-      invId: invoice.invoiceId,
-    };
-    combinedTransactions.push(transaction);
-  });
-
-  receipts.forEach((receipt) => {
-    const transaction: ISupplierTransaction = {
-      id: receipt.id,
-      supplierId: receipt.supplierId,
-      date: receipt.date,
-      reference: receipt.rcp,
-      transactionType: "Supplier Payment",
-      description: receipt.description,
-      debit: receipt.credit,
-      credit: "",
-      balance: "",
-      invId: receipt.invoiceNumber,
-    };
-    combinedTransactions.push(transaction);
-  });
+  console.log(supplierTransactions);
 
   // Separate tax invoices and customer receipts
-  const taxInvoices = combinedTransactions.filter(
+  const taxInvoices = supplierTransactions.filter(
     (transaction) => transaction.transactionType === "Supplier Invoice"
   );
   // console.log("🚀 ~  CustomerTransaction ~ taxInvoices:", taxInvoices);
-  const supplierPayment = combinedTransactions.filter(
+  const supplierPayment = supplierTransactions.filter(
     (transaction) => transaction.transactionType === "Supplier Payment"
+    // Supplier Payment
   );
 
   // Sort tax invoices by date
@@ -89,7 +46,7 @@ export const SupplierTransaction = observer(() => {
   );
 
   // Group customer receipts by invoiceId
-  const groupedReceipts: Record<string, ISupplierTransaction[]> = {};
+  const groupedReceipts: Record<string, ISupplierTransactions[]> = {};
 
   supplierPayment.forEach((receipt) => {
     const invoiceId = receipt.invId;
@@ -102,7 +59,7 @@ export const SupplierTransaction = observer(() => {
   for (const key in groupedReceipts) {
     if (groupedReceipts.hasOwnProperty(key)) {
       const receipts = groupedReceipts[key];
-      const invoice = taxInvoices.find((invoice) => invoice.id === key);
+      const invoice = taxInvoices.find((invoice) => invoice.invId === key);
       if (invoice) {
         receipts.sort(
           (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
@@ -119,28 +76,84 @@ export const SupplierTransaction = observer(() => {
   }
 
   // Combine tax invoices and sorted customer receipts
-  const sortedCombinedTransactions: ISupplierTransaction[] = [];
+  const sortedCombinedTransactions: ISupplierTransactions[] = [];
   taxInvoices.forEach((invoice) => {
     sortedCombinedTransactions.push(invoice);
-    if (groupedReceipts[invoice.id]) {
-      sortedCombinedTransactions.push(...groupedReceipts[invoice.id]);
+    if (groupedReceipts[invoice.invId]) {
+      sortedCombinedTransactions.push(...groupedReceipts[invoice.invId]);
     }
   });
+
+  const finalSortedTransactions = sortedCombinedTransactions.filter(
+    (s) => s.supplierId === supplierId
+  );
+
+  //used for openning balance
+  const totalBalanceMinusDebit = finalSortedTransactions.reduce(
+    (accumulator: Accumulator, transaction) => {
+      if (transaction.transactionType === "Supplier Invoice") {
+        let balance = parseFloat(transaction.balance) || 0;
+        let debit = parseFloat(transaction.credit) || 0;
+
+        // Get the transaction date or use a very old date if it's null or undefined
+        let transactionDate = transaction.date || "1900-01-01";
+
+        // Check if this Tax Invoice transaction is older than the ones in the accumulator
+        if (
+          !accumulator.oldestTransactionDate ||
+          transactionDate < accumulator.oldestTransactionDate
+        ) {
+          accumulator.oldestTransactionDate = transactionDate; // Update the oldest transaction date
+          accumulator.total = balance - debit; // Update the total with this transaction's balance - debit
+        }
+      }
+      return accumulator;
+    },
+    { oldestTransactionDate: null, total: 0 } as Accumulator // initial value of the accumulator
+  ).total; // return the total from the accumulator
+  // return the total from the accumulator
+
+  const oldestTaxInvoiceDate: Date | null = finalSortedTransactions.reduce(
+    (oldest: Date | null, transaction: ISupplierTransactions) => {
+      if (transaction.transactionType === "Supplier Invoice") {
+        const transactionDate = new Date(transaction.date);
+
+        if (!isNaN(transactionDate.getTime())) {
+          // Check if transactionDate is valid before comparison
+          if (oldest === null || transactionDate < oldest) {
+            return transactionDate; // Update oldest date if the current transactionDate is older
+          }
+        }
+      }
+      return oldest; // Keep the current oldest date
+    },
+    null
+  );
 
   useEffect(() => {
     const getData = async () => {
       if (me?.property && me?.year) {
         await api.unit.getAll(me.property);
-        await api.body.copiedInvoice.getAll(me.property, me.year);
+        await api.body.supplierInvoice.getAll(me.property, me.year);
         await api.body.receiptPayments.getAll(me.property, me.year);
+        await api.body.supplier_transactions.getAll(me.property, me.year);
       }
+      const supplier_transactions =
+        store.bodyCorperate.supplierTransactions.all.map((c) => {
+          return c.asJson;
+        });
+      setSupplierTransactions(supplier_transactions);
     };
     getData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const suppliers = store.bodyCorperate.supplier.all.map((u) => {
     return u.asJson;
   });
+
+  const supplierBalance =
+    suppliers.find((s) => s.id === supplierId)?.balance || 0;
 
   const searchCustomer = () => {
     showModalFromId(DIALOG_NAMES.BODY.SUPPLIER_TRANSACTIONS_SEARCH);
@@ -151,11 +164,16 @@ export const SupplierTransaction = observer(() => {
       <div className="uk-margin">
         <Toolbar2
           leftControls={
-            <IconButton>
+            <IconButton style={{ fontSize: "14px" }}>
               {suppliers
                 .filter((u) => u.id === supplierId)
                 .map((u) => {
-                  return u.name;
+                  return (
+                    u.name +
+                    ` opening balance at ${oldestTaxInvoiceDate}` +
+                    " : " +
+                    nadFormatter.format(totalBalanceMinusDebit)
+                  );
                 })}
             </IconButton>
           }
@@ -177,10 +195,23 @@ export const SupplierTransaction = observer(() => {
           }
         />
       </div>
-      <SupplierTransactionsGrid
-        data={sortedCombinedTransactions.filter(
-          (s) => s.supplierId === supplierId
-        )}
+      <SupplierTransactionsGrid data={finalSortedTransactions} />
+      <Toolbar2
+        leftControls={
+          <IconButton style={{ fontSize: "14px" }}>
+            {suppliers
+              .filter((u) => u.id === supplierId)
+              .map((u) => {
+                return (
+                  u.name +
+                  ` closing balance` +
+                  " : " +
+                  nadFormatter.format(supplierBalance)
+                );
+              })}
+          </IconButton>
+        }
+        rightControls={<div></div>}
       />
       <Modal modalId={DIALOG_NAMES.BODY.SUPPLIER_TRANSACTIONS_SEARCH}>
         <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">

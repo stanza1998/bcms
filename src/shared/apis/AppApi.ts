@@ -8,6 +8,7 @@ import BodyCorpetaApi from "./BodyCorperate";
 import InvoiceApi from "./bodyCorperate/invoices/customer-inovices/InvoiceApi";
 import EmailApi from "./email-notifiction-function/EmailApi";
 import UnitApi from "./bodyCorperate/customers/UnitApi";
+import CommunicationApi from "./CommunicationApi";
 
 export const apiPathProperty = (
   category: "Units" | "FinancialYear"
@@ -25,6 +26,7 @@ export default class AppApi {
   department: DepartmentApi;
   auth: UserApi;
   body: BodyCorpetaApi;
+  communication: CommunicationApi;
   mail: EmailApi;
   unit: UnitApi;
 
@@ -38,6 +40,7 @@ export default class AppApi {
     this.auth = new UserApi(this, this.store);
     this.settings = new SystemSettingsApi(this, store);
     this.body = new BodyCorpetaApi(this, store);
+    this.communication = new CommunicationApi(this, store);
     this.unit = new UnitApi(this, store);
     this.mail = new EmailApi(this, store, this.mailUri);
   }

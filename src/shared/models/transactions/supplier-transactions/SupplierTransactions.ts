@@ -11,6 +11,7 @@ export const defaultSupplierTransaction: ISupplierTransactions = {
   debit: "",
   credit: "",
   balance: "",
+  invId: "",
 };
 
 export interface ISupplierTransactions {
@@ -23,6 +24,7 @@ export interface ISupplierTransactions {
   debit: string;
   credit: string;
   balance: string;
+  invId: string;
 }
 
 export default class SupplierTransactionModel {

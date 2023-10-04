@@ -60,8 +60,6 @@ export default class BodyCorpetaApi {
     this.fnb = new FNBApi(api, store);
     this.receiptPayments = new ReceiptPaymentsApi(api, store);
     this.copiedInvoice = new CopiedInvoiceApi(api, store);
-    this.transfer = new TransferApi(api, store, this.transferDB);
-    this.account = new AccountApi(api, store, this.accountDB);
     this.supplier = new SupplierApi(api, store);
     this.supplierInvoice = new SupplierInvoiceApi(api, store);
     this.creditNote = new CreditNoteApi(api, store);
@@ -71,8 +69,11 @@ export default class BodyCorpetaApi {
     this.banking_transaction = new BankingTransactionsApi(api, store);
     this.customer_transactions = new CustomerTransactionApi(api, store);
     this.supplier_transactions = new SupplierTransactionApi(api, store);
+    
     //api needs update
+    this.account = new AccountApi(api, store, this.accountDB);
     this.nedbank = new NEDBANKApi(api, store, this.NEDBANKBB);
+    this.transfer = new TransferApi(api, store, this.transferDB);
     //   not needed
     this.recuringInvoice = new RecuringInvoiceApi(
       api,
