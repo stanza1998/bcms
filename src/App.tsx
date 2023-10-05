@@ -53,6 +53,7 @@ import Categories from "./logged_in_admin/bcms/Types/accounts/categories/Categor
 import { BankingTransactions } from "./logged_in_admin/bcms/accounting/banking-transactions/BankingTransaction";
 import { Announcements } from "./logged_in_admin/bcms/communication/announcements/Announcements";
 import { PrivateMessage } from "./logged_in_admin/bcms/communication/private-message/PrivateMessage";
+import { ContactOverview } from "./logged_in_admin/bcms/communication/contacts-management/ContactsOverview";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -81,6 +82,10 @@ const ADMIN_USER_ROUTES = () => {
           <Route
             path={`communication/private-message`}
             element={<PrivateMessage />}
+          />
+          <Route
+            path={`communication/contact-management`}
+            element={<ContactOverview />}
           />
           <Route path={`meetings/meetings-overview`} element={<Meetings />} />
           <Route

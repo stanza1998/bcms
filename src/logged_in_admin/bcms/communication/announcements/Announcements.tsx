@@ -16,6 +16,11 @@ export const Announcements = observer(() => {
     return a.asJson;
   });
 
+  const filteredAnnouncements = announcements.sort(
+    (a, b) =>
+      new Date(b.expiryDate).getTime() - new Date(a.expiryDate).getTime()
+  );
+
   const onCreate = () => {
     showModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_ANNOUNCEMENTS_DIALOG);
   };
@@ -43,7 +48,7 @@ export const Announcements = observer(() => {
           </div>
         </div>
         {/* announcement table */}
-        <AnnouncementGrid data={announcements} />
+        <AnnouncementGrid data={filteredAnnouncements} />
       </div>
       <Modal modalId={DIALOG_NAMES.COMMUNICATION.CREATE_ANNOUNCEMENTS_DIALOG}>
         <AnnouncementDialog />
