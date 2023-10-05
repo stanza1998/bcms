@@ -3,10 +3,10 @@ import { useAppContext } from "../../../../shared/functions/Context";
 import showModalFromId from "../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../../dialogs/Dialogs";
 import Modal from "../../../../shared/components/Modal";
-import { AnnouncementDialog } from "../../../dialogs/communication-dialogs/AnnouncementDialog";
+import { AnnouncementDialog } from "../../../dialogs/communication-dialogs/announcements/AnnouncementDialog";
 import AnnouncementGrid from "./grid/AnnouncementGrid";
 import { useEffect } from "react";
-import { ViewAnnouncementDialog } from "../../../dialogs/communication-dialogs/ViewAnnouncementDialog";
+import { ViewAnnouncementDialog } from "../../../dialogs/communication-dialogs/announcements/ViewAnnouncementDialog";
 
 export const Announcements = observer(() => {
   const { api, store } = useAppContext();

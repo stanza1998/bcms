@@ -1,12 +1,12 @@
 import { observer } from "mobx-react-lite";
 import { FormEvent, useEffect, useState } from "react";
-import { useAppContext } from "../../../shared/functions/Context";
-import { hideModalFromId } from "../../../shared/functions/ModalShow";
-import DIALOG_NAMES from "../Dialogs";
+import { useAppContext } from "../../../../shared/functions/Context";
+import { hideModalFromId } from "../../../../shared/functions/ModalShow";
+import DIALOG_NAMES from "../../Dialogs";
 import {
   IAnnouncements,
   defaultAnnouncements,
-} from "../../../shared/models/communication/announcements/AnnouncementModel";
+} from "../../../../shared/models/communication/announcements/AnnouncementModel";
 
 export const AnnouncementDialog = observer(() => {
   const { api, store, ui } = useAppContext();

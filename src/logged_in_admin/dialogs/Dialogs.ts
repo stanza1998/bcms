@@ -37,6 +37,7 @@ const DIALOG_NAMES = {
   COMMUNICATION: {
     CREATE_ANNOUNCEMENTS_DIALOG: "create-announcements-dialog",
     VIEW_ANNOUNCEMENT_DIALOG: "view-announcement-dialog",
+    CREATE_CUSTOM_CONTACT: "create-custom-contact",
   },
 
   OWNER: {
