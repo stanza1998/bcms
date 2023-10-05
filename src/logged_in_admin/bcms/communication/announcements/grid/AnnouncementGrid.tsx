@@ -5,6 +5,7 @@ import { IAnnouncements } from "../../../../../shared/models/communication/annou
 import { useAppContext } from "../../../../../shared/functions/Context";
 import showModalFromId from "../../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../../../dialogs/Dialogs";
+import { useEffect } from "react";
 
 interface IProp {
   data: IAnnouncements[];
@@ -13,6 +14,9 @@ interface IProp {
 const AnnouncementGrid = observer(({ data }: IProp) => {
   const { store, api } = useAppContext();
   const me = store.user.meJson;
+  const users = store.user.all.map((user) => {
+    return user.asJson;
+  });
 
   const onUpdate = (announcement: IAnnouncements) => {
     const announce = store.communication.announcements.select(announcement);
@@ -22,6 +26,14 @@ const AnnouncementGrid = observer(({ data }: IProp) => {
     const view = store.communication.announcements.select(announcement);
     showModalFromId(DIALOG_NAMES.COMMUNICATION.VIEW_ANNOUNCEMENT_DIALOG);
   };
+
+  useEffect(() => {
+    const getUsers = async () => {
+      await api.auth.loadAll();
+    };
+    getUsers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const columns: GridColDef[] = [
     {
@@ -38,6 +50,15 @@ const AnnouncementGrid = observer(({ data }: IProp) => {
       field: "authorOrSender",
       headerName: "Author/Sender",
       width: 150,
+      renderCell: (params) => (
+        <>
+          {users
+            .filter((u) => u.uid === params.row.authorOrSender)
+            .map((user) => {
+              return user.firstName + " " + user.lastName;
+            })}
+        </>
+      ),
     },
     {
       field: "message",
