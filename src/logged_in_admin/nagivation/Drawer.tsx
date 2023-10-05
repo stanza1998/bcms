@@ -204,6 +204,17 @@ const ADMIN_DRAWER = () => {
                 Message Board
               </NavLink>
             </li>
+            <li>
+              <NavLink
+                to={`communication/contact-management`}
+                className="navlink"
+              >
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Contacts
+              </NavLink>
+            </li>
           </ul>
         </li>
         <li className="list-item uk-parent">
