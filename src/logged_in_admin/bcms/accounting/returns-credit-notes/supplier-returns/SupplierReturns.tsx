@@ -268,10 +268,12 @@ export const SupplierReturns = observer(() => {
                 ))}
               </select>
             </div>
-
-            <IconButton disabled={loading} onClick={() => confirm("right")}>
+            <div className="uk-width-1-1">
+            <button className="uk-button primary margin-left" onClick={()=>confirm("right")}>Save Returns</button>
+            </div>
+            {/* <IconButton disabled={loading} onClick={() => confirm("right")}>
               <SaveIcon />
-            </IconButton>
+            </IconButton> */}
             {loading && <>loading...</>}
           </div>
         </div>

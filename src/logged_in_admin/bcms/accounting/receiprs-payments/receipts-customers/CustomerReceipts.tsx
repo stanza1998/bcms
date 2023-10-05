@@ -378,9 +378,10 @@ const CustomerReceipts = observer(() => {
               </select>
             </div>
             <div className=" uk-width-1-1 ">
-              <IconButton onClick={() => confirm("right")}>
+              <button className="uk-button primary margin-left" onClick={()=>confirm("right")}>Save Receipt</button>
+              {/* <IconButton onClick={() => confirm("right")}>
                 <SaveIcon />
-              </IconButton>
+              </IconButton> */}
             </div>
 
             {loading && <p>loading...</p>}

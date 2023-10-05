@@ -90,9 +90,11 @@ const CustomerCreditNotes = observer(() => {
   const units = store.bodyCorperate.unit.all.map((u) => {
     return u.asJson;
   });
+
   const accounts = store.bodyCorperate.account.all.map((u) => {
     return u.asJson;
   });
+
   const credits = store.bodyCorperate.creditNote.all.map((u) => {
     return u.asJson;
   });
@@ -269,10 +271,12 @@ const CustomerCreditNotes = observer(() => {
                 aria-label="25"
               />
             </div>
-
-            <IconButton disabled={loading} onClick={() => confirm("right")}>
+            <div className="uk-width-1-1">
+            <button className="uk-button primary margin-left" onClick={()=>confirm("right")}>Save Credit Note</button>
+            </div>
+            {/* <IconButton disabled={loading} onClick={() => confirm("right")}>
               <SaveIcon />
-            </IconButton>
+            </IconButton> */}
             <br />
             {loading && <>loading...</>}
           </div>

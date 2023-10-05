@@ -114,9 +114,7 @@ const Categories = observer(() => {
                 onChange={(e) => setDescription(e.target.value)}
               />
             </div>
-            <IconButton onClick={createCategory}>
-              <SaveIcon />
-            </IconButton>
+           <button className="uk-button primary" onClick={createCategory}>Save Category</button>
             {loading && <p>loading...</p>}
           </div>
         </div>

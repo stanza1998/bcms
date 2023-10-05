@@ -344,10 +344,12 @@ const SupplierPayment = observer(() => {
                 onChange={(e) => setCredit(Number(e))}
               />
             </div>
-
-            <IconButton onClick={() => confirm("right")}>
+            <div className="uk-width-1-1">
+            <button className="uk-button primary margin-left" onClick={()=>confirm("right")}>Save Payment</button>
+            </div>
+            {/* <IconButton onClick={() => confirm("right")}>
               <SaveIcon />
-            </IconButton>
+            </IconButton> */}
             {loading && <p>loading...</p>}
           </div>
         </div>
