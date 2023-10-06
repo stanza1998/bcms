@@ -2,11 +2,11 @@ import { makeAutoObservable, toJS } from "mobx";
 import AppStore from "../../../stores/AppStore";
 
 export const defaultPrivateMessage: IPrivateMessage = {
-    id: "",
-    receiver: "",
-    sender: "",
-    message: "",
-    dateAndTime: ""
+  id: "",
+  receiver: "",
+  sender: "",
+  message: "",
+  dateAndTime: null,
 };
 
 export interface IPrivateMessage {
@@ -14,7 +14,7 @@ export interface IPrivateMessage {
   receiver: string;
   sender: string;
   message: string;
-  dateAndTime: string;
+  dateAndTime: number | null;
 }
 
 export default class PrivateMessagetModel {
