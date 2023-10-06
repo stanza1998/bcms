@@ -28,6 +28,7 @@ import GridViewIcon from "@mui/icons-material/GridView";
 import { nadFormatter } from "../../../../shared/NADFormatter";
 import { IReceiptsPayments } from "../../../../../shared/models/receipts-payments/ReceiptsPayments";
 import { ICustomerTransactions } from "../../../../../shared/models/transactions/customer-transactions/CustomerTransactionModel";
+import UnitsGrid from "./grid/UnitsGrid";
 
 export const ViewUnit = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -162,9 +163,7 @@ export const ViewUnit = observer(() => {
   };
 
   const filteredUnits = store.bodyCorperate.unit.all
-    .filter((unit) => unit.asJson.bodyCopId === viewBody?.id)
-    .filter((unit) => unit.asJson.unitName.toString().includes(searchQuery))
-    .sort((a, b) => a.asJson.unitName - b.asJson.unitName);
+   .sort((a, b) => a.asJson.unitName - b.asJson.unitName).map((unit) => {return unit.asJson});
 
   const [loadingF, setLoadingF] = useState(false);
 
@@ -187,7 +186,7 @@ export const ViewUnit = observer(() => {
   };
 
   //very important feature, needs focus and proper mentainance.
-  //sending email notification is still missing in the duplicate function
+  //sending email notification is still missing in the duplicate function (important)
   const duplicated = async () => {
     setLoadingF(true);
     try {
@@ -428,7 +427,8 @@ export const ViewUnit = observer(() => {
                 backgroundRepeat: "no-repeat",
               }}
             >
-              <table className="uk-table uk-table-divider">
+              <UnitsGrid data={filteredUnits}/>
+              {/* <table className="uk-table uk-table-divider">
                 <thead>
                   <tr>
                     <th>#</th>
@@ -502,7 +502,7 @@ export const ViewUnit = observer(() => {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table> */}
             </div>
           </div>
         </div>
