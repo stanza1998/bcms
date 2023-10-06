@@ -107,7 +107,7 @@ const UnitsGrid = observer(({ data }: IProp) => {
           </button>
           <button
             className="uk-margin-right uk-icon"
-            data-uk-icon="thumbnail"
+            data-uk-icon="thumbnails"
             onClick={() => onView(params.row)}
           >
           </button>
