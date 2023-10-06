@@ -19,6 +19,7 @@ export const CustomerContactsGrid = observer(({ data }: IProp) => {
     showModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_CUSTOM_CONTACT);
   };
 
+  //setting it as string?g
   const columns: GridColDef[] = [
     {
       field: "name",
