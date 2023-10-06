@@ -6,6 +6,7 @@ import { useAppContext } from "../../../../../../shared/functions/Context";
 import { observer } from "mobx-react-lite";
 import showModalFromId from "../../../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../../../../dialogs/Dialogs";
+import EditIcon from '@mui/icons-material/Edit';
 
 interface IProp {
   data: ICustomContact[];
@@ -52,7 +53,7 @@ export const CustomerContactsGrid = observer(({ data }: IProp) => {
       headerName: "Action",
       width: 160,
       renderCell: (params) => (
-        <IconButton onClick={() => onUpdate(params.row)}>jksdjkds</IconButton>
+        <IconButton onClick={() => onUpdate(params.row)}><EditIcon /></IconButton>
       ),
     },
   ];
