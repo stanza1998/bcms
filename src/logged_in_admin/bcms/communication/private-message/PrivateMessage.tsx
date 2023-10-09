@@ -16,6 +16,8 @@ export const PrivateMessage = observer(() => {
       return u.asJson;
     });
 
+  const allUsers = store.user.all;
+
   const [messages, setMessages] = useState<IPrivateMessage[]>([]);
   const [messageInput, setMessageInput] = useState<string>("");
 
@@ -110,6 +112,15 @@ export const PrivateMessage = observer(() => {
                     marginBottom: "10px",
                   }}
                 >
+                  <span
+                    style={{ fontSize: "11px", textTransform: "capitalize" }}
+                  >
+                    {allUsers
+                      .filter((u) => u.asJson.uid === message.sender)
+                      .map((u) => {
+                        return u.asJson.firstName + " " + u.asJson.lastName;
+                      })}
+                  </span>
                   <p style={{ marginBottom: "5px" }}>
                     {message.dateAndTime
                       ? new Date(message.dateAndTime).toLocaleString()
