@@ -11,10 +11,10 @@ interface IProp {
 
 export const SupplierTable = observer(({ data }: IProp) => {
   const columns: GridColDef[] = [
-    { field: "name", headerName: "Name", width: 230 },
-    { field: "description", headerName: "Description", width: 230 },
-    { field: "telephoneNumber", headerName: "Telephone Number", width: 230 },
-    { field: "mobileNumber", headerName: "Mobile Number", width: 200 },
+    { field: "name", headerName: "Name", flex: 1 },
+    { field: "description", headerName: "Description", flex: 1 },
+    { field: "telephoneNumber", headerName: "Telephone Number", flex: 1 },
+    { field: "mobileNumber", headerName: "Mobile Number", flex: 1 },
     {
       field: "balance",
       headerName: "Balance",

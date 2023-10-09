@@ -12,24 +12,25 @@ interface IProp {
 
 export const AccountTable = observer(({ data, categories }: IProp) => {
   const columns: GridColDef[] = [
-    { field: "name", headerName: "Name", width: 300 },
+    { field: "name", headerName: "Name", flex:1 },
     {
       field: "category",
       headerName: "Category",
-      width: 300,
+      flex:1,
       renderCell: (params) => {
         const category = categories.find((c) => c.id === params.row.category);
         return <>{category ? category.name : "Unknown"}</>;
       },
     },
-    { field: "description", headerName: "Description", width: 300 },
-    { field: "balance", headerName: "Balance", width: 100 },
+    { field: "description", headerName: "Description", flex:1 },
+    { field: "balance", headerName: "Balance", flex:1 },
   ];
 
   return (
     <>
       <Box sx={{ height: 350 }} className="companies-grid">
         <DataGrid
+          
           rows={data}
           //   columns={column}
           columns={columns}

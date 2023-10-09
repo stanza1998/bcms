@@ -8,6 +8,8 @@ import DIALOG_NAMES from "../../../../../dialogs/Dialogs";
 import { Box } from "@mui/material";
 import { GridColDef, DataGrid } from "@mui/x-data-grid";
 import { nadFormatter } from "../../../../../shared/NADFormatter";
+import { useNavigate } from "react-router-dom";
+import { UnitCard } from "../unit-details/UnitCard";
 
 interface IProp {
   data: IUnit[];
@@ -16,6 +18,8 @@ interface IProp {
 const UnitsGrid = observer(({ data }: IProp) => {
   const { store, api } = useAppContext();
   const owners = store.user.all.filter((o) => o.role === "Owner");
+  const me = store.user.meJson;
+  const navigate = useNavigate();
 
   const filteredUnits = store.bodyCorperate.unit.all
     .sort((a, b) => a.asJson.unitName - b.asJson.unitName)
@@ -40,16 +44,26 @@ const UnitsGrid = observer(({ data }: IProp) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const unitInfo = (id: string) => {
+    if (me?.property) {
+      navigate(`/c/body/body-corperate/${me?.property}/${id}`);
+    } else {
+      alert("[Propety Id not found");
+    }
+  };
+
   const columns: GridColDef[] = [
     {
       field: "unitName",
       headerName: "Units",
-      width: 150,
+      flex:1,
+      // width: 200,
     },
     {
       field: "firstName",
       headerName: "Owner Name",
-      width: 150,
+      flex:1,
+      // width: 200,
       renderCell: (params) => (
         <>
           {owners
@@ -63,7 +77,8 @@ const UnitsGrid = observer(({ data }: IProp) => {
     {
       field: "email",
       headerName: "Owner Email",
-      width: 150,
+      flex:1,
+      // width: 200,
       renderCell: (params) => (
         <>
           {owners
@@ -77,7 +92,8 @@ const UnitsGrid = observer(({ data }: IProp) => {
     {
       field: "cellphone",
       headerName: "Owner Phone",
-      width: 130,
+      flex:1,
+      // width: 200,
       renderCell: (params) => (
         <>
           {owners
@@ -91,40 +107,66 @@ const UnitsGrid = observer(({ data }: IProp) => {
     {
       field: "balance",
       headerName: "Balance",
-      width: 130,
-      renderCell: (params) => <>{nadFormatter.format(params.row.balance)}</>,
+      flex:1,
+      // width: 214,
+      renderCell: (params) => {
+        const balance = nadFormatter.format(params.row.balance);
+
+        if (parseInt(balance.replaceAll("NAD", "")) < 0) {
+          return (
+            <span
+              style={{
+                background: "red",
+                color: "white",
+                padding: "10px",
+                flex:1,
+              }}
+            >
+              ${balance}
+            </span>
+          );
+        } else {
+          return (
+            <span
+              style={{
+                background: "green",
+                color: "white",
+                padding: "10px",
+                flex:1,
+              }}
+            >
+              ${balance}
+            </span>
+          );
+        }
+      },
     },
     {
       field: "Action",
       headerName: "Action",
       renderCell: (params) => (
         <div>
+        <UnitCard key={params.row.id} unit={params.row.id} />
           <button
             className="uk-margin-right uk-icon"
-            data-uk-icon="pencil"
-            onClick={() => onUpdate(params.row)}
-          >
-          </button>
-          <button
-            className="uk-margin-right uk-icon"
-            data-uk-icon="thumbnail"
-            onClick={() => onView(params.row)}
-          >
-          </button>
+            data-uk-icon="thumbnails"
+            onClick={() => unitInfo(params.row.id)}
+          ></button>
         </div>
       ),
     },
   ];
 
   return (
-    <Box sx={{ height: 500 }}>
+    <Box sx={{ width:'100%',height: 450, p:2 }}>
       <DataGrid
         rows={data}
         columns={columns}
-        getRowId={(row) => row.id} // Use the appropriate identifier property
+        getRowId={(row) => row.id} 
         rowHeight={40}
       />
     </Box>
   );
 });
 export default UnitsGrid;
+// width:'100%',height: '100vh'

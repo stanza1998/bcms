@@ -507,16 +507,16 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
   };
 
   const column: GridColDef[] = [
-    { field: "date", headerName: "Date", width: 100 },
-    { field: "serviceFee", headerName: "Swervice Fee", width: 100 },
-    { field: "amount", headerName: "Amount", width: 100 },
-    { field: "references", headerName: "Reference", width: 100 },
-    { field: "description", headerName: "Description", width: 100 },
-    { field: "balance", headerName: "Balance", width: 0 },
+    { field: "date", headerName: "Date",  flex:1 },
+    { field: "serviceFee", headerName: "Service Fee", flex:1 },
+    { field: "amount", headerName: "Amount",  flex:1 },
+    { field: "references", headerName: "Reference",  flex:1 },
+    { field: "description", headerName: "Description",  flex:1 },
+    { field: "balance", headerName: "Balance",  flex:1 },
     {
       field: "Type ",
       headerName: "Type",
-      width: 100,
+      flex:1,
       renderCell: (params) => (
         <div style={{ width: "100%" }}>
           <select
@@ -538,7 +538,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
     {
       field: "Selection ",
       headerName: "Selection",
-      width: 150,
+      flex:1,
       renderCell: (params) => (
         <div style={{ width: "100%" }}>
           {type === "Account" && (
@@ -605,7 +605,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
     {
       field: "Action",
       headerName: "Action",
-      width: 150,
+      flex:1,
       renderCell: (params) => (
         <div>
           {type === "Account" && (

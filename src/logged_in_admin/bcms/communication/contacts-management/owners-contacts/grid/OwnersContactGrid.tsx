@@ -12,18 +12,18 @@ const OwnerContactsGrid = observer(({ data }: IProp) => {
     {
       field: "firstName",
       headerName: "FirstName",
-      width: 265,
+      flex:1,
     },
     {
       field: "lastName",
       headerName: "LastName",
-      width: 265,
+      flex:1,
     },
 
     {
       field: "cellphone",
       headerName: "Cellphone Number",
-      width: 265,
+      flex:1,
       renderCell: (params) => {
         return `0${params.row.cellphone}`;
       },
@@ -31,7 +31,7 @@ const OwnerContactsGrid = observer(({ data }: IProp) => {
     {
       field: "email",
       headerName: "Email Address",
-      width: 265,
+      flex:1,
     },
   ];
 

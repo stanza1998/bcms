@@ -52,7 +52,7 @@ const EmployeesTable = (props: EmployeesTableProps) => {
       <div className="company-users uk-margin">
         {!isEmpty ? (
           <div className="uk-overflow-auto">
-            <table className="company-users-table uk-table uk-table-small uk-table-divider uk-table-middle uk-table-responsive">
+            <table className="company-users-table uk-table uk-table-small uk-table-divider uk-table-middle uk-table-responsive uk-flex-1">
               <thead className="table-header">
                 <tr>
                   <th>#</th>
@@ -73,22 +73,25 @@ const EmployeesTable = (props: EmployeesTableProps) => {
                       <td className="role">{employee.cellphone}</td>
                       <td className="actions uk-text-right">
                         <button
-                          className="uk-button primary uk-margin-small-right"
+                          className="uk-margin-right uk-icon"
+                          data-uk-icon="pencil"
                           onClick={() => onEditEmployee(employee.asJson)}
                         >
-                          Edit
+                          {/* Edit */}
                         </button>
                         <button
-                          className="uk-button primary danger"
+                          className="uk-margin-right uk-icon"
+                          data-uk-icon="trash"
                           onClick={() => onDeleteEmployee(employee.uid)}
                         >
-                          Remove
+                          {/* Remove */}
                         </button>
                       </td>
                     </tr>
                   ))}
               </tbody>
             </table>
+
           </div>
         ) : (
           <div className="no-orders">
@@ -146,7 +149,7 @@ const Owners = observer(() => {
               <Loading />
             </div>
           )}
-          <div className="uk-card uk-card-default uk-card-small uk-card-body">
+          <div>
             {!loading && (
               <EmployeesTable
                 employees={store.user.all}

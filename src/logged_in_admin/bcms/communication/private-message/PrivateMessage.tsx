@@ -82,7 +82,7 @@ export const PrivateMessage = observer(() => {
             ))}
           </select>
         </div>
-        <div className="chat-container">
+        <div className="chat-container padding-60px">
           <div className="chat-messages" id="chat-messages">
             {messages
               .sort((a, b) => {

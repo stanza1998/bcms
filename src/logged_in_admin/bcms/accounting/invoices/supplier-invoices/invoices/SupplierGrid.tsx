@@ -106,12 +106,12 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
     {
       field: "dateIssued",
       headerName: "Date Issued",
-      width: 120,
+      flex:1,
     },
     {
       field: "supplierId",
       headerName: "Supplier",
-      width: 120,
+      flex:1,
       renderCell: (params) => (
         <>
           {suppliers
@@ -122,24 +122,24 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
         </>
       ),
     },
-    { field: "invoiceNumber", headerName: "Invoice Number", width: 120 },
-    { field: "dueDate", headerName: "Due Date", width: 100 },
+    { field: "invoiceNumber", headerName: "Invoice Number",  flex:1 },
+    { field: "dueDate", headerName: "Due Date",  flex:1 },
     {
       field: "totalPaid",
       headerName: "Total Paid",
-      width: 120,
+      flex:1,
       renderCell: (params) => <>{nadFormatter.format(params.row.totalPaid)}</>,
     },
     {
       field: "totalDue",
       headerName: "Total Amount",
-      width: 120,
+      flex:1,
       renderCell: (params) => <>{nadFormatter.format(params.row.totalDue)}</>,
     },
     {
       field: "TotalDue",
       headerName: "Total Due",
-      width: 120,
+      flex:1,
       renderCell: (params) => (
         <>{nadFormatter.format(params.row.totalDue - params.row.totalPaid)}</>
       ),
@@ -147,7 +147,7 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
     {
       field: "Status",
       headerName: "Status",
-      width: 100,
+      flex:1,
       renderCell: (params) => (
         <div>
           {params.row.totalPaid >= params.row.totalDue && (
@@ -162,7 +162,7 @@ const SupplierInvoicesGrid = observer(({ data }: IProp) => {
     {
       field: "Action",
       headerName: "Action",
-      width: 0,
+      flex:1,
       renderCell: (params) => (
         <div>
           <IconButton

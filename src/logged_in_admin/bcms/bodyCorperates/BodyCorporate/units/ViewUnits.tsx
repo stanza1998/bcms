@@ -411,22 +411,15 @@ export const ViewUnit = observer(() => {
               type="text"
               name=""
               id=""
-              className="uk-input uk-form-small uk-margin"
+              className="uk-input uk-form-small uk-margin-left"
               placeholder="Search by Unit Name"
-              style={{ width: "30%" }}
+              style={{ width: "30%"}}
               value={searchQuery}
               onChange={handleSearchChange}
             />
 
             {/* Units */}
-            <div
-              className="uk-card uk-card-default uk-card-body uk-width-1-1@m"
-              style={{
-                backgroundPosition: "right",
-                backgroundSize: "35%",
-                backgroundRepeat: "no-repeat",
-              }}
-            >
+
               <UnitsGrid data={filteredUnits}/>
               {/* <table className="uk-table uk-table-divider">
                 <thead>
@@ -505,7 +498,7 @@ export const ViewUnit = observer(() => {
               </table> */}
             </div>
           </div>
-        </div>
+      
       )}
 
       <Modal modalId={DIALOG_NAMES.BODY.BODY_UNIT_DIALOG}>
