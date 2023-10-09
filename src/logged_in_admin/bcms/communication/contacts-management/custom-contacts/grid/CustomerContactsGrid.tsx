@@ -25,33 +25,33 @@ export const CustomerContactsGrid = observer(({ data }: IProp) => {
     {
       field: "name",
       headerName: "Name",
-      width: 160,
+      flex:1,
     },
     {
       field: "email",
       headerName: "Email Address",
-      width: 160,
+      flex:1,
     },
 
     {
       field: "cellTell",
       headerName: "Cell Or Telephone Number",
-      width: 160,
+      flex:1,
     },
     {
       field: "cityTown",
       headerName: "City Or Town",
-      width: 160,
+      flex:1,
     },
     {
       field: "location",
       headerName: "Location",
-      width: 160,
+      flex:1,
     },
     {
       field: "Action",
       headerName: "Action",
-      width: 160,
+      flex:1,
       renderCell: (params) => (
         <IconButton onClick={() => onUpdate(params.row)}><EditIcon /></IconButton>
       ),

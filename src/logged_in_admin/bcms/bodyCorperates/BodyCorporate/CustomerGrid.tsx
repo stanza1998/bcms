@@ -31,11 +31,11 @@ const CustomerGrid = observer(({ data }: IProp) => {
         </div>
       ),
     },
-    { field: "BodyCopName", headerName: "Name", width: 140 },
-    { field: "location", headerName: "Location", width: 140 },
-    { field: "bankName", headerName: "Bank Name", width: 140 },
-    { field: "branchName", headerName: "Branch Name", width: 140 },
-    { field: "branchCode", headerName: "Branch Code", width: 140 },
+    { field: "BodyCopName", headerName: "Name", flex: 1 },
+    { field: "location", headerName: "Location", flex: 1 },
+    { field: "bankName", headerName: "Bank Name", flex: 1 },
+    { field: "branchName", headerName: "Branch Name", flex: 1 },
+    { field: "branchCode", headerName: "Branch Code", flex: 1 },
     {
       field: "Action",
       headerName: "Action",

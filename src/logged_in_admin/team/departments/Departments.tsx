@@ -70,16 +70,18 @@ const DepartmentsTable = (props: DepartmentsTableProps) => {
                     <td className="departmentName">{department.name} </td>
                     <td className="actions uk-text-right">
                       <button
-                        className="uk-button primary uk-margin-small-right"
+                        className="uk-margin-right uk-icon"
+                        data-uk-icon="pencil"
                         onClick={() => onEditDepartment(department.asJson)}
                       >
-                        Edit
+                        {/* Edit */}
                       </button>
                       <button
-                        className="uk-button primary  danger"
+                        className="uk-margin-right uk-icon"
+                        data-uk-icon="trash"
                         onClick={() => onDeleteDepartment(department.id)}
                       >
-                        Remove
+                        {/* Remove */}
                       </button>
                     </td>
                   </tr>

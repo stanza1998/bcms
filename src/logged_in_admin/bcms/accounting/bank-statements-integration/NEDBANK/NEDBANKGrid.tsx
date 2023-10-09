@@ -315,22 +315,22 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
   };
 
   const column: GridColDef[] = [
-    { field: "transactionDate", headerName: "TransactionDate", width: 100 },
-    { field: "valueDate", headerName: "Value Date", width: 100 },
+    { field: "transactionDate", headerName: "TransactionDate",  flex:1 },
+    { field: "valueDate", headerName: "Value Date", flex:1 },
     {
       field: "transactionReference",
       headerName: "Transaction Reference",
-      width: 100,
+      flex:1,
     },
-    { field: "description", headerName: "Description", width: 100 },
-    { field: "vatIndicator", headerName: "*VAT Charge Indicator", width: 100 },
-    { field: "debit", headerName: "Debit", width: 100 },
-    { field: "credit", headerName: "Credit", width: 100 },
-    { field: "balance", headerName: "Balance", width: 100 },
+    { field: "description", headerName: "Description",  flex:1 },
+    { field: "vatIndicator", headerName: "*VAT Charge Indicator",  flex:1 },
+    { field: "debit", headerName: "Debit",  flex:1},
+    { field: "credit", headerName: "Credit",  flex:1 },
+    { field: "balance", headerName: "Balance",  flex:1 },
     {
       field: "Type ",
       headerName: "Type",
-      width: 100,
+      flex:1,
       renderCell: (params) => (
         <div style={{ width: "100%" }}>
           <select
@@ -352,7 +352,7 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
     {
       field: "Selection ",
       headerName: "Selection",
-      width: 250,
+      flex:1,
       renderCell: (params) => (
         <div style={{ width: "100%" }}>
           {type === "Account" && (
@@ -440,7 +440,7 @@ export const NEDBANKGrid = observer(({ data }: IProp) => {
     {
       field: "Action",
       headerName: "Action",
-      width: 150,
+      flex:1,
       renderCell: (params) => (
         <div>
           {type === "Account" && (

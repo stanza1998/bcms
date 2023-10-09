@@ -25,12 +25,12 @@ const BankingTransactionGrid = ({
     {
       field: "date",
       headerName: "Date",
-      width: 90,
+      flex:1,
     },
     {
       field: "payee",
       headerName: "Customer/Supplier/N/A",
-      width: 120,
+      flex:1,
       renderCell: (params) => {
         const unit = units.find((unit) => unit.id === params.row.payee);
         const supplier = suppliers.find((supp) => supp.id === params.row.payee);
@@ -47,7 +47,7 @@ const BankingTransactionGrid = ({
     {
       field: "description",
       headerName: "Description",
-      width: 170,
+      flex:1,
       renderCell: (params) => {
         const account = accounts.find((acc) => acc.id === params.row.selection);
         return <>{account ? account.name : "Unknown"}</>;
@@ -56,12 +56,12 @@ const BankingTransactionGrid = ({
     {
       field: "type",
       headerName: "Type",
-      width: 80,
+      flex:1,
     },
     {
       field: "selection",
       headerName: "Selection",
-      width: 150,
+      flex:1,
       renderCell: (params) => {
         const account = accounts.find((acc) => acc.id === params.row.selection);
         return <>{account ? account.name : "Unknown"}</>;
@@ -70,29 +70,29 @@ const BankingTransactionGrid = ({
     {
       field: "reference",
       headerName: "Reference",
-      width: 100,
+      flex:1,
     },
     {
       field: "VAT",
       headerName: "VAT",
-      width: 50,
+      flex:1,
     },
     {
       field: "credit",
       headerName: "Outflows",
-      width: 120,
+      flex:1,
       renderCell: (params) => <> {nadFormatter.format(params.row.credit)}</>,
     },
     {
       field: "debit",
       headerName: "Inflows",
-      width: 120,
+      flex:1,
       renderCell: (params) => <> {nadFormatter.format(params.row.debit)}</>,
     },
     {
       field: "Action",
       headerName: "Actions",
-      width: 60,
+      flex:1,
       renderCell: (params) => (
         <div>
           <IconButton uk-toolTip="view transaction">

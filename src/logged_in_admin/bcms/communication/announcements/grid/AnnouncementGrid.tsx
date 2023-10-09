@@ -39,17 +39,17 @@ const AnnouncementGrid = observer(({ data }: IProp) => {
     {
       field: "title",
       headerName: "Title",
-      width: 150,
+      flex:1,
     },
     {
       field: "dateAndTime",
       headerName: "Date",
-      width: 150,
+      flex:1,
     },
     {
       field: "authorOrSender",
       headerName: "Author/Sender",
-      width: 150,
+      flex:1,
       renderCell: (params) => (
         <>
           {users
@@ -63,17 +63,17 @@ const AnnouncementGrid = observer(({ data }: IProp) => {
     {
       field: "message",
       headerName: "Message",
-      width: 130,
+      flex:1,
     },
     {
       field: "expiryDate",
       headerName: "Exipiry Date",
-      width: 130,
+      flex:1,
     },
     {
       field: "priorityLevel",
       headerName: "Priority Level",
-      width: 130,
+      flex:1,
       renderCell: (params) => {
         if (params.row.priorityLevel === "HIGH") {
           return (
@@ -122,7 +122,7 @@ const AnnouncementGrid = observer(({ data }: IProp) => {
     {
       field: "Status",
       headerName: "Status",
-      width: 130,
+      flex:1,
       renderCell: (params) => {
         const expiryDate = new Date(params.row.expiryDate);
         const currentDate = new Date();
@@ -161,10 +161,11 @@ const AnnouncementGrid = observer(({ data }: IProp) => {
     {
       field: "Action",
       headerName: "Action",
+      flex:1,
       renderCell: (params) => (
         <div>
-          <button onClick={() => onUpdate(params.row)}>edit</button>
-          <button onClick={() => onView(params.row)}>view message</button>
+          <button className="uk-margin-right uk-icon" data-uk-icon="pencil" onClick={() => onUpdate(params.row)}></button>
+          <button  className="uk-margin-right uk-icon" data-uk-icon="thumbnails"  onClick={() => onView(params.row)}></button>
         </div>
       ),
     },

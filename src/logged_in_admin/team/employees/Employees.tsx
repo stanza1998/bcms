@@ -72,16 +72,18 @@ const EmployeesTable = (props: EmployeesTableProps) => {
                       <td className="role">{employee.role}</td>
                       <td className="actions uk-text-right">
                         <button
-                          className="uk-button primary uk-margin-small-right"
+                          className="uk-margin-right uk-icon"
+                          data-uk-icon="pencil"
                           onClick={() => onEditEmployee(employee.asJson)}
                         >
-                          Edit
+                          {/* Edit */}
                         </button>
                         <button
-                          className="uk-button primary danger"
+                          className="uk-margin-right uk-icon"
+                          data-uk-icon="trash"
                           onClick={() => onDeleteEmployee(employee.uid)}
                         >
-                          Remove
+                          {/* Remove */}
                         </button>
                       </td>
                     </tr>

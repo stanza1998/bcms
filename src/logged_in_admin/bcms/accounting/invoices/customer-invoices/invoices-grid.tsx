@@ -122,7 +122,7 @@ const InvoicesGrid = observer(({ data }: IProp) => {
     {
       field: "unitId",
       headerName: "Unit",
-      width: 100,
+      flex:1,
       renderCell: (params) => (
         <span>
           {units
@@ -133,23 +133,23 @@ const InvoicesGrid = observer(({ data }: IProp) => {
         </span>
       ),
     },
-    { field: "invoiceNumber", headerName: "Invoice Number", width: 140 },
+    { field: "invoiceNumber", headerName: "Invoice Number",  flex:1 },
     {
       field: "totalPaid",
       headerName: "Total Paid",
-      width: 150,
+      flex:1,
       renderCell: (params) => <> {nadFormatter.format(params.row.totalPaid)}</>,
     },
     {
       field: "totalDue",
       headerName: "Total Amount",
-      width: 150,
+      flex:1,
       renderCell: (params) => <> {nadFormatter.format(params.row.totalDue)}</>,
     },
     {
       field: "TotalDue",
       headerName: "Total Due",
-      width: 120,
+      flex:1,
       renderCell: (params) => (
         <> {nadFormatter.format(params.row.totalDue - params.row.totalPaid)}</>
       ),
@@ -157,6 +157,7 @@ const InvoicesGrid = observer(({ data }: IProp) => {
     {
       field: "Status",
       headerName: "Status",
+      flex:1,
       renderCell: (params) => (
         <div>
           {params.row.totalPaid >= params.row.totalDue && (
@@ -171,7 +172,7 @@ const InvoicesGrid = observer(({ data }: IProp) => {
     {
       field: "Action",
       headerName: "Action",
-      width: 150,
+      flex:1,
       renderCell: (params) => (
         <div>
           <IconButton
