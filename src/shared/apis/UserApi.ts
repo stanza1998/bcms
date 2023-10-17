@@ -32,6 +32,7 @@ import AppStore from "../stores/AppStore";
 import AppApi from "./AppApi";
 
 export default class UserApi {
+  [x: string]: any;
   constructor(private api: AppApi, private store: AppStore) {
     this.onAuthChanged();
   }

@@ -38,10 +38,12 @@ const DIALOG_NAMES = {
     CREATE_ANNOUNCEMENTS_DIALOG: "create-announcements-dialog",
     VIEW_ANNOUNCEMENT_DIALOG: "view-announcement-dialog",
     CREATE_CUSTOM_CONTACT: "create-custom-contact",
+    VIEW_ANNOUNCEMENTS_DIALOG:"view-announcements-dialog",
   },
 
   OWNER: {
     UPLOAD_RECURING_POP: "upload-recurring-POP",
+    UPDATE_OWNER_DIALOG:"update-owner-dialog"
   },
 };
 

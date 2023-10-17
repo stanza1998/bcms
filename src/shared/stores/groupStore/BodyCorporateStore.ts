@@ -20,13 +20,14 @@ import AccountStore from "../individualStore/type/AccountStore";
 import SupplierStore from "../individualStore/type/SupplierStore";
 import TransferStore from "../individualStore/type/Transfer";
 import FinancialYearStore from "../individualStore/years/FinancialYear";
-
+import PopStore from "../individualStore/proof-of-payment/PopStore";
 export default class BodyCorporateStore {
   bodyCop: BodyCopStore;
   unit: UnitStore;
   financialYear: FinancialYearStore;
   financialMonth: FinancialMonthStore;
   invoice: InvoiceStore;
+  pop:PopStore;
   recuringInvoice: RecuringInvoiceStore;
   copiedInvoices: CopiedInvoiceStore;
   fnb: FNBStore;
@@ -50,6 +51,7 @@ export default class BodyCorporateStore {
     this.financialYear = new FinancialYearStore(store);
     this.financialMonth = new FinancialMonthStore(store);
     this.invoice = new InvoiceStore(store);
+    this.pop = new PopStore(store);
     this.recuringInvoice = new RecuringInvoiceStore(store);
     this.copiedInvoices = new CopiedInvoiceStore(store);
     this.fnb = new FNBStore(store);

@@ -54,6 +54,8 @@ import { BankingTransactions } from "./logged_in_admin/bcms/accounting/banking-t
 import { Announcements } from "./logged_in_admin/bcms/communication/announcements/Announcements";
 import { PrivateMessage } from "./logged_in_admin/bcms/communication/private-message/PrivateMessage";
 import { ContactOverview } from "./logged_in_admin/bcms/communication/contacts-management/ContactsOverview";
+import { Pop } from "./logged_in_admin/bcms/owner-accounts/proof-of-payment/pop";
+import { OwnerPrivateMessage } from "./logged_in_admin/bcms/owner-accounts/owner-communication/OwnerPrivateMessage";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -83,6 +85,7 @@ const ADMIN_USER_ROUTES = () => {
             path={`communication/private-message`}
             element={<PrivateMessage />}
           />
+          
           <Route
             path={`communication/contact-management`}
             element={<ContactOverview />}
@@ -202,6 +205,11 @@ const OWNER_ROUTES = () => {
           <Route
             path={`/c/finance/invoices-view/:propertyId/:id/:yearId/:monthId/:invoiceId`}
             element={<OwnerViewInvoice />}
+          />
+          <Route path={`/c/finance/proof-of-payment`} element={<Pop/>}></Route>
+          <Route
+            path={`/c/finance/owner-communication/owner-private-message`}
+            element={<OwnerPrivateMessage />}
           />
           <Route
             path={`finance/recuring-invoices-view`}

@@ -14,6 +14,11 @@ import UpdateIcon from "@mui/icons-material/Update";
 import { observer } from "mobx-react-lite";
 import { FailedAction, SuccessfulAction } from "../../shared/models/Snackbar";
 import { IPropertyBankAccount } from "../../shared/models/property-bank-account/PropertyBankAccount";
+import CircleNotificationsIcon from "@mui/icons-material/CircleNotifications";
+import {
+  IAnnouncements,
+  defaultAnnouncements,
+} from "../../shared/models/communication/announcements/AnnouncementModel";
 
 const NavBar = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -26,6 +31,7 @@ const NavBar = observer(() => {
   const [loading, setLoading] = useState<boolean>(false);
   const letter1 = me?.firstName.charAt(0);
   const letter2 = me?.lastName.charAt(0);
+  // const [announcements, setAnnouncements] = useState<IAnnouncements>({...defaultAnnouncements});
 
   const updateDocument = async (fieldName: string, fieldValue: string) => {
     setLoading(true);
@@ -45,33 +51,30 @@ const NavBar = observer(() => {
     setLoading(false);
   };
 
-  useEffect(() => {
-    const getData = async () => {
-      if (me?.property) {
-        await api.body.body.getAll();
-        await api.body.propertyBankAccount.getAll(me.property);
-        await api.body.financialYear.getAll(me?.property);
-        if ((me?.property, me?.year))
-          await api.body.financialMonth.getAll(me.property, me.year);
-      } else {
-        FailedAction("User property not set");
-      }
-    };
-    getData();
-  }, [
-    api.body.body,
-    api.body.financialMonth,
-    api.body.financialYear,
-    api.body.propertyBankAccount,
-    me?.property,
-    me?.year,
-  ]);
 
   const properties = store.bodyCorperate.bodyCop.all;
   const years = store.bodyCorperate.financialYear.all;
   const months = store.bodyCorperate.financialMonth.all.map((m) => {
     return m.asJson;
   });
+
+  const announcements = store.communication.announcements.all.map((a) => {
+    return a.asJson;
+  });
+
+   const latestAnnouncement= announcements.filter((an)=> 
+          {const expiryDate = new Date(an.expiryDate);
+          const timestamp = expiryDate.getTime();
+          const currentTimestamp = Date.now();
+          return timestamp > currentTimestamp;}
+          )
+
+  const expiryDateTime = announcements.filter((announcement)=> 
+  {const timeStamp =  new Date (announcement.expiryDate) 
+  return timeStamp;
+  }
+   );
+ 
   const bank_accounts = store.bodyCorperate.propetyBankAccount.all.map((m) => {
     return m.asJson;
   });
@@ -120,6 +123,33 @@ const NavBar = observer(() => {
   const onCreateAccount = () => {
     showModalFromId(DIALOG_NAMES.BODY.BANK_ACCOUNT);
   };
+
+  const onViewAnnouncements = () => {
+    showModalFromId(DIALOG_NAMES.COMMUNICATION.VIEW_ANNOUNCEMENTS_DIALOG);
+  };
+
+  useEffect(() => {
+    const getData = async () => {
+      if ((me?.property, me?.year)) {
+        await api.body.body.getAll();
+        await api.body.propertyBankAccount.getAll(me.property);
+        await api.body.financialYear.getAll(me?.property);
+        await api.communication.announcement.getAll(me.property, me.year);
+        await api.body.financialMonth.getAll(me.property, me.year);
+      } else {
+        FailedAction("User property not set");
+      }
+    };
+    getData();
+  }, [
+    api.body.body,
+    api.body.financialMonth,
+    api.body.financialYear,
+    api.communication.announcement,
+    api.body.propertyBankAccount,
+    me?.property,
+    me?.year,
+  ]);
 
   return (
     <div
@@ -208,20 +238,35 @@ const NavBar = observer(() => {
                   fontSize: "12px",
                 }}
               >
-                <IconButton
-                  onClick={onCreateAccount}
-                  uk-tooltip="Create new account"
-                >
-                  <AddIcon style={{ color: "white", fontSize: "16px" }} />
-                </IconButton>
-                <span style={{ cursor: "pointer" }} onClick={onUpdateAccoount}>
-                  Bank Account Name:{" "}
-                  {bank_accounts
-                    .filter((p) => p.id === me?.bankAccountInUse)
-                    .map((p) => {
-                      return p.name;
-                    })}
-                </span>
+                {me?.role !== "Owner" && (
+                  <>
+                    <IconButton
+                      onClick={onCreateAccount}
+                      uk-tooltip="Create new account"
+                    >
+                      <AddIcon style={{ color: "white", fontSize: "16px" }} />
+                    </IconButton>
+                    <span
+                      style={{ cursor: "pointer" }}
+                      onClick={onUpdateAccoount}
+                    >
+                      Bank Account Name:{" "}
+                      {bank_accounts
+                        .filter((p) => p.id === me?.bankAccountInUse)
+                        .map((p) => {
+                          return p.name;
+                        })}
+                    </span>
+                  </>
+                )}
+                {me?.role === "Owner" && (
+                <>
+                  <IconButton onClick={onViewAnnouncements}  style={{ position: "relative" }}>
+                    <CircleNotificationsIcon style={{ color: "white" }} />
+                    <span style={{color:"white", fontSize:"14px", position:'absolute',top:"0",right:"0"}}>{latestAnnouncement.length}</span>
+                  </IconButton>
+                </>
+                 )}
               </h6>
             </li>
           </ul>
@@ -404,6 +449,29 @@ const NavBar = observer(() => {
             </IconButton>
           </form>
         </div>
+      </Modal>
+      <Modal modalId={DIALOG_NAMES.COMMUNICATION.VIEW_ANNOUNCEMENTS_DIALOG} >
+        <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical staff-dialog announcements-container">
+          <button
+            className="uk-modal-close-default"
+            type="button"
+            data-uk-close
+          ></button>
+            <div className="announcements-header">
+              You have {latestAnnouncement.length} new announcements
+               </div>
+          {latestAnnouncement.map((item) => (
+            <div style={{padding:"20px"}}>
+              <div className="announcement-container">
+              <div className="announcement-item" key={item.id}>
+                <p style={{marginRight:"20px",marginTop:"20px"}}>{item.message}</p>
+                <p style={{marginTop:"20px"}}>{item.expiryDate}</p>
+              </div>
+            </div>
+             </div>
+          ))}
+        </div>
+        <h1></h1>
       </Modal>
     </div>
   );

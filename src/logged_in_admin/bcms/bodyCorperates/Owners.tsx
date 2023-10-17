@@ -1,18 +1,17 @@
 import { observer } from "mobx-react-lite";
-import { useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import Loading from "../../../shared/components/Loading";
 import Modal from "../../../shared/components/Modal";
 import { useAppContext } from "../../../shared/functions/Context";
-import showModalFromId from "../../../shared/functions/ModalShow";
 import { UserModel } from "../../../shared/models/User";
-import { IUser } from "../../../shared/interfaces/IUser";
+import { IUser, defaultUser } from "../../../shared/interfaces/IUser";
 import DIALOG_NAMES from "../../dialogs/Dialogs";
-import UserDialog from "../../dialogs/user-dialog/UserDialog";
-// import OwnerDialog from "../../dialogs/owner-dialog/OwnerDialog";
+import OwnersTable from "./OwnersGrid";
 
 interface ToolBarProps {
   showUserDialog: (user?: IUser | undefined) => void;
 }
+
 const ToolBar = (props: ToolBarProps) => {
   const { showUserDialog } = props;
   return (
@@ -27,6 +26,7 @@ const ToolBar = (props: ToolBarProps) => {
   );
 };
 
+
 interface EmployeesTableProps {
   employees: UserModel[];
   isLoading: boolean;
@@ -34,8 +34,9 @@ interface EmployeesTableProps {
   onDeleteEmployee: (uid: string) => void;
 }
 const EmployeesTable = (props: EmployeesTableProps) => {
-  const { store } = useAppContext();
-  const { employees, isLoading, onEditEmployee, onDeleteEmployee } = props;
+  const { store,api } = useAppContext();
+
+  const { employees, isLoading} = props;
   const [isEmpty, setIsEmpty] = useState(false);
 
   useEffect(() => {
@@ -47,12 +48,14 @@ const EmployeesTable = (props: EmployeesTableProps) => {
     return <Loading />;
   }
 
+  const employeesList = employees.filter((emp)=>emp.role ==="Owner").map((emp) => {return emp.asJson});
   return (
     <div className="">
       <div className="company-users uk-margin">
         {!isEmpty ? (
           <div className="uk-overflow-auto">
-            <table className="company-users-table uk-table uk-table-small uk-table-divider uk-table-middle uk-table-responsive uk-flex-1">
+            <OwnersTable data={employeesList.map((emp) => {return emp})}/>
+            {/* <table className="company-users-table uk-table uk-table-small uk-table-divider uk-table-middle uk-table-responsive uk-flex-1">
               <thead className="table-header">
                 <tr>
                   <th>#</th>
@@ -75,23 +78,22 @@ const EmployeesTable = (props: EmployeesTableProps) => {
                         <button
                           className="uk-margin-right uk-icon"
                           data-uk-icon="pencil"
-                          onClick={() => onEditEmployee(employee.asJson)}
+                          onClick={() => onEditEmployee(employee.uid)}
                         >
                           {/* Edit */}
-                        </button>
+                        {/* </button>
                         <button
                           className="uk-margin-right uk-icon"
                           data-uk-icon="trash"
                           onClick={() => onDeleteEmployee(employee.uid)}
                         >
                           {/* Remove */}
-                        </button>
+                        {/* </button>
                       </td>
                     </tr>
                   ))}
               </tbody>
-            </table>
-
+                  </table>  */}
           </div>
         ) : (
           <div className="no-orders">
@@ -108,6 +110,9 @@ const EmployeesTable = (props: EmployeesTableProps) => {
 const Owners = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
+  const [employees, setEmployee] = useState<IUser>({
+    ...defaultUser,
+  });
 
   const showUserDialog = (user?: IUser) => {
     if (user) store.user.select(user);
@@ -126,6 +131,16 @@ const Owners = observer(() => {
     });
   };
 
+  // const onEditEmployee = async (user:IUser) => {
+  //   await api.auth.updateUser(user);
+  //   store.user.getById(user.uid);
+  //   ui.snackbar.load({
+  //     id: Date.now(),
+  //     message: "User Updated!",
+  //     type: "success",
+  //   });
+  // };
+
   // Load data.
   const loadEmployees = useCallback(async () => {
     setLoading(true);
@@ -138,6 +153,30 @@ const Owners = observer(() => {
     loadEmployees();
     return () => {};
   }, [loadEmployees]);
+
+  const onSave = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    // Update API
+      if (store.user.selected) {
+        const emp = await api.auth.updateUser(employees);
+        store.user.getById(employees.uid);
+        ui.snackbar.load({
+          id: Date.now(),
+          message: "User updated!",
+          type: "success",
+        });
+      } 
+  };
+  
+  useEffect(() => {
+    if (store.user.selected)
+      setEmployee(store.user.selected);
+    else setEmployee({ ...defaultUser });
+
+    return () => {};
+  }, [store.user.selected]);
+
 
   return (
     <>
@@ -161,10 +200,111 @@ const Owners = observer(() => {
           </div>
         </div>
       </div>
+      <Modal modalId={DIALOG_NAMES.OWNER.UPDATE_OWNER_DIALOG}>
+            <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
+      <button
+        className="uk-modal-close-default"
+        type="button"
+        data-uk-close
+      ></button>
 
-      {/* <Modal modalId={DIALOG_NAMES.TEAM.OWNER_DIALOG}>
-        <OwnerDialog />
-      </Modal> */}
+      <h3 className="uk-modal-title">Owner</h3>
+      <div className="dialog-content uk-position-relative">
+        <div className="reponse-form">
+          <form className="uk-form-stacked" onSubmit={onSave}>
+            <div className="uk-margin">
+              <label className="uk-form-label" htmlFor="form-stacked-text">
+                FirstName
+              </label>
+              <div className="uk-form-controls">
+                <input
+                  className="uk-input"
+                  type="text"
+                  placeholder="FirstName"
+                  value={employees.firstName}
+                  onChange={(e) =>
+                    setEmployee({
+                      ...employees,
+                      firstName: e.target.value,
+                    })
+                  }
+                  required
+                />
+              </div>
+              <div className="uk-margin">
+              <label className="uk-form-label" htmlFor="form-stacked-text">
+                LastName
+              </label>
+              <div className="uk-form-controls">
+                <input
+                  className="uk-input"
+                  type="text"
+                  placeholder="LastName"
+                  value={employees.lastName}
+                  onChange={(e) =>
+                    setEmployee({
+                      ...employees,
+                      lastName: e.target.value,
+                    })
+                  }
+                  required
+                />
+              </div>
+              </div>
+            </div>
+            <div className="uk-margin">
+              <label className="uk-form-label" htmlFor="form-stacked-text">
+                Email
+              </label>
+              <div className="uk-form-controls">
+                <input
+                  className="uk-input"
+                  placeholder="Email"
+                  value={employees.email}
+                  onChange={(e) =>
+                    setEmployee({
+                      ...employees,
+                      email: e.target.value,
+                    })
+                  }
+                  required
+                />
+              </div>
+            </div>
+            <div className="uk-margin">
+              <label className="uk-form-label" htmlFor="form-stacked-text">
+                Cellphone
+              </label>
+              <div className="uk-form-controls">
+                <input
+                  className="uk-input"
+                  placeholder="Cellphone"
+                  type="number"
+                  value={employees.cellphone}
+                  onChange={(e) =>
+                    setEmployee({
+                      ...employees,
+                      cellphone: parseInt(e.target.value,10),
+                    })
+                  }
+                  required
+                />
+              </div>
+            </div>
+            <div className="footer uk-margin">
+              <button className="uk-button secondary uk-modal-close">
+                Cancel
+              </button>
+              <button className="uk-button primary" type="submit">
+                Save
+                {loading && <div data-uk-spinner="ratio: .5"></div>}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+          </Modal>
     </>
   );
 });

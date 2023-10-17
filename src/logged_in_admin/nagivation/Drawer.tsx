@@ -379,6 +379,33 @@ const OWNER_DRAWER = () => {
                 Recuring Invoices
               </NavLink>
             </li> */}
+            <li>
+              <NavLink to={`finance/proof-of-payment`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Proof of Payment
+              </NavLink>
+            </li>
+          </ul>
+        </li>
+        <li className="list-item uk-parent">
+          <NavLink to={`finance/owner-communication`} className="navlink">
+            <span className="uk-margin-small-right">
+              <SignLanguageIcon style={{ fontSize: "16px" }} />
+            </span>
+            Communication
+            <span className="down-arrow" data-uk-icon="chevron-down" />
+          </NavLink>
+          <ul className="uk-nav-sub">
+            <li>
+              <NavLink to={`finance/owner-communication/owner-private-message`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Message Board
+              </NavLink>
+            </li>
           </ul>
         </li>
       </ul>
