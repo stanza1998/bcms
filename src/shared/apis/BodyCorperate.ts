@@ -22,6 +22,8 @@ import AccountCategoryApi from "./bodyCorperate/type/AccountCategoryApi";
 import BankingTransactionsApi from "./bodyCorperate/banks/banking/BankingTransactionApi";
 import CustomerTransactionApi from "./bodyCorperate/transactions/customer-transactions/CustomerTransactionApi";
 import SupplierTransactionApi from "./bodyCorperate/transactions/supplier-transactions/SupplierTransactionApi";
+import PopApi from "./bodyCorperate/proof-of-payment/PopApi";
+
 
 export default class BodyCorpetaApi {
   private BodyCoperateDB = collection(db, "BodyCoperate");
@@ -37,6 +39,9 @@ export default class BodyCorpetaApi {
   invoice: InvoiceApi;
   recuringInvoice: RecuringInvoiceApi;
   copiedInvoice: CopiedInvoiceApi;
+  pop:PopApi;
+
+
   supplierInvoice: SupplierInvoiceApi;
   fnb: FNBApi;
   nedbank: NEDBANKApi;
@@ -69,7 +74,7 @@ export default class BodyCorpetaApi {
     this.banking_transaction = new BankingTransactionsApi(api, store);
     this.customer_transactions = new CustomerTransactionApi(api, store);
     this.supplier_transactions = new SupplierTransactionApi(api, store);
-    
+    this.pop = new PopApi(api,store);
     //api needs update
     this.account = new AccountApi(api, store, this.accountDB);
     this.nedbank = new NEDBANKApi(api, store, this.NEDBANKBB);

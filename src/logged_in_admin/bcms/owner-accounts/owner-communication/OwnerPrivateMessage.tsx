@@ -1,20 +1,21 @@
 import { useEffect, useState } from "react";
-import "./PrivateMessage.scss";
+import "./OwnerPrivateMessage.scss";
 import { observer } from "mobx-react-lite";
 import { useAppContext } from "../../../../shared/functions/Context";
-import { FailedAction } from "../../../../shared/models/Snackbar";
 import { IPrivateMessage } from "../../../../shared/models/communication/private-message/PrivateMessage";
+import { FailedAction } from "../../../../shared/models/Snackbar";
 
-export const PrivateMessage = observer(() => {
+
+export const OwnerPrivateMessage = observer(() => {
   const { api, store, ui } = useAppContext();
   const me = store.user.meJson;
   const currentDate = Date.now();
   const [receiver, setReceiver] = useState("");
-  const owners = store.user.all
-    .filter((u) => u.asJson.role === "Owner")
-    .map((u) => {
-      return u.asJson;
-    });
+ // const owners = store.user.all
+    // .filter((u) => u.asJson.role === "Owner")
+    // .map((u) => {
+    //   return u.asJson;
+    // });
 
   const allUsers = store.user.all;
 
@@ -48,6 +49,7 @@ export const PrivateMessage = observer(() => {
         await api.communication.privateMessage.getAll(me.property);
         await api.auth.loadAll();
       }
+
       const messages = store.communication.privateMessage.all.map((m) => {
         return m.asJson;
       });
@@ -65,7 +67,7 @@ export const PrivateMessage = observer(() => {
             <div className="uk-inline"></div>
           </div>
         </div>
-        <div className="uk-flex-align-center">
+        {/* <div className="uk-flex-align-center">
           <label style={{fontWeight:"bold"}}>Message Owner</label>
           <br />
           <br/>
@@ -81,7 +83,7 @@ export const PrivateMessage = observer(() => {
               </option>
             ))}
           </select>
-        </div>
+        </div> */}
         <div className="chat-container uk-align-center">
           <div className="chat-messages" id="chat-messages">
             {messages

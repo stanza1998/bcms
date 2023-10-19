@@ -4,6 +4,10 @@ import { useEffect } from "react";
 import showModalFromId from "../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../../dialogs/Dialogs";
 import Modal from "../../../../shared/components/Modal";
+import { uid } from "chart.js/dist/helpers/helpers.core";
+import { pid } from "process";
+import BodyCopStore from "../../../../shared/stores/individualStore/properties/BodyCopStore";
+import { nadFormatter } from "../../../shared/NADFormatter";
 
 export const OwnerAccount = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -13,7 +17,9 @@ export const OwnerAccount = observer(() => {
   useEffect(() => {
     const getData = async () => {
       await api.body.body.getAll();
-      // await api.unit.getAll();
+      if (me?.property) {
+        await api.unit.getAll(me?.property);
+      }
     };
     getData();
   }, [api.body.body, api.unit]);
@@ -43,6 +49,7 @@ export const OwnerAccount = observer(() => {
           className="uk-child-width-1-3@m uk-grid-small uk-grid-match"
           data-uk-grid
         >
+        
           {store.bodyCorperate.unit.all
             .filter((unit) => unit.asJson.ownerId === me?.uid)
             .map((unit) => (
@@ -53,7 +60,7 @@ export const OwnerAccount = observer(() => {
                   style={{ cursor: "pointer" }}
                 >
                   <p>
-                    Property Name:{" "}
+                    Property Name:
                     {store.bodyCorperate.bodyCop.all
                       .filter(
                         (body) => body.asJson.id === unit.asJson.bodyCopId
@@ -63,6 +70,7 @@ export const OwnerAccount = observer(() => {
                       })}
                   </p>
                   <p>Unit Reference: Unit {unit.asJson.unitName}</p>
+                  <p>Unit Balance: {nadFormatter.format(unit.asJson.balance)}</p>
                 </div>
               </div>
             ))}

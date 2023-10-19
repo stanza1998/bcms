@@ -135,7 +135,7 @@ const UnitsGrid = observer(({ data }: IProp) => {
                 flex:1,
               }}
             >
-              ${balance}
+              {balance}
             </span>
           );
         }
