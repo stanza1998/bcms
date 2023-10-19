@@ -48,7 +48,6 @@ export const PrivateMessage = observer(() => {
         await api.communication.privateMessage.getAll(me.property);
         await api.auth.loadAll();
       }
-
       const messages = store.communication.privateMessage.all.map((m) => {
         return m.asJson;
       });
