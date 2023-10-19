@@ -398,12 +398,23 @@ const OWNER_DRAWER = () => {
             <span className="down-arrow" data-uk-icon="chevron-down" />
           </NavLink>
           <ul className="uk-nav-sub">
-            <li>
-              <NavLink to={`finance/owner-communication/owner-private-message`} className="navlink">
+            {/* <li>
+              <NavLink to={`communication/com-overview`} className="navlink">
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
-                Message Board
+                Overview
+              </NavLink>
+            </li> */}
+            <li>
+              <NavLink
+                to={`finance/owner-communication/owner-private-message`}
+                className="navlink"
+              >
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Chat
               </NavLink>
             </li>
           </ul>

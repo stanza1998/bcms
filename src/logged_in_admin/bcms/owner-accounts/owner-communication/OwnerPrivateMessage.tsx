@@ -4,34 +4,16 @@ import { observer } from "mobx-react-lite";
 import { useAppContext } from "../../../../shared/functions/Context";
 import { IPrivateMessage } from "../../../../shared/models/communication/private-message/PrivateMessage";
 import { FailedAction } from "../../../../shared/models/Snackbar";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../../../../shared/database/FirebaseConfig";
 
 export const OwnerPrivateMessage = observer(() => {
   const { api, store, ui } = useAppContext();
   const me = store.user.meJson;
   const currentDate = Date.now();
-  const [receiver, setReceiver] = useState("");
-  // const owners = store.user.all
-  // .filter((u) => u.asJson.role === "Owner")
-  // .map((u) => {
-  //   return u.asJson;
-  // });
-
   const allUsers = store.user.all;
-
   const [messages, setMessages] = useState<IPrivateMessage[]>([]);
   const [messageInput, setMessageInput] = useState<string>("");
-
-  const getData = async () => {
-    if (me?.property) {
-      await api.communication.privateMessage.getAll(me.property);
-      await api.auth.loadAll();
-    }
-
-    const messages = store.communication.privateMessage.all.map((m) => {
-      return m.asJson;
-    });
-    setMessages(messages);
-  };
 
   const sendMessage = async () => {
     if (messageInput.trim() === "") {
@@ -51,41 +33,25 @@ export const OwnerPrivateMessage = observer(() => {
       console.log(error);
     } finally {
       setMessageInput("");
-      getData();
     }
   };
 
-  useEffect(() => {
-    const getData = async () => {
-      if (me?.property) {
-        await api.communication.privateMessage.getAll(me.property);
-        await api.auth.loadAll();
-      }
+  // new method
+  const myPath = `BodyCoperate/${me?.property}/`;
+  const messageRef = collection(db, myPath, "PrivateMessages");
+  console.log("🚀 myPath:", myPath);
 
-      const messages = store.communication.privateMessage.all.map((m) => {
-        return m.asJson;
-      });
-      setMessages(messages);
-    };
-    getData();
+  useEffect(() => {
+    const unsubscribe = onSnapshot(messageRef, (querySnapshot) => {
+      const updatedMessages = querySnapshot.docs.map((doc) =>
+        doc.data()
+      ) as IPrivateMessage[];
+      setMessages(updatedMessages);
+    });
+    return () => unsubscribe();
   }, []);
 
   //behavoiur
-  const chatMessagesRef = useRef<HTMLDivElement>(null);
-
-  // useEffect(() => {
-  //   // Scroll to the bottom of the chat messages after component has mounted
-  //   if (chatMessagesRef.current) {
-  //     chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
-  //   }
-  // }, []);
-
-  useEffect(() => {
-    if (chatMessagesRef.current) {
-      const chatMessagesContainer = chatMessagesRef.current;
-      chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
-    }
-  }, []);
 
   return (
     <div
@@ -105,7 +71,7 @@ export const OwnerPrivateMessage = observer(() => {
           <div
             className="chat-messages"
             id="chat-messages"
-            ref={chatMessagesRef}
+            // ref={chatMessagesRef}
           >
             {messages
               .sort((a, b) => {
@@ -116,7 +82,7 @@ export const OwnerPrivateMessage = observer(() => {
                 const dateB = b.dateAndTime
                   ? new Date(b.dateAndTime).getTime()
                   : nullValue;
-                return dateA - dateB;
+                return dateB - dateA;
               })
               .filter((m) => m.receiver === me?.uid)
               .map((message, index) => (
@@ -168,7 +134,8 @@ export const OwnerPrivateMessage = observer(() => {
               onChange={(e) => setMessageInput(e.target.value)}
             />
             <button
-              // style={{ background: receiver === "" ? "grey" : "" }}
+              style={{ background: messageInput === "" ? "grey" : "" }}
+              disabled={messageInput === ""}
               className="uk-button primary"
               onClick={sendMessage}
             >

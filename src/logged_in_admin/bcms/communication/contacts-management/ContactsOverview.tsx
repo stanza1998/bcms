@@ -14,7 +14,7 @@ export const ContactOverview = () => {
     <div className="uk-section leave-analytics-page">
       <div className="uk-container uk-container-large">
         <div className="section-toolbar uk-margin">
-          <h4 className="section-heading uk-heading">ContactS Management</h4>
+          <h4 className="section-heading uk-heading">Contact Management</h4>
           <div className="controls">
             <div className="uk-inline"></div>
           </div>

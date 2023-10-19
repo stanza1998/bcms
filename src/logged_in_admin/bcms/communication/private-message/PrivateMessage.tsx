@@ -6,17 +6,14 @@ import { FailedAction } from "../../../../shared/models/Snackbar";
 import { IPrivateMessage } from "../../../../shared/models/communication/private-message/PrivateMessage";
 import SingleSelect from "../../../../shared/components/single-select/SlingleSelect";
 import Toolbar2 from "../../../shared/Toolbar2";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../../../../shared/database/FirebaseConfig";
 
 export const PrivateMessage = observer(() => {
   const { api, store, ui } = useAppContext();
   const me = store.user.meJson;
   const currentDate = Date.now();
   const [receiver, setReceiver] = useState("");
-  // const owners = store.user.all
-  //   .filter((u) => u.asJson.role === "Owner")
-  //   .map((u) => {
-  //     return u.asJson;
-  //   });
 
   const owners = store.user.all
     .filter((u) => u.asJson.role === "Owner")
@@ -36,17 +33,6 @@ export const PrivateMessage = observer(() => {
   const [messages, setMessages] = useState<IPrivateMessage[]>([]);
   const [messageInput, setMessageInput] = useState<string>("");
 
-  const getData = async () => {
-    if (me?.property) {
-      await api.communication.privateMessage.getAll(me.property);
-      await api.auth.loadAll();
-    }
-    const messages = store.communication.privateMessage.all.map((m) => {
-      return m.asJson;
-    });
-    setMessages(messages);
-  };
-
   const sendMessage = async () => {
     if (messageInput.trim() === "") {
       return FailedAction(ui);
@@ -65,22 +51,31 @@ export const PrivateMessage = observer(() => {
       console.log(error);
     } finally {
       setMessageInput("");
-      getData();
     }
   };
 
   useEffect(() => {
     const getData = async () => {
       if (me?.property) {
-        await api.communication.privateMessage.getAll(me.property);
         await api.auth.loadAll();
       }
-      const messages = store.communication.privateMessage.all.map((m) => {
-        return m.asJson;
-      });
-      setMessages(messages);
     };
     getData();
+  }, []);
+
+  // new method
+  const myPath = `BodyCoperate/${me?.property}/`;
+  const messageRef = collection(db, myPath, "PrivateMessages");
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(messageRef, (querySnapshot) => {
+      const updatedMessages = querySnapshot.docs.map((doc) =>
+        doc.data()
+      ) as IPrivateMessage[];
+      setMessages(updatedMessages);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   return (
@@ -111,7 +106,7 @@ export const PrivateMessage = observer(() => {
                 const dateB = b.dateAndTime
                   ? new Date(b.dateAndTime).getTime()
                   : nullValue;
-                return dateA - dateB;
+                return dateB - dateA;
               })
               .filter((m) => m.receiver === receiver)
               .map((message, index) => (
@@ -176,3 +171,28 @@ export const PrivateMessage = observer(() => {
     </div>
   );
 });
+
+// const getData = async () => {
+//   if (me?.property) {
+//     await api.communication.privateMessage.getAll(me.property);
+//     await api.auth.loadAll();
+//   }
+//   const messages = store.communication.privateMessage.all.map((m) => {
+//     return m.asJson;
+//   });
+//   setMessages(messages);
+// };
+
+// useEffect(() => {
+//   const getData = async () => {
+//     if (me?.property) {
+//       await api.communication.privateMessage.getAll(me.property);
+//       await api.auth.loadAll();
+//     }
+//     const messages = store.communication.privateMessage.all.map((m) => {
+//       return m.asJson;
+//     });
+//     setMessages(messages);
+//   };
+//   getData();
+// }, []);

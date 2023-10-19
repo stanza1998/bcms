@@ -85,7 +85,6 @@ const ADMIN_USER_ROUTES = () => {
             path={`communication/private-message`}
             element={<PrivateMessage />}
           />
-          
           <Route
             path={`communication/contact-management`}
             element={<ContactOverview />}
@@ -206,14 +205,19 @@ const OWNER_ROUTES = () => {
             path={`/c/finance/invoices-view/:propertyId/:id/:yearId/:monthId/:invoiceId`}
             element={<OwnerViewInvoice />}
           />
-          <Route path={`/c/finance/proof-of-payment`} element={<Pop/>}></Route>
-          <Route
-            path={`/c/finance/owner-communication/owner-private-message`}
-            element={<OwnerPrivateMessage />}
-          />
+          <Route path={`/c/finance/proof-of-payment`} element={<Pop />}></Route>
           <Route
             path={`finance/recuring-invoices-view`}
             element={<OwnerRecuringInvoices />}
+          />
+          {/* communication */}
+          <Route
+            path={`communication/com-overview`}
+            element={<Communication />}
+          />
+          <Route
+            path={`/c/finance/owner-communication/owner-private-message`}
+            element={<OwnerPrivateMessage />}
           />
         </Route>
         <Route path="/" element={<SignIn />} />
