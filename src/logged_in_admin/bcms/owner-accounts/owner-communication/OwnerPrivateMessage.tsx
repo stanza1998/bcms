@@ -1,26 +1,37 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./OwnerPrivateMessage.scss";
 import { observer } from "mobx-react-lite";
 import { useAppContext } from "../../../../shared/functions/Context";
 import { IPrivateMessage } from "../../../../shared/models/communication/private-message/PrivateMessage";
 import { FailedAction } from "../../../../shared/models/Snackbar";
 
-
 export const OwnerPrivateMessage = observer(() => {
   const { api, store, ui } = useAppContext();
   const me = store.user.meJson;
   const currentDate = Date.now();
   const [receiver, setReceiver] = useState("");
- // const owners = store.user.all
-    // .filter((u) => u.asJson.role === "Owner")
-    // .map((u) => {
-    //   return u.asJson;
-    // });
+  // const owners = store.user.all
+  // .filter((u) => u.asJson.role === "Owner")
+  // .map((u) => {
+  //   return u.asJson;
+  // });
 
   const allUsers = store.user.all;
 
   const [messages, setMessages] = useState<IPrivateMessage[]>([]);
   const [messageInput, setMessageInput] = useState<string>("");
+
+  const getData = async () => {
+    if (me?.property) {
+      await api.communication.privateMessage.getAll(me.property);
+      await api.auth.loadAll();
+    }
+
+    const messages = store.communication.privateMessage.all.map((m) => {
+      return m.asJson;
+    });
+    setMessages(messages);
+  };
 
   const sendMessage = async () => {
     if (messageInput.trim() === "") {
@@ -28,7 +39,7 @@ export const OwnerPrivateMessage = observer(() => {
     }
     const message: IPrivateMessage = {
       id: "",
-      receiver: receiver,
+      receiver: me?.uid || "",
       sender: me?.uid || "",
       message: messageInput,
       dateAndTime: currentDate || null,
@@ -40,6 +51,7 @@ export const OwnerPrivateMessage = observer(() => {
       console.log(error);
     } finally {
       setMessageInput("");
+      getData();
     }
   };
 
@@ -58,34 +70,43 @@ export const OwnerPrivateMessage = observer(() => {
     getData();
   }, []);
 
+  //behavoiur
+  const chatMessagesRef = useRef<HTMLDivElement>(null);
+
+  // useEffect(() => {
+  //   // Scroll to the bottom of the chat messages after component has mounted
+  //   if (chatMessagesRef.current) {
+  //     chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
+  //   }
+  // }, []);
+
+  useEffect(() => {
+    if (chatMessagesRef.current) {
+      const chatMessagesContainer = chatMessagesRef.current;
+      chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+    }
+  }, []);
+
   return (
-    <div className="uk-section leave-analytics-page private-message" style={{ textAlign: 'center' }}>
+    <div
+      className="uk-section leave-analytics-page private-message"
+      style={{ textAlign: "center" }}
+    >
       <div className="uk-container large uk-flex-column">
         <div className="section-toolbar uk-margin uk-flex align-center ">
-          <div><h4 className="section-heading uk-heading"  >Private Message</h4></div>
+          <div>
+            <h4 className="section-heading uk-heading">Private Message</h4>
+          </div>
           <div className="controls">
             <div className="uk-inline"></div>
           </div>
         </div>
-        {/* <div className="uk-flex-align-center">
-          <label style={{fontWeight:"bold"}}>Message Owner</label>
-          <br />
-          <br/>
-          <select
-            style={{ width: "30%" }}
-            className="uk-input"
-            onChange={(e) => setReceiver(e.target.value)}
-          >
-            <option value="" className="uk-select">Select Owner</option>
-            {owners.map((owner) => (
-              <option value={owner.uid}>
-                {owner.firstName + " " + owner.lastName}
-              </option>
-            ))}
-          </select>
-        </div> */}
         <div className="chat-container uk-align-center">
-          <div className="chat-messages" id="chat-messages">
+          <div
+            className="chat-messages"
+            id="chat-messages"
+            ref={chatMessagesRef}
+          >
             {messages
               .sort((a, b) => {
                 const nullValue = Number.MAX_SAFE_INTEGER;
@@ -97,7 +118,7 @@ export const OwnerPrivateMessage = observer(() => {
                   : nullValue;
                 return dateA - dateB;
               })
-              .filter((m) => m.receiver === receiver)
+              .filter((m) => m.receiver === me?.uid)
               .map((message, index) => (
                 <div
                   key={index}
@@ -114,9 +135,13 @@ export const OwnerPrivateMessage = observer(() => {
                     marginBottom: "10px",
                   }}
                 >
-                <span uk-icon="icon: user; ratio:1"></span>
+                  <span uk-icon="icon: user; ratio:1"></span>
                   <span
-                    style={{ fontSize: "11px", textTransform: "capitalize", padding:"20px" }}
+                    style={{
+                      fontSize: "11px",
+                      textTransform: "capitalize",
+                      padding: "20px",
+                    }}
                   >
                     {allUsers
                       .filter((u) => u.asJson.uid === message.sender)
@@ -135,7 +160,7 @@ export const OwnerPrivateMessage = observer(() => {
           </div>
           <div className="chat-input">
             <input
-            className="uk-input uk-width-1-1"
+              className="uk-input uk-width-1-1"
               type="text"
               id="message-input"
               placeholder="Type your message..."
@@ -143,8 +168,7 @@ export const OwnerPrivateMessage = observer(() => {
               onChange={(e) => setMessageInput(e.target.value)}
             />
             <button
-              style={{ background: receiver === "" ? "grey" : "" }}
-              disabled={receiver === ""}
+              // style={{ background: receiver === "" ? "grey" : "" }}
               className="uk-button primary"
               onClick={sendMessage}
             >

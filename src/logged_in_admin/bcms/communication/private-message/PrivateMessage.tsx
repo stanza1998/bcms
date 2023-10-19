@@ -4,22 +4,48 @@ import { observer } from "mobx-react-lite";
 import { useAppContext } from "../../../../shared/functions/Context";
 import { FailedAction } from "../../../../shared/models/Snackbar";
 import { IPrivateMessage } from "../../../../shared/models/communication/private-message/PrivateMessage";
+import SingleSelect from "../../../../shared/components/single-select/SlingleSelect";
+import Toolbar2 from "../../../shared/Toolbar2";
 
 export const PrivateMessage = observer(() => {
   const { api, store, ui } = useAppContext();
   const me = store.user.meJson;
   const currentDate = Date.now();
   const [receiver, setReceiver] = useState("");
+  // const owners = store.user.all
+  //   .filter((u) => u.asJson.role === "Owner")
+  //   .map((u) => {
+  //     return u.asJson;
+  //   });
+
   const owners = store.user.all
     .filter((u) => u.asJson.role === "Owner")
     .map((u) => {
-      return u.asJson;
+      return {
+        value: u.asJson.uid,
+        label: u.asJson.firstName + " " + u.asJson.lastName,
+      };
     });
+
+  const handleSelectChange = (selectedValue: string) => {
+    setReceiver(selectedValue);
+  };
 
   const allUsers = store.user.all;
 
   const [messages, setMessages] = useState<IPrivateMessage[]>([]);
   const [messageInput, setMessageInput] = useState<string>("");
+
+  const getData = async () => {
+    if (me?.property) {
+      await api.communication.privateMessage.getAll(me.property);
+      await api.auth.loadAll();
+    }
+    const messages = store.communication.privateMessage.all.map((m) => {
+      return m.asJson;
+    });
+    setMessages(messages);
+  };
 
   const sendMessage = async () => {
     if (messageInput.trim() === "") {
@@ -39,6 +65,7 @@ export const PrivateMessage = observer(() => {
       console.log(error);
     } finally {
       setMessageInput("");
+      getData();
     }
   };
 
@@ -57,31 +84,22 @@ export const PrivateMessage = observer(() => {
   }, []);
 
   return (
-    <div className="uk-section leave-analytics-page private-message" style={{ textAlign: 'center' }}>
+    <div
+      className="uk-section leave-analytics-page private-message"
+      style={{ textAlign: "center" }}
+    >
       <div className="uk-container large uk-flex-column">
-        <div className="section-toolbar uk-margin uk-flex align-center ">
-          <div><h4 className="section-heading uk-heading"  >Private Message</h4></div>
-          <div className="controls">
-            <div className="uk-inline"></div>
-          </div>
-        </div>
-        <div className="uk-flex-align-center">
-          <label style={{fontWeight:"bold"}}>Message Owner</label>
-          <br />
-          <br/>
-          <select
-            style={{ width: "30%" }}
-            className="uk-input"
-            onChange={(e) => setReceiver(e.target.value)}
-          >
-            <option value="" className="uk-select">Select Owner</option>
-            {owners.map((owner) => (
-              <option value={owner.uid}>
-                {owner.firstName + " " + owner.lastName}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Toolbar2
+          rightControls={
+            <div style={{ width: "100%" }}>
+              <SingleSelect
+                options={owners}
+                onChange={handleSelectChange}
+                value={receiver}
+              />
+            </div>
+          }
+        />
         <div className="chat-container uk-align-center">
           <div className="chat-messages" id="chat-messages">
             {messages
@@ -112,9 +130,13 @@ export const PrivateMessage = observer(() => {
                     marginBottom: "10px",
                   }}
                 >
-                <span uk-icon="icon: user; ratio:1"></span>
+                  <span uk-icon="icon: user; ratio:1"></span>
                   <span
-                    style={{ fontSize: "11px", textTransform: "capitalize", padding:"20px" }}
+                    style={{
+                      fontSize: "11px",
+                      textTransform: "capitalize",
+                      padding: "20px",
+                    }}
                   >
                     {allUsers
                       .filter((u) => u.asJson.uid === message.sender)
@@ -133,7 +155,7 @@ export const PrivateMessage = observer(() => {
           </div>
           <div className="chat-input">
             <input
-            className="uk-input uk-width-1-1"
+              className="uk-input uk-width-1-1"
               type="text"
               id="message-input"
               placeholder="Type your message..."

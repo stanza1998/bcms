@@ -12,7 +12,7 @@ const Toolbar2 = (props: Props) => {
 
   return (
     <ErrorBoundary>
-      <div className="toolbar uk-margin" style={{border:"solid #1b115f 2px", padding:"6px", borderRadius:"6px"}}>
+      <div className="toolbar uk-margin" style={{border:"solid #1b115f 1px", padding:"6px", borderRadius:"1px"}}>
         {title && <h4 className="title uk-heading">{title}</h4>}
         {!title && <div className="controls">{leftControls}</div>}
         <div className="controls mg-top">{rightControls}</div>
