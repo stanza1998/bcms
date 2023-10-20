@@ -147,7 +147,7 @@ export const PrivateMessage = observer(() => {
                       marginLeft: me?.uid === message.sender ? "auto" : "",
                       maxWidth: me?.uid === message.sender ? "90%" : "90%",
                       backgroundColor:
-                        me?.uid === message.sender ? "#01aced" : "#4caf50",
+                        me?.uid === message.sender ? "#01aced" : "#1c4dff",
                       color: "#fff",
                       borderRadius: "5px",
                       padding: "8px",

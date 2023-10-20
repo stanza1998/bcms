@@ -462,7 +462,10 @@ const NavBar = observer(() => {
         </div>
       </Modal>
       <Modal modalId={DIALOG_NAMES.COMMUNICATION.VIEW_ANNOUNCEMENTS_DIALOG}>
-        <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical staff-dialog announcements-container">
+        <div
+          className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical staff-dialog announcements-container"
+          style={{ width: "100%" }}
+        >
           <button
             className="uk-modal-close-default"
             type="button"
@@ -503,21 +506,7 @@ const NavBar = observer(() => {
               </ul>
             ))}
           </div>
-
-          {/* {latestAnnouncement.map((item) => (
-            <div style={{ padding: "20px" }}>
-              <div className="announcement-container">
-                <div className="announcement-item" key={item.id}>
-                  <p style={{ marginRight: "20px", marginTop: "20px" }}>
-                    {item.message}
-                  </p>
-                  <p style={{ marginTop: "20px" }}>{item.expiryDate}</p>
-                </div>
-              </div>
-            </div>
-          ))} */}
         </div>
-        <h1></h1>
       </Modal>
     </div>
   );

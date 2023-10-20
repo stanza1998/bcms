@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import "./OwnerPrivateMessage.scss";
 import { observer } from "mobx-react-lite";
-import { useAppContext } from "../../../../shared/functions/Context";
-import { IPrivateMessage } from "../../../../shared/models/communication/private-message/PrivateMessage";
-import { FailedAction } from "../../../../shared/models/Snackbar";
+import { useAppContext } from "../../../../../shared/functions/Context";
+import { IPrivateMessage } from "../../../../../shared/models/communication/private-message/PrivateMessage";
+import { FailedAction } from "../../../../../shared/models/Snackbar";
 import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "../../../../shared/database/FirebaseConfig";
+import { db } from "../../../../../shared/database/FirebaseConfig";
 
 export const OwnerPrivateMessage = observer(() => {
   const { api, store, ui } = useAppContext();
@@ -110,7 +110,7 @@ export const OwnerPrivateMessage = observer(() => {
                     marginLeft: me?.uid === message.sender ? "auto" : "",
                     maxWidth: me?.uid === message.sender ? "90%" : "90%",
                     backgroundColor:
-                      me?.uid === message.sender ? "#01aced" : "#4caf50",
+                      me?.uid === message.sender ? "#01aced" : "#1c4dff",
                     color: "#fff",
                     borderRadius: "5px",
                     padding: "8px",

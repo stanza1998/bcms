@@ -47,7 +47,11 @@ const ADMIN_DRAWER = () => {
               <MapsHomeWorkIcon style={{ fontSize: "16px" }} />
             </span>
             Properties
-            <span className="down-arrow" data-uk-icon="chevron-down" />
+            <span
+              style={{ fontSize: "5px" }}
+              className="down-arrow"
+              data-uk-icon="triangle-down"
+            />
           </NavLink>
           <ul className="uk-nav-sub">
             <li>
@@ -107,7 +111,11 @@ const ADMIN_DRAWER = () => {
               <MoneyIcon style={{ fontSize: "16px" }} />
             </span>
             Accounting
-            <span className="down-arrow" data-uk-icon="chevron-down" />
+            <span
+              style={{ fontSize: "5px" }}
+              className="down-arrow"
+              data-uk-icon="triangle-down"
+            />
           </NavLink>
           <ul className="uk-nav-sub">
             <li>
@@ -177,7 +185,11 @@ const ADMIN_DRAWER = () => {
               <SignLanguageIcon style={{ fontSize: "16px" }} />
             </span>
             Communication
-            <span className="down-arrow" data-uk-icon="chevron-down" />
+            <span
+              style={{ fontSize: "5px" }}
+              className="down-arrow"
+              data-uk-icon="triangle-down"
+            />
           </NavLink>
           <ul className="uk-nav-sub">
             <li>
@@ -223,7 +235,11 @@ const ADMIN_DRAWER = () => {
               <EngineeringIcon style={{ fontSize: "16px" }} />
             </span>
             Maintenance
-            <span className="down-arrow" data-uk-icon="chevron-down" />
+            <span
+              style={{ fontSize: "5px" }}
+              className="down-arrow"
+              data-uk-icon="triangle-down"
+            />
           </NavLink>
           <ul className="uk-nav-sub">
             <li>
@@ -234,6 +250,33 @@ const ADMIN_DRAWER = () => {
                 Overview
               </NavLink>
             </li>
+            <li>
+              <NavLink to={`maintainance/request`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Request
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to={`maintainance/service-providers`}
+                className="navlink"
+              >
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Service Providers
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={`maintainance/reports`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Reports
+              </NavLink>
+            </li>
           </ul>
         </li>
         <li className="list-item uk-parent">
@@ -242,7 +285,11 @@ const ADMIN_DRAWER = () => {
               <MeetingRoomIcon style={{ fontSize: "16px" }} />
             </span>
             Meetings
-            <span className="down-arrow" data-uk-icon="chevron-down" />
+            <span
+              style={{ fontSize: "5px" }}
+              className="down-arrow"
+              data-uk-icon="triangle-down"
+            />
           </NavLink>
           <ul className="uk-nav-sub">
             <li>
@@ -261,7 +308,11 @@ const ADMIN_DRAWER = () => {
               <DocumentScannerIcon style={{ fontSize: "16px" }} />
             </span>
             Documents
-            <span className="down-arrow" data-uk-icon="chevron-down" />
+            <span
+              style={{ fontSize: "5px" }}
+              className="down-arrow"
+              data-uk-icon="triangle-down"
+            />
           </NavLink>
           <ul className="uk-nav-sub">
             <li>
@@ -281,7 +332,11 @@ const ADMIN_DRAWER = () => {
               <SupervisorAccountIcon style={{ fontSize: "16px" }} />
             </span>
             Admin
-            <span className="down-arrow" data-uk-icon="chevron-down" />
+            <span
+              style={{ fontSize: "5px" }}
+              className="down-arrow"
+              data-uk-icon="triangle-down"
+            />
           </NavLink>
           <ul className="uk-nav-sub">
             <li>
@@ -341,7 +396,11 @@ const OWNER_DRAWER = () => {
               <ApartmentIcon style={{ fontSize: "16px" }} />
             </span>
             My Properties
-            <span className="down-arrow" data-uk-icon="chevron-down" />
+            <span
+              style={{ fontSize: "5px" }}
+              className="down-arrow"
+              data-uk-icon="triangle-down"
+            />
           </NavLink>
           <ul className="uk-nav-sub">
             <li>
@@ -360,7 +419,11 @@ const OWNER_DRAWER = () => {
               <MoneyIcon style={{ fontSize: "16px" }} />
             </span>
             Finances
-            <span className="down-arrow" data-uk-icon="chevron-down" />
+            <span
+              style={{ fontSize: "5px" }}
+              className="down-arrow"
+              data-uk-icon="triangle-down"
+            />
           </NavLink>
           <ul className="uk-nav-sub">
             <li>
@@ -395,7 +458,11 @@ const OWNER_DRAWER = () => {
               <SignLanguageIcon style={{ fontSize: "16px" }} />
             </span>
             Communication
-            <span className="down-arrow" data-uk-icon="chevron-down" />
+            <span
+              style={{ fontSize: "5px" }}
+              className="down-arrow"
+              data-uk-icon="triangle-down"
+            />
           </NavLink>
           <ul className="uk-nav-sub">
             {/* <li>
@@ -443,7 +510,11 @@ const EMPLOYEE_USER_DRAWER = () => {
               <MoneyIcon style={{ fontSize: "16px" }} />
             </span>
             Finance
-            <span className="down-arrow" data-uk-icon="chevron-down" />
+            <span
+              style={{ fontSize: "5px" }}
+              className="down-arrow"
+              data-uk-icon="triangle-down"
+            />
           </NavLink>
           <ul className="uk-nav-sub">
             <li>
@@ -462,7 +533,11 @@ const EMPLOYEE_USER_DRAWER = () => {
               <SignLanguageIcon style={{ fontSize: "16px" }} />
             </span>
             Communication
-            <span className="down-arrow" data-uk-icon="chevron-down" />
+            <span
+              style={{ fontSize: "5px" }}
+              className="down-arrow"
+              data-uk-icon="triangle-down"
+            />
           </NavLink>
           <ul className="uk-nav-sub">
             <li>
@@ -481,7 +556,11 @@ const EMPLOYEE_USER_DRAWER = () => {
               <EngineeringIcon style={{ fontSize: "16px" }} />
             </span>
             Maintainance
-            <span className="down-arrow" data-uk-icon="chevron-down" />
+            <span
+              style={{ fontSize: "5px" }}
+              className="down-arrow"
+              data-uk-icon="triangle-down"
+            />
           </NavLink>
           <ul className="uk-nav-sub">
             <li>
@@ -500,7 +579,11 @@ const EMPLOYEE_USER_DRAWER = () => {
               <MeetingRoomIcon style={{ fontSize: "16px" }} />
             </span>
             Meetings
-            <span className="down-arrow" data-uk-icon="chevron-down" />
+            <span
+              style={{ fontSize: "5px" }}
+              className="down-arrow"
+              data-uk-icon="triangle-down"
+            />
           </NavLink>
           <ul className="uk-nav-sub">
             <li>
@@ -519,7 +602,11 @@ const EMPLOYEE_USER_DRAWER = () => {
               <DocumentScannerIcon style={{ fontSize: "16px" }} />
             </span>
             Documents
-            <span className="down-arrow" data-uk-icon="chevron-down" />
+            <span
+              style={{ fontSize: "5px" }}
+              className="down-arrow"
+              data-uk-icon="triangle-down"
+            />
           </NavLink>
           <ul className="uk-nav-sub">
             <li>
@@ -538,7 +625,11 @@ const EMPLOYEE_USER_DRAWER = () => {
               <AccountBalanceIcon style={{ fontSize: "16px" }} />
             </span>
             Accounting
-            <span className="down-arrow" data-uk-icon="chevron-down" />
+            <span
+              style={{ fontSize: "5px" }}
+              className="down-arrow"
+              data-uk-icon="triangle-down"
+            />
           </NavLink>
           <ul className="uk-nav-sub">
             <li>
@@ -560,7 +651,11 @@ const EMPLOYEE_USER_DRAWER = () => {
               <MapsHomeWorkIcon style={{ fontSize: "16px" }} />
             </span>
             Body Corperates
-            <span className="down-arrow" data-uk-icon="chevron-down" />
+            <span
+              style={{ fontSize: "5px" }}
+              className="down-arrow"
+              data-uk-icon="triangle-down"
+            />
           </NavLink>
           <ul className="uk-nav-sub">
             <li>

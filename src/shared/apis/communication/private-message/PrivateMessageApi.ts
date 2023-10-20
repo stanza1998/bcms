@@ -86,7 +86,7 @@ export default class PrivateMessageApi {
   //   return () => unsubscribe();
   // }
 
-  async create(item: IPrivateMessage, pid: string, uid: string) {
+  async create(item: IPrivateMessage, pid: string, uid: string, ) {
     const myPath = `BodyCoperate/${pid}/PrivateMessages/${uid}/UserMessages`;
 
     const itemRef = doc(collection(db, myPath));

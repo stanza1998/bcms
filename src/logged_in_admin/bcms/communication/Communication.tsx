@@ -71,7 +71,7 @@ export const Communication = observer(() => {
     <div className="uk-section leave-analytics-page">
       <div className="uk-container uk-container-large">
         <div
-          className="uk-child-width-1-3@m uk-grid-small uk-grid-match"
+          className="uk-child-width-1-2@m uk-grid-small uk-grid-match"
           data-uk-grid
         >
           <div>
@@ -153,7 +153,7 @@ export const Communication = observer(() => {
               <p> {totalContact}</p>
             </div>
           </div>
-          <div>
+          {/* <div>
             <div
               className="uk-card uk-card-default uk-card-body"
               style={{ background: "#000c37" }}
@@ -190,7 +190,7 @@ export const Communication = observer(() => {
               </h3>
               <p> {totalTodayMessages.length}</p>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

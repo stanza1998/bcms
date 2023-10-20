@@ -55,7 +55,11 @@ import { Announcements } from "./logged_in_admin/bcms/communication/announcement
 import { PrivateMessage } from "./logged_in_admin/bcms/communication/private-message/PrivateMessage";
 import { ContactOverview } from "./logged_in_admin/bcms/communication/contacts-management/ContactsOverview";
 import { Pop } from "./logged_in_admin/bcms/owner-accounts/proof-of-payment/pop";
-import { OwnerPrivateMessage } from "./logged_in_admin/bcms/owner-accounts/owner-communication/OwnerPrivateMessage";
+import { OwnerPrivateMessage } from "./logged_in_admin/bcms/owner-accounts/owner-communication/private-message-booard/OwnerPrivateMessage";
+import { Maintainance } from "./logged_in_admin/bcms/maintanace/Maintainance";
+import { MaintenanceRequest } from "./logged_in_admin/bcms/maintanace/request/Request";
+import { ServiceProvider } from "./logged_in_admin/bcms/maintanace/service-providers/ServiceProvider";
+import { MaintenenceReports } from "./logged_in_admin/bcms/maintanace/reports/Reports";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -89,11 +93,34 @@ const ADMIN_USER_ROUTES = () => {
             path={`communication/contact-management`}
             element={<ContactOverview />}
           />
+          {/* Communication ends here */}
+          {/* Meetings  */}
           <Route path={`meetings/meetings-overview`} element={<Meetings />} />
+          {/* Meetings  */}
+          {/* Maintenance  */}
+          <Route
+            path={`maintainance/main-overview`}
+            element={<Maintainance />}
+          />
+          <Route
+            path={`maintainance/request`}
+            element={<MaintenanceRequest />}
+          />
+          <Route
+            path={`maintainance/service-providers`}
+            element={<ServiceProvider />}
+          />
+          <Route
+            path={`maintainance/reports`}
+            element={<MaintenenceReports />}
+          />
+          {/* Maintenance  */}
+          {/* Documents */}
           <Route
             path={`documents/documents-overview`}
             element={<Documents />}
           />
+          {/* Accounting and finance */}
           <Route
             path={`accounting/accounting-overview`}
             element={<Accounting />}
@@ -150,6 +177,8 @@ const ADMIN_USER_ROUTES = () => {
           <Route path={`body/suppliers`} element={<Supplier />} />
           <Route path={`body/accountType`} element={<AccountType />} />
           <Route path={`body/account-categories`} element={<Categories />} />
+          {/* Accounting and finance */}
+          {/* Properties and units */}
           <Route path={`body/body-corperate`} element={<BodyCorperates />} />
           <Route
             path={`body/body-corperate/:propertyId`}
@@ -175,6 +204,7 @@ const ADMIN_USER_ROUTES = () => {
             path={`/c/body/body-corperate/:propertyId/:id/:yearId/:invoiceId/accounting-view`}
             element={<ViewInvoice />}
           />
+          {/* Properties and units */}
           <Route path={`body/owners`} element={<Owners />} />
           <Route path={`admin/employees`} element={<Employees />} />
           <Route path={`admin/departments`} element={<Departments />} />

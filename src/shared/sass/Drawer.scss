@@ -30,9 +30,11 @@
   .drawer-list {
     background-color: #000c37;
     padding-top: 30px;
-    padding-bottom: 10px;
-    border-bottom-right-radius: 10px;
-    border-top-right-radius: 10px;
+    padding-bottom: 30px;
+    border-top: solid 2px #01aced;
+    border-bottom: solid 2px #01aced;
+    border-bottom-right-radius: 8px;
+    border-top-right-radius: 8px;
     ul.main-list {
       list-style: none;
       .list-item {
@@ -71,14 +73,16 @@
         }
 
         .active {
-          color: #000c37;
-          background-color: #fff;
+          color: #fff;
+          background-color: #01aced;
+          border-radius: 6px;
+          padding-right: 20px;
         }
 
-        .sub-active {
-          background-color: $white-color;
-          color: $primary-color;
-        }
+        // .sub-active {
+        //   background-color: $white-color;
+        //   color: $primary-color;
+        // }
 
         .uk-nav-sub {
           padding: 5px 0 5px 0px;

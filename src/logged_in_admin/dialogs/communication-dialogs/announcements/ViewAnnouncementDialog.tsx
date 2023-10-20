@@ -115,6 +115,7 @@ export const ViewAnnouncementDialog = observer(() => {
                   disabled
                   className="uk-input"
                   placeholder="Message"
+                  style={{height:"80px"}}
                   value={announcement.message}
                   onChange={(e) =>
                     setAnnouncement({

@@ -39,17 +39,17 @@ const AnnouncementGrid = observer(({ data }: IProp) => {
     {
       field: "title",
       headerName: "Title",
-      flex:1,
+      flex: 1,
     },
     {
       field: "dateAndTime",
       headerName: "Date",
-      flex:1,
+      flex: 1,
     },
     {
       field: "authorOrSender",
       headerName: "Author/Sender",
-      flex:1,
+      flex: 1,
       renderCell: (params) => (
         <>
           {users
@@ -63,23 +63,23 @@ const AnnouncementGrid = observer(({ data }: IProp) => {
     {
       field: "message",
       headerName: "Message",
-      flex:1,
+      flex: 1,
     },
     {
       field: "expiryDate",
       headerName: "Exipiry Date",
-      flex:1,
+      flex: 1,
     },
     {
       field: "priorityLevel",
       headerName: "Priority Level",
-      flex:1,
+      flex: 1,
       renderCell: (params) => {
         if (params.row.priorityLevel === "HIGH") {
           return (
             <span
               style={{
-                background: "green",
+                background: "red",
                 color: "white",
                 padding: "10px",
                 width: "100%",
@@ -92,8 +92,8 @@ const AnnouncementGrid = observer(({ data }: IProp) => {
           return (
             <span
               style={{
-                background: "orange",
-                color: "white",
+                background: "yellow",
+                color: "black",
                 padding: "10px",
                 width: "100%",
               }}
@@ -105,7 +105,7 @@ const AnnouncementGrid = observer(({ data }: IProp) => {
           return (
             <span
               style={{
-                background: "yellow",
+                background: "blue",
                 color: "white",
                 padding: "10px",
                 width: "100%",
@@ -122,7 +122,7 @@ const AnnouncementGrid = observer(({ data }: IProp) => {
     {
       field: "Status",
       headerName: "Status",
-      flex:1,
+      flex: 1,
       renderCell: (params) => {
         const expiryDate = new Date(params.row.expiryDate);
         const currentDate = new Date();
@@ -132,7 +132,7 @@ const AnnouncementGrid = observer(({ data }: IProp) => {
           return (
             <span
               style={{
-                background: "red",
+                background: "orange",
                 color: "white",
                 padding: "10px",
                 width: "100%",
@@ -161,11 +161,19 @@ const AnnouncementGrid = observer(({ data }: IProp) => {
     {
       field: "Action",
       headerName: "Action",
-      flex:1,
+      flex: 1,
       renderCell: (params) => (
         <div>
-          <button className="uk-margin-right uk-icon" data-uk-icon="pencil" onClick={() => onUpdate(params.row)}></button>
-          <button  className="uk-margin-right uk-icon" data-uk-icon="thumbnails"  onClick={() => onView(params.row)}></button>
+          <button
+            className="uk-margin-right uk-icon"
+            data-uk-icon="pencil"
+            onClick={() => onUpdate(params.row)}
+          ></button>
+          <button
+            className="uk-margin-right uk-icon"
+            data-uk-icon="thumbnails"
+            onClick={() => onView(params.row)}
+          ></button>
         </div>
       ),
     },
