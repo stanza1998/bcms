@@ -2,20 +2,15 @@
   .chat-container {
     width: 100%;
     border: 1px solid black;
-    border-radius: 10px;
     overflow: hidden;
     margin-top: 24px;
-    border-radius: 10px;
     max-width: 100%;
     margin-bottom: 10px;
     padding: 30px;
     flex: auto;
-    // max-height: 80%;
     align-items: center;
-    background-color: #0f0e1f;
+    background-color: #000c37;
     overflow-y: auto;
-    // max-height: 300px; /* Adjust as needed */
-    // scroll-behavior: smooth;
   }
 
   .chat-messages {

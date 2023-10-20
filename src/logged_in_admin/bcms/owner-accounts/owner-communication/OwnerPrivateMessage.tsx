@@ -15,7 +15,8 @@ export const OwnerPrivateMessage = observer(() => {
   const [messages, setMessages] = useState<IPrivateMessage[]>([]);
   const [messageInput, setMessageInput] = useState<string>("");
 
-  const sendMessage = async () => {
+  const sendMessage = async (e: any) => {
+    e.preventDefault();
     if (messageInput.trim() === "") {
       return FailedAction(ui);
     }
@@ -27,8 +28,12 @@ export const OwnerPrivateMessage = observer(() => {
       dateAndTime: currentDate || null,
     };
     try {
-      if (me?.property)
-        await api.communication.privateMessage.create(message, me.property);
+      if (me?.property && me?.uid)
+        await api.communication.privateMessage.create(
+          message,
+          me.property,
+          me.uid
+        );
     } catch (error) {
       console.log(error);
     } finally {
@@ -37,11 +42,9 @@ export const OwnerPrivateMessage = observer(() => {
   };
 
   // new method
-  const myPath = `BodyCoperate/${me?.property}/`;
-  const messageRef = collection(db, myPath, "PrivateMessages");
-  console.log("🚀 myPath:", myPath);
-
   useEffect(() => {
+    const myPath = `BodyCoperate/${me?.property}/PrivateMessages/${me?.uid}/`;
+    const messageRef = collection(db, myPath, "UserMessages");
     const unsubscribe = onSnapshot(messageRef, (querySnapshot) => {
       const updatedMessages = querySnapshot.docs.map((doc) =>
         doc.data()
@@ -51,7 +54,20 @@ export const OwnerPrivateMessage = observer(() => {
     return () => unsubscribe();
   }, []);
 
-  //behavoiur
+  //chat board behavoiur
+  const chatMessagesRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (chatMessagesRef.current) {
+      chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    const getUser = async () => {
+      await api.auth.loadAll();
+    };
+    getUser();
+  }, [api.auth]);
 
   return (
     <div
@@ -71,7 +87,7 @@ export const OwnerPrivateMessage = observer(() => {
           <div
             className="chat-messages"
             id="chat-messages"
-            // ref={chatMessagesRef}
+            ref={chatMessagesRef}
           >
             {messages
               .sort((a, b) => {
@@ -82,7 +98,7 @@ export const OwnerPrivateMessage = observer(() => {
                 const dateB = b.dateAndTime
                   ? new Date(b.dateAndTime).getTime()
                   : nullValue;
-                return dateB - dateA;
+                return dateA - dateB;
               })
               .filter((m) => m.receiver === me?.uid)
               .map((message, index) => (
@@ -92,7 +108,7 @@ export const OwnerPrivateMessage = observer(() => {
                   style={{
                     textAlign: me?.uid === message.sender ? "right" : "left",
                     marginLeft: me?.uid === message.sender ? "auto" : "",
-                    maxWidth: me?.uid === message.sender ? "60%" : "60%",
+                    maxWidth: me?.uid === message.sender ? "90%" : "90%",
                     backgroundColor:
                       me?.uid === message.sender ? "#01aced" : "#4caf50",
                     color: "#fff",
@@ -112,19 +128,22 @@ export const OwnerPrivateMessage = observer(() => {
                     {allUsers
                       .filter((u) => u.asJson.uid === message.sender)
                       .map((u) => {
-                        return u.asJson.firstName + " " + u.asJson.lastName;
+                        return u.asJson.uid === me?.uid
+                          ? "ME"
+                          : u.asJson.firstName + " " + u.asJson.lastName;
                       })}
                   </span>
                   <p style={{ marginBottom: "5px" }}>
-                    {message.dateAndTime
+                    {message.dateAndTime &&
+                    Date.now() - new Date(message.dateAndTime).getTime() >= 5000
                       ? new Date(message.dateAndTime).toLocaleString()
-                      : "No date available"}
+                      : "Now"}
                   </p>
                   <p style={{ margin: "0" }}>{message.message}</p>
                 </div>
               ))}
           </div>
-          <div className="chat-input">
+          <form className="chat-input" onSubmit={sendMessage}>
             <input
               className="uk-input uk-width-1-1"
               type="text"
@@ -137,11 +156,12 @@ export const OwnerPrivateMessage = observer(() => {
               style={{ background: messageInput === "" ? "grey" : "" }}
               disabled={messageInput === ""}
               className="uk-button primary"
-              onClick={sendMessage}
+              // onClick={sendMessage}
+              type="submit"
             >
               Send
             </button>
-          </div>
+          </form>
         </div>
       </div>
     </div>

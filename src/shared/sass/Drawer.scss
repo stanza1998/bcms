@@ -28,6 +28,11 @@
   }
 
   .drawer-list {
+    background-color: #000c37;
+    padding-top: 30px;
+    padding-bottom: 10px;
+    border-bottom-right-radius: 10px;
+    border-top-right-radius: 10px;
     ul.main-list {
       list-style: none;
       .list-item {
@@ -48,13 +53,13 @@
           margin: 2px 0px 2px 10px;
           display: flex;
           transition: border 0.3s ease, box-shadow 0.3s ease;
-          color: #434343;
+          color: white;
           border: 2px solid transparent;
           font-weight: 700;
 
           &:hover {
             box-shadow: 0 1rem 1rem rgba(0, 0, 0, 0.1);
-            border: 2px solid #01aced;
+            border: 2px solid #000c37;
           }
 
           .down-arrow {
@@ -66,8 +71,8 @@
         }
 
         .active {
-          color: white;
-          background-color: #000c37;
+          color: #000c37;
+          background-color: #fff;
         }
 
         .sub-active {
@@ -79,7 +84,7 @@
           padding: 5px 0 5px 0px;
 
           .navlink {
-            border-left: 4px solid $secondary-color;
+            border-left: 4px solid white;
           }
         }
       }

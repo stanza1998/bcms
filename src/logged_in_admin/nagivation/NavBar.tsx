@@ -15,10 +15,6 @@ import { observer } from "mobx-react-lite";
 import { FailedAction, SuccessfulAction } from "../../shared/models/Snackbar";
 import { IPropertyBankAccount } from "../../shared/models/property-bank-account/PropertyBankAccount";
 import CircleNotificationsIcon from "@mui/icons-material/CircleNotifications";
-import {
-  IAnnouncements,
-  defaultAnnouncements,
-} from "../../shared/models/communication/announcements/AnnouncementModel";
 
 const NavBar = observer(() => {
   const { store, api, ui } = useAppContext();

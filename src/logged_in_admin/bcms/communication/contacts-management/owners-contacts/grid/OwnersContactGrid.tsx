@@ -36,7 +36,7 @@ const OwnerContactsGrid = observer(({ data }: IProp) => {
   ];
 
   return (
-    <Box sx={{ height: 500 }}>
+    <Box sx={{ height: 350 }}>
       <DataGrid
         rows={data}
         columns={columns}

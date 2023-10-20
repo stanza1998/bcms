@@ -50,7 +50,7 @@ export const Communication = observer(() => {
     const getData = async () => {
       if (me?.property && me?.year) {
         await api.communication.announcement.getAll(me.property, me.year);
-        await api.communication.privateMessage.getAll(me.property);
+        // await api.communication.privateMessage.getAll(me.property);
         await api.communication.customContact.getAll(me.property);
         await api.auth.loadAll();
         await api.body.supplier.getAll(me.property);
@@ -75,67 +75,118 @@ export const Communication = observer(() => {
           data-uk-grid
         >
           <div>
-            <div className="uk-card uk-card-default uk-card-body">
-              <h3 className="uk-card-title">
-                <CampaignIcon
-                  style={{ color: "#01aced", fontSize: "34px", opacity: ".5" }}
-                />{" "}
+            <div
+              className="uk-card uk-card-default uk-card-body"
+              style={{ background: "#000c37" }}
+            >
+              <h3
+                className="uk-card-title"
+                style={{
+                  color: "white",
+                  textTransform: "uppercase",
+                  fontSize: "18px",
+                }}
+              >
+                <CampaignIcon style={{ color: "#01aced", fontSize: "34px" }} />{" "}
                 Total Announcement
               </h3>
               <p>{totalAnnouments}</p>
             </div>
           </div>
           <div>
-            <div className="uk-card uk-card-default uk-card-body">
-              <h3 className="uk-card-title">
-                <CampaignIcon
-                  style={{ color: "green", fontSize: "34px", opacity: ".5" }}
-                />{" "}
+            <div
+              className="uk-card uk-card-default uk-card-body"
+              style={{ background: "#000c37" }}
+            >
+              <h3
+                className="uk-card-title"
+                style={{
+                  color: "white",
+                  textTransform: "uppercase",
+                  fontSize: "18px",
+                }}
+              >
+                <CampaignIcon style={{ color: "green", fontSize: "34px" }} />{" "}
                 Active Announcement
               </h3>
               <p>{totalActiveAnnouncements}</p>
             </div>
           </div>
           <div>
-            <div className="uk-card uk-card-default uk-card-body">
-              <h3 className="uk-card-title">
-                <CampaignIcon
-                  style={{ color: "red", fontSize: "34px", opacity: ".5" }}
-                />{" "}
+            <div
+              className="uk-card uk-card-default uk-card-body"
+              style={{ background: "#000c37" }}
+            >
+              <h3
+                className="uk-card-title"
+                style={{
+                  color: "white",
+                  textTransform: "uppercase",
+                  fontSize: "18px",
+                }}
+              >
+                <CampaignIcon style={{ color: "red", fontSize: "34px" }} />{" "}
                 Expired Announcements
               </h3>
               <p>{totalExpiredAnnouncements}</p>
             </div>
           </div>
           <div>
-            <div className="uk-card uk-card-default uk-card-body">
-              <h3 className="uk-card-title">
+            <div
+              className="uk-card uk-card-default uk-card-body"
+              style={{ background: "#000c37" }}
+            >
+              <h3
+                className="uk-card-title"
+                style={{
+                  color: "white",
+                  textTransform: "uppercase",
+                  fontSize: "18px",
+                }}
+              >
                 {" "}
                 <ContactPhoneIcon
-                  style={{ color: "#01aced", fontSize: "34px", opacity: ".5" }}
+                  style={{ color: "#01aced", fontSize: "34px" }}
                 />{" "}
-                {totalContact}
+                Total Contacts
               </h3>
-              <p>23</p>
+              <p> {totalContact}</p>
             </div>
           </div>
           <div>
-            <div className="uk-card uk-card-default uk-card-body">
-              <h3 className="uk-card-title">
-                <ForumIcon
-                  style={{ color: "#01aced", fontSize: "34px", opacity: ".5" }}
-                />{" "}
+            <div
+              className="uk-card uk-card-default uk-card-body"
+              style={{ background: "#000c37" }}
+            >
+              <h3
+                className="uk-card-title"
+                style={{
+                  color: "white",
+                  textTransform: "uppercase",
+                  fontSize: "18px",
+                }}
+              >
+                <ForumIcon style={{ color: "#01aced", fontSize: "34px" }} />{" "}
                 Total Messages
               </h3>
               <p>{totalMessages}</p>
             </div>
           </div>
           <div>
-            <div className="uk-card uk-card-default uk-card-body">
-              <h3 className="uk-card-title">
-                <MessageIcon
-                  style={{ color: "green", fontSize: "34px", opacity: ".5" }}
-                />{" "}
+            <div
+              className="uk-card uk-card-default uk-card-body"
+              style={{ background: "#000c37" }}
+            >
+              <h3
+                className="uk-card-title"
+                style={{
+                  color: "white",
+                  textTransform: "uppercase",
+                  fontSize: "18px",
+                }}
+              >
+                <MessageIcon style={{ color: "green", fontSize: "34px" }} />{" "}
+                Today's Messages
               </h3>
               <p> {totalTodayMessages.length}</p>
             </div>

@@ -12,6 +12,7 @@ export const AnnouncementDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
   const me = store.user.meJson;
+  const currentDate = new Date();
 
   const [announcement, setAnnouncement] = useState<IAnnouncements>({
     ...defaultAnnouncements,
@@ -38,7 +39,7 @@ export const AnnouncementDialog = observer(() => {
         });
       } else {
         announcement.authorOrSender = me.uid;
-        announcement.dateAndTime = "now";
+        announcement.dateAndTime = currentDate.toLocaleTimeString();
 
         await api.communication.announcement.create(
           announcement,

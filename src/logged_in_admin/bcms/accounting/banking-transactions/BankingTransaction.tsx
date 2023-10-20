@@ -58,7 +58,6 @@ export const BankingTransactions = observer(() => {
   return (
     <div className="uk-section leave-analytics-page">
       <div className="uk-container uk-container-large">
-        <Toolbar2 leftControls={<div></div>} rightControls={<div></div>} />
         <Toolbar2
           leftControls={
             <div>

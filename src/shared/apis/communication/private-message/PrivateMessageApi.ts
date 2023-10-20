@@ -14,10 +14,10 @@ import { db } from "../../../database/FirebaseConfig";
 import { IPrivateMessage } from "../../../models/communication/private-message/PrivateMessage";
 
 export default class PrivateMessageApi {
-  constructor(private api: AppApi, private store: AppStore) {}
+  constructor(private api: AppApi, private store: AppStore) { }
 
-  async getAll(pid: string) {
-    const myPath = `BodyCoperate/${pid}/PrivateMessages`;
+  async getAll(pid: string, uid: string) {
+    const myPath = `BodyCoperate/${pid}/PrivateMessages/${uid}/UserMessage`;
 
     const $query = query(collection(db, myPath));
     // new promise
@@ -43,8 +43,8 @@ export default class PrivateMessageApi {
     });
   }
 
-  async getById(id: string, pid: string) {
-    const myPath = `BodyCoperate/${pid}/PrivateMessages`;
+  async getById(id: string, pid: string, uid: string) {
+    const myPath = `BodyCoperate/${pid}/PrivateMessages/${uid}/UserMessage`;
 
     const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
       if (!doc.exists) return;
@@ -56,8 +56,38 @@ export default class PrivateMessageApi {
     return unsubscribe;
   }
 
-  async create(item: IPrivateMessage, pid: string) {
-    const myPath = `BodyCoperate/${pid}/PrivateMessages`;
+  // async getUserMessage(pid: string, uid: string) {
+  //   const myPath = `BodyCoperate/${pid}/PrivateMessages/${uid}/`;
+  //   const messageRef = collection(db, myPath, "UserMessage");
+  //   const unsubscribe = onSnapshot(messageRef, (querySnapshot) => {
+  //     const updatedMessages = querySnapshot.docs.map((doc) =>
+  //       doc.data() as IPrivateMessage
+  //     );
+  //     this.store.communication.privateMessage.load([updatedMessages])
+  //   });
+
+  //   return () => unsubscribe();
+  // }
+
+  // async getUserMessage(pid: string, uid: string) {
+  //   const myPath = `BodyCoperate/${pid}/PrivateMessages/${uid}/`;
+  //   const messageRef = collection(db, myPath, "UserMessage");
+  //   const unsubscribe = onSnapshot(messageRef, (querySnapshot) => {
+  //     const updatedMessages = querySnapshot.docs.map((doc) => {
+  //       const data = doc.data() as IPrivateMessage;
+  //       return {
+  //         ...data,
+  //         dateAndTime: data.dateAndTime ? new Date(data.dateAndTime) : null
+  //       };
+  //     });
+  //     this.store.communication.privateMessage.load(updatedMessages);
+  //   });
+  
+  //   return () => unsubscribe();
+  // }
+
+  async create(item: IPrivateMessage, pid: string, uid: string) {
+    const myPath = `BodyCoperate/${pid}/PrivateMessages/${uid}/UserMessages`;
 
     const itemRef = doc(collection(db, myPath));
     item.id = itemRef.id;
@@ -74,19 +104,23 @@ export default class PrivateMessageApi {
     }
   }
 
-  async update(message: IPrivateMessage, pid: string) {
-    const myPath = `BodyCoperate/${pid}/PrivateMessages`;
+
+
+
+
+  async update(message: IPrivateMessage, pid: string, uid: string) {
+    const myPath = `BodyCoperate/${pid}/PrivateMessages/${uid}/UserMessage`;
     try {
       await updateDoc(doc(db, myPath, message.id), {
         ...message,
       });
 
       this.store.communication.privateMessage.load([message]);
-    } catch (error) {}
+    } catch (error) { }
   }
 
-  async delete(id: string, pid: string) {
-    const myPath = `BodyCoperate/${pid}/PrivateMessages`;
+  async delete(id: string, pid: string, uid: string) {
+    const myPath = `BodyCoperate/${pid}/PrivateMessages/${uid}/UserMessage`;
     try {
       await deleteDoc(doc(db, myPath, id));
       this.store.communication.privateMessage.remove(id);
