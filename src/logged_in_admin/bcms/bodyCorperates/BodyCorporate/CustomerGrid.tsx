@@ -51,7 +51,7 @@ const CustomerGrid = observer(({ data }: IProp) => {
   ];
 
   return (
-    <Box sx={{ height: 400 }} className="invoices-grid">
+    <Box sx={{ height: 500 }} className="invoices-grid">
       <DataGrid
         rows={data}
         columns={columns}

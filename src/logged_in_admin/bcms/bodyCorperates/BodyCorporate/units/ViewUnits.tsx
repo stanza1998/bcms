@@ -29,6 +29,7 @@ import { nadFormatter } from "../../../../shared/NADFormatter";
 import { IReceiptsPayments } from "../../../../../shared/models/receipts-payments/ReceiptsPayments";
 import { ICustomerTransactions } from "../../../../../shared/models/transactions/customer-transactions/CustomerTransactionModel";
 import UnitsGrid from "./grid/UnitsGrid";
+import SingleSelect from "../../../../../shared/components/single-select/SlingleSelect";
 
 export const ViewUnit = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -39,6 +40,9 @@ export const ViewUnit = observer(() => {
   const [ref, setRef] = useState("");
   const me = store.user.meJson;
   const [selection, setSelection] = useState<string>("");
+  const units = store.bodyCorperate.unit.all.map((inv) => {
+    return inv.asJson;
+  });
 
   const [viewBody, setBody] = useState<IBodyCop | undefined>({
     ...defaultBodyCop,
@@ -163,7 +167,10 @@ export const ViewUnit = observer(() => {
   };
 
   const filteredUnits = store.bodyCorperate.unit.all
-   .sort((a, b) => a.asJson.unitName - b.asJson.unitName).map((unit) => {return unit.asJson});
+    .sort((a, b) => a.asJson.unitName - b.asJson.unitName)
+    .map((unit) => {
+      return unit.asJson;
+    });
 
   const [loadingF, setLoadingF] = useState(false);
 
@@ -185,7 +192,7 @@ export const ViewUnit = observer(() => {
     showModalFromId(DIALOG_NAMES.BODY.VIEW_INVOICE);
   };
 
-  //very important feature, needs focus and proper mentainance.
+  //very important feature, needs focus and proper maintenance.
   //sending email notification is still missing in the duplicate function (important)
   const duplicated = async () => {
     setLoadingF(true);
@@ -275,7 +282,6 @@ export const ViewUnit = observer(() => {
               console.error(`Unit document ${unitId} does not exist.`);
             }
 
-            //CREATE TRANSACTION HERE
             //get unit current balance
             if (unitDoc.exists()) {
               // Check if the unit's balance is already tracked
@@ -284,29 +290,91 @@ export const ViewUnit = observer(() => {
               }
 
               const currentBalance = unitBalances[unitId]; // Get the current balance from the tracker
-
-              const customerTransaction: ICustomerTransactions = {
-                id: "",
-                unitId: copiedInvoice.unitId,
-                date: newDateIssued,
-                reference: copiedInvoice.invoiceNumber,
-                transactionType: "Tax Invoice",
-                description: ref,
-                debit: masterInvoice.totalDue.toFixed(2),
-                credit: "",
-                balance: (totalDue + currentBalance).toFixed(2),
-                balanceAtPointOfTime: currentBalance.toFixed(2),
-                invId: copiedInvoice.invoiceId,
-              };
-              try {
-                if (me?.property && me?.year)
-                  await api.body.customer_transactions.create(
-                    customerTransaction,
-                    me.property,
-                    me.year
-                  );
-              } catch (error) {
-                console.log(error);
+              if (currentBalance >= 0) {
+                //invoice as transaction
+                const customerTransaction: ICustomerTransactions = {
+                  id: "",
+                  unitId: copiedInvoice.unitId,
+                  date: newDateIssued,
+                  reference: copiedInvoice.invoiceNumber,
+                  transactionType: "Tax Invoice",
+                  description: ref,
+                  debit: masterInvoice.totalDue.toFixed(2),
+                  credit: "",
+                  balance: (totalDue + currentBalance).toFixed(2),
+                  balanceAtPointOfTime: currentBalance.toFixed(2),
+                  invId: copiedInvoice.invoiceId,
+                };
+                try {
+                  if (me?.property && me?.year)
+                    await api.body.customer_transactions.create(
+                      customerTransaction,
+                      me.property,
+                      me.year
+                    );
+                } catch (error) {
+                  console.log(error);
+                }
+              } else if (currentBalance < 0) {
+                //CREDIT invoice as transaction as well as customer receipt as transaction
+                //tax invoice invoice
+                const customerTransactionTaxInvoice: ICustomerTransactions = {
+                  id: "",
+                  unitId: copiedInvoice.unitId,
+                  date: newDateIssued,
+                  reference: copiedInvoice.invoiceNumber,
+                  transactionType: "Tax Invoice",
+                  description: ref,
+                  debit: masterInvoice.totalDue.toFixed(2),
+                  credit: "",
+                  balance: (totalDue + currentBalance).toFixed(2),
+                  balanceAtPointOfTime: currentBalance.toFixed(2),
+                  invId: copiedInvoice.invoiceId,
+                };
+                try {
+                  if (me.property && me.year) {
+                    await api.body.customer_transactions.create(
+                      customerTransactionTaxInvoice,
+                      me.property,
+                      me.year
+                    );
+                  }
+                } catch (error) {
+                  console.log(error);
+                }
+                //because the customer had credit, a customer receipt will be created as a transaction
+                //customer receipt
+                const customerTransactionReceipt: ICustomerTransactions = {
+                  id: "",
+                  unitId: copiedInvoice.unitId,
+                  date: newDateIssued,
+                  reference: generateRCPNumber(),
+                  transactionType: "Customer Receipt",
+                  description:
+                    "unit " +
+                    (units.find((u) => u.id === unitId)?.unitName || 0).toFixed(
+                      0
+                    ),
+                  debit: "",
+                  credit:
+                    Math.abs(currentBalance) > totalDue
+                      ? masterInvoice.totalDue.toFixed(2)
+                      : Math.abs(currentBalance).toFixed(2),
+                  balance: "",
+                  balanceAtPointOfTime: "",
+                  invId: copiedInvoice.invoiceId,
+                };
+                // try {
+                //   if (me.property && me.year) {
+                //     await api.body.customer_transactions.create(
+                //       customerTransactionReceipt,
+                //       me.property,
+                //       me.year
+                //     );
+                //   }
+                // } catch (error) {
+                //   console.log(error);
+                // }
               }
             }
 
@@ -334,7 +402,7 @@ export const ViewUnit = observer(() => {
             updates.push({ ref: unitDocRef, data: { balance: newBalance } });
           }
         }
-        //updates every operation add once
+        // updates every operation add once
         for (const update of updates) {
           transaction.update(update.ref, update.data);
         }
@@ -357,10 +425,16 @@ export const ViewUnit = observer(() => {
     setLoadingS(false);
   }, 1000);
 
-  const unitInfo = (id: string) => {
-    navigate(`/c/body/body-corperate/${propertyId}/${id}`);
-  };
+  const accounts = store.bodyCorperate.account.all.map((u) => {
+    return {
+      value: u.asJson.id,
+      label: u.asJson.name,
+    };
+  });
 
+  const handleSelectChange = (selectedValue: string) => {
+    setSelection(selectedValue);
+  };
   return (
     <div className="uk-section leave-analytics-page sales-ViewUnit sales-order">
       {loadingS ? (
@@ -413,15 +487,15 @@ export const ViewUnit = observer(() => {
               id=""
               className="uk-input uk-form-small uk-margin-left"
               placeholder="Search by Unit Name"
-              style={{ width: "30%"}}
+              style={{ width: "30%" }}
               value={searchQuery}
               onChange={handleSearchChange}
             />
 
             {/* Units */}
 
-              <UnitsGrid data={filteredUnits}/>
-              {/* <table className="uk-table uk-table-divider">
+            <UnitsGrid data={filteredUnits} />
+            {/* <table className="uk-table uk-table-divider">
                 <thead>
                   <tr>
                     <th>#</th>
@@ -496,9 +570,8 @@ export const ViewUnit = observer(() => {
                   ))}
                 </tbody>
               </table> */}
-            </div>
           </div>
-      
+        </div>
       )}
 
       <Modal modalId={DIALOG_NAMES.BODY.BODY_UNIT_DIALOG}>
@@ -663,12 +736,13 @@ export const ViewUnit = observer(() => {
               <label htmlFor="">select sccount</label>
               <br />
               <br />
-              <select className="uk-input" onChange={(e) => setSelection}>
+              <SingleSelect options={accounts} onChange={handleSelectChange} />
+              {/* <select className="uk-input" onChange={(e) => setSelection}>
                 <option>select account</option>
                 {store.bodyCorperate.account.all.map((a) => (
                   <option value={a.asJson.id}>{a.asJson.name}</option>
                 ))}
-              </select>
+              </select> */}
               <button
                 onClick={duplicated}
                 disabled={loadingF}

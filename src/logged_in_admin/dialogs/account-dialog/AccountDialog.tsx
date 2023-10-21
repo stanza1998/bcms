@@ -60,11 +60,12 @@ export const AccountDialog = observer(() => {
     store.bodyCorperate.account.clearSelected();
     clear();
     setLoading(false);
-    hideModalFromId(DIALOG_NAMES.BODY.ALLOCATE_DIALOGS);
+    hideModalFromId(DIALOG_NAMES.ACCOUNTING_FINANCE_DIALOG.ACCOUNTS_EDIT);
   };
 
   const clear = () => {
     setAccount({ ...defaultAccount });
+    store.bodyCorperate.account.clearSelected();
   };
 
   useEffect(() => {

@@ -56,28 +56,33 @@ const UnitsGrid = observer(({ data }: IProp) => {
     {
       field: "unitName",
       headerName: "Units",
-      flex:1,
+      flex: 1,
       // width: 200,
+      renderCell: (params) => (
+        <span style={{ textTransform: "uppercase" }}>
+          Unit {params.row.unitName}
+        </span>
+      ),
     },
     {
       field: "firstName",
       headerName: "Owner Name",
-      flex:1,
+      flex: 1,
       // width: 200,
       renderCell: (params) => (
-        <>
+        <span style={{ textTransform: "uppercase" }}>
           {owners
             .filter((owner) => owner.uid === params.row.ownerId)
             .map((owner) => {
               return owner.asJson.firstName + " " + owner.asJson.lastName;
             })}
-        </>
+        </span>
       ),
     },
     {
       field: "email",
       headerName: "Owner Email",
-      flex:1,
+      flex: 1,
       // width: 200,
       renderCell: (params) => (
         <>
@@ -92,14 +97,14 @@ const UnitsGrid = observer(({ data }: IProp) => {
     {
       field: "cellphone",
       headerName: "Owner Phone",
-      flex:1,
+      flex: 1,
       // width: 200,
       renderCell: (params) => (
         <>
           {owners
             .filter((owner) => owner.uid === params.row.ownerId)
             .map((owner) => {
-              return owner.cellphone;
+              return "0" + owner.cellphone;
             })}
         </>
       ),
@@ -107,22 +112,20 @@ const UnitsGrid = observer(({ data }: IProp) => {
     {
       field: "balance",
       headerName: "Balance",
-      flex:1,
+      flex: 1,
       // width: 214,
       renderCell: (params) => {
-        const balance = nadFormatter.format(params.row.balance);
-
-        if (parseInt(balance.replaceAll("NAD", "")) < 0) {
+        if (parseFloat(params.row.balance) < 0) {
           return (
             <span
               style={{
                 background: "red",
                 color: "white",
                 padding: "10px",
-                flex:1,
+                flex: 1,
               }}
             >
-              ${balance}
+              {nadFormatter.format(params.row.balance)}
             </span>
           );
         } else {
@@ -132,10 +135,10 @@ const UnitsGrid = observer(({ data }: IProp) => {
                 background: "green",
                 color: "white",
                 padding: "10px",
-                flex:1,
+                flex: 1,
               }}
             >
-              {balance}
+              {nadFormatter.format(params.row.balance)}
             </span>
           );
         }
@@ -146,7 +149,7 @@ const UnitsGrid = observer(({ data }: IProp) => {
       headerName: "Action",
       renderCell: (params) => (
         <div>
-        <UnitCard key={params.row.id} unit={params.row.id} />
+          <UnitCard key={params.row.id} unit={params.row.id} />
           <button
             className="uk-margin-right uk-icon"
             data-uk-icon="thumbnails"
@@ -158,11 +161,11 @@ const UnitsGrid = observer(({ data }: IProp) => {
   ];
 
   return (
-    <Box sx={{ width:'100%',height: 450, p:2 }}>
+    <Box sx={{ width: "100%", height: 450, p: 2 }}>
       <DataGrid
         rows={data}
         columns={columns}
-        getRowId={(row) => row.id} 
+        getRowId={(row) => row.id}
         rowHeight={40}
       />
     </Box>

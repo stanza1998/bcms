@@ -16,7 +16,7 @@ const ToolBar = (props: ToolBarProps) => {
   const { showUserDialog } = props;
   return (
     <div className="section-toolbar uk-margin">
-      <h4 className="section-heading uk-heading">Owners</h4>
+      <h4 className="section-heading uk-heading">OWNERS</h4>
       <div className="controls">
         <button className="uk-button primary" onClick={() => showUserDialog()}>
           Add Owner
@@ -26,7 +26,6 @@ const ToolBar = (props: ToolBarProps) => {
   );
 };
 
-
 interface EmployeesTableProps {
   employees: UserModel[];
   isLoading: boolean;
@@ -34,9 +33,9 @@ interface EmployeesTableProps {
   onDeleteEmployee: (uid: string) => void;
 }
 const EmployeesTable = (props: EmployeesTableProps) => {
-  const { store,api } = useAppContext();
+  const { store, api } = useAppContext();
 
-  const { employees, isLoading} = props;
+  const { employees, isLoading } = props;
   const [isEmpty, setIsEmpty] = useState(false);
 
   useEffect(() => {
@@ -48,13 +47,21 @@ const EmployeesTable = (props: EmployeesTableProps) => {
     return <Loading />;
   }
 
-  const employeesList = employees.filter((emp)=>emp.role ==="Owner").map((emp) => {return emp.asJson});
+  const employeesList = employees
+    .filter((emp) => emp.role === "Owner")
+    .map((emp) => {
+      return emp.asJson;
+    });
   return (
     <div className="">
       <div className="company-users uk-margin">
         {!isEmpty ? (
           <div className="uk-overflow-auto">
-            <OwnersTable data={employeesList.map((emp) => {return emp})}/>
+            <OwnersTable
+              data={employeesList.map((emp) => {
+                return emp;
+              })}
+            />
             {/* <table className="company-users-table uk-table uk-table-small uk-table-divider uk-table-middle uk-table-responsive uk-flex-1">
               <thead className="table-header">
                 <tr>
@@ -81,14 +88,14 @@ const EmployeesTable = (props: EmployeesTableProps) => {
                           onClick={() => onEditEmployee(employee.uid)}
                         >
                           {/* Edit */}
-                        {/* </button>
+            {/* </button>
                         <button
                           className="uk-margin-right uk-icon"
                           data-uk-icon="trash"
                           onClick={() => onDeleteEmployee(employee.uid)}
                         >
                           {/* Remove */}
-                        {/* </button>
+            {/* </button>
                       </td>
                     </tr>
                   ))}
@@ -158,25 +165,23 @@ const Owners = observer(() => {
     e.preventDefault();
     setLoading(true);
     // Update API
-      if (store.user.selected) {
-        const emp = await api.auth.updateUser(employees);
-        store.user.getById(employees.uid);
-        ui.snackbar.load({
-          id: Date.now(),
-          message: "User updated!",
-          type: "success",
-        });
-      } 
+    if (store.user.selected) {
+      const emp = await api.auth.updateUser(employees);
+      store.user.getById(employees.uid);
+      ui.snackbar.load({
+        id: Date.now(),
+        message: "User updated!",
+        type: "success",
+      });
+    }
   };
-  
+
   useEffect(() => {
-    if (store.user.selected)
-      setEmployee(store.user.selected);
+    if (store.user.selected) setEmployee(store.user.selected);
     else setEmployee({ ...defaultUser });
 
     return () => {};
   }, [store.user.selected]);
-
 
   return (
     <>
@@ -201,110 +206,113 @@ const Owners = observer(() => {
         </div>
       </div>
       <Modal modalId={DIALOG_NAMES.OWNER.UPDATE_OWNER_DIALOG}>
-            <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
-      <button
-        className="uk-modal-close-default"
-        type="button"
-        data-uk-close
-      ></button>
+        <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
+          <button
+            className="uk-modal-close-default"
+            type="button"
+            data-uk-close
+          ></button>
 
-      <h3 className="uk-modal-title">Owner</h3>
-      <div className="dialog-content uk-position-relative">
-        <div className="reponse-form">
-          <form className="uk-form-stacked" onSubmit={onSave}>
-            <div className="uk-margin">
-              <label className="uk-form-label" htmlFor="form-stacked-text">
-                FirstName
-              </label>
-              <div className="uk-form-controls">
-                <input
-                  className="uk-input"
-                  type="text"
-                  placeholder="FirstName"
-                  value={employees.firstName}
-                  onChange={(e) =>
-                    setEmployee({
-                      ...employees,
-                      firstName: e.target.value,
-                    })
-                  }
-                  required
-                />
-              </div>
-              <div className="uk-margin">
-              <label className="uk-form-label" htmlFor="form-stacked-text">
-                LastName
-              </label>
-              <div className="uk-form-controls">
-                <input
-                  className="uk-input"
-                  type="text"
-                  placeholder="LastName"
-                  value={employees.lastName}
-                  onChange={(e) =>
-                    setEmployee({
-                      ...employees,
-                      lastName: e.target.value,
-                    })
-                  }
-                  required
-                />
-              </div>
-              </div>
+          <h3 className="uk-modal-title">Owner</h3>
+          <div className="dialog-content uk-position-relative">
+            <div className="reponse-form">
+              <form className="uk-form-stacked" onSubmit={onSave}>
+                <div className="uk-margin">
+                  <label className="uk-form-label" htmlFor="form-stacked-text">
+                    FirstName
+                  </label>
+                  <div className="uk-form-controls">
+                    <input
+                      className="uk-input"
+                      type="text"
+                      placeholder="FirstName"
+                      value={employees.firstName}
+                      onChange={(e) =>
+                        setEmployee({
+                          ...employees,
+                          firstName: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="uk-margin">
+                    <label
+                      className="uk-form-label"
+                      htmlFor="form-stacked-text"
+                    >
+                      LastName
+                    </label>
+                    <div className="uk-form-controls">
+                      <input
+                        className="uk-input"
+                        type="text"
+                        placeholder="LastName"
+                        value={employees.lastName}
+                        onChange={(e) =>
+                          setEmployee({
+                            ...employees,
+                            lastName: e.target.value,
+                          })
+                        }
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="uk-margin">
+                  <label className="uk-form-label" htmlFor="form-stacked-text">
+                    Email
+                  </label>
+                  <div className="uk-form-controls">
+                    <input
+                      className="uk-input"
+                      placeholder="Email"
+                      value={employees.email}
+                      onChange={(e) =>
+                        setEmployee({
+                          ...employees,
+                          email: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="uk-margin">
+                  <label className="uk-form-label" htmlFor="form-stacked-text">
+                    Cellphone
+                  </label>
+                  <div className="uk-form-controls">
+                    <input
+                      className="uk-input"
+                      placeholder="Cellphone"
+                      type="number"
+                      value={employees.cellphone}
+                      onChange={(e) =>
+                        setEmployee({
+                          ...employees,
+                          cellphone: parseInt(e.target.value, 10),
+                        })
+                      }
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="footer uk-margin">
+                  <button className="uk-button secondary uk-modal-close">
+                    Cancel
+                  </button>
+                  <button className="uk-button primary" type="submit">
+                    Save
+                    {loading && <div data-uk-spinner="ratio: .5"></div>}
+                  </button>
+                </div>
+              </form>
             </div>
-            <div className="uk-margin">
-              <label className="uk-form-label" htmlFor="form-stacked-text">
-                Email
-              </label>
-              <div className="uk-form-controls">
-                <input
-                  className="uk-input"
-                  placeholder="Email"
-                  value={employees.email}
-                  onChange={(e) =>
-                    setEmployee({
-                      ...employees,
-                      email: e.target.value,
-                    })
-                  }
-                  required
-                />
-              </div>
-            </div>
-            <div className="uk-margin">
-              <label className="uk-form-label" htmlFor="form-stacked-text">
-                Cellphone
-              </label>
-              <div className="uk-form-controls">
-                <input
-                  className="uk-input"
-                  placeholder="Cellphone"
-                  type="number"
-                  value={employees.cellphone}
-                  onChange={(e) =>
-                    setEmployee({
-                      ...employees,
-                      cellphone: parseInt(e.target.value,10),
-                    })
-                  }
-                  required
-                />
-              </div>
-            </div>
-            <div className="footer uk-margin">
-              <button className="uk-button secondary uk-modal-close">
-                Cancel
-              </button>
-              <button className="uk-button primary" type="submit">
-                Save
-                {loading && <div data-uk-spinner="ratio: .5"></div>}
-              </button>
-            </div>
-          </form>
+          </div>
         </div>
-      </div>
-    </div>
-          </Modal>
+      </Modal>
     </>
   );
 });

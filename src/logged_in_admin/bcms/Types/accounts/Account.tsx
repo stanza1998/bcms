@@ -15,7 +15,7 @@ export const AccountType = observer(() => {
   const me = store.user.meJson;
 
   const onCreate = () => {
-    showModalFromId(DIALOG_NAMES.BODY.ALLOCATE_DIALOGS);
+    showModalFromId(DIALOG_NAMES.ACCOUNTING_FINANCE_DIALOG.ACCOUNTS_EDIT);
   };
 
   useEffect(() => {
@@ -31,6 +31,16 @@ export const AccountType = observer(() => {
     return acc.asJson;
   });
 
+  const sortedAccounts = accounts.sort((acc1, acc2) => {
+    if (acc1.category < acc2.category) {
+      return -1;
+    }
+    if (acc1.category > acc2.category) {
+      return 1;
+    }
+    return 0;
+  });
+
   const categories = store.bodyCorperate.accountCategory.all.map((c) => {
     return c.asJson;
   });
@@ -39,7 +49,7 @@ export const AccountType = observer(() => {
     <div className="uk-section leave-analytics-page">
       <div className="uk-container uk-container-large">
         <div className="section-toolbar uk-margin">
-          <h4 className="section-heading uk-heading">Accounts</h4>
+          <h4 className="section-heading uk-heading">ACCOUNTS</h4>
           <div className="controls">
             <div className="uk-inline">
               <button
@@ -52,9 +62,9 @@ export const AccountType = observer(() => {
             </div>
           </div>
         </div>
-        <AccountTable data={accounts} categories={categories} />
+        <AccountTable data={sortedAccounts} categories={categories} />
       </div>
-      <Modal modalId={DIALOG_NAMES.BODY.ALLOCATE_DIALOGS}>
+      <Modal modalId={DIALOG_NAMES.ACCOUNTING_FINANCE_DIALOG.ACCOUNTS_EDIT}>
         <AccountDialog />
       </Modal>
     </div>

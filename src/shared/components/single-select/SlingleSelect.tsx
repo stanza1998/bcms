@@ -89,6 +89,7 @@ const SingleSelect = (props: IProps) => {
           <ErrorBoundary>
             <div id="hidden-input">
               <input
+                className="uk-input"
                 id={`single-select-${name}`}
                 defaultValue={value}
                 type="text"

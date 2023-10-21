@@ -25,6 +25,7 @@ import NumberInput from "../../../../../shared/functions/number-input/NumberInpu
 import { Toast } from "primereact/toast";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { ISupplierTransactions } from "../../../../../shared/models/transactions/supplier-transactions/SupplierTransactions";
+import SingleSelect from "../../../../../shared/components/single-select/SlingleSelect";
 
 const SupplierPayment = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -192,9 +193,20 @@ const SupplierPayment = observer(() => {
   const suppliers = store.bodyCorperate.supplier.all.map((inv) => {
     return inv.asJson;
   });
-  const accounts = store.bodyCorperate.account.all.map((a) => {
-    return a.asJson;
+  // const accounts = store.bodyCorperate.account.all.map((a) => {
+  //   return a.asJson;
+  // });
+
+  const accounts = store.bodyCorperate.account.all.map((u) => {
+    return {
+      value: u.asJson.id,
+      label: u.asJson.name,
+    };
   });
+
+  const handleSelectChange = (selectedValue: string) => {
+    setSelection(selectedValue);
+  };
 
   const totalCredits = rcp.reduce(
     (debit, rcp) => debit + parseInt(rcp.credit),
@@ -316,7 +328,8 @@ const SupplierPayment = observer(() => {
             </div>
             <div className="uk-width-1-2">
               <label>Select Acount</label>
-              <select
+              <SingleSelect options={accounts} onChange={handleSelectChange} />
+              {/* <select
                 className="uk-input"
                 onChange={(e) => setSelection(e.target.value)}
               >
@@ -326,7 +339,7 @@ const SupplierPayment = observer(() => {
                     Supplier {a.name} {a.description}
                   </option>
                 ))}
-              </select>
+              </select> */}
             </div>
             <div className="uk-width-1-2">
               <label>Description</label>
@@ -345,7 +358,12 @@ const SupplierPayment = observer(() => {
               />
             </div>
             <div className="uk-width-1-1">
-            <button className="uk-button primary margin-left" onClick={()=>confirm("right")}>Save Payment</button>
+              <button
+                className="uk-button primary margin-left"
+                onClick={() => confirm("right")}
+              >
+                Save Payment
+              </button>
             </div>
             {/* <IconButton onClick={() => confirm("right")}>
               <SaveIcon />

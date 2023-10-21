@@ -67,7 +67,7 @@ const Categories = observer(() => {
     <div className="uk-section leave-analytics-page">
       <div className="uk-container uk-container-large">
         <div className="section-toolbar uk-margin">
-          <h4 className="section-heading uk-heading">Categories</h4>
+          <h4 className="section-heading uk-heading">CATEGORIES</h4>
           <div className="controls">
             <div className="uk-inline">
               <button
@@ -114,7 +114,9 @@ const Categories = observer(() => {
                 onChange={(e) => setDescription(e.target.value)}
               />
             </div>
-           <button className="uk-button primary" onClick={createCategory}>Save Category</button>
+            <button className="uk-button primary" onClick={createCategory}>
+              Save Category
+            </button>
             {loading && <p>loading...</p>}
           </div>
         </div>

@@ -77,7 +77,7 @@ const OwnersTable = observer(({  data }: IProp) => {
           ];
           return (
             <>
-              <Box sx={{ height: 400, boxShadow: 2,'& .MuiDataGrid-cell:hover': {color: 'primary.main',}, }}>
+              <Box sx={{ height: 500, boxShadow: 2,'& .MuiDataGrid-cell:hover': {color: 'primary.main',}, }}>
                 <DataGrid
                   rows={data}
                   columns={columns}

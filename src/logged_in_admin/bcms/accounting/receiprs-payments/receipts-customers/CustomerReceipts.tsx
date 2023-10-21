@@ -25,6 +25,7 @@ import NumberInput from "../../../../../shared/functions/number-input/NumberInpu
 import { Toast } from "primereact/toast";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { ICustomerTransactions } from "../../../../../shared/models/transactions/customer-transactions/CustomerTransactionModel";
+import SingleSelect from "../../../../../shared/components/single-select/SlingleSelect";
 
 const CustomerReceipts = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -54,116 +55,128 @@ const CustomerReceipts = observer(() => {
 
   const createReceipt = async () => {
     setLoading(true);
-    const receipt: IReceiptsPayments = {
-      id: "",
-      date: date,
-      reference: reference,
-      transactionType: "Customer Receipt",
-      description: description,
-      debit: debit.toFixed(2),
-      credit: "",
-      balance: balance,
-      propertyId: me?.property || "",
-      unitId: unitId,
-      invoiceNumber: invoiceNumber,
-      rcp: generateInvoiceNumber(),
-      supplierId: "",
-    };
-    if ((me?.property, me?.year, me?.month))
+    try {
+      const receipt: IReceiptsPayments = {
+        id: "",
+        date: date,
+        reference: reference,
+        transactionType: "Customer Receipt",
+        description: description,
+        debit: debit.toFixed(2),
+        credit: "",
+        balance: balance,
+        propertyId: me?.property || "",
+        unitId: unitId,
+        invoiceNumber: invoiceNumber,
+        rcp: generateInvoiceNumber(),
+        supplierId: "",
+      };
+      if ((me?.property, me?.year, me?.month))
+        try {
+          await api.body.receiptPayments.create(receipt, me.property, me.year);
+        } catch (error) {
+          console.log(error);
+        }
       try {
-        await api.body.receiptPayments.create(receipt, me.property, me.year);
+        const copiedInvoicesPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
+        const invoiceRef = doc(
+          collection(db, copiedInvoicesPath, "CopiedInvoices"),
+          invoiceNumber
+        );
+        const invoiceSnapshot = await getDoc(invoiceRef);
+        if (invoiceSnapshot.exists()) {
+          const invoiceData = invoiceSnapshot.data();
+          const existingTotalPaid = invoiceData.totalPaid || 0; // Default to 0 if totalPaid doesn't exist
+          const updatedTotalPaid = existingTotalPaid + debit;
+          await updateDoc(invoiceRef, {
+            totalPaid: updatedTotalPaid,
+          });
+        } else {
+          console.log("Invoice not found.");
+          return; // Return early if the invoice doesn't exist
+        }
+
+        const myPath = `BodyCoperate/${me?.property}`;
+        const accountRef = doc(collection(db, myPath, "Units"), unitId);
+        const userSnapshot = await getDoc(accountRef);
+
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data();
+          const currentBalance = userData.balance || 0;
+          const newBalance = currentBalance - debit;
+
+          await updateDoc(accountRef, {
+            balance: newBalance,
+          });
+          console.log("Balance updated successfully unit");
+        } else {
+          console.log("Document not found");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+
+      const bank_transaction: IBankingTransactions = {
+        id: "",
+        date: date,
+        payee: unitId,
+        description: description,
+        type: "Customer",
+        selection: selection,
+        reference: "Customer Receipt",
+        VAT: "Exempted",
+        credit: "",
+        debit: debit.toFixed(2),
+      };
+      try {
+        if (me?.property && me?.bankAccountInUse)
+          await api.body.banking_transaction.create(
+            bank_transaction,
+            me.property,
+            me.bankAccountInUse
+          );
+        console.log("transaction created");
       } catch (error) {
         console.log(error);
       }
-    try {
-      const copiedInvoicesPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
-      const invoiceRef = doc(
-        collection(db, copiedInvoicesPath, "CopiedInvoices"),
-        invoiceNumber
-      );
-      const invoiceSnapshot = await getDoc(invoiceRef);
-      if (invoiceSnapshot.exists()) {
-        const invoiceData = invoiceSnapshot.data();
-        const existingTotalPaid = invoiceData.totalPaid || 0; // Default to 0 if totalPaid doesn't exist
-        const updatedTotalPaid = existingTotalPaid + debit;
-        await updateDoc(invoiceRef, {
-          totalPaid: updatedTotalPaid,
-        });
-      } else {
-        console.log("Invoice not found.");
-        return; // Return early if the invoice doesn't exist
+      const customer_transaction: ICustomerTransactions = {
+        id: "",
+        unitId: unitId,
+        date: date,
+        reference: receipt.rcp,
+        transactionType: "Customer Receipt",
+        description:
+          "unit " +
+          (units.find((u) => u.id === unitId)?.unitName || 0).toFixed(0),
+        debit: "",
+        credit: debit.toFixed(2),
+        balance: "",
+        balanceAtPointOfTime: "",
+        invId: receipt.invoiceNumber,
+      };
+      try {
+        if (me?.property && me?.year) {
+          await api.body.customer_transactions.create(
+            customer_transaction,
+            me?.property,
+            me?.year
+          );
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+        hideModalFromId(DIALOG_NAMES.BODY.CREATE_RECEIPT);
+        getData();
       }
-
-      const myPath = `BodyCoperate/${me?.property}`;
-      const accountRef = doc(collection(db, myPath, "Units"), unitId);
-      const userSnapshot = await getDoc(accountRef);
-
-      if (userSnapshot.exists()) {
-        const userData = userSnapshot.data();
-        const currentBalance = userData.balance || 0;
-        const newBalance = currentBalance - debit;
-
-        await updateDoc(accountRef, {
-          balance: newBalance,
-        });
-        console.log("Balance updated successfully unit");
-      } else {
-        console.log("Document not found");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-
-    const bank_transaction: IBankingTransactions = {
-      id: "",
-      date: date,
-      payee: unitId,
-      description: description,
-      type: "Customer",
-      selection: selection,
-      reference: "Customer Receipt",
-      VAT: "Exempted",
-      credit: "",
-      debit: debit.toFixed(2),
-    };
-    try {
-      if (me?.property && me?.bankAccountInUse)
-        await api.body.banking_transaction.create(
-          bank_transaction,
-          me.property,
-          me.bankAccountInUse
-        );
-      console.log("transaction created");
+      toast.current?.show({
+        severity: "info",
+        summary: "Receipt successfully created",
+        detail: "Customer Receipt",
+        life: 3000,
+      });
     } catch (error) {
       console.log(error);
-    }
-    const customer_transaction: ICustomerTransactions = {
-      id: "",
-      unitId: unitId,
-      date: date,
-      reference: receipt.rcp,
-      transactionType: "Customer Receipt",
-      description:
-        "unit" + (units.find((u) => u.id === unitId)?.unitName || 0).toFixed(0),
-      debit: "",
-      credit: debit.toFixed(2),
-      balance: "",
-      balanceAtPointOfTime: "",
-      invId: receipt.invoiceNumber,
-    };
-    try {
-      if (me?.property && me?.year) {
-        await api.body.customer_transactions.create(
-          customer_transaction,
-          me?.property,
-          me?.year
-        );
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-      hideModalFromId(DIALOG_NAMES.BODY.CREATE_RECEIPT);
     }
   };
 
@@ -210,9 +223,20 @@ const CustomerReceipts = observer(() => {
   const units = store.bodyCorperate.unit.all.map((inv) => {
     return inv.asJson;
   });
-  const accounts = store.bodyCorperate.account.all.map((inv) => {
-    return inv.asJson;
+  // const accounts = store.bodyCorperate.account.all.map((inv) => {
+  //   return inv.asJson;
+  // });
+
+  const accounts = store.bodyCorperate.account.all.map((u) => {
+    return {
+      value: u.asJson.id,
+      label: u.asJson.name,
+    };
   });
+
+  const handleSelectChange = (selectedValue: string) => {
+    setSelection(selectedValue);
+  };
 
   const totalDebits = rcp.reduce(
     (debit, rcp) => debit + parseInt(rcp.debit),
@@ -226,12 +250,6 @@ const CustomerReceipts = observer(() => {
 
   const accept = () => {
     createReceipt();
-    toast.current?.show({
-      severity: "info",
-      summary: "Receipt successfully created",
-      detail: "Customer Receipt",
-      life: 3000,
-    });
   };
 
   const reject = () => {
@@ -341,7 +359,7 @@ const CustomerReceipts = observer(() => {
               />
             </div>
             <div className=" uk-width-1-2 ">
-              <label>Debit</label>
+              <label>Amount</label>
               <NumberInput
                 value={debit}
                 onChange={(e) => setDebit(Number(e))}
@@ -367,7 +385,9 @@ const CustomerReceipts = observer(() => {
             <div className=" uk-width-1-2 ">
               <label>Account (Selection)</label>
 
-              <select
+              <SingleSelect options={accounts} onChange={handleSelectChange} />
+
+              {/* <select
                 className="uk-input"
                 onChange={(e) => setSelection(e.target.value)}
               >
@@ -375,10 +395,15 @@ const CustomerReceipts = observer(() => {
                 {accounts.map((inv) => (
                   <option value={inv.id}>{inv.name}</option>
                 ))}
-              </select>
+              </select> */}
             </div>
             <div className=" uk-width-1-1 ">
-              <button className="uk-button primary margin-left" onClick={()=>confirm("right")}>Save Receipt</button>
+              <button
+                className="uk-button primary margin-left"
+                onClick={() => confirm("right")}
+              >
+                Save Receipt
+              </button>
               {/* <IconButton onClick={() => confirm("right")}>
                 <SaveIcon />
               </IconButton> */}

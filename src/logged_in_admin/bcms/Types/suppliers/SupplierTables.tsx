@@ -25,7 +25,7 @@ export const SupplierTable = observer(({ data }: IProp) => {
 
   return (
     <>
-      <Box sx={{ height: 350 }} className="companies-grid">
+      <Box sx={{ height: 500 }} className="companies-grid">
         <DataGrid
           rows={data}
           //   columns={column}

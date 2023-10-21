@@ -212,6 +212,8 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       } catch (error) {
         console.log(error);
       }
+
+      
       setIsAllocating(false);
       setUnit("");
       rerender();
