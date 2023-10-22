@@ -46,6 +46,13 @@ const DIALOG_NAMES = {
     VIEW_ANNOUNCEMENTS_DIALOG: "view-announcements-dialog",
   },
 
+  MAINTENANCE: {
+    CREATE_SERVICE_PROVIDER: "create-service-provider",
+    CREATE_MAINTENANCE_REQUEST: "create-maintenance-request",
+    CREATE_WORK_ORDER: "create-work-order",
+    CREATE_REQUEST_TYPE: "create-request-type",
+  },
+
   OWNER: {
     UPLOAD_RECURING_POP: "upload-recurring-POP",
     UPDATE_OWNER_DIALOG: "update-owner-dialog"

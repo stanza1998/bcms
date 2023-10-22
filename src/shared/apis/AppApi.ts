@@ -8,6 +8,7 @@ import BodyCorpetaApi from "./BodyCorperate";
 import EmailApi from "./email-notifiction-function/EmailApi";
 import UnitApi from "./bodyCorperate/customers/UnitApi";
 import CommunicationApi from "./CommunicationApi";
+import MaintenanceApi from "./MaintenanceApi";
 
 export const apiPathProperty = (
   category: "Units" | "FinancialYear"
@@ -26,6 +27,7 @@ export default class AppApi {
   auth: UserApi;
   body: BodyCorpetaApi;
   communication: CommunicationApi;
+  maintenance: MaintenanceApi;
   mail: EmailApi;
   unit: UnitApi;
   namibianRegion: unknown;
@@ -39,6 +41,7 @@ export default class AppApi {
     this.settings = new SystemSettingsApi(this, store);
     this.body = new BodyCorpetaApi(this, store);
     this.communication = new CommunicationApi(this, store);
+    this.maintenance = new MaintenanceApi(this, store);
     this.unit = new UnitApi(this, store);
     this.mail = new EmailApi(this, store, this.mailUri);
   }
