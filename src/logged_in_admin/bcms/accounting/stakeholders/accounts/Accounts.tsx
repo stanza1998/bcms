@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Tab } from "../../../../../Tab";
+import { AccountsTransactions } from "../../accounts-transactions/AccountsTransactions";
 
 const Accounts = () => {
-  const [activeTab, setActiveTab] = useState("Invoices");
+  const [activeTab, setActiveTab] = useState("transactions");
 
   const handleTabClick = (tabLabel: string) => {
     setActiveTab(tabLabel);
@@ -29,12 +30,12 @@ const Accounts = () => {
             </span>
             <Tab
               label="Accounts Transaction Report"
-              isActive={activeTab === "Invoices"}
-              onClick={() => handleTabClick("Invoices")}
+              isActive={activeTab === "transactions"}
+              onClick={() => handleTabClick("transactions")}
             />
           </div>
           <div className="tab-content">
-            {/* {activeTab === "master" && <SupplierInvoices />} */}
+            {activeTab === "transactions" && <AccountsTransactions />}
           </div>
         </div>
       </div>

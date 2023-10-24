@@ -150,7 +150,15 @@ const ADMIN_DRAWER = () => {
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
-                Accounts
+                General Ledger
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={`accounting/accountants-hub`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Trail Balance
               </NavLink>
             </li>
             <li>
@@ -167,14 +175,6 @@ const ADMIN_DRAWER = () => {
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
                 Bank Statements
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to={`accounting/accountants-hub`} className="navlink">
-                <span className="uk-margin-small-right">
-                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
-                </span>
-                Accountant's hub
               </NavLink>
             </li>
           </ul>

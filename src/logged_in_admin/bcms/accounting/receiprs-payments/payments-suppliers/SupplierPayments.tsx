@@ -26,6 +26,7 @@ import { Toast } from "primereact/toast";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { ISupplierTransactions } from "../../../../../shared/models/transactions/supplier-transactions/SupplierTransactions";
 import SingleSelect from "../../../../../shared/components/single-select/SlingleSelect";
+import { IAccountTransactions } from "../../../../../shared/models/accounts-transaction/AccountsTransactionModel";
 
 const SupplierPayment = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -39,6 +40,19 @@ const SupplierPayment = observer(() => {
   const [balance, setBalance] = useState<string>("");
   const [supplierId, setSupplierId] = useState<string>("");
   const [selection, setSelection] = useState<string>("");
+  const suppliers = store.bodyCorperate.supplier.all.map((inv) => {
+    return inv.asJson;
+  });
+  // const accounts = store.bodyCorperate.account.all.map((a) => {
+  //   return a.asJson;
+  // });
+
+  const accounts = store.bodyCorperate.account.all.map((u) => {
+    return {
+      value: u.asJson.id,
+      label: u.asJson.name,
+    };
+  });
 
   const onCreate = () => {
     showModalFromId(DIALOG_NAMES.BODY.CREATE_SUPPLIER_PAYMENT);
@@ -51,6 +65,8 @@ const SupplierPayment = observer(() => {
     const generatedInvoiceNumber = `PAY000${formattedNumber}`;
     return generatedInvoiceNumber;
   };
+
+  //suppliers
 
   const createPayment = async () => {
     setLoading(true);
@@ -75,6 +91,32 @@ const SupplierPayment = observer(() => {
       } catch (error) {
         console.log(error);
       }
+    const accountTransactionReceipt: IAccountTransactions = {
+      id: "",
+      date: receipt.date,
+      BankCustomerSupplier: (
+        suppliers.find((s) => s.id === supplierId)?.name || ""
+      ),
+      reference: receipt.rcp,
+      transactionType: "Supplier Payment ",
+      description: selection,
+      debit: 0,
+      credit: parseFloat(receipt.credit),
+      balance: 0,
+      accounntType: selection,
+    };
+    try {
+      if (me?.property && me?.year) {
+        await api.body.accountsTransactions.create(
+          accountTransactionReceipt,
+          me.property,
+          me.year
+        );
+      }
+      console.log("created");
+    } catch (error) {
+      console.log(error);
+    }
 
     try {
       const supplierPath = `BodyCoperate/${me?.property}`;
@@ -189,20 +231,6 @@ const SupplierPayment = observer(() => {
       setRCP(rcp);
     }
   };
-
-  const suppliers = store.bodyCorperate.supplier.all.map((inv) => {
-    return inv.asJson;
-  });
-  // const accounts = store.bodyCorperate.account.all.map((a) => {
-  //   return a.asJson;
-  // });
-
-  const accounts = store.bodyCorperate.account.all.map((u) => {
-    return {
-      value: u.asJson.id,
-      label: u.asJson.name,
-    };
-  });
 
   const handleSelectChange = (selectedValue: string) => {
     setSelection(selectedValue);
@@ -351,7 +379,7 @@ const SupplierPayment = observer(() => {
               />
             </div>
             <div className="uk-width-1-2">
-              <label>Credit</label>
+              <label>Amount</label>
               <NumberInput
                 value={credit}
                 onChange={(e) => setCredit(Number(e))}
