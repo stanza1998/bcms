@@ -11,12 +11,12 @@ const OwnerContactsGrid = observer(({ data }: IProp) => {
   const columns: GridColDef[] = [
     {
       field: "firstName",
-      headerName: "FirstName",
+      headerName: "First Name",
       flex:1,
     },
     {
       field: "lastName",
-      headerName: "LastName",
+      headerName: "Last Name",
       flex:1,
     },
 

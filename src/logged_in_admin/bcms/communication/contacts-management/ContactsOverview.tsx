@@ -25,7 +25,7 @@ export const ContactOverview = () => {
             className="uk-margin  uk-card-default"
           >
             <Tab
-              label="Owners Contacts"
+              label="Owner Contacts"
               isActive={activeTab === "Owners"}
               onClick={() => handleTabClick("Owners")}
             />

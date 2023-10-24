@@ -1,21 +1,21 @@
 import { observer } from "mobx-react-lite";
-import { FormEvent, useEffect, useState } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import { useAppContext } from "../../../../shared/functions/Context";
 import { hideModalFromId } from "../../../../shared/functions/ModalShow";
+import { IMaintenanceRequest, defaultMaintenanceRequest } from "../../../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
 import DIALOG_NAMES from "../../Dialogs";
-import {
-  ICustomContact,
-  defaultCustomContacts,
-} from "../../../../shared/models/communication/contact-management/CustomContacts";
+import { IServiceProvider, defaultServiceProvider } from "../../../../shared/models/maintenance/service-provider/ServiceProviderModel";
 
-export const CustomContactDialog = observer(() => {
+export const ServiceProviderDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
   const me = store.user.meJson;
+  const currentDate = new Date();
 
-  const [customContact, setCustomContact] = useState<ICustomContact>({
-    ...defaultCustomContacts,
-  });
+  const [serviceProviderRequest, setServiceProviderRequest] =
+    useState<IServiceProvider>({
+      ...defaultServiceProvider,
+    });
 
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -24,49 +24,54 @@ export const CustomContactDialog = observer(() => {
     // Update API
 
     try {
-      if (store.communication.customContacts.selected) {
-        const deptment = await api.communication.customContact.update(
-          customContact,
+      if (store.maintenance.service_provider.selected) {
+        const provider = await api.maintenance.service_provider.update(
+            serviceProviderRequest,
           me.property
         );
-        await store.communication.customContacts.load();
+        await store.maintenance.service_provider.load();
         ui.snackbar.load({
           id: Date.now(),
-          message: "Custom Contact updated!",
+          message: "servie_provider updated!",
           type: "success",
         });
       } else {
-        await api.communication.customContact.create(
-          customContact,
+        // maintenanceRequest.authorOrSender = me.uid;
+        //servie_provider.dateRequested = currentDate.toLocaleTimeString();
+
+        await api.maintenance.service_provider.create(
+            serviceProviderRequest,
           me.property
         );
         ui.snackbar.load({
           id: Date.now(),
-          message: "Custom Contact created!",
+          message: "Maintenance Request created!",
           type: "success",
         });
       }
     } catch (error) {
       ui.snackbar.load({
         id: Date.now(),
-        message: "Error! Failed to update Custom Contact.",
+        message: "Error! Failed to update maintenance Request.",
         type: "danger",
       });
     }
 
-    store.communication.customContacts.clearSelected();
-    setCustomContact({ ...defaultCustomContacts });
+    store.maintenance.service_provider.clearSelected();
+    setServiceProviderRequest({...defaultServiceProvider,
+    });
     setLoading(false);
-    hideModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_CUSTOM_CONTACT);
+    hideModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_SERVICE_PROVIDER);
   };
 
-  useEffect(() => {
-    if (store.communication.customContacts.selected)
-      setCustomContact(store.communication.customContacts.selected);
-    else setCustomContact({ ...defaultCustomContacts });
+//   useEffect(() => {
+//     if (store.maintenance.service_provider.selected)
+//     setServiceProviderRequest(store.maintenance.service_provider.selected);
+//     else setServiceProviderRequest({...defaultServiceProvider,
+//     });
 
-    return () => {};
-  }, [store.communication.customContacts.selected]);
+//     return () => {};
+//   }, [store.maintenance.service_provider.selected]);
 
   return (
     <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
@@ -76,26 +81,25 @@ export const CustomContactDialog = observer(() => {
         data-uk-close
       ></button>
 
-      <h3 className="uk-modal-title">Custom Contact</h3>
+      <h3 className="uk-modal-title">Create Service Provider</h3>
       <div className="dialog-content uk-position-relative">
         <div className="reponse-form">
           <form className="uk-form-stacked" onSubmit={onSave}>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-                Name
-                {customContact.name === '' && (
-    <span style={{ color: "red", marginLeft: "10px" }}> *Required</span>
-  )}              </label>
+                Service Provider
+                {serviceProviderRequest.serviceProvideName===" "&& <span style={{color:"red", marginLeft:"10px"}}>* Required</span>}
+              </label>
               <div className="uk-form-controls">
                 <input
                   className="uk-input"
                   type="text"
-                  placeholder="Contact Name"
-                  value={customContact.name}
+                  placeholder="Provider Name"
+                  value={serviceProviderRequest.serviceProvideName}
                   onChange={(e) =>
-                    setCustomContact({
-                      ...customContact,
-                      name: e.target.value,
+                    setServiceProviderRequest({
+                      ...serviceProviderRequest,
+                      serviceProvideName: e.target.value,
                     })
                   }
                   required
@@ -104,61 +108,40 @@ export const CustomContactDialog = observer(() => {
             </div>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-                Email (Optional)
+                Email
+                {serviceProviderRequest.email===" "&& <span style={{color:"red", marginLeft:"10px"}}>* Required</span>}
               </label>
               <div className="uk-form-controls">
                 <input
                   className="uk-input"
+                  type="text"
                   placeholder="Email"
-                  type="email"
-                  value={customContact.email}
+                  value={serviceProviderRequest.email}
                   onChange={(e) =>
-                    setCustomContact({
-                      ...customContact,
+                    setServiceProviderRequest({
+                      ...serviceProviderRequest,
                       email: e.target.value,
                     })
                   }
-                  
+                  required
                 />
               </div>
             </div>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-                Phone Number (Optional)
+                Phone Number
+                {serviceProviderRequest.phoneNumber===" "&& <span style={{color:"red", marginLeft:"10px"}}>* Required</span>}
               </label>
               <div className="uk-form-controls">
                 <input
                   className="uk-input"
                   placeholder="Phone Number"
                   type="text"
-                  value={customContact.cellTell}
+                  value={serviceProviderRequest.phoneNumber}
                   onChange={(e) =>
-                    setCustomContact({
-                      ...customContact,
-                      cellTell: e.target.value,
-                    })
-                  }
-                  
-                />
-              </div>
-            </div>
-            <div className="uk-margin">
-              <label className="uk-form-label" htmlFor="form-stacked-text">
-                Town Or City
-                {customContact.cityTown === '' && (
-    <span style={{ color: "red", marginLeft: "10px" }}> *Required</span>
-  )}     
-              </label>
-              <div className="uk-form-controls">
-                <input
-                  className="uk-input"
-                  placeholder="Town or City"
-                  type="text"
-                  value={customContact.cityTown}
-                  onChange={(e) =>
-                    setCustomContact({
-                      ...customContact,
-                      cityTown: e.target.value,
+                    setServiceProviderRequest({
+                      ...serviceProviderRequest,
+                      phoneNumber: e.target.value,
                     })
                   }
                   required
@@ -167,28 +150,46 @@ export const CustomContactDialog = observer(() => {
             </div>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-                Location
-                {customContact.location === '' && (
-    <span style={{ color: "red", marginLeft: "10px" }}> *Required</span>
-  )}     
+                Date Created 
+                {serviceProviderRequest.dateCreated===" "&& <span style={{color:"red", marginLeft:"10px"}}>* Required</span>}
               </label>
               <div className="uk-form-controls">
                 <input
                   className="uk-input"
-                  placeholder="Location"
-                  type="text"
-                  value={customContact.location}
+                  placeholder="Date Created"
+                  type="date"
+                  value={serviceProviderRequest.dateCreated}
                   onChange={(e) =>
-                    setCustomContact({
-                      ...customContact,
-                      location: e.target.value,
+                    setServiceProviderRequest({
+                      ...serviceProviderRequest,
+                      dateCreated: e.target.value,
                     })
                   }
                   required
                 />
               </div>
             </div>
-
+            <div className="uk-margin">
+              <label className="uk-form-label" htmlFor="form-stacked-text">
+                Specialisation 
+                {serviceProviderRequest.specializationi===" "&& <span style={{color:"red", marginLeft:"10px"}}>* Required</span>}
+              </label>
+              <div className="uk-form-controls">
+                <input
+                  className="uk-input"
+                  placeholder="Specialisation"
+                  type="text"
+                  value={serviceProviderRequest.specializationi}
+                  onChange={(e) =>
+                    setServiceProviderRequest({
+                      ...serviceProviderRequest,
+                      specializationi: e.target.value,
+                    })
+                  }
+                  required
+                />
+              </div>
+            </div>
             <div className="footer uk-margin">
               <button className="uk-button secondary uk-modal-close">
                 Cancel

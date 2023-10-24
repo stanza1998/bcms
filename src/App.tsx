@@ -57,7 +57,7 @@ import { ContactOverview } from "./logged_in_admin/bcms/communication/contacts-m
 import { Pop } from "./logged_in_admin/bcms/owner-accounts/proof-of-payment/pop";
 import { OwnerPrivateMessage } from "./logged_in_admin/bcms/owner-accounts/owner-communication/private-message-booard/OwnerPrivateMessage";
 import { Maintainance } from "./logged_in_admin/bcms/maintanace/Maintainance";
-import { MaintenanceRequest } from "./logged_in_admin/bcms/maintanace/request/Request";
+import { RequestMaintenance } from "./logged_in_admin/bcms/maintanace/request/Request";
 import { ServiceProvider } from "./logged_in_admin/bcms/maintanace/service-providers/ServiceProvider";
 import { MaintenenceReports } from "./logged_in_admin/bcms/maintanace/reports/Reports";
 
@@ -104,7 +104,7 @@ const ADMIN_USER_ROUTES = () => {
           />
           <Route
             path={`maintainance/request`}
-            element={<MaintenanceRequest />}
+            element={<RequestMaintenance />}
           />
           <Route
             path={`maintainance/service-providers`}

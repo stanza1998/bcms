@@ -7,6 +7,7 @@ import {
   IMaintenanceRequest,
   defaultMaintenanceRequest,
 } from "../../../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
+import Modal from "../../../../shared/components/Modal";
 
 export const MaintenanceRequestDialog = observer(() => {
   const { api, store, ui } = useAppContext();
@@ -81,13 +82,14 @@ export const MaintenanceRequestDialog = observer(() => {
         data-uk-close
       ></button>
 
-      <h3 className="uk-modal-title">maintenanceRequest</h3>
+      <h3 className="uk-modal-title">Maintenance Request</h3>
       <div className="dialog-content uk-position-relative">
         <div className="reponse-form">
           <form className="uk-form-stacked" onSubmit={onSave}>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Description
+                {maintenanceRequest.description===" "&& <span style={{color:"red", marginLeft:"10px"}}>* Required</span>}
               </label>
               <div className="uk-form-controls">
                 <input
@@ -108,6 +110,7 @@ export const MaintenanceRequestDialog = observer(() => {
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Owner
+                {maintenanceRequest.ownerId===" "&& <span style={{color:"red", marginLeft:"10px"}}>* Required</span>}
               </label>
               <div className="uk-form-controls">
                 <input
@@ -126,7 +129,8 @@ export const MaintenanceRequestDialog = observer(() => {
             </div>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-                Unit
+                Expiry Date
+                {maintenanceRequest.unitId===" "&& <span style={{color:"red", marginLeft:"10px"}}>* Required</span>}
               </label>
               <div className="uk-form-controls">
                 <input

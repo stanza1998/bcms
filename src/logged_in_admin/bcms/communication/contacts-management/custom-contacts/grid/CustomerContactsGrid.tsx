@@ -35,7 +35,7 @@ export const CustomerContactsGrid = observer(({ data }: IProp) => {
 
     {
       field: "cellTell",
-      headerName: "Cell Or Telephone Number",
+      headerName: "Phone Number",
       flex:1,
     },
     {

@@ -9,6 +9,7 @@ export default class MaintenanceStore {
     maintenance_request: MaintenanceRequestStore;
     work_flow_order: WorkOderFlowStore;
     requestType: RequestTypeStore;
+    service_provider: any;
 
     constructor(store: AppStore) {
         this.servie_provider = new ServiceProviderStore(store);

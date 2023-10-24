@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import Toolbar2 from "../../../../shared/Toolbar2";
 import { IconButton } from "@mui/material";
-import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
+import AddIcCallIcon from '@mui/icons-material/AddIcCall';
 import { useAppContext } from "../../../../../shared/functions/Context";
 import showModalFromId from "../../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../../../dialogs/Dialogs";
@@ -35,7 +35,7 @@ export const CustomContacts = observer(() => {
       <Toolbar2
         rightControls={
           <IconButton onClick={onCreate}>
-            <CreateNewFolderIcon />
+            <AddIcCallIcon />
           </IconButton>
         }
         leftControls={<></>}
