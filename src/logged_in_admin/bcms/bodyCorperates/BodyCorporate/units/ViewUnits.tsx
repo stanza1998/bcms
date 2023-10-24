@@ -30,6 +30,7 @@ import { IReceiptsPayments } from "../../../../../shared/models/receipts-payment
 import { ICustomerTransactions } from "../../../../../shared/models/transactions/customer-transactions/CustomerTransactionModel";
 import UnitsGrid from "./grid/UnitsGrid";
 import SingleSelect from "../../../../../shared/components/single-select/SlingleSelect";
+import { IAccountTransactions } from "../../../../../shared/models/accounts-transaction/AccountsTransactionModel";
 
 export const ViewUnit = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -277,7 +278,35 @@ export const ViewUnit = observer(() => {
                 console.log(error);
               }
 
-              //IF CREDIT THAN CREATE TRANSACTION HERE
+              //IF CREDIT THAN CREATE ACCOUNTS TRANSACTION HERE FOR CUSTOMER RECIEPT
+              const accountTransactionReceipt: IAccountTransactions = {
+                id: "",
+                date: newDateIssued,
+                BankCustomerSupplier:
+                  "unit " +
+                  (units.find((u) => u.id === unitId)?.unitName || 0).toFixed(
+                    0
+                  ),
+                reference: customerReceipt.rcp,
+                transactionType: "Customer Receipt",
+                description: selection,
+                debit:
+                  Math.abs(currentBalance) > totalDue
+                    ? masterInvoice.totalDue
+                    : Math.abs(currentBalance),
+                credit: 0,
+                balance: 0,
+                accounntType: selection,
+              };
+              try {
+                if (me?.property && me?.year) {
+                  await api.body.accountsTransactions.create(
+                    accountTransactionReceipt,
+                    me.property,
+                    me.year
+                  );
+                }
+              } catch (error) {}
             } else {
               console.error(`Unit document ${unitId} does not exist.`);
             }
@@ -315,8 +344,35 @@ export const ViewUnit = observer(() => {
                 } catch (error) {
                   console.log(error);
                 }
+
+                // Accounts transaction for Tax invoice if current balance is equals to or more than 0
+                const accountTransactionTaxInvoice: IAccountTransactions = {
+                  id: "",
+                  date: newDateIssued,
+                  BankCustomerSupplier:
+                    "unit " +
+                    (units.find((u) => u.id === unitId)?.unitName || 0).toFixed(
+                      0
+                    ),
+                  reference: copiedInvoice.invoiceNumber,
+                  transactionType: "Tax Invoice",
+                  description: selection,
+                  debit: 0,
+                  credit: masterInvoice.totalDue,
+                  balance: 0,
+                  accounntType: selection,
+                };
+                try {
+                  if (me?.property && me?.year) {
+                    await api.body.accountsTransactions.create(
+                      accountTransactionTaxInvoice,
+                      me.property,
+                      me.year
+                    );
+                  }
+                } catch (error) {}
               } else if (currentBalance < 0) {
-                //CREDIT invoice as transaction as well as customer receipt as transaction
+                //create invoice as transaction
                 //tax invoice invoice
                 const customerTransactionTaxInvoice: ICustomerTransactions = {
                   id: "",
@@ -342,39 +398,32 @@ export const ViewUnit = observer(() => {
                 } catch (error) {
                   console.log(error);
                 }
-                //because the customer had credit, a customer receipt will be created as a transaction
-                //customer receipt
-                const customerTransactionReceipt: ICustomerTransactions = {
+                // acccounts transaction for tax invoice if current balance is less than zero
+                const accountTransactionTaxInvoice: IAccountTransactions = {
                   id: "",
-                  unitId: copiedInvoice.unitId,
                   date: newDateIssued,
-                  reference: generateRCPNumber(),
-                  transactionType: "Customer Receipt",
-                  description:
+                  BankCustomerSupplier:
                     "unit " +
                     (units.find((u) => u.id === unitId)?.unitName || 0).toFixed(
                       0
                     ),
-                  debit: "",
-                  credit:
-                    Math.abs(currentBalance) > totalDue
-                      ? masterInvoice.totalDue.toFixed(2)
-                      : Math.abs(currentBalance).toFixed(2),
-                  balance: "",
-                  balanceAtPointOfTime: "",
-                  invId: copiedInvoice.invoiceId,
+                  reference: copiedInvoice.invoiceNumber,
+                  transactionType: "Tax Invoice",
+                  description: selection,
+                  debit: 0,
+                  credit: masterInvoice.totalDue,
+                  balance: 0,
+                  accounntType: selection,
                 };
-                // try {
-                //   if (me.property && me.year) {
-                //     await api.body.customer_transactions.create(
-                //       customerTransactionReceipt,
-                //       me.property,
-                //       me.year
-                //     );
-                //   }
-                // } catch (error) {
-                //   console.log(error);
-                // }
+                try {
+                  if (me?.property && me?.year) {
+                    await api.body.accountsTransactions.create(
+                      accountTransactionTaxInvoice,
+                      me.property,
+                      me.year
+                    );
+                  }
+                } catch (error) {}
               }
             }
 
@@ -733,7 +782,7 @@ export const ViewUnit = observer(() => {
               />
               <br />
               <br />
-              <label htmlFor="">select sccount</label>
+              <label htmlFor="">Select Account</label>
               <br />
               <br />
               <SingleSelect options={accounts} onChange={handleSelectChange} />

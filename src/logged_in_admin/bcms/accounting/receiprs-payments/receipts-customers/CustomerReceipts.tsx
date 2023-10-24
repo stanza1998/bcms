@@ -26,6 +26,7 @@ import { Toast } from "primereact/toast";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { ICustomerTransactions } from "../../../../../shared/models/transactions/customer-transactions/CustomerTransactionModel";
 import SingleSelect from "../../../../../shared/components/single-select/SlingleSelect";
+import { IAccountTransactions } from "../../../../../shared/models/accounts-transaction/AccountsTransactionModel";
 
 const CustomerReceipts = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -49,7 +50,7 @@ const CustomerReceipts = observer(() => {
   const generateInvoiceNumber = () => {
     const randomNumber = Math.floor(Math.random() * 1000000);
     const formattedNumber = randomNumber.toString().padStart(4, "0");
-    const generatedInvoiceNumber = `RCP000${formattedNumber}`;
+    const generatedInvoiceNumber = `RCP${formattedNumber}`;
     return generatedInvoiceNumber;
   };
 
@@ -139,6 +140,32 @@ const CustomerReceipts = observer(() => {
       } catch (error) {
         console.log(error);
       }
+      const accountTransactionReceipt: IAccountTransactions = {
+        id: "",
+        date: receipt.date,
+        BankCustomerSupplier:
+          "unit " +
+          (units.find((u) => u.id === unitId)?.unitName || 0).toFixed(0),
+        reference: receipt.rcp,
+        transactionType: "Customer Receipt",
+        description: selection,
+        debit: debit,
+        credit: 0,
+        balance: 0,
+        accounntType: selection,
+      };
+      try {
+        if (me?.property && me?.year) {
+          await api.body.accountsTransactions.create(
+            accountTransactionReceipt,
+            me.property,
+            me.year
+          );
+        }
+        console.log("created");
+      } catch (error) {
+        console.log(error);
+      }
       const customer_transaction: ICustomerTransactions = {
         id: "",
         unitId: unitId,
@@ -168,13 +195,8 @@ const CustomerReceipts = observer(() => {
         setLoading(false);
         hideModalFromId(DIALOG_NAMES.BODY.CREATE_RECEIPT);
         getData();
+        SuccessfulAction(ui);
       }
-      toast.current?.show({
-        severity: "info",
-        summary: "Receipt successfully created",
-        detail: "Customer Receipt",
-        life: 3000,
-      });
     } catch (error) {
       console.log(error);
     }

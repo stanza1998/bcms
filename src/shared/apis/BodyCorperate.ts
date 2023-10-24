@@ -23,6 +23,7 @@ import BankingTransactionsApi from "./bodyCorperate/banks/banking/BankingTransac
 import CustomerTransactionApi from "./bodyCorperate/transactions/customer-transactions/CustomerTransactionApi";
 import SupplierTransactionApi from "./bodyCorperate/transactions/supplier-transactions/SupplierTransactionApi";
 import PopApi from "./bodyCorperate/proof-of-payment/PopApi";
+import AccountsTransactionsApi from "./bodyCorperate/accounts-transactions/AccountsTransactionsApi";
 
 
 export default class BodyCorpetaApi {
@@ -39,7 +40,8 @@ export default class BodyCorpetaApi {
   invoice: InvoiceApi;
   recuringInvoice: RecuringInvoiceApi;
   copiedInvoice: CopiedInvoiceApi;
-  pop:PopApi;
+  pop: PopApi;
+  accountsTransactions: AccountsTransactionsApi;
 
 
   supplierInvoice: SupplierInvoiceApi;
@@ -74,7 +76,10 @@ export default class BodyCorpetaApi {
     this.banking_transaction = new BankingTransactionsApi(api, store);
     this.customer_transactions = new CustomerTransactionApi(api, store);
     this.supplier_transactions = new SupplierTransactionApi(api, store);
-    this.pop = new PopApi(api,store);
+    this.pop = new PopApi(api, store);
+    this.accountsTransactions = new AccountsTransactionsApi(api, store);
+
+
     //api needs update
     this.account = new AccountApi(api, store, this.accountDB);
     this.nedbank = new NEDBANKApi(api, store, this.NEDBANKBB);

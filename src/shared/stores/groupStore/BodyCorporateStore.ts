@@ -21,13 +21,14 @@ import SupplierStore from "../individualStore/type/SupplierStore";
 import TransferStore from "../individualStore/type/Transfer";
 import FinancialYearStore from "../individualStore/years/FinancialYear";
 import PopStore from "../individualStore/proof-of-payment/PopStore";
+import AccountsTransactionsStore from "../individualStore/accounts-transactions/AcconutsTransactionStore";
 export default class BodyCorporateStore {
   bodyCop: BodyCopStore;
   unit: UnitStore;
   financialYear: FinancialYearStore;
   financialMonth: FinancialMonthStore;
   invoice: InvoiceStore;
-  pop:PopStore;
+  pop: PopStore;
   recuringInvoice: RecuringInvoiceStore;
   copiedInvoices: CopiedInvoiceStore;
   fnb: FNBStore;
@@ -44,6 +45,7 @@ export default class BodyCorporateStore {
   bankingTransactions: BankingTransactionStore;
   customerTransactions: CustomerTransactionsStore;
   supplierTransactions: SupplierTransactionsStore;
+  accountsTransactions: AccountsTransactionsStore;
 
   constructor(store: AppStore) {
     this.bodyCop = new BodyCopStore(store);
@@ -68,5 +70,6 @@ export default class BodyCorporateStore {
     this.bankingTransactions = new BankingTransactionStore(store);
     this.customerTransactions = new CustomerTransactionsStore(store);
     this.supplierTransactions = new SupplierTransactionsStore(store);
+    this.accountsTransactions = new AccountsTransactionsStore(store);
   }
 }
