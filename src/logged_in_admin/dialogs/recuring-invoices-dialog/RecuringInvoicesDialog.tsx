@@ -137,7 +137,7 @@ export const RecuringInvoicesDialog = observer(() => {
     store.bodyCorperate.recuringInvoice.clearSelected();
     setDetails([]);
     hideModalFromId(DIALOG_NAMES.BODY.RECURING_INVOICE);
-    await api.mail.sendMail(name, to, subject, message, "");
+    // await api.mail.sendMail(name, to, subject, message, "");
   };
 
   const onClear = () => {

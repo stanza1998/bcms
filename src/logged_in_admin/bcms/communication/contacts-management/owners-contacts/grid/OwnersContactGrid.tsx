@@ -12,18 +12,28 @@ const OwnerContactsGrid = observer(({ data }: IProp) => {
     {
       field: "firstName",
       headerName: "First Name",
-      flex:1,
+      flex: 1,
+      renderCell: (params) => (
+        <span style={{ textTransform: "uppercase" }}>
+          {params.row.firstName}
+        </span>
+      ),
     },
     {
       field: "lastName",
       headerName: "Last Name",
-      flex:1,
+      flex: 1,
+      renderCell: (params) => (
+        <span style={{ textTransform: "uppercase" }}>
+          {params.row.lastName}
+        </span>
+      ),
     },
 
     {
       field: "cellphone",
       headerName: "Cellphone Number",
-      flex:1,
+      flex: 1,
       renderCell: (params) => {
         return `0${params.row.cellphone}`;
       },
@@ -31,7 +41,7 @@ const OwnerContactsGrid = observer(({ data }: IProp) => {
     {
       field: "email",
       headerName: "Email Address",
-      flex:1,
+      flex: 1,
     },
   ];
 
