@@ -21,8 +21,8 @@ import { ICopiedInvoice } from "../../../../../shared/models/invoices/CopyInvoic
 import Modal from "../../../../../shared/components/Modal";
 import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturn";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import { INormalAccount } from "../../../../../shared/models/Types/Account";
 import SaveIcon from "@mui/icons-material/Save";
+import { INormalAccount } from "../../../../../shared/models/Types/Account";
 import { ISupplier } from "../../../../../shared/models/Types/Suppliers";
 import { ITransfer } from "../../../../../shared/models/Types/Transfer";
 import {
@@ -30,6 +30,7 @@ import {
   defaultReceiptsPayments,
 } from "../../../../../shared/models/receipts-payments/ReceiptsPayments";
 import { IBankingTransactions } from "../../../../../shared/models/banks/banking/BankTransactions";
+import SingleSelect from "../../../../../shared/components/single-select/SlingleSelect";
 
 interface IProp {
   data: IFNB[];
@@ -213,7 +214,6 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
         console.log(error);
       }
 
-      
       setIsAllocating(false);
       setUnit("");
       rerender();
@@ -250,29 +250,6 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
         console.log("FnbStatements document not found.");
         FailedAction(ui);
       }
-      try {
-        const myPath = `BodyCoperate/${me?.property}`;
-        const accountRef = doc(
-          collection(db, myPath, "BankAccount"),
-          me?.bankAccountInUse
-        );
-        const userSnapshot = await getDoc(accountRef);
-
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.data();
-          const currentBalance = userData.totalBalance || 0;
-          const newBalance = currentBalance + amount;
-
-          await updateDoc(accountRef, {
-            totalBalance: newBalance, // Assuming your balance field is called totalBalance
-          });
-          console.log("Balance updated successfully");
-        } else {
-          console.log("Document not found");
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      }
 
       const trans = store.bodyCorperate.fnb.getById(id);
       const bank_transaction: IBankingTransactions = {
@@ -299,6 +276,8 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       } catch (error) {
         console.log(error);
       }
+
+      //general ledge info
       rerender();
     }
   };
@@ -509,16 +488,16 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
   };
 
   const column: GridColDef[] = [
-    { field: "date", headerName: "Date",  flex:1 },
-    { field: "serviceFee", headerName: "Service Fee", flex:1 },
-    { field: "amount", headerName: "Amount",  flex:1 },
-    { field: "references", headerName: "Reference",  flex:1 },
-    { field: "description", headerName: "Description",  flex:1 },
-    { field: "balance", headerName: "Balance",  flex:1 },
+    { field: "date", headerName: "Date", flex: 1 },
+    { field: "serviceFee", headerName: "Service Fee", flex: 1 },
+    { field: "amount", headerName: "Amount", flex: 1 },
+    { field: "references", headerName: "Reference", flex: 1 },
+    { field: "description", headerName: "Description", flex: 1 },
+    { field: "balance", headerName: "Balance", flex: 1 },
     {
       field: "Type ",
       headerName: "Type",
-      flex:1,
+      flex: 1,
       renderCell: (params) => (
         <div style={{ width: "100%" }}>
           <select
@@ -540,7 +519,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
     {
       field: "Selection ",
       headerName: "Selection",
-      flex:1,
+      flex: 1,
       renderCell: (params) => (
         <div style={{ width: "100%" }}>
           {type === "Account" && (
@@ -607,7 +586,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
     {
       field: "Action",
       headerName: "Action",
-      flex:1,
+      flex: 1,
       renderCell: (params) => (
         <div>
           {type === "Account" && (
@@ -655,7 +634,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
   return (
     <>
       <Box sx={{ height: 400 }} className="companies-grid">
-        <DataGrid rows={data} columns={column} rowHeight={40} />
+        <DataGrid rows={data} columns={column} rowHeight={0} />
       </Box>
       <Modal modalId={DIALOG_NAMES.BODY.ALLOCATE_DIALOGS}>
         <div
@@ -921,3 +900,27 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
 });
 
 export default FNBDataGrid;
+
+// try {
+//   const myPath = `BodyCoperate/${me?.property}`;
+//   const accountRef = doc(
+//     collection(db, myPath, "BankAccount"),
+//     me?.bankAccountInUse
+//   );
+//   const userSnapshot = await getDoc(accountRef);
+
+//   if (userSnapshot.exists()) {
+//     const userData = userSnapshot.data();
+//     const currentBalance = userData.totalBalance || 0;
+//     const newBalance = currentBalance + amount;
+
+//     await updateDoc(accountRef, {
+//       totalBalance: newBalance, // Assuming your balance field is called totalBalance
+//     });
+//     console.log("Balance updated successfully");
+//   } else {
+//     console.log("Document not found");
+//   }
+// } catch (error) {
+//   console.error("Error:", error);
+// }

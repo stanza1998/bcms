@@ -5,7 +5,7 @@ import { useAppContext } from "./Context";
 export const Reminder = observer(() => {
   const { store, api } = useAppContext();
 
-  api.mail.sendMail("", "", "", "", "");
+  // api.mail.sendMail("", "", "", "", "");
 
   return <div>This is a Reminder component</div>; // Replace with your actual content
 });

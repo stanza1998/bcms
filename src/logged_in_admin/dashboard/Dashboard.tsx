@@ -1,5 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { useAppContext } from "../../shared/functions/Context";
+import { useState } from "react";
 
 const Dashboard = observer(() => {
   const { store, api } = useAppContext();
@@ -20,7 +21,7 @@ const Dashboard = observer(() => {
         </div>
         {me === "Owner" && <p>Owner</p>}
         {me === "Employee" && <p>Emp</p>}
-        {me === "Admin" && <p>Admin</p>}
+        {/* {me === "Admin" && <OwnerDashBoard />} */}
       </div>
     </div>
   );
@@ -28,6 +29,74 @@ const Dashboard = observer(() => {
 
 export default Dashboard;
 
-const OwnerDashBoard = () => {};
+const OwnerDashBoard = () => {
+  const { api } = useAppContext();
+  const fullname = "John Doe";
+  const email = "engdesign@lotsinsights.com";
+  const subject = "Subject of the email";
+  const message = "Body of the email";
+  const link = "http://example.com";
+  const [attachment, setAttachment] = useState<File | null>(null);
+
+  const handleFileInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    setAttachment(file || null);
+  };
+
+  const sendMail = async (e: any) => {
+    e.preventDefault();
+    if (!attachment) return;
+
+    try {
+      await api.mail.sendMail(
+        fullname,
+        email,
+        subject,
+        message,
+        link,
+        attachment
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <>
+      <form
+        // action="https://www.koshaservices.com/php/bcms.php?"
+        // method="post"
+        encType="multipart/form-data"
+        onSubmit={sendMail}
+      >
+        <input
+          className="uk-input"
+          type="file"
+          name="attachment"
+          onChange={handleFileInputChange}
+        />
+        <br />
+        <button className="uk-input" type="submit">
+          Submit
+        </button>
+      </form>
+    </>
+  );
+};
 
 const ManagerDashBoard = () => {};
+
+// try {
+//   await api.mail.sendMail(
+//     name, // Assuming 'name' is the full name
+//     email,
+//     subject,
+//     message,
+//     link,
+//     attachment
+//   );
+// } catch (error) {
+//   console.log(error);
+// }

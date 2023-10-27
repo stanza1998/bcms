@@ -43,7 +43,7 @@ export const FNB = observer(() => {
               onClick={() => handleTabClick("allocate")}
             />
           </div>
-          <div className="tab-content">
+          <div className="" style={{ width: "100%" }}>
             {activeTab === "upload-statement" && <FNBUploadState />}
             {activeTab === "allocate" && <Allocatate />}
           </div>
