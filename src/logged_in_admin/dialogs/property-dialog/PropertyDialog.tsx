@@ -11,7 +11,6 @@ import {
 export const PropertyDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
-
   const [body, setBodyCop] = useState<IBodyCop>({
     ...defaultBodyCop,
   });

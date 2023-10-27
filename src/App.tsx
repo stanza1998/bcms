@@ -60,6 +60,7 @@ import { Maintainance } from "./logged_in_admin/bcms/maintanace/Maintainance";
 import { RequestMaintenance } from "./logged_in_admin/bcms/maintanace/request/Request";
 import { ServiceProvider } from "./logged_in_admin/bcms/maintanace/service-providers/ServiceProvider";
 import { MaintenenceReports } from "./logged_in_admin/bcms/maintanace/reports/Reports";
+import { WorkOrder } from "./logged_in_admin/bcms/maintanace/work-order/WorkOrder";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -113,6 +114,10 @@ const ADMIN_USER_ROUTES = () => {
           <Route
             path={`maintainance/reports`}
             element={<MaintenenceReports />}
+          />
+          <Route
+            path={`maintainance/request/:requestId`}
+            element={<WorkOrder />}
           />
           {/* Maintenance  */}
           {/* Documents */}

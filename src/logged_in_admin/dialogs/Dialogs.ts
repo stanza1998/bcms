@@ -51,6 +51,7 @@ const DIALOG_NAMES = {
     CREATE_MAINTENANCE_REQUEST: "create-maintenance-request",
     CREATE_WORK_ORDER: "create-work-order",
     CREATE_REQUEST_TYPE: "create-request-type",
+    VIEW_REQUEST_TYPE:"view-request-type",
   },
 
   OWNER: {

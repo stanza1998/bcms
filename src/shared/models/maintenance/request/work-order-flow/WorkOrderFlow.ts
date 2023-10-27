@@ -7,7 +7,8 @@ export const defaultMaintenanceworkOrder: IWorkOrderFlow = {
     workOrderId: "",
     serviceProviderId: "",
     title: "",
-    description: ""
+    description: "",
+    status: "Closed"
 };
 
 export interface IWorkOrderFlow {
@@ -17,6 +18,7 @@ export interface IWorkOrderFlow {
     serviceProviderId: string;
     title: string;
     description: string;
+    status: string;
 }
 
 export default class WorkOrderFlowModel {

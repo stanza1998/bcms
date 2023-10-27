@@ -3,11 +3,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { useAppContext } from "../../../../shared/functions/Context";
 import { hideModalFromId } from "../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../Dialogs";
-import {
-  IMaintenanceRequest,
-  defaultMaintenanceRequest,
-} from "../../../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
-import Modal from "../../../../shared/components/Modal";
+import { IMaintenanceRequest, defaultMaintenanceRequest } from "../../../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
 
 export const MaintenanceRequestDialog = observer(() => {
   const { api, store, ui } = useAppContext();
@@ -40,7 +36,7 @@ export const MaintenanceRequestDialog = observer(() => {
         });
       } else {
         // maintenanceRequest.authorOrSender = me.uid;
-        maintenanceRequest.dateRequested = currentDate.toLocaleTimeString();
+        maintenanceRequest.dateRequested = currentDate.toUTCString();
 
         await api.maintenance.maintenance_request.create(
           maintenanceRequest,
@@ -89,7 +85,6 @@ export const MaintenanceRequestDialog = observer(() => {
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Description
-                {maintenanceRequest.description===" "&& <span style={{color:"red", marginLeft:"10px"}}>* Required</span>}
               </label>
               <div className="uk-form-controls">
                 <input
@@ -107,16 +102,16 @@ export const MaintenanceRequestDialog = observer(() => {
                 />
               </div>
             </div>
-            <div className="uk-margin">
+            {/* <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Owner
-                {maintenanceRequest.ownerId===" "&& <span style={{color:"red", marginLeft:"10px"}}>* Required</span>}
+                {maintenanceRequest.ownerId ===" "&& <span style={{color:"red", marginLeft:"10px"}}>* Required</span>}
               </label>
               <div className="uk-form-controls">
                 <input
                   className="uk-input"
                   placeholder="Owner"
-                  value={maintenanceRequest.ownerId}
+                  value={maintenanceRequest.ownerId.}
                   onChange={(e) =>
                     setMaintenanceRequest({
                       ...maintenanceRequest,
@@ -126,16 +121,15 @@ export const MaintenanceRequestDialog = observer(() => {
                   required
                 />
               </div>
-            </div>
+            </div> */}
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-                Expiry Date
-                {maintenanceRequest.unitId===" "&& <span style={{color:"red", marginLeft:"10px"}}>* Required</span>}
+                Date Requested
               </label>
               <div className="uk-form-controls">
                 <input
                   className="uk-input"
-                  placeholder="Expiry Date"
+                  placeholder="Date"
                   type="date"
                   value={maintenanceRequest.unitId}
                   onChange={(e) =>

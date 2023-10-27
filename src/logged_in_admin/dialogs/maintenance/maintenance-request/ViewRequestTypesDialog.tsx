@@ -1,17 +1,16 @@
 import { observer } from "mobx-react-lite";
 import { useState, FormEvent, useEffect } from "react";
-import { useAppContext } from "../../../shared/functions/Context";
-import { hideModalFromId } from "../../../shared/functions/ModalShow";
-import DIALOG_NAMES from "../Dialogs";
-import { IRequestType, defaultRequestType } from "../../../shared/models/maintenance/request/maintenance-request/types/RequestTypes";
-//import RequestTypeGrid from "../../bcms/maintanace/request-type/RequestTypeGrid";
+import { useAppContext } from "../../../../shared/functions/Context";
+import { hideModalFromId } from "../../../../shared/functions/ModalShow";
+import { IRequestType, defaultRequestType } from "../../../../shared/models/maintenance/request/maintenance-request/types/RequestTypes";
+import DIALOG_NAMES from "../../Dialogs";
+import RequestTypeGrid from "../../../bcms/maintanace/request-type/RequestTypeGrid";
 
-export const RequestTypeDialog = observer(() => {
+export const ViewRequestTypes = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
   const me = store.user.meJson;
   const currentDate = new Date();
-
   const [requestType, setRequestType] =
     useState<IRequestType>({
       ...defaultRequestType,
@@ -22,7 +21,6 @@ export const RequestTypeDialog = observer(() => {
     setLoading(true);
     if (!me?.property) return;
     // Update API
-
     try {
       if (store.maintenance.requestType.selected) {
         const deptment = await api.maintenance.request_type.update(
@@ -38,7 +36,6 @@ export const RequestTypeDialog = observer(() => {
       } else {
         // maintenanceRequest.authorOrSender = me.uid;
         //requestType.dateRequested = currentDate.toLocaleTimeString();
-
         await api.maintenance.request_type.create(
             requestType,
           me.property
@@ -64,13 +61,20 @@ export const RequestTypeDialog = observer(() => {
     hideModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_REQUEST_TYPE);
   };
 
-//   useEffect(() => {
-//     if (store.maintenance.requestType.selected)
-//     setRequestType(store.maintenance.maintenance_request.selected);
-//     else setRequestType({ ...defaultMaintenanceRequest });
+  useEffect(() => {
+    const getData = async () => {
+      if (me?.property && me?.year) {
+      }
+    };
+    getData();
+    if (store.maintenance.requestType.selected && me?.property)
+    setRequestType(store.maintenance.requestType.selected);
+    else setRequestType({ ...defaultRequestType });
 
-//     return () => {};
-//   }, [store.maintenance.maintenance_request.selected]);
+    return () => {};
+  }, [store.maintenance.requestType.selected]);
+
+  console.log("Type"+ requestType);
 
   return (
     <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
@@ -83,38 +87,33 @@ export const RequestTypeDialog = observer(() => {
       <h3 className="uk-modal-title">Request Type</h3>
       <div className="dialog-content uk-position-relative">
         <div className="reponse-form">
-          <form className="uk-form-stacked" onSubmit={onSave}>
-            <div className="uk-margin">
-              <label className="uk-form-label" htmlFor="form-stacked-text">
-                Type Name
-                {requestType.typeName===" "&& <span style={{color:"red", marginLeft:"10px"}}>* Required</span>}
-              </label>
-              <div className="uk-form-controls">
-                <input
-                  className="uk-input"
-                  type="text"
-                  placeholder="Type Name"
-                  value={requestType.typeName}
-                  onChange={(e) =>
-                    setRequestType({
-                      ...requestType,
-                      typeName: e.target.value,
-                    })
-                  }
-                  required
-                />
-              </div>
-            </div>
-            <div className="footer uk-margin">
-              <button className="uk-button secondary uk-modal-close">
-                Cancel
-              </button>
-              <button className="uk-button primary" type="submit">
-                Save
-                {loading && <div data-uk-spinner="ratio: .5"></div>}
-              </button>
-            </div>
-          </form>
+        <RequestTypeGrid data={[requestType]}/>
+        {/* <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr key={requestType.id}>
+          <td>{requestType.typeName}</td>
+          <td>
+            <button
+              className="uk-margin-right uk-icon"
+              data-uk-icon="pencil"
+              onClick={() => onUpdate()}
+            ></button>
+            <br></br>
+            <button
+              className="uk-margin-right uk-icon"
+              data-uk-icon="trash"
+            // onClick={() => onDelete()}  {/* Assuming onDelete() is used to delete the item */}
+            {/* ></button>
+          </td>
+        </tr>
+      </tbody>
+    </table> */} 
         </div>
       </div>
     </div>

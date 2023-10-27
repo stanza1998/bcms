@@ -18,8 +18,6 @@ interface IProp {
 //     showModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_ANNOUNCEMENTS_DIALOG);
 //   };
 
-
-
 const OwnersTable = observer(({  data }: IProp) => {
 
     const {store,api,ui} = useAppContext();

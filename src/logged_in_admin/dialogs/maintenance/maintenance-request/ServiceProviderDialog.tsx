@@ -24,15 +24,15 @@ export const ServiceProviderDialog = observer(() => {
     // Update API
 
     try {
-      if (store.maintenance.service_provider.selected) {
+      if (store.maintenance.servie_provider.selected) {
         const provider = await api.maintenance.service_provider.update(
             serviceProviderRequest,
           me.property
         );
-        await store.maintenance.service_provider.load();
+        await store.maintenance.servie_provider.load();
         ui.snackbar.load({
           id: Date.now(),
-          message: "servie_provider updated!",
+          message: "Service Provider Updated!",
           type: "success",
         });
       } else {
@@ -45,19 +45,19 @@ export const ServiceProviderDialog = observer(() => {
         );
         ui.snackbar.load({
           id: Date.now(),
-          message: "Maintenance Request created!",
+          message: "Service Provider Created!",
           type: "success",
         });
       }
     } catch (error) {
       ui.snackbar.load({
         id: Date.now(),
-        message: "Error! Failed to update maintenance Request.",
+        message: "Error! Failed to Update Service Provider.",
         type: "danger",
       });
     }
 
-    store.maintenance.service_provider.clearSelected();
+    store.maintenance.servie_provider.clearSelected();
     setServiceProviderRequest({...defaultServiceProvider,
     });
     setLoading(false);

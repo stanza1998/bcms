@@ -3,16 +3,22 @@ import { useEffect } from "react";
 import { useAppContext } from "../../../../shared/functions/Context";
 import showModalFromId from "../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../../dialogs/Dialogs";
-import RequestGrid from "./grid/RequestGrid";
 import Modal from "../../../../shared/components/Modal";
 import { MaintenanceRequestDialog } from "../../../dialogs/maintenance/maintenance-request/MaintenanceRequestDialog";
 import { RequestTypeDialog } from "../../../dialogs/maintenance/RequestTypeDialog";
 import { ViewRequestTypes } from "../../../dialogs/maintenance/maintenance-request/ViewRequestTypesDialog";
+import WorkOrderGrid from "./WorkOrderGrid/WorkOrderGrid";
+import { WorkOrderFlowDialog } from "../../../dialogs/maintenance/maintenance-request/WorkOrderFlowDialog";
+import { useParams } from "react-router-dom";
 
-export const RequestMaintenance = observer(() => {
+export const WorkOrder = observer(() => {
   const { api, store } = useAppContext();
+  const {maintenanceRequestId} = useParams();
+
+  console.log(maintenanceRequestId);
+  
   const me = store.user.meJson;
-      const requests = store.maintenance.maintenance_request.all.map((a) => {
+      const workFlowOrders = store.maintenance.work_flow_order.all.map((a) => {
       return a.asJson;
     });
   
@@ -23,7 +29,7 @@ export const RequestMaintenance = observer(() => {
    // VIEW_REQUEST_TYPE
 
     const onCreate = () => {
-      showModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_MAINTENANCE_REQUEST);
+      showModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_WORK_ORDER);
     };
 
     const onView = () => {
@@ -48,37 +54,21 @@ export const RequestMaintenance = observer(() => {
     <div className="uk-section leave-analytics-page">
       <div className="uk-container uk-container-large">
         <div className="section-toolbar uk-margin">
-          <h4 className="section-heading uk-heading">Maintainance Request</h4>
+          <h4 className="section-heading uk-heading">Work Order Flow</h4>
           <div className="controls">
             <div className="uk-inline" style={{marginRight:"30px"}}>
             <button className="uk-button primary"  onClick={onCreate}>
-                Create Request
-              </button>
-            </div>
-            <div className="uk-inline" style={{marginRight:"30px"}}>
-            <button className="uk-button primary" onClick={onView}>
-                View Request Type
-              </button>
-            </div>
-             <div className="uk-inline">
-            <button className="uk-button primary" onClick={createRequestType}>
-                Create Request Type
+                Create Order 
               </button>
             </div>
           </div>
         </div>
-        <RequestGrid data={requests}/>
+        <WorkOrderGrid data={workFlowOrders}/>
       </div>
     </div>
-    <Modal modalId={DIALOG_NAMES.MAINTENANCE.CREATE_MAINTENANCE_REQUEST}>
-            <MaintenanceRequestDialog />
+    <Modal modalId={DIALOG_NAMES.MAINTENANCE.CREATE_WORK_ORDER}>
+            <WorkOrderFlowDialog />
           </Modal>
-    <Modal modalId={DIALOG_NAMES.MAINTENANCE.CREATE_REQUEST_TYPE}>
-            <RequestTypeDialog />
-    </Modal>
-    <Modal modalId={DIALOG_NAMES.MAINTENANCE.VIEW_REQUEST_TYPE}>
-            <ViewRequestTypes />
-    </Modal>
     </>
   );
 });
