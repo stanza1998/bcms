@@ -184,10 +184,10 @@ export const CopiedInvoicesAcc = observer(() => {
                         {details.description}
                       </td>
                       <td className="uk-text-center">
-                        N$ {details.price.toFixed(2)}
+                        {nadFormatter.format(details.price)}
                       </td>
                       <td className="uk-text-right">
-                        N$ {details.price.toFixed(2)}
+                        {nadFormatter.format(details.price)}
                       </td>
                     </tr>
                   ))}
@@ -211,7 +211,7 @@ export const CopiedInvoicesAcc = observer(() => {
             <div className="controls">
               <div className="uk-inline">
                 <div className="uk-text-right">
-                  Total Discount: N$0.00 <br />
+                  Total Discount: {nadFormatter.format(0)} <br />
                   Total Exclusive:
                   {nadFormatter.format(invoice?.priceBeforeTax || 0)} <br />
                   Total VAT: {nadFormatter.format(invoice?.vatPrice || 0)}

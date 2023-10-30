@@ -112,10 +112,8 @@ export const Invoicing = observer(() => {
   );
   //vat inclusive
   const VATINclusivePrice = (15 / 100) * totalPrice;
-  console.log("🚀VATINclusivePrice:", VATINclusivePrice);
 
   const finalPrice = VATINclusivePrice + totalPrice;
-  console.log("🚀  finalPrice:", finalPrice);
 
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(0);
@@ -229,13 +227,7 @@ export const Invoicing = observer(() => {
   };
 
   const maxValue = store.bodyCorperate.invoice.all
-    .filter(
-      (invoice) =>
-        invoice.asJson.propertyId === propertyId &&
-        invoice.asJson.unitId === id &&
-        invoice.asJson.yearId === yearId &&
-        invoice.asJson.confirmed === status
-    )
+    .filter((invoice) => invoice.asJson.unitId === id)
     .map((invoice) => invoice).length;
 
   return (
@@ -274,13 +266,7 @@ export const Invoicing = observer(() => {
           </thead>
           <tbody>
             {store.bodyCorperate.invoice.all
-              .filter(
-                (invoice) =>
-                  invoice.asJson.propertyId === propertyId &&
-                  invoice.asJson.unitId === id &&
-                  invoice.asJson.yearId === yearId &&
-                  invoice.asJson.confirmed === status
-              )
+              .filter((invoice) => invoice.asJson.unitId === id)
               .map((invoice) => (
                 <tr key={invoice.asJson.invoiceId}>
                   <td>{invoice.asJson.invoiceNumber}</td>
@@ -660,7 +646,7 @@ export const Invoicing = observer(() => {
                         textTransform: "uppercase",
                       }}
                     >
-                      Total Due: N$ {inv.totalDue.toFixed(2)}
+                      Total Due: {nadFormatter.format(inv.totalDue)}
                     </p>
                   </div>
                 </div>
@@ -689,13 +675,13 @@ export const Invoicing = observer(() => {
                         className="uk-text-center"
                         style={{ fontSize: "13px", fontWeight: "600" }}
                       >
-                        N$ {det.price.toFixed(2)}
+                        {nadFormatter.format(det.price)}
                       </td>
                       <td
                         className="uk-text-right"
                         style={{ fontSize: "13px", fontWeight: "600" }}
                       >
-                        N$ {det.price.toFixed(2)}
+                        {nadFormatter.format(det.price)}
                       </td>
                     </tr>
                   ))}
@@ -809,7 +795,7 @@ export const Invoicing = observer(() => {
                         textTransform: "uppercase",
                       }}
                     >
-                      Total Due: N$ {inv.totalDue.toFixed(2)}
+                      Total Due: {nadFormatter.format(inv.totalDue)}
                     </p>
                   </div>
                 </div>
@@ -838,13 +824,13 @@ export const Invoicing = observer(() => {
                         className="uk-text-center"
                         style={{ fontSize: "13px", fontWeight: "600" }}
                       >
-                        N$ {det.price.toFixed(2)}
+                        {nadFormatter.format(det.price)}
                       </td>
                       <td
                         className="uk-text-right"
                         style={{ fontSize: "13px", fontWeight: "600" }}
                       >
-                        N$ {det.price.toFixed(2)}
+                        {nadFormatter.format(det.price)}
                       </td>
                     </tr>
                   ))}

@@ -26,6 +26,8 @@ import DIALOG_NAMES from "../../../../dialogs/Dialogs";
 import Modal from "../../../../../shared/components/Modal";
 import { IReceiptsPayments } from "../../../../../shared/models/receipts-payments/ReceiptsPayments";
 import { ICopiedInvoice } from "../../../../../shared/models/invoices/CopyInvoices";
+import { INormalAccount } from "../../../../../shared/models/Types/Account";
+import { ISupplier } from "../../../../../shared/models/Types/Suppliers";
 
 const TypeCategoriesDat = [
   {
@@ -401,7 +403,7 @@ export const Allocatate = observer(() => {
         await updateDoc(unitRef, { balance: updatedBalance });
       }
 
-      const transactionsPath = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
+      const transactionsPath = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}/Months/${me?.month}/`;
       const transactionsCollectionRef = doc(
         collection(db, transactionsPath, "FNBTransactions"),
         transactionId
@@ -483,6 +485,76 @@ export const Allocatate = observer(() => {
     }
   };
 
+  //create account
+
+  //create accounts
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [tel, setTel] = useState("");
+  const [balance, setBalance] = useState(0);
+
+  const onCreateAccount = () => {
+    showModalFromId(DIALOG_NAMES.ACCOUNTING_FINANCE_DIALOG.CREATE_ACCOUNT);
+  };
+
+  const [createLoader, setCreateLOader] = useState(false);
+
+  const createAccount = async (e: any) => {
+    e.preventDefault();
+    setCreateLOader(true);
+    const Account: INormalAccount = {
+      id: "",
+      name: name,
+      description: description,
+      category: "",
+      balance: 0,
+    };
+    try {
+      if (me?.property) await api.body.account.create(Account, me.property);
+      SuccessfulAction(ui);
+    } catch (error) {
+      FailedAction(error);
+    }
+    setCreateLOader(false);
+    setName("");
+    setDescription("");
+    hideModalFromId(DIALOG_NAMES.ACCOUNTING_FINANCE_DIALOG.CREATE_ACCOUNT);
+  };
+
+  //create supplier
+  const onCreateSupplier = () => {
+    showModalFromId(DIALOG_NAMES.ACCOUNTING_FINANCE_DIALOG.CREATE_SUPPLIER);
+  };
+
+  const createSupplier = async (e: any) => {
+    e.preventDefault();
+    setCreateLOader(true);
+    const Account: ISupplier = {
+      id: "",
+      name: name,
+      description: description,
+      balance: balance,
+      mobileNumber: mobile,
+      telephoneNumber: tel,
+    };
+    try {
+      if (me?.property) await api.body.supplier.create(Account, me.property);
+      SuccessfulAction(ui);
+    } catch (error) {
+      FailedAction(error);
+    }
+    setCreateLOader(false);
+    setName("");
+    setDescription("");
+    hideModalFromId(DIALOG_NAMES.ACCOUNTING_FINANCE_DIALOG.CREATE_SUPPLIER);
+  };
+
+  const clear = () => {
+    setName("");
+    setDescription("");
+  };
+
   return (
     <div>
       {loading ? (
@@ -524,16 +596,26 @@ export const Allocatate = observer(() => {
                       </td>
                       <td>
                         {type === "1" && (
-                          <SingleSelect
-                            options={_accounts}
-                            onChange={handleAccount}
-                          />
+                          <div style={{ display: "flex" }}>
+                            <SingleSelect
+                              options={_accounts}
+                              onChange={handleAccount}
+                            />
+                            <IconButton onClick={onCreateAccount}>
+                              <AddCircleOutlineIcon />
+                            </IconButton>
+                          </div>
                         )}
                         {type === "2" && (
-                          <SingleSelect
-                            options={_supplier}
-                            onChange={handleSupplier}
-                          />
+                          <div style={{ display: "flex" }}>
+                            <SingleSelect
+                              options={_supplier}
+                              onChange={handleSupplier}
+                            />
+                            <IconButton onClick={onCreateSupplier}>
+                              <AddCircleOutlineIcon />
+                            </IconButton>
+                          </div>
                         )}
                         {type === "3" && (
                           <SingleSelect
@@ -642,7 +724,7 @@ export const Allocatate = observer(() => {
                     <td>{inv.dueDate}</td>
                     <td>N$ {inv.totalDue.toFixed(2)}</td>
                     <td>
-                      {/* <button
+                      <button
                         className="uk-button primary"
                         onClick={() =>
                           updateStatement(
@@ -655,7 +737,7 @@ export const Allocatate = observer(() => {
                         }
                       >
                         Choose
-                      </button> */}
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -680,6 +762,125 @@ export const Allocatate = observer(() => {
           <IconButton onClick={updateSupplier}>
             <SaveIcon />
           </IconButton>
+        </div>
+      </Modal>
+
+      {/* create account dialog */}
+      <Modal modalId={DIALOG_NAMES.ACCOUNTING_FINANCE_DIALOG.CREATE_ACCOUNT}>
+        <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical staff-dialog">
+          <button
+            className="uk-modal-close-default"
+            type="button"
+            data-uk-close
+            onClick={clear}
+          ></button>
+          <h4 className="uk-modal-title">Create Account</h4>
+          <form className="uk-grid-small" onSubmit={createAccount} data-uk-grid>
+            <div className="uk-width-1-1">
+              <label htmlFor="">Name</label>
+              <input
+                className="uk-input"
+                type="text"
+                aria-label="100"
+                required
+                onChange={(e) => setName(e.target.value)}
+                value={name}
+              />
+            </div>
+            <div className="uk-width-1-1">
+              <label htmlFor="">Description</label>
+              <input
+                className="uk-input"
+                type="text"
+                aria-label="100"
+                onChange={(e) => setDescription(e.target.value)}
+                value={description}
+                required
+              />
+            </div>
+            <div className="uk-width-1-1">
+              <label htmlFor="">Mobile Number</label>
+              <input
+                className="uk-input"
+                type="number"
+                aria-label="100"
+                onChange={(e) => setMobile(e.target.value)}
+                required
+                value={mobile}
+              />
+            </div>
+            <div className="uk-width-1-1">
+              <label htmlFor="">Telephone Number</label>
+              <input
+                className="uk-input"
+                type="number"
+                aria-label="100"
+                onChange={(e) => setTel(e.target.value)}
+                required
+                value={tel}
+              />
+            </div>
+            <div className="uk-width-1-1">
+              <label htmlFor="">Balance</label>
+              <input
+                className="uk-input"
+                type="number"
+                aria-label="100"
+                onChange={(e) => setBalance(Number(e.target.value))}
+                required
+                value={balance}
+              />
+            </div>
+            <IconButton type="submit">
+              <SaveIcon />
+            </IconButton>
+            {createLoader && <p>loading...</p>}
+          </form>
+        </div>
+      </Modal>
+
+      {/* create supplier dialog */}
+      <Modal modalId={DIALOG_NAMES.ACCOUNTING_FINANCE_DIALOG.CREATE_SUPPLIER}>
+        <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical staff-dialog">
+          <button
+            className="uk-modal-close-default"
+            type="button"
+            data-uk-close
+            onClick={clear}
+          ></button>
+          <h4 className="uk-modal-title">Create Supplier</h4>
+          <form
+            className="uk-grid-small"
+            onSubmit={createSupplier}
+            data-uk-grid
+          >
+            <div className="uk-width-1-1">
+              <label htmlFor="">Name</label>
+              <input
+                className="uk-input"
+                type="text"
+                aria-label="100"
+                required
+                onChange={(e) => setName(e.target.value)}
+                value={name}
+              />
+            </div>
+            <div className="uk-width-1-1">
+              <label htmlFor="">Description</label>
+              <input
+                className="uk-input"
+                type="text"
+                aria-label="100"
+                onChange={(e) => setDescription(e.target.value)}
+                required
+                value={description}
+              />
+            </div>
+            <IconButton type="submit">
+              <SaveIcon />
+            </IconButton>
+            {createLoader && <p>loading...</p>}
+          </form>
         </div>
       </Modal>
     </div>

@@ -30,15 +30,15 @@ const MainLayout = (props: IProps) => {
           {fetchingData && <Loading />}
         </main>
       </div>
-   
     </div>
   );
 };
 
 const LoggedIn = observer(() => {
-  const { api } = useAppContext();
+  const { api, store } = useAppContext();
   const [fetchingData, setFetchingData] = useState(true);
   const firstUpdate = useRef(true);
+  const me = store.user.meJson;
 
   useEffect(() => {
     const loadData = async () => {
@@ -55,6 +55,18 @@ const LoggedIn = observer(() => {
     };
     loadData();
   }, [api.settings]);
+
+  useEffect(() => {
+    const getData = async () => {
+      await api.auth.loadAll();
+      await api.body.body.getAll();
+      if (me?.property && me?.year && me?.month) {
+        await api.body.financialYear.getAll(me.property);
+        await api.body.financialMonth.getAll(me.property, me.year);
+      }
+    };
+    getData();
+  }, [api.body.body]);
 
   return (
     <div>
