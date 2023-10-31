@@ -251,9 +251,8 @@ const NavBar = observer(() => {
                 }}
               >
                 <li>
-                  <a className="uk-accordion-title" href={""}>
-                    {item.title}
-                  </a>
+                  {item.title}
+
                   <div className="uk-accordion-content">
                     <div style={{ padding: "20px" }}>
                       <div className="announcement-container">
