@@ -35,7 +35,7 @@ const OwnerContactsGrid = observer(({ data }: IProp) => {
       headerName: "Cellphone Number",
       flex: 1,
       renderCell: (params) => {
-        return `0${params.row.cellphone}`;
+        return `+264 ${params.row.cellphone}`;
       },
     },
     {

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppContext } from "../../../shared/functions/Context";
 import CampaignIcon from '@mui/icons-material/Campaign';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
@@ -13,19 +13,21 @@ export const Maintainance = () => {
 const { store, api } = useAppContext();
 const me = store.user.meJson;
 
-const requests = store.maintenance.maintenance_request.all.map((a: { asJson: IMaintenanceRequest; }) => {
-  return a.asJson;
-});
-const serviceProviders = store.maintenance.service_provider.all.map((a: { asJson: IServiceProvider; }) => {
-  return a.asJson;
-});
+// const requests = store.maintenance.maintenance_request.all.map((items)=> items.asJson);
 
-const totalRequests = requests.length;
-const totalClosedRequests = requests.filter((request)=>request.status ==="Closed").length;
-const totalOpenedRequests = requests.filter((request )=>request.status ==="Open").length;
-const totalInProgressRequests = requests.filter((request)=>request.status ==="In Progress").length;
-const totalDoneRequests = requests.filter((request)=>request.status ==="Done").length;
-const totalServiceProviders = serviceProviders.length;
+// const serviceProviders = store.maintenance.service_provider.all.map((a: { asJson: IServiceProvider; }) => {
+//   return a.asJson;
+// });
+
+// const totalRequests = requests.length;
+// const totalClosedRequests = requests.filter((request)=>request.status ==="Closed").length;
+// const totalOpenedRequests = requests.filter((request )=>request.status ==="Open").length;
+// const totalInProgressRequests = requests.filter((request)=>request.status ==="In Progress").length;
+// const totalDoneRequests = requests.filter((request)=>request.status ==="Done").length;
+// const totalServiceProviders = serviceProviders.length;
+
+const [requests,setRequest] = useState<IMaintenanceRequest>();
+const [providers,setProvider] = useState<IServiceProvider>();
 
 useEffect(() => {
   const getData = async () => {
@@ -40,10 +42,13 @@ useEffect(() => {
   api.maintenance.service_provider,
   me?.property,
 ]);
+
+
   return (
     <div className="uk-section leave-analytics-page">
     <div className="uk-container uk-container-large">
-      <div
+      Overview
+      {/* <div
         className="uk-child-width-1-2@m uk-grid-small uk-grid-match"
         data-uk-grid
       >
@@ -164,7 +169,7 @@ useEffect(() => {
             <p> {totalDoneRequests}</p>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
     {/* <RequestGrid data={requests}/> */}
   </div>
