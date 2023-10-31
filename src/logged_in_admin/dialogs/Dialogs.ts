@@ -36,7 +36,9 @@ const DIALOG_NAMES = {
   },
 
   ACCOUNTING_FINANCE_DIALOG: {
-    ACCOUNTS_EDIT: "accounts-edit"
+    ACCOUNTS_EDIT: "accounts-edit",
+    CREATE_ACCOUNT: "create-account",
+    CREATE_SUPPLIER: "supplier-account"
   },
 
   COMMUNICATION: {
@@ -51,13 +53,17 @@ const DIALOG_NAMES = {
     CREATE_MAINTENANCE_REQUEST: "create-maintenance-request",
     CREATE_WORK_ORDER: "create-work-order",
     CREATE_REQUEST_TYPE: "create-request-type",
-    VIEW_REQUEST_TYPE:"view-request-type",
+    VIEW_REQUEST_TYPE: "view-request-type",
   },
 
   OWNER: {
     UPLOAD_RECURING_POP: "upload-recurring-POP",
     UPDATE_OWNER_DIALOG: "update-owner-dialog"
   },
+
+  SETTINGG: {
+    USER_DETAILS: "user-details"
+  }
 };
 
 export default DIALOG_NAMES;

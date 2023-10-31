@@ -171,11 +171,11 @@ export const PrivateMessage = observer(() => {
                         })}
                     </span>
                     <p style={{ marginBottom: "5px" }}>
-                      {message.dateAndTime &&
-                      Date.now() - new Date(message.dateAndTime).getTime() >=
-                        5000
-                        ? new Date(message.dateAndTime).toLocaleString()
-                        : "Now"}
+                            {message.dateAndTime &&
+                            Date.now() - new Date(message.dateAndTime).getTime() >=
+                              5000
+                              ? new Date(message.dateAndTime).toLocaleString()
+                              : "Now"}
                     </p>
                     <p style={{ margin: "0" }}>{message.message}</p>
                   </div>

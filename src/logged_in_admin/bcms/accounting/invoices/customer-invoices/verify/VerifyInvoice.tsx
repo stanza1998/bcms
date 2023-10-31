@@ -389,8 +389,7 @@ export const VerifyInvoice = observer(() => {
                       Number: {invoice?.invoiceNumber} <br />
                       Date: {invoice?.dateIssued} <br />
                       Due Date: {invoice?.dueDate} <br />
-                      Total Due: N${" "}
-                      {nadFormatter.format(invoice?.totalDue || 0)}
+                      Total Due: {nadFormatter.format(invoice?.totalDue || 0)}
                     </p>
                   </div>
                 </div>
@@ -438,7 +437,8 @@ export const VerifyInvoice = observer(() => {
                     Add to List
                   </button>
                   <br />
-                  Total Due: N$ {totalPriceAmended?.toFixed(2)} <br />
+                  Total Due: {nadFormatter.format(totalPriceAmended || 0)}{" "}
+                  <br />
                   {totalPriceAmended !== invoice?.totalDue && (
                     <>
                       <br />
@@ -475,10 +475,10 @@ export const VerifyInvoice = observer(() => {
                                 {details.description}
                               </td>
                               <td className="uk-text-center">
-                                N$ {details.price.toFixed(2)}
+                                {nadFormatter.format(details.price)}
                               </td>
                               <td className="uk-text-right">
-                                N$ {details.price.toFixed(2)}
+                                {nadFormatter.format(details.price)}
                               </td>
                             </tr>
                           ))}
@@ -516,10 +516,10 @@ export const VerifyInvoice = observer(() => {
                         {details.description}
                       </td>
                       <td className="uk-text-center">
-                        N$ {details.price.toFixed(2)}
+                        {nadFormatter.format(details.price)}
                       </td>
                       <td className="uk-text-right">
-                        N$ {details.price.toFixed(2)}
+                        {nadFormatter.format(details.price)}
                       </td>
                       {show === true && (
                         <td className="uk-text-right">
