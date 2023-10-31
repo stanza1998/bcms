@@ -2,32 +2,16 @@ import { useEffect, useState } from "react";
 import { useAppContext } from "../../../shared/functions/Context";
 import CampaignIcon from '@mui/icons-material/Campaign';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
-import RequestGrid from "./request/grid/RequestGrid";
-import { IMaintenanceRequest } from "../../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
-import { IServiceProvider } from "../../../shared/models/maintenance/service-provider/ServiceProviderModel";
 import ForumIcon from "@mui/icons-material/Forum";
 import MessageIcon from "@mui/icons-material/Message";
+import OverviewRequests from "./OverviewRequestsGrid";
 
 export const Maintainance = () => {
   
-const { store, api } = useAppContext();
+const { store,api } = useAppContext();
 const me = store.user.meJson;
 
-// const requests = store.maintenance.maintenance_request.all.map((items)=> items.asJson);
 
-// const serviceProviders = store.maintenance.service_provider.all.map((a: { asJson: IServiceProvider; }) => {
-//   return a.asJson;
-// });
-
-// const totalRequests = requests.length;
-// const totalClosedRequests = requests.filter((request)=>request.status ==="Closed").length;
-// const totalOpenedRequests = requests.filter((request )=>request.status ==="Open").length;
-// const totalInProgressRequests = requests.filter((request)=>request.status ==="In Progress").length;
-// const totalDoneRequests = requests.filter((request)=>request.status ==="Done").length;
-// const totalServiceProviders = serviceProviders.length;
-
-const [requests,setRequest] = useState<IMaintenanceRequest>();
-const [providers,setProvider] = useState<IServiceProvider>();
 
 useEffect(() => {
   const getData = async () => {
@@ -43,18 +27,27 @@ useEffect(() => {
   me?.property,
 ]);
 
+const maintenanceRequests = store.maintenance.maintenance_request.all.map((reqs)=> reqs.asJson);
+const serviceProviders = store.maintenance.servie_provider.all.map((reqs)=> reqs.asJson);
+const totalRequests = maintenanceRequests.length;
+const totalClosedRequests = maintenanceRequests.filter((request)=>request.status ==="Closed").length;
+const totalOpenedRequests = maintenanceRequests.filter((request )=>request.status ==="Open").length;
+const totalInProgressRequests = maintenanceRequests.filter((request)=>request.status ==="In Progress").length;
+const totalDoneRequests = maintenanceRequests.filter((request)=>request.status ==="Done").length;
+const totalServiceProviders = serviceProviders.length;
 
   return (
     <div className="uk-section leave-analytics-page">
     <div className="uk-container uk-container-large">
-      Overview
-      {/* <div
-        className="uk-child-width-1-2@m uk-grid-small uk-grid-match"
+    <h4 className="section-heading uk-heading">Overview</h4>
+    
+         <div
+        className="uk-child-width-1-3@m uk-grid-small uk-grid-match"
         data-uk-grid
       >
         <div>
           <div
-            className="uk-card uk-card-default uk-card-body"
+            className="uk-card uk-card-default uk-card-body uk-card-small"
             style={{ background: "#000c37" }}
           >
             <h3
@@ -73,7 +66,7 @@ useEffect(() => {
         </div>
         <div>
           <div
-            className="uk-card uk-card-default uk-card-body"
+            className="uk-card uk-card-default uk-card-body uk-card-small"
             style={{ background: "#000c37" }}
           >
             <h3
@@ -92,7 +85,7 @@ useEffect(() => {
         </div>
         <div>
           <div
-            className="uk-card uk-card-default uk-card-body"
+            className="uk-card uk-card-default uk-card-body uk-card-small"
             style={{ background: "#000c37" }}
           >
             <h3
@@ -111,7 +104,7 @@ useEffect(() => {
         </div>
         <div>
           <div
-            className="uk-card uk-card-default uk-card-body"
+            className="uk-card uk-card-default uk-card-body uk-card-small"
             style={{ background: "#000c37" }}
           >
             <h3
@@ -133,7 +126,7 @@ useEffect(() => {
         </div>
         <div>
           <div
-            className="uk-card uk-card-default uk-card-body"
+            className="uk-card uk-card-default uk-card-body uk-card-small"
             style={{ background: "#000c37" }}
           >
             <h3
@@ -152,7 +145,7 @@ useEffect(() => {
         </div>
         <div>
           <div
-            className="uk-card uk-card-default uk-card-body"
+            className="uk-card uk-card-default uk-card-body uk-card-small"
             style={{ background: "#000c37" }}
           >
             <h3
@@ -169,9 +162,12 @@ useEffect(() => {
             <p> {totalDoneRequests}</p>
           </div>
         </div>
-      </div> */}
+      </div>
+      <div className="tool-bar"></div>
+      <div style={{padding:"10px"}}>
+      <OverviewRequests data={maintenanceRequests}/>
+      </div>
     </div>
-    {/* <RequestGrid data={requests}/> */}
   </div>
   );
 };
