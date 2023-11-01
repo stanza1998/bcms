@@ -1,38 +1,27 @@
-import { observer } from "mobx-react-lite";
+import React, { useState } from "react";
 import { useAppContext } from "../../../../shared/functions/Context";
 import showModalFromId from "../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../../dialogs/Dialogs";
 import Modal from "../../../../shared/components/Modal";
 import { AnnouncementDialog } from "../../../dialogs/communication-dialogs/announcements/AnnouncementDialog";
-import AnnouncementGrid from "./grid/AnnouncementGrid";
-import { useEffect } from "react";
-import { ViewAnnouncementDialog } from "../../../dialogs/communication-dialogs/announcements/ViewAnnouncementDialog";
+import { observer } from "mobx-react-lite";
+import { ActiveAnnouncements } from "./ActiveAnnouncements";
+import { Tab } from "../../../../Tab";
+import { ExpiredAnnouncements } from "./ExpiredAnnouncements";
 
 export const Announcements = observer(() => {
   const { api, store } = useAppContext();
   const me = store.user.meJson;
 
-  const announcements = store.communication.announcements.all.map((a) => {
-    return a.asJson;
-  });
-
-  const filteredAnnouncements = announcements.sort(
-    (a, b) =>
-      new Date(b.expiryDate).getTime() - new Date(a.expiryDate).getTime()
-  );
-
   const onCreate = () => {
     showModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_ANNOUNCEMENTS_DIALOG);
   };
 
-  useEffect(() => {
-    const getData = async () => {
-      if (me?.property && me?.year) {
-        await api.communication.announcement.getAll(me.property, me.year);
-      }
-    };
-    getData();
-  }, []);
+  const [activeTab, setActiveTab] = useState("Active");
+
+  const handleTabClick = (tabLabel: string) => {
+    setActiveTab(tabLabel);
+  };
 
   return (
     <div className="uk-section leave-analytics-page">
@@ -47,15 +36,31 @@ export const Announcements = observer(() => {
             </div>
           </div>
         </div>
-        {/* announcement table */}
-        <AnnouncementGrid data={filteredAnnouncements} />
+        <div>
+          <div
+            style={{ padding: "10px" }}
+            className="uk-margin  uk-card-default"
+          >
+            <Tab
+              label="Active Announcements"
+              isActive={activeTab === "Active"}
+              onClick={() => handleTabClick("Active")}
+            />
+            <Tab
+              label="Expired Announcement"
+              isActive={activeTab === "Expired"}
+              onClick={() => handleTabClick("Expired")}
+            />
+          </div>
+          <div className="tab-content">
+            {activeTab === "Active" && <ActiveAnnouncements />}
+            {activeTab === "Expired" && <ExpiredAnnouncements />}
+          </div>
+        </div>
+        <Modal modalId={DIALOG_NAMES.COMMUNICATION.CREATE_ANNOUNCEMENTS_DIALOG}>
+          <AnnouncementDialog />
+        </Modal>
       </div>
-      <Modal modalId={DIALOG_NAMES.COMMUNICATION.CREATE_ANNOUNCEMENTS_DIALOG}>
-        <AnnouncementDialog />
-      </Modal>
-      <Modal modalId={DIALOG_NAMES.COMMUNICATION.VIEW_ANNOUNCEMENT_DIALOG}>
-        <ViewAnnouncementDialog />
-      </Modal>
     </div>
   );
 });
