@@ -8,6 +8,7 @@ export const defaultSupplier: ISupplier = {
   balance: 0,
   mobileNumber: "",
   telephoneNumber: "",
+  emailAddress: ""
 };
 
 export interface ISupplier {
@@ -17,6 +18,7 @@ export interface ISupplier {
   balance: number;
   mobileNumber: string;
   telephoneNumber: string;
+  emailAddress?:string;
 }
 
 export default class SupplierModel {

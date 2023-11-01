@@ -14,13 +14,12 @@ import Modal from "../../../../../shared/components/Modal";
 import PrintIcon from "@mui/icons-material/Print";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ArticleIcon from "@mui/icons-material/Article";
-import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
-import SaveIcon from "@mui/icons-material/Save";
 import ArrowCircleUpSharpIcon from "@mui/icons-material/ArrowCircleUpSharp";
 import { nadFormatter } from "../../../../shared/NADFormatter";
 import NumberInput from "../../../../../shared/functions/number-input/NumberInput";
 import { Toast } from "primereact/toast";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
 const CustomerCreditNotes = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -157,7 +156,7 @@ const CustomerCreditNotes = observer(() => {
               uk-tooltip="Create Customer Credit Note"
               onClick={onCreate}
             >
-              <CreateNewFolderIcon />
+              <AddCircleOutlineIcon />
             </IconButton>
             <IconButton uk-tooltip="Print invoices">
               <PrintIcon />
@@ -272,7 +271,12 @@ const CustomerCreditNotes = observer(() => {
               />
             </div>
             <div className="uk-width-1-1">
-            <button className="uk-button primary margin-left" onClick={()=>confirm("right")}>Save Credit Note</button>
+              <button
+                className="uk-button primary margin-left"
+                onClick={() => confirm("right")}
+              >
+                Save Credit Note
+              </button>
             </div>
             {/* <IconButton disabled={loading} onClick={() => confirm("right")}>
               <SaveIcon />

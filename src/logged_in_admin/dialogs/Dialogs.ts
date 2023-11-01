@@ -38,7 +38,8 @@ const DIALOG_NAMES = {
   ACCOUNTING_FINANCE_DIALOG: {
     ACCOUNTS_EDIT: "accounts-edit",
     CREATE_ACCOUNT: "create-account",
-    CREATE_SUPPLIER: "supplier-account"
+    CREATE_SUPPLIER: "supplier-account",
+    CRETAE_SINGLE_INVOICE: "create-single-invoice"
   },
 
   COMMUNICATION: {

@@ -1,10 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
 import { useAppContext } from "../../../../../../shared/functions/Context";
-import showModalFromId from "../../../../../../shared/functions/ModalShow";
 import { IUnit } from "../../../../../../shared/models/bcms/Units";
-import { IAnnouncements } from "../../../../../../shared/models/communication/announcements/AnnouncementModel";
-import DIALOG_NAMES from "../../../../../dialogs/Dialogs";
 import { Box } from "@mui/material";
 import { GridColDef, DataGrid } from "@mui/x-data-grid";
 import { nadFormatter } from "../../../../../shared/NADFormatter";
@@ -21,20 +18,6 @@ const UnitsGrid = observer(({ data }: IProp) => {
   const me = store.user.meJson;
   const navigate = useNavigate();
 
-  const filteredUnits = store.bodyCorperate.unit.all
-    .sort((a, b) => a.asJson.unitName - b.asJson.unitName)
-    .map((unit) => {
-      return unit.asJson;
-    });
-
-  const onUpdate = (announcement: IAnnouncements) => {
-    store.communication.announcements.select(announcement);
-    showModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_ANNOUNCEMENTS_DIALOG);
-  };
-  const onView = (announcement: IAnnouncements) => {
-    store.communication.announcements.select(announcement);
-    showModalFromId(DIALOG_NAMES.COMMUNICATION.VIEW_ANNOUNCEMENT_DIALOG);
-  };
 
   useEffect(() => {
     const getUsers = async () => {
@@ -149,7 +132,7 @@ const UnitsGrid = observer(({ data }: IProp) => {
       headerName: "Action",
       renderCell: (params) => (
         <div>
-          <UnitCard key={params.row.id} unit={params.row.id} />
+          <UnitCard key={params.row.id} unit={params.row} />
           <button
             className="uk-margin-right uk-icon"
             data-uk-icon="thumbnails"

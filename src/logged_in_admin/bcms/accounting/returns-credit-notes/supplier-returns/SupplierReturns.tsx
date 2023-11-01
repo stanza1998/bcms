@@ -22,6 +22,8 @@ import { nadFormatter } from "../../../../shared/NADFormatter";
 import NumberInput from "../../../../../shared/functions/number-input/NumberInput";
 import { Toast } from "primereact/toast";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+
 
 export const SupplierReturns = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -166,7 +168,7 @@ export const SupplierReturns = observer(() => {
         rightControls={
           <div>
             <IconButton uk-tooltip="Create Supplier Return" onClick={onCreate}>
-              <CreateNewFolderIcon />
+              <AddCircleOutlineIcon />
             </IconButton>
             <IconButton uk-tooltip="Print invoices">
               <PrintIcon />

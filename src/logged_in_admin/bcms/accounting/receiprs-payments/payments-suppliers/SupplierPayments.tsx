@@ -27,6 +27,8 @@ import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { ISupplierTransactions } from "../../../../../shared/models/transactions/supplier-transactions/SupplierTransactions";
 import SingleSelect from "../../../../../shared/components/single-select/SlingleSelect";
 import { IAccountTransactions } from "../../../../../shared/models/accounts-transaction/AccountsTransactionModel";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+
 
 const SupplierPayment = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -291,7 +293,7 @@ const SupplierPayment = observer(() => {
         rightControls={
           <div>
             <IconButton uk-tooltip="Create Supplier Payment" onClick={onCreate}>
-              <CreateNewFolderIcon />
+              <AddCircleOutlineIcon />
             </IconButton>
             <IconButton uk-tooltip="Print invoices">
               <PrintIcon />

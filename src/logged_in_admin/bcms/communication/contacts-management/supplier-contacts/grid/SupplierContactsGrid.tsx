@@ -18,14 +18,15 @@ const SupplierContactsGrid = observer(({ data }: IProp) => {
       field: "mobileNumber",
       headerName: "Mobile Number",
       flex: 1,
+      renderCell: (params) => <span>+264 {params.row.mobileNumber}</span>,
     },
 
     {
-      field: "telephoneNumner",
+      field: "telephoneNumber",
       headerName: "Telephone Number",
       flex: 1,
       renderCell: (params) => {
-        return `0${params.row.cellphone}`;
+        return `+264 ${params.row.telephoneNumber}`;
       },
     },
     {
