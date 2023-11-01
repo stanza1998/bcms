@@ -71,7 +71,7 @@ interface IProp {
             ></button>
             <button
               className="uk-margin-right uk-icon"
-              data-uk-icon="thumbnails"
+              data-uk-icon="trash"
               onClick={() => onView(params.row)}
             ></button>
           </div>

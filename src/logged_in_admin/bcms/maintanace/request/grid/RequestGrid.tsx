@@ -115,6 +115,11 @@ interface IProp {
               data-uk-icon="thumbnails"
               onClick={() => viewWorkOrderFlow(params.row.id)}
             ></button>
+            <button
+              className="uk-margin-right uk-icon"
+              data-uk-icon="trash"
+              onClick={() => viewWorkOrderFlow(params.row.id)}
+            ></button>
           </div>
         ),
       },

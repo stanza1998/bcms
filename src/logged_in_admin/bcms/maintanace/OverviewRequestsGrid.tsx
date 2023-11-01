@@ -85,7 +85,7 @@ interface IProp {
     ];
   
     return (
-      <Box sx={{ height: 500 }}>
+      <Box sx={{ height: 300 }}>
         <DataGrid
           rows={data}
           columns={columns}

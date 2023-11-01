@@ -142,6 +142,26 @@ export const MaintenanceRequestDialog = observer(() => {
                 />
               </div>
             </div>
+            {/* <div className="uk-margin">
+              <label className="uk-form-label" htmlFor="form-stacked-text">
+                Status
+              </label>
+              <div className="uk-form-controls">
+                <input
+                  className="uk-input"
+                  placeholder="Status"
+                  type="text"
+                  value={maintenanceRequest.status}
+                  onChange={(e) =>
+                    setMaintenanceRequest({
+                      ...maintenanceRequest,
+                      status: e.target.value,
+                    })
+                  }
+                  required
+                />
+              </div>
+            </div> */}
             <div className="footer uk-margin">
               <button className="uk-button secondary uk-modal-close">
                 Cancel

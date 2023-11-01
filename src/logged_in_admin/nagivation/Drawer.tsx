@@ -280,14 +280,14 @@ const ADMIN_DRAWER = () => {
                 Service Providers
               </NavLink>
             </li>
-            <li>
+            {/* <li>
               <NavLink to={`maintainance/reports`} className="navlink">
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
                 Reports
               </NavLink>
-            </li>
+            </li> */}
           </ul>
         </li>
         <li className="list-item uk-parent">
