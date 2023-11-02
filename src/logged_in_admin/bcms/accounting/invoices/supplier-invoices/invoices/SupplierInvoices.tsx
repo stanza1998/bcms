@@ -12,6 +12,8 @@ import SupplierInvoicesGrid from "./SupplierGrid";
 import { nadFormatter } from "../../../../../shared/NADFormatter";
 import ArrowCircleUpSharpIcon from "@mui/icons-material/ArrowCircleUpSharp";
 import ArrowCircleDownSharpIcon from "@mui/icons-material/ArrowCircleDownSharp";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+
 
 export const SupplierInvoices = observer(() => {
   const { store, api } = useAppContext();
@@ -69,7 +71,7 @@ export const SupplierInvoices = observer(() => {
         rightControls={
           <div>
             <IconButton uk-tooltip="Create Invoice" onClick={create}>
-              <CreateNewFolderIcon />
+              <AddCircleOutlineIcon />
             </IconButton>
             <IconButton uk-tooltip="Print invoices">
               <PrintIcon />

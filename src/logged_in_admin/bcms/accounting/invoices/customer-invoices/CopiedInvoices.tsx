@@ -13,13 +13,29 @@ import ArrowCircleDownSharpIcon from "@mui/icons-material/ArrowCircleDownSharp";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import Modal from "../../../../../shared/components/Modal";
 import DIALOG_NAMES from "../../../../dialogs/Dialogs";
-import showModalFromId from "../../../../../shared/functions/ModalShow";
+import showModalFromId, {
+  hideModalFromId,
+} from "../../../../../shared/functions/ModalShow";
+import { SuccessfulAction } from "../../../../../shared/models/Snackbar";
+import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../../../../shared/database/FirebaseConfig";
+import { ICustomerTransactions } from "../../../../../shared/models/transactions/customer-transactions/CustomerTransactionModel";
+import { ICopiedInvoice } from "../../../../../shared/models/invoices/CopyInvoices";
+
+interface ServiceDetails {
+  description: string;
+  price: number;
+  total: number;
+}
 
 export const CopiedInvoices = observer(() => {
-  const { store, api } = useAppContext();
+  const { store, api, ui } = useAppContext();
   const me = store.user.meJson;
-  const currentDate = new Date();
-  const currentDate1 = new Date().toISOString().slice(0, 10);
+  const [currentDate, setCurrentDate] = useState<string>("");
+  const [VAT, setVAT] = useState<boolean>(false);
+  const [unitId, setUnitId] = useState<string>("");
+  const [dueDate, setDueDate] = useState<string>("");
+  const [reference, setReference] = useState<string>("");
 
   useEffect(() => {
     const getData = async () => {
@@ -94,6 +110,111 @@ export const CopiedInvoices = observer(() => {
     };
   }, []);
 
+  const [details, setDetails] = useState<ServiceDetails[]>([]);
+  const totalPrice = details.reduce((sum, detail) => sum + detail.price, 0);
+
+  //vat inclusive
+  const VATINclusivePrice = (15 / 100) * totalPrice;
+
+  const finalPrice = VATINclusivePrice + totalPrice;
+
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState(0);
+  const [total, setTotal] = useState(0);
+
+  const addDetails = () => {
+    // Create a new object with the retrieved values
+    const newDetail: ServiceDetails = {
+      description: description,
+      price: price,
+      total: total,
+    };
+    // Update the state by adding the new detail to the existing details array
+    setDetails((prevDetails) => [...prevDetails, newDetail]);
+    // Reset the input fields to their initial states
+    setDescription("");
+    setPrice(0);
+    setTotal(0);
+  };
+
+  const [loadingInvoice, setLoadingInvoice] = useState(false);
+
+  //create invoice
+  const onSaveInvoice = async (e: any) => {
+    e.preventDefault();
+    setLoadingInvoice(true);
+    const InvoiceData: ICopiedInvoice = {
+      invoiceId: "",
+      propertyId: me?.property || "",
+      unitId: unitId,
+      yearId: me?.year || "",
+      invoiceNumber: invoiceNumber,
+      dateIssued: currentDate,
+      dueDate: dueDate,
+      references: "",
+      totalDue: !VAT ? totalPrice : finalPrice,
+      serviceId: details,
+      pop: "",
+      confirmed: false,
+      verified: false,
+      monthId: "",
+      reminder: false,
+      reminderDate: "",
+      totalPaid: 0,
+      vat: VAT,
+      priceBeforeTax: totalPrice,
+      vatPrice: !VAT ? 0 : VATINclusivePrice,
+    };
+    try {
+      if (!me?.property && !me?.year) return;
+      await api.body.copiedInvoice.create(InvoiceData, me?.property, me?.year);
+      console.log(InvoiceData);
+
+      setLoadingInvoice(false);
+    } catch (error) {
+      console.log(error);
+    }
+
+    const unitPath = `/BodyCoperate/${InvoiceData.propertyId}/`;
+    const unitRef = doc(collection(db, unitPath, "Units"), InvoiceData.unitId);
+    console.log("🚀 ~ unitPath:", unitPath);
+    const unitSnaphot = await getDoc(unitRef);
+    if (unitSnaphot.exists()) {
+      const unitData = unitSnaphot.data();
+      const balanceUpdate = unitData.balance || 0;
+      const updatedBalance = balanceUpdate + InvoiceData.totalDue;
+      console.log("🚀 ~ ~ before update:", balanceUpdate);
+
+      const customerTransactionTaxInvoice: ICustomerTransactions = {
+        id: "",
+        unitId: InvoiceData.unitId,
+        date: InvoiceData.dateIssued,
+        reference: InvoiceData.invoiceNumber,
+        transactionType: "Tax Invoice",
+        description: reference,
+        debit: InvoiceData.totalDue.toFixed(2),
+        credit: "",
+        balance: (totalDue + updatedBalance).toFixed(2),
+        balanceAtPointOfTime: updatedBalance.toFixed(2),
+        invId: InvoiceData.invoiceId,
+      };
+
+      try {
+        await api.body.customer_transactions.create(
+          customerTransactionTaxInvoice,
+          InvoiceData.propertyId,
+          InvoiceData.yearId
+        );
+          await updateDoc(unitRef, { balance: updatedBalance });
+      } catch (error) {}
+    }
+
+    setInvoiceNumber("");
+    setDueDate("");
+    hideModalFromId(DIALOG_NAMES.BODY.CREATE_INVOICE);
+    SuccessfulAction(ui);
+  };
+
   return (
     <div>
       <Toolbar2
@@ -144,17 +265,15 @@ export const CopiedInvoices = observer(() => {
           <div className="dialog-content uk-position-relative">
             <div className="reponse-form">
               <div className="uk-grid-small uk-child-width-1-1@m" data-uk-grid>
-                <div className="uk-width-1-3@m">
+                <div className="uk-width-1-4@m">
                   <div className="uk-margin">
                     <label className="uk-form-label">Unit</label>
                     <div className="uk-form-controls">
                       <select
+                        onChange={(e) => setUnitId(e.target.value)}
                         className="uk-input"
-                        // type="text"
-                        // value={`Unit ${unit?.unitName}`}
-                        // disabled
                       >
-                        <option>Select Unit</option>
+                        <option value="">Select Unit</option>
                         {units.map((unit) => (
                           <option value={unit.asJson.id}>
                             Unit {unit.asJson.unitName}
@@ -164,7 +283,7 @@ export const CopiedInvoices = observer(() => {
                     </div>
                   </div>
                 </div>
-                <div className="uk-width-1-3@m">
+                <div className="uk-width-1-4@m">
                   <div className="uk-margin">
                     <label className="uk-form-label">Invoice Number</label>
                     <div className="uk-form-controls">
@@ -177,32 +296,43 @@ export const CopiedInvoices = observer(() => {
                     </div>
                   </div>
                 </div>
-                <div className="uk-width-1-3@m">
+                <div className="uk-width-1-4@m">
                   <div className="uk-margin">
                     <label className="uk-form-label">Date</label>
                     <div className="uk-form-controls">
                       <input
                         className="uk-input"
-                        type="text"
-                        value={` ${
-                          currentDate.getMonth() + 1
-                        }/${currentDate.getDate()}/${currentDate.getFullYear()}`}
-                        disabled 
+                        type="date"
+                        value={currentDate}
+                        onChange={(e) => setCurrentDate(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="uk-width-1-4@m">
+                  <div className="uk-margin">
+                    <label className="uk-form-label">Due Date</label>
+                    <div className="uk-form-controls">
+                      <input
+                        className="uk-input"
+                        type="date"
+                        value={dueDate}
+                        onChange={(e) => setDueDate(e.target.value)}
                       />
                     </div>
                   </div>
                 </div>
                 <h3 className="uk-modal-title">Total Due</h3>
                 <p style={{ fontWeight: "600" }}>
-                  {/* {!VAT ? (
+                  {!VAT ? (
                     <>{nadFormatter.format(totalPrice)}</>
                   ) : (
                     <>{nadFormatter.format(finalPrice)}</>
-                  )} */}
+                  )}
                 </p>
                 <span>
                   <input
-                    // onChange={(e) => setVAT(e.target.checked)}
+                    onChange={(e) => setVAT(e.target.checked)}
                     className="uk-checkbox"
                     type="checkbox"
                   />{" "}
@@ -218,8 +348,8 @@ export const CopiedInvoices = observer(() => {
                         className="uk-input"
                         type="text"
                         required
-                        // value={description}
-                        // onChange={(e) => setDescription(e.target.value)}
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
                       />
                     </div>
                   </div>
@@ -233,14 +363,14 @@ export const CopiedInvoices = observer(() => {
                         className="uk-input"
                         type="text"
                         required
-                        // onChange={(e) => setPrice(Number(e.target.value))}
-                        // value={price}
+                        onChange={(e) => setPrice(Number(e.target.value))}
+                        value={price}
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* {description && price > 0 && (
+                {description && price > 0 && (
                   <div className="uk-width-1-2@m">
                     <div className="uk-margin">
                       <div className="uk-form-controls">
@@ -253,7 +383,7 @@ export const CopiedInvoices = observer(() => {
                       </div>
                     </div>
                   </div>
-                )} */}
+                )}
 
                 <table className="uk-table uk-table-small uk-table-divider">
                   <thead>
@@ -264,7 +394,7 @@ export const CopiedInvoices = observer(() => {
                     </tr>
                   </thead>
                   <tbody>
-                    {/* {details.map((details, index) => (
+                    {details.map((details, index) => (
                       <tr key={index}>
                         <td style={{ textTransform: "uppercase" }}>
                           {details.description}
@@ -272,7 +402,7 @@ export const CopiedInvoices = observer(() => {
                         <td>{nadFormatter.format(details.price)}</td>
                         <td>{nadFormatter.format(details.price)}</td>
                       </tr>
-                    ))} */}
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -280,12 +410,9 @@ export const CopiedInvoices = observer(() => {
                 <button className="uk-button secondary uk-modal-close">
                   Cancel
                 </button>
-                <button
-                  className="uk-button primary"
-                  //  onClick={onSaveInvoice}
-                >
+                <button className="uk-button primary" onClick={onSaveInvoice}>
                   Save
-                  {/* {loadingInvoice && <div data-uk-spinner="ratio: .5"></div>} */}
+                  {loadingInvoice && <div data-uk-spinner="ratio: .5"></div>}
                 </button>
               </div>
             </div>

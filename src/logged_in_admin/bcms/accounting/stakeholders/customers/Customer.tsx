@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Tab } from "../../../../../Tab";
-import { CopiedInvoices } from "../../invoices/customer-invoices/CopiedInvoices";
 import CustomerReceipts from "../../receiprs-payments/receipts-customers/CustomerReceipts";
 import Toolbar2 from "../../../../shared/Toolbar2";
 import { IconButton } from "@mui/material";
@@ -9,6 +8,7 @@ import CustomerCreditNotes from "../../returns-credit-notes/customer-credit-note
 import CustomerBalance from "../../reports-customers/customer-balance/CustomerBalance";
 import { CustomerStatements } from "../../reports-customers/customer-statements/CustomerStatements";
 import { CustomerTransaction } from "../../reports-customers/customer-transactions/CustomerTransaction";
+import { CopiedInvoices } from "../../invoices/customer-invoices/CopiedInvoices";
 
 export const Customer = () => {
   const [activeTab, setActiveTab] = useState("invoices");

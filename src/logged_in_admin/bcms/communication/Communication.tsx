@@ -1,21 +1,16 @@
 import CampaignIcon from "@mui/icons-material/Campaign";
 import ContactPhoneIcon from "@mui/icons-material/ContactPhone";
-import ForumIcon from "@mui/icons-material/Forum";
-import MessageIcon from "@mui/icons-material/Message";
 import { observer } from "mobx-react-lite";
 import { useAppContext } from "../../../shared/functions/Context";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const Communication = observer(() => {
   const { store, api } = useAppContext();
+  const navigate = useNavigate();
   const me = store.user.meJson;
   const currentDate = Date.now();
-
-  const currentDate1 = new Date(); // Get current date and time
-  const currentDay = currentDate1.getDate(); // Get current day
-
   const announcements = store.communication.announcements.all;
-  const messages = store.communication.privateMessage.all;
   const customContacts = store.communication.customContacts.all;
 
   const ownersContact = store.user.all.filter((u) => u.asJson.role === "Owner");
@@ -35,22 +30,11 @@ export const Communication = observer(() => {
   const totalExpiredAnnouncements = expiredAnnouncements.length;
   const totalContact =
     suppliers.length + ownersContact.length + customContacts.length;
-  const totalMessages = messages.length;
-  const totalTodayMessages = messages.filter((message) => {
-    if (message.asJson.dateAndTime) {
-      const messageDate = new Date(message.asJson.dateAndTime);
-      const messageDay = messageDate.getDate();
-
-      return messageDay === currentDay;
-    }
-    return false; // If dateAndTime is not available, filter it out
-  });
 
   useEffect(() => {
     const getData = async () => {
       if (me?.property && me?.year) {
         await api.communication.announcement.getAll(me.property, me.year);
-        // await api.communication.privateMessage.getAll(me.property);
         await api.communication.customContact.getAll(me.property);
         await api.auth.loadAll();
         await api.body.supplier.getAll(me.property);
@@ -67,6 +51,13 @@ export const Communication = observer(() => {
     me?.year,
   ]);
 
+  const toAnnouncements = () => {
+    navigate("/c/communication/announcements");
+  };
+  const toContactManagement = () => {
+    navigate("/c/communication/contact-management");
+  };
+
   return (
     <div className="uk-section leave-analytics-page">
       <div className="uk-container uk-container-large">
@@ -74,7 +65,7 @@ export const Communication = observer(() => {
           className="uk-child-width-1-2@m uk-grid-small uk-grid-match"
           data-uk-grid
         >
-          <div>
+          <div onClick={toAnnouncements}>
             <div
               className="uk-card uk-card-default uk-card-body"
               style={{ background: "#000c37" }}
@@ -93,7 +84,7 @@ export const Communication = observer(() => {
               <p>{totalAnnouments}</p>
             </div>
           </div>
-          <div>
+          <div onClick={toAnnouncements}>
             <div
               className="uk-card uk-card-default uk-card-body"
               style={{ background: "#000c37" }}
@@ -112,7 +103,7 @@ export const Communication = observer(() => {
               <p>{totalActiveAnnouncements}</p>
             </div>
           </div>
-          <div>
+          <div onClick={toAnnouncements}>
             <div
               className="uk-card uk-card-default uk-card-body"
               style={{ background: "#000c37" }}
@@ -131,7 +122,7 @@ export const Communication = observer(() => {
               <p>{totalExpiredAnnouncements}</p>
             </div>
           </div>
-          <div>
+          <div onClick={toContactManagement}>
             <div
               className="uk-card uk-card-default uk-card-body"
               style={{ background: "#000c37" }}

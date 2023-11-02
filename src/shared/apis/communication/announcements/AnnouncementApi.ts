@@ -17,7 +17,7 @@ export default class AnnouncementApi {
   constructor(private api: AppApi, private store: AppStore) {}
 
   async getAll(pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Announcements`;
+    const myPath = `BodyCoperate/${pid}/Announcements`;
 
     const $query = query(collection(db, myPath));
     // new promise
@@ -44,7 +44,7 @@ export default class AnnouncementApi {
   }
 
   async getById(id: string, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Announcements`;
+    const myPath = `BodyCoperate/${pid}/Announcements`;
 
     const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
       if (!doc.exists) return;
@@ -57,7 +57,7 @@ export default class AnnouncementApi {
   }
 
   async create(item: IAnnouncements, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Announcements`;
+    const myPath = `BodyCoperate/${pid}/Announcements`;
 
     const itemRef = doc(collection(db, myPath));
     item.id = itemRef.id;
@@ -75,7 +75,7 @@ export default class AnnouncementApi {
   }
 
   async update(announcement: IAnnouncements, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Announcements`;
+    const myPath = `BodyCoperate/${pid}/Announcements`;
     try {
       await updateDoc(doc(db, myPath, announcement.id), {
         ...announcement,
@@ -86,7 +86,7 @@ export default class AnnouncementApi {
   }
 
   async delete(id: string, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Announcements`;
+    const myPath = `BodyCoperate/${pid}/Announcements`;
     try {
       await deleteDoc(doc(db, myPath, id));
       this.store.communication.announcements.remove(id);

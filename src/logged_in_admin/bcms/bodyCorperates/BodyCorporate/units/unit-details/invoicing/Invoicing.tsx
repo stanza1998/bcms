@@ -39,7 +39,7 @@ export const Invoicing = observer(() => {
   const currentDate1 = new Date().toISOString().slice(0, 10);
   const [selectedDate, setSelectedDate] = useState(currentDate1);
   const [VAT, setVAT] = useState<boolean>(false);
-  console.log("🚀 ~  ~ VAT:", VAT);
+  
 
   // generate invoice number
   const [invoiceNumber, setInvoiceNumber] = useState("");
@@ -106,10 +106,7 @@ export const Invoicing = observer(() => {
 
   const [details, setDetails] = useState<ServiceDetails[]>([]);
   const totalPrice = details.reduce((sum, detail) => sum + detail.price, 0);
-  console.log(
-    "🚀 ~ file: Invoicing.tsx:108 ~ Invoicing ~ totalPrice:",
-    totalPrice
-  );
+
   //vat inclusive
   const VATINclusivePrice = (15 / 100) * totalPrice;
 
