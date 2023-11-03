@@ -59,7 +59,7 @@ export const AnnouncementGraph = observer(() => {
       },
       title: {
         display: true,
-        text: "Announcement Priority Level Measures",
+        text: "Announcement Priority Distribution",
       },
     },
   };
