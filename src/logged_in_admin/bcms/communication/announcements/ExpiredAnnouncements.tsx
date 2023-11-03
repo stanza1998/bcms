@@ -22,11 +22,8 @@ export const ExpiredAnnouncements = observer(() => {
       (a, b) =>
         new Date(b.expiryDate).getTime() - new Date(a.expiryDate).getTime()
     )
-    .filter((announcement) => new Date(announcement.expiryDate) < currentDate);
 
-  const onCreate = () => {
-    showModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_ANNOUNCEMENTS_DIALOG);
-  };
+
 
   useEffect(() => {
     const getData = async () => {

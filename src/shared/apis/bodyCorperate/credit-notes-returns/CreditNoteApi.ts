@@ -20,7 +20,7 @@ export default class CreditNoteApi {
   constructor(private api: AppApi, private store: AppStore) {}
 
   async getAll(pid: string, yid: string, mid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months/${mid}/CreditNotes`;
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/CreditNotes`;
     const $query = query(collection(db, myPath));
     // new promise
     return await new Promise<Unsubscribe>((resolve, reject) => {
@@ -46,7 +46,7 @@ export default class CreditNoteApi {
   }
 
   async getById(id: string, pid: string, yid: string, mid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months/${mid}/CreditNotes`;
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/CreditNotes`;
 
     const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
       if (!doc.exists) return;
@@ -57,7 +57,7 @@ export default class CreditNoteApi {
   }
 
   //   async create(item: ICreditNote, pid: string, yid: string, mid: string) {
-  //     const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months/${mid}/CreditNotes`;
+  //     const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/CreditNotes`;
   //     const itemRef = doc(collection(db, myPath));
   //     item.id = itemRef.id;
 
@@ -81,7 +81,7 @@ export default class CreditNoteApi {
     unitId: string
   ) {
     try {
-      const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months/${mid}/CreditNotes`;
+      const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/CreditNotes`;
       const itemRef = doc(collection(db, myPath));
       item.id = itemRef.id;
 
@@ -112,7 +112,7 @@ export default class CreditNoteApi {
   }
 
   async update(product: ICreditNote, pid: string, yid: string, mid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months/${mid}/CreditNotes`;
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/CreditNotes`;
     try {
       await updateDoc(doc(db, myPath, product.id), {
         ...product,
@@ -123,7 +123,7 @@ export default class CreditNoteApi {
   }
 
   async delete(id: string, pid: string, yid: string, mid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/Months/${mid}/CreditNotes`;
+    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/CreditNotes`;
     try {
       await deleteDoc(doc(db, myPath, id));
       this.store.bodyCorperate.creditNote.remove(id);

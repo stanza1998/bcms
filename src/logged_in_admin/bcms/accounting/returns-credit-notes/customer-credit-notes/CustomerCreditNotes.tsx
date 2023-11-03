@@ -96,7 +96,7 @@ const CustomerCreditNotes = observer(() => {
         unitId: creditNote.unitId,
         date: creditNote.date,
         reference: generateRCPNumber(),
-        transactionType: "Customer Payments",
+        transactionType: "Customer Receipt",
         description: customerRef,
         debit: "",
         credit: balance.toFixed(2),
@@ -117,13 +117,15 @@ const CustomerCreditNotes = observer(() => {
         const copiedInvoicesPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
         const invoiceRef = doc(
           collection(db, copiedInvoicesPath, "CopiedInvoices"),
-          invoiceNumber
+          invoiceId
         );
         const invoiceSnapshot = await getDoc(invoiceRef);
         if (invoiceSnapshot.exists()) {
           const invoiceData = invoiceSnapshot.data();
           const existingTotalPaid = invoiceData.totalPaid || 0; // Default to 0 if totalPaid doesn't exist
           const updatedTotalPaid = existingTotalPaid + balance;
+          console.log(updatedTotalPaid);
+
           await updateDoc(invoiceRef, {
             totalPaid: updatedTotalPaid,
           });
@@ -135,13 +137,13 @@ const CustomerCreditNotes = observer(() => {
         console.error("Error:", error);
       }
 
-      hideModalFromId(DIALOG_NAMES.BODY.CREDIT_NOTE);
       SuccessfulAction(ui);
     } catch (error) {
       console.error(error);
       // Handle the error as needed (e.g., display a user-friendly message)
     } finally {
       setLoading(false);
+      hideModalFromId(DIALOG_NAMES.BODY.CREDIT_NOTE);
     }
   };
 

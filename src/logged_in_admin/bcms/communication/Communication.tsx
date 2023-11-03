@@ -4,6 +4,13 @@ import { observer } from "mobx-react-lite";
 import { useAppContext } from "../../../shared/functions/Context";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { AnnouncementGraph } from "./graphs/Announcements";
+import AnnouncementGrid from "./announcements/grid/AnnouncementGrid";
+import ExpiredAnnouncementGrid from "./ExpiredAnnouncement";
+import DIALOG_NAMES from "../../dialogs/Dialogs";
+import { AnnouncementDialog } from "../../dialogs/communication-dialogs/announcements/AnnouncementDialog";
+import { ViewAnnouncementDialog } from "../../dialogs/communication-dialogs/announcements/ViewAnnouncementDialog";
+import Modal from "../../../shared/components/Modal";
 
 export const Communication = observer(() => {
   const { store, api } = useAppContext();
@@ -57,6 +64,24 @@ export const Communication = observer(() => {
   const toContactManagement = () => {
     navigate("/c/communication/contact-management");
   };
+
+  const _announcements = store.communication.announcements.all.map((a) => {
+    return a.asJson;
+  });
+
+  const filteredAnnouncements = _announcements.sort(
+    (a, b) =>
+      new Date(b.expiryDate).getTime() - new Date(a.expiryDate).getTime()
+  );
+
+  useEffect(() => {
+    const getData = async () => {
+      if (me?.property && me?.year) {
+        await api.communication.announcement.getAll(me.property, me.year);
+      }
+    };
+    getData();
+  }, []);
 
   return (
     <div className="uk-section leave-analytics-page">
@@ -144,46 +169,28 @@ export const Communication = observer(() => {
               <p> {totalContact}</p>
             </div>
           </div>
-          {/* <div>
-            <div
-              className="uk-card uk-card-default uk-card-body"
-              style={{ background: "#000c37" }}
-            >
-              <h3
-                className="uk-card-title"
-                style={{
-                  color: "white",
-                  textTransform: "uppercase",
-                  fontSize: "18px",
-                }}
-              >
-                <ForumIcon style={{ color: "#01aced", fontSize: "34px" }} />{" "}
-                Total Messages
-              </h3>
-              <p>{totalMessages}</p>
+        </div>
+        <div className="uk-child-width-1-2 uk-text-center" data-uk-grid>
+          <div>
+            <div style={{ height: "50rem" }}>
+              <AnnouncementGraph />
             </div>
           </div>
           <div>
-            <div
-              className="uk-card uk-card-default uk-card-body"
-              style={{ background: "#000c37" }}
-            >
-              <h3
-                className="uk-card-title"
-                style={{
-                  color: "white",
-                  textTransform: "uppercase",
-                  fontSize: "18px",
-                }}
-              >
-                <MessageIcon style={{ color: "green", fontSize: "34px" }} />{" "}
-                Today's Messages
-              </h3>
-              <p> {totalTodayMessages.length}</p>
+            <div className="uk-child-width-1-1 uk-text-center" data-uk-grid>
+              <div>
+                <ExpiredAnnouncementGrid data={_announcements} />
+              </div>
             </div>
-          </div> */}
+          </div>
         </div>
       </div>
+      <Modal modalId={DIALOG_NAMES.COMMUNICATION.CREATE_ANNOUNCEMENTS_DIALOG}>
+        <AnnouncementDialog />
+      </Modal>
+      <Modal modalId={DIALOG_NAMES.COMMUNICATION.VIEW_ANNOUNCEMENT_DIALOG}>
+        <ViewAnnouncementDialog />
+      </Modal>
     </div>
   );
 });
