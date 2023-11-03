@@ -20,17 +20,48 @@ import NumberInput from "../../../../../shared/functions/number-input/NumberInpu
 import { Toast } from "primereact/toast";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import { ICustomerTransactions } from "../../../../../shared/models/transactions/customer-transactions/CustomerTransactionModel";
+import { ICopiedInvoice } from "../../../../../shared/models/invoices/CopyInvoices";
+import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../../../../shared/database/FirebaseConfig";
 
 const CustomerCreditNotes = observer(() => {
   const { store, api, ui } = useAppContext();
   const me = store.user.meJson;
+
   const [unitId, setUnitId] = useState<string>("");
   const [balance, setBalance] = useState<number>(0);
   const [invoiceNumber, setInvoiceNumber] = useState<string>("");
+
+  const [invoiceId, setInvoiceId] = useState<string>("");
   const [customerRef, setCustomerRef] = useState<string>("");
   const [date, setDate] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [selection, setSelection] = useState<string>("");
+
+  const generateRCPNumber = () => {
+    const randomNumber = Math.floor(Math.random() * 1000000);
+    const formattedNumber = randomNumber.toString().padStart(4, "0");
+    const generatedInvoiceNumber = `RCP${formattedNumber}`;
+    return generatedInvoiceNumber;
+  };
+
+  useEffect(() => {
+    const getInvoiceNumber = () => {
+      const foundInvoice = store.bodyCorperate.copiedInvoices.all.find(
+        (invoice) => invoice.asJson.invoiceId === invoiceId
+      );
+
+      if (foundInvoice) {
+        const invoiceNumber = foundInvoice.asJson.invoiceNumber;
+        setInvoiceNumber(invoiceNumber);
+      } else {
+        // Handle case where invoice with the specified ID was not found
+      }
+    };
+
+    getInvoiceNumber();
+  }, [invoiceId, store.bodyCorperate.copiedInvoices.all]);
 
   const createCreditNote = async () => {
     try {
@@ -58,6 +89,50 @@ const CustomerCreditNotes = observer(() => {
         );
       } catch (error) {
         console.log(error);
+      }
+
+      const customerTransactionTaxInvoice: ICustomerTransactions = {
+        id: "", // You may need to generate a unique ID here
+        unitId: creditNote.unitId,
+        date: creditNote.date,
+        reference: generateRCPNumber(),
+        transactionType: "Customer Payments",
+        description: customerRef,
+        debit: "",
+        credit: balance.toFixed(2),
+        balance: "", // Use updatedBalance here instead of (totalDue + updatedBalance)
+        balanceAtPointOfTime: "",
+        invId: invoiceId,
+      };
+
+      if (me?.property && me?.year) {
+        await api.body.customer_transactions.create(
+          customerTransactionTaxInvoice,
+          me.property,
+          me.year
+        );
+      }
+
+      try {
+        const copiedInvoicesPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
+        const invoiceRef = doc(
+          collection(db, copiedInvoicesPath, "CopiedInvoices"),
+          invoiceNumber
+        );
+        const invoiceSnapshot = await getDoc(invoiceRef);
+        if (invoiceSnapshot.exists()) {
+          const invoiceData = invoiceSnapshot.data();
+          const existingTotalPaid = invoiceData.totalPaid || 0; // Default to 0 if totalPaid doesn't exist
+          const updatedTotalPaid = existingTotalPaid + balance;
+          await updateDoc(invoiceRef, {
+            totalPaid: updatedTotalPaid,
+          });
+        } else {
+          console.log("Invoice not found.");
+          return; // Return early if the invoice doesn't exist
+        }
+      } catch (error) {
+        console.error("Error:", error);
       }
 
       hideModalFromId(DIALOG_NAMES.BODY.CREDIT_NOTE);
@@ -233,13 +308,13 @@ const CustomerCreditNotes = observer(() => {
               <label>Invoice</label>
               <select
                 className="uk-input"
-                onChange={(e) => setInvoiceNumber(e.target.value)}
+                onChange={(e) => setInvoiceId(e.target.value)}
               >
                 <option value="">Select Invoice</option>
                 {store.bodyCorperate.copiedInvoices.all
                   .filter((inv) => inv.asJson.unitId === unitId)
                   .map((inv) => (
-                    <option value={inv.asJson.invoiceNumber}>
+                    <option value={inv.asJson.invoiceId}>
                       Invoice Number: {inv.asJson.invoiceNumber} | Total Paid
                       {": "}
                       N$ {inv.asJson.totalPaid.toFixed(2)} | Total Due: N${" "}

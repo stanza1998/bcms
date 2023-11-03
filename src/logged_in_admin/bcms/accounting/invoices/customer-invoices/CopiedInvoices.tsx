@@ -175,43 +175,53 @@ export const CopiedInvoices = observer(() => {
       console.log(error);
     }
 
-    const unitPath = `/BodyCoperate/${InvoiceData.propertyId}/`;
-    const unitRef = doc(collection(db, unitPath, "Units"), InvoiceData.unitId);
-    console.log("🚀 ~ unitPath:", unitPath);
-    const unitSnaphot = await getDoc(unitRef);
-    if (unitSnaphot.exists()) {
-      const unitData = unitSnaphot.data();
-      const balanceUpdate = unitData.balance || 0;
-      const updatedBalance = balanceUpdate + InvoiceData.totalDue;
-      console.log("🚀 ~ ~ before update:", balanceUpdate);
-
-      const customerTransactionTaxInvoice: ICustomerTransactions = {
-        id: "",
-        unitId: InvoiceData.unitId,
-        date: InvoiceData.dateIssued,
-        reference: InvoiceData.invoiceNumber,
-        transactionType: "Tax Invoice",
-        description: reference,
-        debit: InvoiceData.totalDue.toFixed(2),
-        credit: "",
-        balance: (totalDue + updatedBalance).toFixed(2),
-        balanceAtPointOfTime: updatedBalance.toFixed(2),
-        invId: InvoiceData.invoiceId,
-      };
+    if (me?.property) {
+      const unitPath = `/BodyCoperate/${me.property}/Units/${unitId}`; // Update the unitPath to point to a specific unit
+      const unitRef = doc(db, unitPath); // Removed "Units" from the path
 
       try {
-        await api.body.customer_transactions.create(
-          customerTransactionTaxInvoice,
-          InvoiceData.propertyId,
-          InvoiceData.yearId
-        );
+        const unitSnapshot = await getDoc(unitRef);
+
+        if (unitSnapshot.exists()) {
+          const unitData = unitSnapshot.data();
+          const balanceUpdate = unitData.balance || 0;
+          const updatedBalance = balanceUpdate + InvoiceData.totalDue;
+          console.log("🚀 ~ ~ before update:", balanceUpdate);
+
+          const customerTransactionTaxInvoice: ICustomerTransactions = {
+            id: "", // You may need to generate a unique ID here
+            unitId: InvoiceData.unitId,
+            date: InvoiceData.dateIssued,
+            reference: InvoiceData.invoiceNumber,
+            transactionType: "Tax Invoice",
+            description: reference,
+            debit: InvoiceData.totalDue.toFixed(2),
+            credit: "",
+            balance: updatedBalance.toFixed(2), // Use updatedBalance here instead of (totalDue + updatedBalance)
+            balanceAtPointOfTime: updatedBalance.toFixed(2),
+            invId: InvoiceData.invoiceId,
+          };
+
+          await api.body.customer_transactions.create(
+            customerTransactionTaxInvoice,
+            InvoiceData.propertyId,
+            InvoiceData.yearId
+          );
+
           await updateDoc(unitRef, { balance: updatedBalance });
-      } catch (error) {}
+        } else {
+          console.error(`Unit with id ${unitId} not found`);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
     }
 
     setInvoiceNumber("");
     setDueDate("");
-    hideModalFromId(DIALOG_NAMES.BODY.CREATE_INVOICE);
+    hideModalFromId(
+      DIALOG_NAMES.ACCOUNTING_FINANCE_DIALOG.CRETAE_SINGLE_INVOICE
+    );
     SuccessfulAction(ui);
   };
 
@@ -265,7 +275,7 @@ export const CopiedInvoices = observer(() => {
           <div className="dialog-content uk-position-relative">
             <div className="reponse-form">
               <div className="uk-grid-small uk-child-width-1-1@m" data-uk-grid>
-                <div className="uk-width-1-4@m">
+                <div className="uk-width-1-5@m">
                   <div className="uk-margin">
                     <label className="uk-form-label">Unit</label>
                     <div className="uk-form-controls">
@@ -283,7 +293,7 @@ export const CopiedInvoices = observer(() => {
                     </div>
                   </div>
                 </div>
-                <div className="uk-width-1-4@m">
+                <div className="uk-width-1-5@m">
                   <div className="uk-margin">
                     <label className="uk-form-label">Invoice Number</label>
                     <div className="uk-form-controls">
@@ -296,7 +306,7 @@ export const CopiedInvoices = observer(() => {
                     </div>
                   </div>
                 </div>
-                <div className="uk-width-1-4@m">
+                <div className="uk-width-1-5@m">
                   <div className="uk-margin">
                     <label className="uk-form-label">Date</label>
                     <div className="uk-form-controls">
@@ -309,7 +319,7 @@ export const CopiedInvoices = observer(() => {
                     </div>
                   </div>
                 </div>
-                <div className="uk-width-1-4@m">
+                <div className="uk-width-1-5@m">
                   <div className="uk-margin">
                     <label className="uk-form-label">Due Date</label>
                     <div className="uk-form-controls">
@@ -318,6 +328,19 @@ export const CopiedInvoices = observer(() => {
                         type="date"
                         value={dueDate}
                         onChange={(e) => setDueDate(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="uk-width-1-5@m">
+                  <div className="uk-margin">
+                    <label className="uk-form-label">Reference</label>
+                    <div className="uk-form-controls">
+                      <input
+                        className="uk-input"
+                        type="text"
+                        value={reference}
+                        onChange={(e) => setReference(e.target.value)}
                       />
                     </div>
                   </div>
