@@ -24,9 +24,6 @@ export const ActiveAnnouncements = observer(() => {
     )
     .filter((announcement) => new Date(announcement.expiryDate) > currentDate);
 
-  const onCreate = () => {
-    showModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_ANNOUNCEMENTS_DIALOG);
-  };
 
   useEffect(() => {
     const getData = async () => {
