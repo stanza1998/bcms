@@ -23,6 +23,8 @@ import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../../../../shared/database/FirebaseConfig";
 import {
   FailedAction,
+  FailedActionAllFields,
+  FailedActionServiceDetail,
   SuccessfulAction,
 } from "../../../../../../../shared/models/Snackbar";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
@@ -30,6 +32,7 @@ import { Box } from "@mui/material";
 import Modal from "../../../../../../../shared/components/Modal";
 import NumberInput from "../../../../../../../shared/functions/number-input/NumberInput";
 import { ISupplierTransactions } from "../../../../../../../shared/models/transactions/supplier-transactions/SupplierTransactions";
+import { nadFormatter } from "../../../../../../shared/NADFormatter";
 
 interface IProp {
   data: IReceiptsPayments[];
@@ -56,6 +59,7 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
       setTransactionId((prevIds) => prevIds.filter((prevId) => prevId !== id));
     }
   };
+  console.log("transaction Id", transactionId);
 
   const currentDate = new Date();
   const currentDate1 = new Date().toISOString().slice(0, 10);
@@ -136,95 +140,104 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
   const [loadingInvoice, setLoadingInvoice] = useState(false);
   // submitting invoice
   const onSaveInvoice = async (e: any) => {
-    e.preventDefault();
-    setLoadingInvoice(true);
-    const InvoiceData: ISupplierInvoices = {
-      invoiceId: "",
-      yearId: "",
-      invoiceNumber: invoiceNumber,
-      dateIssued: selectedDateIssued,
-      dueDate: selectedDate,
-      references: "",
-      totalDue: totalPrice,
-      serviceId: details,
-      confirmed: false,
-      verified: false,
-      reminder: false,
-      reminderDate: "",
-      totalPaid: 0,
-      propertyId: me?.property || "",
-      supplierId: supplier?.id || "",
-    };
-    try {
-      if (me?.property && me.year)
-        await api.body.supplierInvoice.create(
-          InvoiceData,
-          me.property,
-          me.year
-        );
+    if (details.length !== 0) {
+      if (selectedDate !== "" && selectedDateIssued !== "") {
+        e.preventDefault();
+        setLoadingInvoice(true);
+        const InvoiceData: ISupplierInvoices = {
+          invoiceId: "",
+          yearId: "",
+          invoiceNumber: invoiceNumber,
+          dateIssued: selectedDateIssued,
+          dueDate: selectedDate,
+          references: "",
+          totalDue: totalPrice,
+          serviceId: details,
+          confirmed: false,
+          verified: false,
+          reminder: false,
+          reminderDate: "",
+          totalPaid: 0,
+          propertyId: me?.property || "",
+          supplierId: supplier?.id || "",
+        };
+        try {
+          if (me?.property && me.year)
+            await api.body.supplierInvoice.create(
+              InvoiceData,
+              me.property,
+              me.year
+            );
 
-      const id = InvoiceData.invoiceId;
-      //supplier transaction created here
+          const id = InvoiceData.invoiceId;
+          //supplier transaction created here
 
-      //update supplierBalance
-      try {
-        const supplierPath = `BodyCoperate/${me?.property}`;
-        const supplierRef = doc(
-          collection(db, supplierPath, "Suppliers"),
-          supplierId
-        );
-
-        const supplierSnapShot = await getDoc(supplierRef);
-        if (supplierSnapShot.exists()) {
-          const supplierData = supplierSnapShot.data();
-          const supplierBalance = supplierData.balance || 0;
-          const supplierNewBalance = supplierBalance + totalPrice;
-          await updateDoc(supplierRef, { balance: supplierNewBalance });
-
-          const supplier_transaction: ISupplierTransactions = {
-            id: "",
-            supplierId: supplier?.id || "",
-            date: selectedDateIssued,
-            reference: invoiceNumber,
-            transactionType: "Supplier Invoice",
-            description: "",
-            debit: "",
-            credit: totalPrice.toFixed(2),
-            balance: supplierBalance + Math.abs(supplierBalance) + totalPrice,
-            invId: InvoiceData.invoiceId,
-          };
-
+          //update supplierBalance
           try {
-            if (me?.property && me?.year)
-              await api.body.supplier_transactions.create(
-                supplier_transaction,
-                me?.property,
-                me?.year
-              );
+            const supplierPath = `BodyCoperate/${me?.property}`;
+            const supplierRef = doc(
+              collection(db, supplierPath, "Suppliers"),
+              supplierId
+            );
+
+            const supplierSnapShot = await getDoc(supplierRef);
+            if (supplierSnapShot.exists()) {
+              const supplierData = supplierSnapShot.data();
+              const supplierBalance = supplierData.balance || 0;
+              const supplierNewBalance = supplierBalance + totalPrice;
+              await updateDoc(supplierRef, { balance: supplierNewBalance });
+
+              const supplier_transaction: ISupplierTransactions = {
+                id: "",
+                supplierId: supplier?.id || "",
+                date: selectedDateIssued,
+                reference: invoiceNumber,
+                transactionType: "Supplier Invoice",
+                description: "",
+                debit: "",
+                credit: totalPrice.toFixed(2),
+                balance:
+                  supplierBalance + Math.abs(supplierBalance) + totalPrice,
+                invId: InvoiceData.invoiceId,
+              };
+
+              try {
+                if (me?.property && me?.year)
+                  await api.body.supplier_transactions.create(
+                    supplier_transaction,
+                    me?.property,
+                    me?.year
+                  );
+              } catch (error) {
+                console.log(error);
+              }
+
+              console.log("Balance updated successfully");
+            } else {
+              console.log("Docuemnt not found");
+            }
           } catch (error) {
             console.log(error);
           }
 
-          console.log("Balance updated successfully");
-        } else {
-          console.log("Docuemnt not found");
+          //add invoice to receipts and payemnts
+          addInvoiceNumber(InvoiceData.invoiceNumber, InvoiceData.invoiceId);
+          SuccessfulAction(ui);
+        } catch (error) {
+          FailedAction(ui);
         }
-      } catch (error) {
-        console.log(error);
+
+        setLoadingInvoice(false);
+        setInvoiceNumber("");
+        // setSelectedDate("");
+        hideModalFromId(DIALOG_NAMES.BODY.CREATE_INVOICE);
+        navigate("/c/accounting/supplier-invoices");
+      } else {
+        FailedActionAllFields(ui);
       }
-
-      //add invoice to receipts and payemnts
-      addInvoiceNumber(InvoiceData.invoiceNumber, InvoiceData.invoiceId);
-      SuccessfulAction(ui);
-    } catch (error) {
-      FailedAction(ui);
+    } else {
+      FailedActionServiceDetail(ui);
     }
-
-    setLoadingInvoice(false);
-    setInvoiceNumber("");
-    // setSelectedDate("");
-    hideModalFromId(DIALOG_NAMES.BODY.CREATE_INVOICE);
-    navigate("/c/accounting/supplier-invoices");
   };
 
   const calculateTotalCredit = async () => {
@@ -335,7 +348,12 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
           rowHeight={50}
         />
       </Box>
-      <button className="uk-button primary uk-margin" onClick={createInvoice}>
+      <button
+        style={{ background: transactionId.length === 0 ? "grey" : "" }}
+        disabled={transactionId.length === 0}
+        className="uk-button primary uk-margin"
+        onClick={createInvoice}
+      >
         Create Invoice
       </button>
 
@@ -369,7 +387,9 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
                 </div>
                 <div className="uk-width-1-3@m">
                   <div className="uk-margin">
-                    <label className="uk-form-label">Date</label>
+                    <label className="uk-form-label">
+                      Date <span style={{ color: "red" }}>*</span>
+                    </label>
                     <div className="uk-form-controls">
                       <input
                         className="uk-input "
@@ -382,7 +402,9 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
                 </div>
                 <div className="uk-width-1-3@m">
                   <div className="uk-margin">
-                    <label className="uk-form-label">Due Date</label>
+                    <label className="uk-form-label">
+                      Due Date <span style={{ color: "red" }}>*</span>
+                    </label>
                     <div className="uk-form-controls">
                       <input
                         className="uk-input "
@@ -394,9 +416,13 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
                   </div>
                 </div>
                 <h3 className="uk-modal-title">Total Due</h3>
-                <p style={{ fontWeight: "600" }}>N$ {totalPrice.toFixed(2)}</p>
+                <p style={{ fontWeight: "600" }}>
+                  {nadFormatter.format(totalPrice)}
+                </p>
 
-                <h3 className="uk-modal-title">Service(s) details</h3>
+                <h3 className="uk-modal-title">
+                  Service(s) details <span style={{ color: "red" }}>*</span>
+                </h3>
                 <div className="uk-width-1-3@m">
                   <div className="uk-margin">
                     <label className="uk-form-label">Description</label>
@@ -434,13 +460,6 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
                         value={price}
                         onChange={(e) => setPrice(Number(e))}
                       />
-                      {/* <input
-                        className="uk-input "
-                        type="text"
-                        required
-                        onChange={(e) => setPrice(Number(e.target.value))}
-                        value={price}
-                      /> */}
                     </div>
                   </div>
                 </div>
@@ -474,8 +493,8 @@ export const PaymentGrid = observer(({ data, supplierId }: IProp) => {
                         <td style={{ textTransform: "uppercase" }}>
                           {details.description}
                         </td>
-                        <td>N$ {details.price.toFixed(2)}</td>
-                        <td>N$ {details.price.toFixed(2)}</td>
+                        <td>{nadFormatter.format(details.price)}</td>
+                        <td>{nadFormatter.format(details.price)}</td>
                       </tr>
                     ))}
                   </tbody>

@@ -14,7 +14,11 @@ import showModalFromId, {
 } from "../../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../../../dialogs/Dialogs";
 import Modal from "../../../../../shared/components/Modal";
-import { SuccessfulAction } from "../../../../../shared/models/Snackbar";
+import {
+  FailedAction,
+  FailedActionAllFields,
+  SuccessfulAction,
+} from "../../../../../shared/models/Snackbar";
 import SaveIcon from "@mui/icons-material/Save";
 import { IBankingTransactions } from "../../../../../shared/models/banks/banking/BankTransactions";
 import ArrowCircleUpSharpIcon from "@mui/icons-material/ArrowCircleUpSharp";
@@ -28,7 +32,6 @@ import { ICustomerTransactions } from "../../../../../shared/models/transactions
 import SingleSelect from "../../../../../shared/components/single-select/SlingleSelect";
 import { IAccountTransactions } from "../../../../../shared/models/accounts-transaction/AccountsTransactionModel";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-
 
 const CustomerReceipts = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -56,151 +59,157 @@ const CustomerReceipts = observer(() => {
     return generatedInvoiceNumber;
   };
 
-  const createReceipt = async () => {
-    setLoading(true);
-    try {
-      const receipt: IReceiptsPayments = {
-        id: "",
-        date: date,
-        reference: reference,
-        transactionType: "Customer Receipt",
-        description: description,
-        debit: debit.toFixed(2),
-        credit: "",
-        balance: balance,
-        propertyId: me?.property || "",
-        unitId: unitId,
-        invoiceNumber: invoiceNumber,
-        rcp: generateInvoiceNumber(),
-        supplierId: "",
-      };
-      if ((me?.property, me?.year, me?.month))
+  const createReceipt = async (e: any) => {
+    e.preventDefault();
+    if (unitId !== "" && invoiceNumber !== "" && debit !== 0) {
+      setLoading(true);
+      try {
+        const receipt: IReceiptsPayments = {
+          id: "",
+          date: date,
+          reference: reference,
+          transactionType: "Customer Receipt",
+          description: description,
+          debit: debit.toFixed(2),
+          credit: "",
+          balance: balance,
+          propertyId: me?.property || "",
+          unitId: unitId,
+          invoiceNumber: invoiceNumber,
+          rcp: generateInvoiceNumber(),
+          supplierId: "",
+        };
+        if ((me?.property, me?.year, me?.month))
+          try {
+            await api.body.receiptPayments.create(
+              receipt,
+              me.property,
+              me.year
+            );
+          } catch (error) {
+            console.log(error);
+          }
         try {
-          await api.body.receiptPayments.create(receipt, me.property, me.year);
+          const copiedInvoicesPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
+          const invoiceRef = doc(
+            collection(db, copiedInvoicesPath, "CopiedInvoices"),
+            invoiceNumber
+          );
+          const invoiceSnapshot = await getDoc(invoiceRef);
+          if (invoiceSnapshot.exists()) {
+            const invoiceData = invoiceSnapshot.data();
+            const existingTotalPaid = invoiceData.totalPaid || 0; // Default to 0 if totalPaid doesn't exist
+            const updatedTotalPaid = existingTotalPaid + debit;
+            await updateDoc(invoiceRef, {
+              totalPaid: updatedTotalPaid,
+            });
+          } else {
+            console.log("Invoice not found.");
+            return; // Return early if the invoice doesn't exist
+          }
+
+          const myPath = `BodyCoperate/${me?.property}`;
+          const accountRef = doc(collection(db, myPath, "Units"), unitId);
+          const userSnapshot = await getDoc(accountRef);
+
+          if (userSnapshot.exists()) {
+            const userData = userSnapshot.data();
+            const currentBalance = userData.balance || 0;
+            const newBalance = currentBalance - debit;
+
+            await updateDoc(accountRef, {
+              balance: newBalance,
+            });
+            console.log("Balance updated successfully unit");
+          } else {
+            console.log("Document not found");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+        }
+
+        const bank_transaction: IBankingTransactions = {
+          id: "",
+          date: date,
+          payee: unitId,
+          description: description,
+          type: "Customer",
+          selection: selection,
+          reference: "Customer Receipt",
+          VAT: "Exempted",
+          credit: "",
+          debit: debit.toFixed(2),
+        };
+        try {
+          if (me?.property && me?.bankAccountInUse)
+            await api.body.banking_transaction.create(
+              bank_transaction,
+              me.property,
+              me.bankAccountInUse
+            );
+          console.log("transaction created");
         } catch (error) {
           console.log(error);
         }
-      try {
-        const copiedInvoicesPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
-        const invoiceRef = doc(
-          collection(db, copiedInvoicesPath, "CopiedInvoices"),
-          invoiceNumber
-        );
-        const invoiceSnapshot = await getDoc(invoiceRef);
-        if (invoiceSnapshot.exists()) {
-          const invoiceData = invoiceSnapshot.data();
-          const existingTotalPaid = invoiceData.totalPaid || 0; // Default to 0 if totalPaid doesn't exist
-          const updatedTotalPaid = existingTotalPaid + debit;
-          await updateDoc(invoiceRef, {
-            totalPaid: updatedTotalPaid,
-          });
-        } else {
-          console.log("Invoice not found.");
-          return; // Return early if the invoice doesn't exist
+        const accountTransactionReceipt: IAccountTransactions = {
+          id: "",
+          date: receipt.date,
+          BankCustomerSupplier:
+            units.find((u) => u.value === unitId)?.label || "",
+          reference: receipt.rcp,
+          transactionType: "Customer Receipt",
+          description: selection,
+          debit: debit,
+          credit: 0,
+          balance: 0,
+          accounntType: selection,
+        };
+        try {
+          if (me?.property && me?.year) {
+            await api.body.accountsTransactions.create(
+              accountTransactionReceipt,
+              me.property,
+              me.year
+            );
+          }
+          console.log("created");
+        } catch (error) {
+          console.log(error);
         }
-
-        const myPath = `BodyCoperate/${me?.property}`;
-        const accountRef = doc(collection(db, myPath, "Units"), unitId);
-        const userSnapshot = await getDoc(accountRef);
-
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.data();
-          const currentBalance = userData.balance || 0;
-          const newBalance = currentBalance - debit;
-
-          await updateDoc(accountRef, {
-            balance: newBalance,
-          });
-          console.log("Balance updated successfully unit");
-        } else {
-          console.log("Document not found");
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      }
-
-      const bank_transaction: IBankingTransactions = {
-        id: "",
-        date: date,
-        payee: unitId,
-        description: description,
-        type: "Customer",
-        selection: selection,
-        reference: "Customer Receipt",
-        VAT: "Exempted",
-        credit: "",
-        debit: debit.toFixed(2),
-      };
-      try {
-        if (me?.property && me?.bankAccountInUse)
-          await api.body.banking_transaction.create(
-            bank_transaction,
-            me.property,
-            me.bankAccountInUse
-          );
-        console.log("transaction created");
-      } catch (error) {
-        console.log(error);
-      }
-      const accountTransactionReceipt: IAccountTransactions = {
-        id: "",
-        date: receipt.date,
-        BankCustomerSupplier:
-          "unit " +
-          (units.find((u) => u.id === unitId)?.unitName || 0).toFixed(0),
-        reference: receipt.rcp,
-        transactionType: "Customer Receipt",
-        description: selection,
-        debit: debit,
-        credit: 0,
-        balance: 0,
-        accounntType: selection,
-      };
-      try {
-        if (me?.property && me?.year) {
-          await api.body.accountsTransactions.create(
-            accountTransactionReceipt,
-            me.property,
-            me.year
-          );
-        }
-        console.log("created");
-      } catch (error) {
-        console.log(error);
-      }
-      const customer_transaction: ICustomerTransactions = {
-        id: "",
-        unitId: unitId,
-        date: date,
-        reference: receipt.rcp,
-        transactionType: "Customer Receipt",
-        description:
-          "unit " +
-          (units.find((u) => u.id === unitId)?.unitName || 0).toFixed(0),
-        debit: "",
-        credit: debit.toFixed(2),
-        balance: "",
-        balanceAtPointOfTime: "",
-        invId: receipt.invoiceNumber,
-      };
-      try {
-        if (me?.property && me?.year) {
-          await api.body.customer_transactions.create(
-            customer_transaction,
-            me?.property,
-            me?.year
-          );
+        const customer_transaction: ICustomerTransactions = {
+          id: "",
+          unitId: unitId,
+          date: date,
+          reference: receipt.rcp,
+          transactionType: "Customer Receipt",
+          description: units.find((u) => u.value === unitId)?.label || "",
+          debit: "",
+          credit: debit.toFixed(2),
+          balance: "",
+          balanceAtPointOfTime: "",
+          invId: receipt.invoiceNumber,
+        };
+        try {
+          if (me?.property && me?.year) {
+            await api.body.customer_transactions.create(
+              customer_transaction,
+              me?.property,
+              me?.year
+            );
+          }
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setLoading(false);
+          hideModalFromId(DIALOG_NAMES.BODY.CREATE_RECEIPT);
+          getData();
+          SuccessfulAction(ui);
         }
       } catch (error) {
         console.log(error);
-      } finally {
-        setLoading(false);
-        hideModalFromId(DIALOG_NAMES.BODY.CREATE_RECEIPT);
-        getData();
-        SuccessfulAction(ui);
       }
-    } catch (error) {
-      console.log(error);
+    } else {
+      return FailedActionAllFields(ui);
     }
   };
 
@@ -241,12 +250,38 @@ const CustomerReceipts = observer(() => {
     }
   };
 
-  const invoices = store.bodyCorperate.copiedInvoices.all.map((inv) => {
-    return inv.asJson;
-  });
-  const units = store.bodyCorperate.unit.all.map((inv) => {
-    return inv.asJson;
-  });
+  const invoices = store.bodyCorperate.copiedInvoices.all
+    .filter(
+      (inv) =>
+        inv.asJson.unitId === unitId &&
+        inv.asJson.totalDue > inv.asJson.totalPaid
+    )
+    .map((inv) => {
+      return {
+        label:
+          inv.asJson.invoiceNumber +
+          " Due: " +
+          nadFormatter.format(inv.asJson.totalDue),
+        value: inv.asJson.invoiceId,
+      };
+    });
+
+  const handleSelectInvoiceSelect = (selectedInvoice: string) => {
+    setInvoiceNumber(selectedInvoice);
+  };
+
+  const units = store.bodyCorperate.unit.all
+    .sort((a, b) => a.asJson.unitName - b.asJson.unitName)
+    .map((u) => {
+      return {
+        label: "Unit " + u.asJson.unitName,
+        value: u.asJson.id,
+      };
+    });
+
+  const handleSelectUnit = (selectedUnit: string) => {
+    setUnitId(selectedUnit);
+  };
   // const accounts = store.bodyCorperate.account.all.map((inv) => {
   //   return inv.asJson;
   // });
@@ -271,31 +306,6 @@ const CustomerReceipts = observer(() => {
 
   //confirm-dialog
   const toast = useRef<Toast>(null);
-
-  const accept = () => {
-    createReceipt();
-  };
-
-  const reject = () => {
-    toast.current?.show({
-      severity: "warn",
-      summary: "Receipt Not Created",
-      detail: "Customer Receipt Not created",
-      life: 3000,
-    });
-    hideModalFromId(DIALOG_NAMES.BODY.CREATE_RECEIPT);
-  };
-
-  const confirm = (position: any) => {
-    confirmDialog({
-      message: "Do you want to create a customer receipt?",
-      header: "Customer Receipt Confirmation",
-      icon: "pi pi-info-circle",
-      position,
-      accept,
-      reject,
-    });
-  };
 
   return (
     <div>
@@ -342,99 +352,83 @@ const CustomerReceipts = observer(() => {
           <h4 style={{ textTransform: "uppercase" }} className="uk-modal-title">
             Create customer receipt
           </h4>
-          <div className="uk-grid-small" data-uk-grid>
+          <form onSubmit={createReceipt} className="uk-grid-small" data-uk-grid>
             <div className=" uk-width-1-2 ">
-              <label>Customer</label>
-              <select
-                className="uk-input"
-                onChange={(e) => setUnitId(e.target.value)}
-              >
-                <option>Select Unit</option>
-                {units.map((u) => (
-                  <option value={u.id}>Unit {u.unitName}</option>
-                ))}
-              </select>
-            </div>
-            <div className=" uk-width-1-2 ">
-              <label>date</label>
+              <label>
+                date <span style={{ color: "red" }}>*</span>
+              </label>
               <input
                 className="uk-input"
                 type="date"
+                required
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
               />
             </div>
             <div className=" uk-width-1-2 ">
-              <label>Reference</label>
+              <label>
+                Customer <span style={{ color: "red" }}>*</span>
+              </label>
+              <SingleSelect onChange={handleSelectUnit} options={units} />
+            </div>
+
+            <div className=" uk-width-1-2 ">
+              <label>
+                Reference <span style={{ color: "red" }}>*</span>
+              </label>
               <input
                 className="uk-input"
                 type="text"
+                required
                 value={reference}
                 onChange={(e) => setReference(e.target.value)}
               />
             </div>
             <div className=" uk-width-1-2 ">
-              <label>Description</label>
+              <label>
+                Description <span style={{ color: "red" }}>*</span>
+              </label>
               <input
                 className="uk-input"
                 type="text"
+                required
                 value={description}
                 onChange={(e) => setDescriptioin(e.target.value)}
               />
             </div>
             <div className=" uk-width-1-2 ">
-              <label>Amount</label>
-              <NumberInput
-                value={debit}
-                onChange={(e) => setDebit(Number(e))}
+              <label>
+                Invoice <span style={{ color: "red" }}>*</span>
+              </label>
+              <SingleSelect
+                onChange={handleSelectInvoiceSelect}
+                options={invoices}
               />
             </div>
             <div className=" uk-width-1-2 ">
-              <label>Invoice</label>
-              <select
-                className="uk-input"
-                onChange={(e) => setInvoiceNumber(e.target.value)}
-              >
-                <option>Select Invoice</option>
-                {invoices
-                  .filter((inv) => inv.unitId === unitId)
-                  .map((inv) => (
-                    <option value={inv.invoiceId}>
-                      Invoice Number: {inv.invoiceNumber} | Total Paid:{" "}
-                      {inv.totalPaid} | Total Due {inv.totalDue}
-                    </option>
-                  ))}
-              </select>
+              <label>
+                Amount <span style={{ color: "red" }}>*</span>
+              </label>
+              <NumberInput
+                value={debit}
+                onChange={(e) => setDebit(Number(e))}
+                required
+              />
             </div>
+
             <div className=" uk-width-1-2 ">
-              <label>Account (Selection)</label>
-
+              <label>
+                Account (Selection) <span style={{ color: "red" }}>*</span>
+              </label>
               <SingleSelect options={accounts} onChange={handleSelectChange} />
-
-              {/* <select
-                className="uk-input"
-                onChange={(e) => setSelection(e.target.value)}
-              >
-                <option>Select Account</option>
-                {accounts.map((inv) => (
-                  <option value={inv.id}>{inv.name}</option>
-                ))}
-              </select> */}
             </div>
             <div className=" uk-width-1-1 ">
-              <button
-                className="uk-button primary margin-left"
-                onClick={() => confirm("right")}
-              >
-                Save Receipt
+              <button type="submit" className="uk-button primary margin-left">
+                Save
+                {loading && <div data-uk-spinner="ratio: .5"></div>}
               </button>
-              {/* <IconButton onClick={() => confirm("right")}>
-                <SaveIcon />
-              </IconButton> */}
             </div>
-
-            {loading && <p>loading...</p>}
-          </div>
+          </form>
         </div>
       </Modal>
     </div>

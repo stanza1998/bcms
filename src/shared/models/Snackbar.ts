@@ -36,6 +36,20 @@ export const FailedAction = (ui: any) => {
     type: "danger",
   });
 };
+export const FailedActionAllFields = (ui: any) => {
+  return ui.snackbar.load({
+    id: Date.now(),
+    message: "Please enter all required fields.",
+    type: "danger",
+  });
+};
+export const FailedActionServiceDetail = (ui: any) => {
+  return ui.snackbar.load({
+    id: Date.now(),
+    message: "Services should at least be 1 or more",
+    type: "danger",
+  });
+};
 
 export const SuccessfulAction = (ui: any) => {
   return ui.snackbar.load({

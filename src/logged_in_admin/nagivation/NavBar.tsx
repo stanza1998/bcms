@@ -99,19 +99,24 @@ const NavBar = observer(() => {
                       return p.asJson.BodyCopName;
                     }).length === 0 && <>Property NOT Selected</>}
                 </span>
-                <span className="uk-margin">
-                  {years
-                    .filter((p) => p.asJson.id === me?.year)
-                    .map((p) => {
-                      return p.asJson.year + " ";
-                    })}
-                  {years
-                    .filter((p) => p.asJson.id === me?.year)
-                    .map((p) => {
-                      return p.asJson.year + " ";
-                    }).length === 0 && <>Year NOT Selected | </>}
-                </span>
-                <span className="uk-margin-right">
+                {me?.role === "Owner" ? (
+                  <></>
+                ) : (
+                  <span className="uk-margin">
+                    {years
+                      .filter((p) => p.asJson.id === me?.year)
+                      .map((p) => {
+                        return p.asJson.year + " ";
+                      })}
+                    {years
+                      .filter((p) => p.asJson.id === me?.year)
+                      .map((p) => {
+                        return p.asJson.year + " ";
+                      }).length === 0 && <>Year NOT Selected </>}
+                  </span>
+                )}
+
+                {/* <span className="uk-margin-right">
                   {months
                     .filter((p) => p.month === me?.month)
                     .map((p) => {
@@ -122,7 +127,7 @@ const NavBar = observer(() => {
                     .map((p) => {
                       return p.month.slice(-2);
                     }).length === 0 && <>Month NOT Selected</>}
-                </span>
+                </span> */}
               </h6>
             </li>
           </ul>
@@ -141,7 +146,7 @@ const NavBar = observer(() => {
                 {me?.role !== "Owner" && (
                   <>
                     <span>
-                      Bank Account Name:{" "}
+                      Bank Account:{" "}
                       {bank_accounts
                         .filter((p) => p.id === me?.bankAccountInUse)
                         .map((p) => {

@@ -16,11 +16,18 @@ import DIALOG_NAMES from "../../../../dialogs/Dialogs";
 import showModalFromId, {
   hideModalFromId,
 } from "../../../../../shared/functions/ModalShow";
-import { SuccessfulAction } from "../../../../../shared/models/Snackbar";
+import {
+  FailedAction,
+  FailedActionServiceDetail,
+  SuccessfulAction,
+} from "../../../../../shared/models/Snackbar";
 import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../../shared/database/FirebaseConfig";
 import { ICustomerTransactions } from "../../../../../shared/models/transactions/customer-transactions/CustomerTransactionModel";
 import { ICopiedInvoice } from "../../../../../shared/models/invoices/CopyInvoices";
+import SingleSelect from "../../../../../shared/components/single-select/SlingleSelect";
+import NumberFormat from "react-number-format";
+import NumberInput from "../../../../../shared/functions/number-input/NumberInput";
 
 interface ServiceDetails {
   description: string;
@@ -90,9 +97,18 @@ export const CopiedInvoices = observer(() => {
   };
 
   //get units
-  const units = store.bodyCorperate.unit.all.sort(
-    (a, b) => a.asJson.unitName - b.asJson.unitName
-  );
+  const units = store.bodyCorperate.unit.all
+    .sort((a, b) => a.asJson.unitName - b.asJson.unitName)
+    .map((u) => {
+      return {
+        label: "Unit " + u.asJson.unitName,
+        value: u.asJson.id,
+      };
+    });
+
+  const handleSelectChange = (unit: string) => {
+    setUnitId(unit);
+  };
 
   // generate invoice number
   const [invoiceNumber, setInvoiceNumber] = useState("");
@@ -142,6 +158,7 @@ export const CopiedInvoices = observer(() => {
   //create invoice
   const onSaveInvoice = async (e: any) => {
     e.preventDefault();
+    if (details.length === 0) return FailedActionServiceDetail(ui);
     setLoadingInvoice(true);
     const InvoiceData: ICopiedInvoice = {
       invoiceId: "",
@@ -168,7 +185,6 @@ export const CopiedInvoices = observer(() => {
     try {
       if (!me?.property && !me?.year) return;
       await api.body.copiedInvoice.create(InvoiceData, me?.property, me?.year);
-      console.log(InvoiceData);
 
       setLoadingInvoice(false);
     } catch (error) {
@@ -219,6 +235,10 @@ export const CopiedInvoices = observer(() => {
 
     setInvoiceNumber("");
     setDueDate("");
+    setVAT(false);
+    setCurrentDate("");
+    setReference("");
+    setUnitId("");
     hideModalFromId(
       DIALOG_NAMES.ACCOUNTING_FINANCE_DIALOG.CRETAE_SINGLE_INVOICE
     );
@@ -264,7 +284,7 @@ export const CopiedInvoices = observer(() => {
       >
         <div
           className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical staff-dialog"
-          style={{ width: "100%" }}
+          style={{ width: "70%" }}
         >
           <button
             className="uk-modal-close-default"
@@ -273,15 +293,56 @@ export const CopiedInvoices = observer(() => {
           ></button>
           <h3 className="uk-modal-title">Create Invoice</h3>
           <div className="dialog-content uk-position-relative">
-            <div className="reponse-form">
+            <form onSubmit={onSaveInvoice} className="reponse-form">
               <div className="uk-grid-small uk-child-width-1-1@m" data-uk-grid>
-                <div className="uk-width-1-5@m">
+                <div className="uk-width-1-2@m">
                   <div className="uk-margin">
-                    <label className="uk-form-label">Unit</label>
+                    <label className="uk-form-label">
+                      Date <span style={{ color: "red" }}>*</span>
+                    </label>
                     <div className="uk-form-controls">
-                      <select
+                      <input
+                        className="uk-input"
+                        type="date"
+                        value={currentDate}
+                        onChange={(e) => setCurrentDate(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="uk-width-1-2@m">
+                  <div className="uk-margin">
+                    <label className="uk-form-label">
+                      Due Date <span style={{ color: "red" }}>*</span>
+                    </label>
+                    <div className="uk-form-controls">
+                      <input
+                        className="uk-input"
+                        type="date"
+                        value={dueDate}
+                        onChange={(e) => setDueDate(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="uk-width-1-2@m">
+                  <div className="uk-margin">
+                    <label className="uk-form-label">
+                      Customer
+                      <span style={{ color: "red" }}>*</span>
+                    </label>
+                    <div className="uk-form-controls">
+                      <SingleSelect
+                        onChange={handleSelectChange}
+                        options={units}
+                        required={true}
+                      />
+                      {/* <select
                         onChange={(e) => setUnitId(e.target.value)}
                         className="uk-input"
+                        required
                       >
                         <option value="">Select Unit</option>
                         {units.map((unit) => (
@@ -289,11 +350,11 @@ export const CopiedInvoices = observer(() => {
                             Unit {unit.asJson.unitName}
                           </option>
                         ))}
-                      </select>
+                      </select> */}
                     </div>
                   </div>
                 </div>
-                <div className="uk-width-1-5@m">
+                <div className="uk-width-1-2@m">
                   <div className="uk-margin">
                     <label className="uk-form-label">Invoice Number</label>
                     <div className="uk-form-controls">
@@ -306,41 +367,19 @@ export const CopiedInvoices = observer(() => {
                     </div>
                   </div>
                 </div>
-                <div className="uk-width-1-5@m">
+
+                <div className="uk-width-1-2@m">
                   <div className="uk-margin">
-                    <label className="uk-form-label">Date</label>
-                    <div className="uk-form-controls">
-                      <input
-                        className="uk-input"
-                        type="date"
-                        value={currentDate}
-                        onChange={(e) => setCurrentDate(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="uk-width-1-5@m">
-                  <div className="uk-margin">
-                    <label className="uk-form-label">Due Date</label>
-                    <div className="uk-form-controls">
-                      <input
-                        className="uk-input"
-                        type="date"
-                        value={dueDate}
-                        onChange={(e) => setDueDate(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="uk-width-1-5@m">
-                  <div className="uk-margin">
-                    <label className="uk-form-label">Reference</label>
+                    <label className="uk-form-label">
+                      Reference <span style={{ color: "red" }}>*</span>
+                    </label>
                     <div className="uk-form-controls">
                       <input
                         className="uk-input"
                         type="text"
                         value={reference}
                         onChange={(e) => setReference(e.target.value)}
+                        required
                       />
                     </div>
                   </div>
@@ -362,7 +401,9 @@ export const CopiedInvoices = observer(() => {
                   VAT
                 </span>
 
-                <h3 className="uk-modal-title">Service(s) details</h3>
+                <h3 className="uk-modal-title">
+                  Service(s) details <span style={{ color: "red" }}>*</span>
+                </h3>
                 <div className="uk-width-1-2@m">
                   <div className="uk-margin">
                     <label className="uk-form-label">Description</label>
@@ -370,7 +411,6 @@ export const CopiedInvoices = observer(() => {
                       <input
                         className="uk-input"
                         type="text"
-                        required
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                       />
@@ -382,11 +422,9 @@ export const CopiedInvoices = observer(() => {
                   <div className="uk-margin">
                     <label className="uk-form-label">Price</label>
                     <div className="uk-form-controls">
-                      <input
+                      <NumberInput
                         className="uk-input"
-                        type="text"
-                        required
-                        onChange={(e) => setPrice(Number(e.target.value))}
+                        onChange={(e) => setPrice(Number(e))}
                         value={price}
                       />
                     </div>
@@ -433,12 +471,12 @@ export const CopiedInvoices = observer(() => {
                 <button className="uk-button secondary uk-modal-close">
                   Cancel
                 </button>
-                <button className="uk-button primary" onClick={onSaveInvoice}>
+                <button type="submit" className="uk-button primary">
                   Save
                   {loadingInvoice && <div data-uk-spinner="ratio: .5"></div>}
                 </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </Modal>

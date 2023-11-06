@@ -32,7 +32,6 @@ import { OwnerInvoices } from "./logged_in_admin/bcms/owner-accounts/invoices/Ow
 import { OwnerViewInvoice } from "./logged_in_admin/bcms/owner-accounts/invoices/OwnerViewInvoice";
 import { VerifyInvoice } from "./logged_in_admin/bcms/accounting/invoices/customer-invoices/verify/VerifyInvoice";
 import { ViewInvoice } from "./logged_in_admin/bcms/accounting/invoices/customer-invoices/verify/ViewInvoice";
-import { OwnerRecuringInvoices } from "./logged_in_admin/bcms/owner-accounts/recuring-invoices/OwnerRecuringInvoices";
 import { UnitDetails } from "./logged_in_admin/bcms/bodyCorperates/BodyCorporate/units/unit-details/UnitDetails";
 import { Supplier } from "./logged_in_admin/bcms/Types/suppliers/Supplier";
 import { Transfer } from "./logged_in_admin/bcms/Types/transfers/Transfer";
@@ -241,10 +240,7 @@ const OWNER_ROUTES = () => {
             element={<OwnerViewInvoice />}
           />
           <Route path={`/c/finance/proof-of-payment`} element={<Pop />}></Route>
-          <Route
-            path={`finance/recuring-invoices-view`}
-            element={<OwnerRecuringInvoices />}
-          />
+
           {/* communication */}
           <Route
             path={`communication/com-overview`}

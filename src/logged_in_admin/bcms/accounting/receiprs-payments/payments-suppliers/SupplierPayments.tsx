@@ -13,7 +13,10 @@ import showModalFromId, {
   hideModalFromId,
 } from "../../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../../../dialogs/Dialogs";
-import { SuccessfulAction } from "../../../../../shared/models/Snackbar";
+import {
+  FailedActionAllFields,
+  SuccessfulAction,
+} from "../../../../../shared/models/Snackbar";
 import Modal from "../../../../../shared/components/Modal";
 import SaveIcon from "@mui/icons-material/Save";
 import { IBankingTransactions } from "../../../../../shared/models/banks/banking/BankTransactions";
@@ -29,7 +32,6 @@ import SingleSelect from "../../../../../shared/components/single-select/Slingle
 import { IAccountTransactions } from "../../../../../shared/models/accounts-transaction/AccountsTransactionModel";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
-
 const SupplierPayment = observer(() => {
   const { store, api, ui } = useAppContext();
   const me = store.user.meJson;
@@ -43,11 +45,15 @@ const SupplierPayment = observer(() => {
   const [supplierId, setSupplierId] = useState<string>("");
   const [selection, setSelection] = useState<string>("");
   const suppliers = store.bodyCorperate.supplier.all.map((inv) => {
-    return inv.asJson;
+    return {
+      label: inv.asJson.name,
+      value: inv.asJson.id,
+    };
   });
-  // const accounts = store.bodyCorperate.account.all.map((a) => {
-  //   return a.asJson;
-  // });
+
+  const handleSupplierSelect = (selectedSupplier: string) => {
+    setSupplierId(selectedSupplier);
+  };
 
   const accounts = store.bodyCorperate.account.all.map((u) => {
     return {
@@ -71,129 +77,138 @@ const SupplierPayment = observer(() => {
   //suppliers
 
   const createPayment = async () => {
-    setLoading(true);
-    const receipt: IReceiptsPayments = {
-      id: "",
-      date: date,
-      reference: reference,
-      transactionType: "Supplier Payment",
-      description: description,
-      debit: "",
-      credit: credit.toFixed(2),
-      balance: balance,
-      propertyId: me?.property || "",
-      unitId: "",
-      invoiceNumber: "",
-      rcp: generateInvoiceNumber(),
-      supplierId: supplierId,
-    };
-    if ((me?.property, me?.year, me?.month))
-      try {
-        await api.body.receiptPayments.create(receipt, me.property, me.year);
-      } catch (error) {
-        console.log(error);
-      }
-    const accountTransactionReceipt: IAccountTransactions = {
-      id: "",
-      date: receipt.date,
-      BankCustomerSupplier: (
-        suppliers.find((s) => s.id === supplierId)?.name || ""
-      ),
-      reference: receipt.rcp,
-      transactionType: "Supplier Payment ",
-      description: selection,
-      debit: 0,
-      credit: parseFloat(receipt.credit),
-      balance: 0,
-      accounntType: selection,
-    };
-    try {
-      if (me?.property && me?.year) {
-        await api.body.accountsTransactions.create(
-          accountTransactionReceipt,
-          me.property,
-          me.year
-        );
-      }
-      console.log("created");
-    } catch (error) {
-      console.log(error);
-    }
-
-    try {
-      const supplierPath = `BodyCoperate/${me?.property}`;
-      const supplierRef = doc(
-        collection(db, supplierPath, "Suppliers"),
-        supplierId
-      );
-
-      const supplierSnapShot = await getDoc(supplierRef);
-      if (supplierSnapShot.exists()) {
-        const supplierData = supplierSnapShot.data();
-        const supplierBalance = supplierData.balance || 0;
-        const supplierNewBalance = supplierBalance - credit;
-        await updateDoc(supplierRef, { balance: supplierNewBalance });
-
-        const supplier_transaction: ISupplierTransactions = {
-          id: receipt.id,
-          supplierId: supplierId || "",
-          date: date,
-          reference: receipt.rcp,
-          transactionType: "Supplier Payment",
-          description: "",
-          debit: credit.toFixed(2),
-          credit: "",
-          balance: "",
-          invId: "",
-        };
-
+    if (
+      supplierId !== "" &&
+      date !== "" &&
+      reference !== "" &&
+      selection !== "" &&
+      credit !== 0
+    ) {
+      setLoading(true);
+      const receipt: IReceiptsPayments = {
+        id: "",
+        date: date,
+        reference: reference,
+        transactionType: "Supplier Payment",
+        description: description,
+        debit: "",
+        credit: credit.toFixed(2),
+        balance: balance,
+        propertyId: me?.property || "",
+        unitId: "",
+        invoiceNumber: "",
+        rcp: generateInvoiceNumber(),
+        supplierId: supplierId,
+      };
+      if ((me?.property, me?.year, me?.month))
         try {
-          if (me?.property && me?.year)
-            await api.body.supplier_transactions.create(
-              supplier_transaction,
-              me?.property,
-              me?.year,
-              receipt.id
-            );
+          await api.body.receiptPayments.create(receipt, me.property, me.year);
         } catch (error) {
           console.log(error);
         }
-
-        console.log("Balance updated successfully");
-      } else {
-        console.log("Docuemnt not found");
+      const accountTransactionReceipt: IAccountTransactions = {
+        id: "",
+        date: receipt.date,
+        BankCustomerSupplier:
+          suppliers.find((s) => s.value === supplierId)?.label || "",
+        reference: receipt.rcp,
+        transactionType: "Supplier Payment ",
+        description: selection,
+        debit: 0,
+        credit: parseFloat(receipt.credit),
+        balance: 0,
+        accounntType: selection,
+      };
+      try {
+        if (me?.property && me?.year) {
+          await api.body.accountsTransactions.create(
+            accountTransactionReceipt,
+            me.property,
+            me.year
+          );
+        }
+        console.log("created");
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
-    }
 
-    const bank_transaction: IBankingTransactions = {
-      id: "",
-      date: date,
-      payee: supplierId,
-      description: selection,
-      type: "Supplier",
-      selection: selection,
-      reference: "Supplier Payment",
-      VAT: "Exempted",
-      credit: credit.toFixed(2),
-      debit: "",
-    };
-    try {
-      if (me?.property && me?.bankAccountInUse)
-        await api.body.banking_transaction.create(
-          bank_transaction,
-          me.property,
-          me.bankAccountInUse
+      try {
+        const supplierPath = `BodyCoperate/${me?.property}`;
+        const supplierRef = doc(
+          collection(db, supplierPath, "Suppliers"),
+          supplierId
         );
-      console.log("transaction created");
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-      getData();
-      hideModalFromId(DIALOG_NAMES.BODY.CREATE_SUPPLIER_PAYMENT);
-      SuccessfulAction(ui);
+
+        const supplierSnapShot = await getDoc(supplierRef);
+        if (supplierSnapShot.exists()) {
+          const supplierData = supplierSnapShot.data();
+          const supplierBalance = supplierData.balance || 0;
+          const supplierNewBalance = supplierBalance - credit;
+          await updateDoc(supplierRef, { balance: supplierNewBalance });
+
+          const supplier_transaction: ISupplierTransactions = {
+            id: receipt.id,
+            supplierId: supplierId || "",
+            date: date,
+            reference: receipt.rcp,
+            transactionType: "Supplier Payment",
+            description: "",
+            debit: credit.toFixed(2),
+            credit: "",
+            balance: "",
+            invId: "",
+          };
+
+          try {
+            if (me?.property && me?.year)
+              await api.body.supplier_transactions.create(
+                supplier_transaction,
+                me?.property,
+                me?.year,
+                receipt.id
+              );
+          } catch (error) {
+            console.log(error);
+          }
+
+          console.log("Balance updated successfully");
+        } else {
+          console.log("Docuemnt not found");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+
+      const bank_transaction: IBankingTransactions = {
+        id: "",
+        date: date,
+        payee: supplierId,
+        description: selection,
+        type: "Supplier",
+        selection: selection,
+        reference: "Supplier Payment",
+        VAT: "Exempted",
+        credit: credit.toFixed(2),
+        debit: "",
+      };
+      try {
+        if (me?.property && me?.bankAccountInUse)
+          await api.body.banking_transaction.create(
+            bank_transaction,
+            me.property,
+            me.bankAccountInUse
+          );
+        console.log("transaction created");
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+        getData();
+        hideModalFromId(DIALOG_NAMES.BODY.CREATE_SUPPLIER_PAYMENT);
+        SuccessfulAction(ui);
+      }
+    } else {
+      FailedActionAllFields(ui);
     }
   };
 
@@ -248,37 +263,6 @@ const SupplierPayment = observer(() => {
   //confirm dialog
   const toast = useRef<Toast>(null);
 
-  const accept = () => {
-    createPayment();
-    toast.current?.show({
-      severity: "info",
-      summary: "Payment successfully created",
-      detail: "Supplier Payment",
-      life: 3000,
-    });
-  };
-
-  const reject = () => {
-    toast.current?.show({
-      severity: "warn",
-      summary: "Payment Not Created",
-      detail: "Supplier Payment Not created",
-      life: 3000,
-    });
-    hideModalFromId(DIALOG_NAMES.BODY.CREATE_SUPPLIER_PAYMENT);
-  };
-
-  const confirm = (position: any) => {
-    confirmDialog({
-      message: "Do you want to create a Supplier Payment?",
-      header: "Supplier Payment Confirmation",
-      icon: "pi pi-info-circle",
-      position,
-      accept,
-      reject,
-    });
-  };
-
   return (
     <div>
       <Toolbar2
@@ -325,21 +309,18 @@ const SupplierPayment = observer(() => {
           </h4>
           <div className="uk-grid-small" data-uk-grid>
             <div className="uk-width-1-2">
-              <label>Supplier</label>
-              <select
-                className="uk-input"
-                onChange={(e) => setSupplierId(e.target.value)}
-              >
-                <option>Select Supplier</option>
-                {suppliers.map((s) => (
-                  <option value={s.id}>
-                    {s.name} {s.description}
-                  </option>
-                ))}
-              </select>
+              <label>
+                Supplier <span style={{ color: "red" }}>*</span>
+              </label>
+              <SingleSelect
+                onChange={handleSupplierSelect}
+                options={suppliers}
+              />
             </div>
             <div className="uk-width-1-2">
-              <label>date</label>
+              <label>
+                date <span style={{ color: "red" }}>*</span>
+              </label>
               <input
                 className="uk-input"
                 type="date"
@@ -348,7 +329,9 @@ const SupplierPayment = observer(() => {
               />
             </div>
             <div className="uk-width-1-2">
-              <label>Reference</label>
+              <label>
+                Reference <span style={{ color: "red" }}>*</span>
+              </label>
               <input
                 className="uk-input"
                 type="text"
@@ -357,22 +340,15 @@ const SupplierPayment = observer(() => {
               />
             </div>
             <div className="uk-width-1-2">
-              <label>Select Acount</label>
+              <label>
+                Select Acount <span style={{ color: "red" }}>*</span>
+              </label>
               <SingleSelect options={accounts} onChange={handleSelectChange} />
-              {/* <select
-                className="uk-input"
-                onChange={(e) => setSelection(e.target.value)}
-              >
-                <option>Select Account</option>
-                {accounts.map((a) => (
-                  <option value={a.id}>
-                    Supplier {a.name} {a.description}
-                  </option>
-                ))}
-              </select> */}
             </div>
             <div className="uk-width-1-2">
-              <label>Description</label>
+              <label>
+                Description <span style={{ color: "red" }}>*</span>
+              </label>
               <input
                 className="uk-input"
                 type="text"
@@ -381,7 +357,9 @@ const SupplierPayment = observer(() => {
               />
             </div>
             <div className="uk-width-1-2">
-              <label>Amount</label>
+              <label>
+                Amount <span style={{ color: "red" }}>*</span>
+              </label>
               <NumberInput
                 value={credit}
                 onChange={(e) => setCredit(Number(e))}
@@ -389,21 +367,17 @@ const SupplierPayment = observer(() => {
             </div>
             <div className="uk-width-1-1">
               <button
+                onClick={createPayment}
                 className="uk-button primary margin-left"
-                onClick={() => confirm("right")}
               >
                 Save Payment
+                {loading && <div data-uk-spinner="ratio: .5"></div>}
               </button>
             </div>
-            {/* <IconButton onClick={() => confirm("right")}>
-              <SaveIcon />
-            </IconButton> */}
-            {loading && <p>loading...</p>}
+          
           </div>
         </div>
       </Modal>
-      <Toast ref={toast} />
-      <ConfirmDialog />
     </div>
   );
 });
