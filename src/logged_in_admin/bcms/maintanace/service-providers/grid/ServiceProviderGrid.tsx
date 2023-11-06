@@ -15,12 +15,12 @@ interface IProp {
   const ProviderGrid = observer(({ data }: IProp) => {
     const { store, api } = useAppContext();
   
-    const onUpdate = (announcement: IAnnouncements) => {
-      store.communication.announcements.select(announcement);
-      showModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_ANNOUNCEMENTS_DIALOG);
+    const onUpdate = (providers: IServiceProvider) => {
+      store.maintenance.servie_provider.select(providers);
+      showModalFromId(DIALOG_NAMES.MAINTENANCE.UPDATE_SERVICE_PROVIDER);
     };
-    const onView = (announcement: IAnnouncements) => {
-      store.communication.announcements.select(announcement);
+    const onDelete = (providers: IServiceProvider) => {
+      store.maintenance.servie_provider.select(providers);
       showModalFromId(DIALOG_NAMES.COMMUNICATION.VIEW_ANNOUNCEMENT_DIALOG);
     };
   
@@ -72,7 +72,7 @@ interface IProp {
             <button
               className="uk-margin-right uk-icon"
               data-uk-icon="trash"
-              onClick={() => onView(params.row)}
+              onClick={() => onDelete(params.row)}
             ></button>
           </div>
         ),

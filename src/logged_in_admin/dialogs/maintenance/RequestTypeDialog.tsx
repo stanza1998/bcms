@@ -87,7 +87,7 @@ export const RequestTypeDialog = observer(() => {
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Type Name
-                {requestType.typeName===" "&& <span style={{color:"red", marginLeft:"10px"}}>* Required</span>}
+                {requestType.typeName===" "&& <span style={{color:"red", marginLeft:"10px"}}>*</span>}
               </label>
               <div className="uk-form-controls">
                 <input

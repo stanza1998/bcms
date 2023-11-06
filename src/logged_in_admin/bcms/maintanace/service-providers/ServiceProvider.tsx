@@ -6,6 +6,7 @@ import DIALOG_NAMES from "../../../dialogs/Dialogs";
 import ServiceProviderGrid from "./grid/ServiceProviderGrid";
 import Modal from "../../../../shared/components/Modal";
 import { ServiceProviderDialog } from "../../../dialogs/maintenance/maintenance-request/ServiceProviderDialog";
+import { UpdateServiceProviderDialog } from "../../../dialogs/maintenance/maintenance-request/UpdateServiceProvider";
 
 
 export const ServiceProvider = observer(() => {
@@ -52,6 +53,9 @@ export const ServiceProvider = observer(() => {
     </div>
     <Modal modalId={DIALOG_NAMES.MAINTENANCE.CREATE_SERVICE_PROVIDER}>
       <ServiceProviderDialog/>
+    </Modal>
+    <Modal modalId={DIALOG_NAMES.MAINTENANCE.UPDATE_SERVICE_PROVIDER}>
+      <UpdateServiceProviderDialog/>
     </Modal>
     </>
   );

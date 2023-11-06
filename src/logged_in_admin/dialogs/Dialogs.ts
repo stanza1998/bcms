@@ -51,6 +51,7 @@ const DIALOG_NAMES = {
 
   MAINTENANCE: {
     CREATE_SERVICE_PROVIDER: "create-service-provider",
+    UPDATE_SERVICE_PROVIDER:"update-service-provider",
     CREATE_MAINTENANCE_REQUEST: "create-maintenance-request",
     CREATE_WORK_ORDER: "create-work-order",
     CREATE_REQUEST_TYPE: "create-request-type",

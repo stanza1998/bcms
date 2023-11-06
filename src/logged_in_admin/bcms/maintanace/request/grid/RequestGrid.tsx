@@ -26,11 +26,11 @@ interface IProp {
   
     const onUpdate = (MaintenanceRequest: IMaintenanceRequest) => {
       store.maintenance.maintenance_request.select(MaintenanceRequest);
-      showModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_MAINTENANCE_REQUEST); //create update modal
+      showModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_MAINTENANCE_REQUEST); //create update dialog
     };
     const onView = (MaintenanceRequest: IMaintenanceRequest) => {
       store.maintenance.maintenance_request.select(MaintenanceRequest);
-      showModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_MAINTENANCE_REQUEST); //create view modal
+      showModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_MAINTENANCE_REQUEST); //create view dialog
     };
   
     useEffect(() => {

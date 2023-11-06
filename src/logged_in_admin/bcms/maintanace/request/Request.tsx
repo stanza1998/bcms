@@ -16,9 +16,9 @@ export const RequestMaintenance = observer(() => {
       return a.asJson;
     });
   
-    // const filteredAnnouncements = announcements.sort(
-    //   (a, b) =>
-    //     new Date(b.expiryDate).getTime() - new Date(a.expiryDate).getTime()
+    //const filteredAnnouncements = announcements.sort(
+    //(a, b) =>
+    //new Date(b.expiryDate).getTime() - new Date(a.expiryDate).getTime()
     // );
    // VIEW_REQUEST_TYPE
 

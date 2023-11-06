@@ -85,6 +85,8 @@ export const MaintenanceRequestDialog = observer(() => {
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Description
+                {maintenanceRequest.description ==="" &&
+                (<span style={{color:"red"}}>*</span>)}
               </label>
               <div className="uk-form-controls">
                 <input
@@ -125,6 +127,8 @@ export const MaintenanceRequestDialog = observer(() => {
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Date Requested
+                {maintenanceRequest.dateRequested ==="" &&
+                (<span style={{color:"red"}}>*</span>)}
               </label>
               <div className="uk-form-controls">
                 <input
