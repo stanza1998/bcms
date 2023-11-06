@@ -58,7 +58,7 @@ const DIALOG_NAMES = {
   },
 
   OWNER: {
-    UPLOAD_RECURING_POP: "upload-recurring-POP",
+    UPLOAD_POP: "upload-POP",
     UPDATE_OWNER_DIALOG: "update-owner-dialog"
   },
 

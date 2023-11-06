@@ -12,7 +12,10 @@ import showModalFromId, {
   hideModalFromId,
 } from "../../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../../../dialogs/Dialogs";
-import { SuccessfulAction } from "../../../../../shared/models/Snackbar";
+import {
+  FailedActionAllFields,
+  SuccessfulAction,
+} from "../../../../../shared/models/Snackbar";
 import SupplierReturnGrid from "./grid/SupplierReturnsGrid";
 import SaveIcon from "@mui/icons-material/Save";
 import Modal from "../../../../../shared/components/Modal";
@@ -23,7 +26,7 @@ import NumberInput from "../../../../../shared/functions/number-input/NumberInpu
 import { Toast } from "primereact/toast";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-
+import SingleSelect from "../../../../../shared/components/single-select/SlingleSelect";
 
 export const SupplierReturns = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -36,59 +39,70 @@ export const SupplierReturns = observer(() => {
   const [date, setDate] = useState<string>("");
 
   const createSupplierReturn = async () => {
-    try {
-      setLoading(true);
+    if (
+      date !== "" &&
+      supplierId !== "" &&
+      reference !== "" &&
+      reference !== "" &&
+      balance !== 0 &&
+      selection !== ""
+    ) {
+      try {
+        setLoading(true);
 
-      if (!me?.property || !me?.year || !me?.month) {
-        throw new Error("Property, year, or month is missing.");
+        if (!me?.property || !me?.year || !me?.month) {
+          throw new Error("Property, year, or month is missing.");
+        }
+
+        const creditNote: ISupplierReturns = {
+          id: "",
+          date: date,
+          supplierId: supplierId,
+          balance: balance,
+          referecnce: reference,
+        };
+
+        await api.body.supplierReturn.create(
+          creditNote,
+          me.property,
+          me.year,
+          me.month,
+          supplierId
+        );
+
+        hideModalFromId(DIALOG_NAMES.BODY.CREATE_SUPPLIER_RETURN);
+        SuccessfulAction(ui);
+      } catch (error) {
+        console.error(error);
+        // Handle the error as needed (e.g., display a user-friendly message)
       }
-
-      const creditNote: ISupplierReturns = {
+      const bank_transaction: IBankingTransactions = {
         id: "",
         date: date,
-        supplierId: supplierId,
-        balance: balance,
-        referecnce: reference,
+        payee: supplierId,
+        description: selection,
+        type: "Supplier",
+        selection: selection,
+        reference: "Supplier Return",
+        VAT: "Exempted",
+        credit: "",
+        debit: balance.toFixed(2),
       };
-
-      await api.body.supplierReturn.create(
-        creditNote,
-        me.property,
-        me.year,
-        me.month,
-        supplierId
-      );
-
-      hideModalFromId(DIALOG_NAMES.BODY.CREATE_SUPPLIER_RETURN);
-      SuccessfulAction(ui);
-    } catch (error) {
-      console.error(error);
-      // Handle the error as needed (e.g., display a user-friendly message)
-    }
-    const bank_transaction: IBankingTransactions = {
-      id: "",
-      date: date,
-      payee: supplierId,
-      description: selection,
-      type: "Supplier",
-      selection: selection,
-      reference: "Supplier Return",
-      VAT: "Exempted",
-      credit: "",
-      debit: balance.toFixed(2),
-    };
-    try {
-      if (me?.property && me?.bankAccountInUse)
-        await api.body.banking_transaction.create(
-          bank_transaction,
-          me.property,
-          me.bankAccountInUse
-        );
-      console.log("transaction created");
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
+      try {
+        if (me?.property && me?.bankAccountInUse)
+          await api.body.banking_transaction.create(
+            bank_transaction,
+            me.property,
+            me.bankAccountInUse
+          );
+        console.log("transaction created");
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      FailedActionAllFields(ui);
     }
   };
 
@@ -109,6 +123,29 @@ export const SupplierReturns = observer(() => {
   const suppliers = store.bodyCorperate.supplier.all.map((u) => {
     return u.asJson;
   });
+
+  const _suppliers = store.bodyCorperate.supplier.all.map((u) => {
+    return {
+      label: u.asJson.name,
+      value: u.asJson.id,
+    };
+  });
+
+  const handleSelectSupplier = (selectedSupplier: string) => {
+    setSupplierId(selectedSupplier);
+  };
+
+  const _accounts = store.bodyCorperate.account.all.map((acc) => {
+    return {
+      label: acc.asJson.name,
+      value: acc.asJson.id,
+    };
+  });
+
+  const handleSelectAccount = (selectedAccount: string) => {
+    setSelection(selectedAccount);
+  };
+
   const returns = store.bodyCorperate.supplierReturn.all.map((u) => {
     return u.asJson;
   });
@@ -119,40 +156,6 @@ export const SupplierReturns = observer(() => {
   );
 
   const formattedTotal = nadFormatter.format(totalDebit);
-
-  //confirm dialog
-  const toast = useRef<Toast>(null);
-
-  const accept = () => {
-    createSupplierReturn();
-    toast.current?.show({
-      severity: "info",
-      summary: "Return successfully created",
-      detail: "Supplier Return",
-      life: 3000,
-    });
-  };
-
-  const reject = () => {
-    toast.current?.show({
-      severity: "warn",
-      summary: "Return Not Created",
-      detail: "Supplier Return Not created",
-      life: 3000,
-    });
-    hideModalFromId(DIALOG_NAMES.BODY.CREATE_SUPPLIER_RETURN);
-  };
-
-  const confirm = (position: any) => {
-    confirmDialog({
-      message: "Do you want to create a Supplier Return?",
-      header: "Supplier Return Confirmation",
-      icon: "pi pi-info-circle",
-      position,
-      accept,
-      reject,
-    });
-  };
 
   return (
     <div>
@@ -211,7 +214,9 @@ export const SupplierReturns = observer(() => {
           </h4>
           <div className="uk-grid-small" data-uk-grid>
             <div className="uk-width-1-2 ">
-              <label>Date</label>
+              <label>
+                Date <span style={{ color: "red" }}>*</span>
+              </label>
               <input
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
@@ -222,8 +227,14 @@ export const SupplierReturns = observer(() => {
             </div>
 
             <div className="uk-width-1-2 ">
-              <label>Supplier</label>
-              <select
+              <label>
+                Supplier <span style={{ color: "red" }}>*</span>
+              </label>
+              <SingleSelect
+                onChange={handleSelectSupplier}
+                options={_suppliers}
+              />
+              {/* <select
                 className="uk-input"
                 onChange={(e) => setSupplierId(e.target.value)}
                 required
@@ -234,11 +245,13 @@ export const SupplierReturns = observer(() => {
                     Unit {u.asJson.name} {u.asJson.description}
                   </option>
                 ))}
-              </select>
+              </select> */}
             </div>
 
             <div className="uk-width-1-2 ">
-              <label>Balance</label>
+              <label>
+                Balance <span style={{ color: "red" }}>*</span>
+              </label>
 
               <NumberInput
                 value={balance}
@@ -247,7 +260,9 @@ export const SupplierReturns = observer(() => {
             </div>
 
             <div className="uk-width-1-2 ">
-              <label>Reference</label>
+              <label>
+                Reference <span style={{ color: "red" }}>*</span>
+              </label>
               <input
                 value={reference}
                 onChange={(e) => setReference(e.target.value)}
@@ -258,30 +273,27 @@ export const SupplierReturns = observer(() => {
             </div>
 
             <div className="uk-width-1-1 ">
-              <label>Account </label>
-              <select
-                className="uk-input"
-                onChange={(e) => setSelection(e.target.value)}
-                required
-              >
-                <option value="">Select Account</option>
-                {store.bodyCorperate.account.all.map((u) => (
-                  <option value={u.asJson.id}>{u.asJson.name}</option>
-                ))}
-              </select>
+              <label>
+                Account <span style={{ color: "red" }}>*</span>
+              </label>
+              <SingleSelect
+                onChange={handleSelectAccount}
+                options={_accounts}
+              />
             </div>
             <div className="uk-width-1-1">
-            <button className="uk-button primary margin-left" onClick={()=>confirm("right")}>Save Returns</button>
+              <button
+                onClick={createSupplierReturn}
+                className="uk-button primary margin-left"
+                type="submit"
+              >
+                Save
+                {loading && <div data-uk-spinner="ratio: .5"></div>}
+              </button>
             </div>
-            {/* <IconButton disabled={loading} onClick={() => confirm("right")}>
-              <SaveIcon />
-            </IconButton> */}
-            {loading && <>loading...</>}
           </div>
         </div>
       </Modal>
-      <Toast ref={toast} />
-      <ConfirmDialog />
     </div>
   );
 });

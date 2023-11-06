@@ -6,7 +6,10 @@ import showModalFromId, {
   hideModalFromId,
 } from "../../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../../../dialogs/Dialogs";
-import { SuccessfulAction } from "../../../../../shared/models/Snackbar";
+import {
+  FailedActionAllFields,
+  SuccessfulAction,
+} from "../../../../../shared/models/Snackbar";
 import Toolbar2 from "../../../../shared/Toolbar2";
 import { IconButton } from "@mui/material";
 import CreditNoteGrid from "./grid/CreditNoteGrid";
@@ -24,6 +27,7 @@ import { ICustomerTransactions } from "../../../../../shared/models/transactions
 import { ICopiedInvoice } from "../../../../../shared/models/invoices/CopyInvoices";
 import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../../shared/database/FirebaseConfig";
+import SingleSelect from "../../../../../shared/components/single-select/SlingleSelect";
 
 const CustomerCreditNotes = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -63,87 +67,97 @@ const CustomerCreditNotes = observer(() => {
     getInvoiceNumber();
   }, [invoiceId, store.bodyCorperate.copiedInvoices.all]);
 
-  const createCreditNote = async () => {
-    try {
-      setLoading(true);
-
-      if (!me?.property || !me?.year || !me?.month) {
-        throw new Error("Property, year, or month is missing.");
-      }
-      const creditNote: ICreditNote = {
-        id: "",
-        date: date,
-        unitId: unitId,
-        balance: balance,
-        invoiceNumber: invoiceNumber,
-        customerReference: customerRef,
-      };
-
+  const createCreditNote = async (e: any) => {
+    e.preventDefault();
+    if (
+      unitId !== "" &&
+      invoiceId !== "" &&
+      balance !== 0 &&
+      selection !== ""
+    ) {
       try {
-        await api.body.creditNote.create(
-          creditNote,
-          me.property,
-          me.year,
-          me.month,
-          unitId
-        );
-      } catch (error) {
-        console.log(error);
-      }
+        setLoading(true);
 
-      const customerTransactionTaxInvoice: ICustomerTransactions = {
-        id: "", // You may need to generate a unique ID here
-        unitId: creditNote.unitId,
-        date: creditNote.date,
-        reference: generateRCPNumber(),
-        transactionType: "Customer Receipt",
-        description: customerRef,
-        debit: "",
-        credit: balance.toFixed(2),
-        balance: "", // Use updatedBalance here instead of (totalDue + updatedBalance)
-        balanceAtPointOfTime: "",
-        invId: invoiceId,
-      };
-
-      if (me?.property && me?.year) {
-        await api.body.customer_transactions.create(
-          customerTransactionTaxInvoice,
-          me.property,
-          me.year
-        );
-      }
-
-      try {
-        const copiedInvoicesPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
-        const invoiceRef = doc(
-          collection(db, copiedInvoicesPath, "CopiedInvoices"),
-          invoiceId
-        );
-        const invoiceSnapshot = await getDoc(invoiceRef);
-        if (invoiceSnapshot.exists()) {
-          const invoiceData = invoiceSnapshot.data();
-          const existingTotalPaid = invoiceData.totalPaid || 0; // Default to 0 if totalPaid doesn't exist
-          const updatedTotalPaid = existingTotalPaid + balance;
-          console.log(updatedTotalPaid);
-
-          await updateDoc(invoiceRef, {
-            totalPaid: updatedTotalPaid,
-          });
-        } else {
-          console.log("Invoice not found.");
-          return; // Return early if the invoice doesn't exist
+        if (!me?.property || !me?.year || !me?.month) {
+          throw new Error("Property, year, or month is missing.");
         }
-      } catch (error) {
-        console.error("Error:", error);
-      }
+        const creditNote: ICreditNote = {
+          id: "",
+          date: date,
+          unitId: unitId,
+          balance: balance,
+          invoiceNumber: invoiceNumber,
+          customerReference: customerRef,
+        };
 
-      SuccessfulAction(ui);
-    } catch (error) {
-      console.error(error);
-      // Handle the error as needed (e.g., display a user-friendly message)
-    } finally {
-      setLoading(false);
-      hideModalFromId(DIALOG_NAMES.BODY.CREDIT_NOTE);
+        try {
+          await api.body.creditNote.create(
+            creditNote,
+            me.property,
+            me.year,
+            me.month,
+            unitId
+          );
+        } catch (error) {
+          console.log(error);
+        }
+
+        const customerTransactionTaxInvoice: ICustomerTransactions = {
+          id: "", // You may need to generate a unique ID here
+          unitId: creditNote.unitId,
+          date: creditNote.date,
+          reference: generateRCPNumber(),
+          transactionType: "Customer Receipt",
+          description: customerRef,
+          debit: "",
+          credit: balance.toFixed(2),
+          balance: "", // Use updatedBalance here instead of (totalDue + updatedBalance)
+          balanceAtPointOfTime: "",
+          invId: invoiceId,
+        };
+
+        if (me?.property && me?.year) {
+          await api.body.customer_transactions.create(
+            customerTransactionTaxInvoice,
+            me.property,
+            me.year
+          );
+        }
+
+        try {
+          const copiedInvoicesPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
+          const invoiceRef = doc(
+            collection(db, copiedInvoicesPath, "CopiedInvoices"),
+            invoiceId
+          );
+          const invoiceSnapshot = await getDoc(invoiceRef);
+          if (invoiceSnapshot.exists()) {
+            const invoiceData = invoiceSnapshot.data();
+            const existingTotalPaid = invoiceData.totalPaid || 0; // Default to 0 if totalPaid doesn't exist
+            const updatedTotalPaid = existingTotalPaid + balance;
+            console.log(updatedTotalPaid);
+
+            await updateDoc(invoiceRef, {
+              totalPaid: updatedTotalPaid,
+            });
+          } else {
+            console.log("Invoice not found.");
+            return; // Return early if the invoice doesn't exist
+          }
+        } catch (error) {
+          console.error("Error:", error);
+        }
+
+        SuccessfulAction(ui);
+      } catch (error) {
+        console.error(error);
+        // Handle the error as needed (e.g., display a user-friendly message)
+      } finally {
+        setLoading(false);
+        hideModalFromId(DIALOG_NAMES.BODY.CREDIT_NOTE);
+      }
+    } else {
+      FailedActionAllFields(ui);
     }
   };
 
@@ -168,8 +182,15 @@ const CustomerCreditNotes = observer(() => {
   });
 
   const accounts = store.bodyCorperate.account.all.map((u) => {
-    return u.asJson;
+    return {
+      label: u.asJson.name,
+      value: u.asJson.id,
+    };
   });
+
+  const handleAccountSelected = (selectedAccount: string) => {
+    setSelection(selectedAccount);
+  };
 
   const credits = store.bodyCorperate.creditNote.all.map((u) => {
     return u.asJson;
@@ -182,38 +203,34 @@ const CustomerCreditNotes = observer(() => {
 
   const formattedTotal = nadFormatter.format(total);
 
-  //confirm dialog
-  const toast = useRef<Toast>(null);
-
-  const accept = () => {
-    createCreditNote();
-    toast.current?.show({
-      severity: "info",
-      summary: "Credit Note successfully created",
-      detail: "Customer Credit Note",
-      life: 3000,
+  //single select
+  const _units = store.bodyCorperate.unit.all
+    .sort((a, b) => a.asJson.unitName - b.asJson.unitName)
+    .map((u) => {
+      return {
+        label: "Unit " + u.asJson.unitName,
+        value: u.asJson.id,
+      };
     });
+
+  const handleSelectUnit = (selectUnit: string) => {
+    setUnitId(selectUnit);
   };
 
-  const reject = () => {
-    toast.current?.show({
-      severity: "warn",
-      summary: "Customer Credit Note Not Created",
-      detail: "Customer Credit Note",
-      life: 3000,
+  const invs = store.bodyCorperate.copiedInvoices.all
+    .filter((inv) => inv.asJson.unitId === unitId)
+    .map((inv) => {
+      return {
+        label:
+          inv.asJson.invoiceNumber +
+          " Due: " +
+          nadFormatter.format(inv.asJson.totalDue),
+        value: inv.asJson.invoiceId,
+      };
     });
-    hideModalFromId(DIALOG_NAMES.BODY.CREDIT_NOTE);
-  };
 
-  const confirm = (position: any) => {
-    confirmDialog({
-      message: "Do you want to create a Customer Credit Note?",
-      header: "Customer Credit Note Confirmation",
-      icon: "pi pi-info-circle",
-      position,
-      accept,
-      reject,
-    });
+  const handleSelectInvoice = (selectedInvoice: string) => {
+    setInvoiceId(selectedInvoice);
   };
 
   return (
@@ -259,8 +276,6 @@ const CustomerCreditNotes = observer(() => {
           })}
         units={units}
       />
-      <Toast ref={toast} />
-      <ConfirmDialog />
       <Modal modalId={DIALOG_NAMES.BODY.CREDIT_NOTE}>
         <div
           className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical"
@@ -275,9 +290,15 @@ const CustomerCreditNotes = observer(() => {
           <h4 style={{ textTransform: "uppercase" }} className="uk-modal-title">
             Create credit note
           </h4>
-          <div className="uk-grid-small" data-uk-grid>
-            <div className="uk-width-1-3 ">
-              <label>Date</label>
+          <form
+            onSubmit={createCreditNote}
+            className="uk-grid-small"
+            data-uk-grid
+          >
+            <div className="uk-width-1-2 ">
+              <label>
+                Date <span style={{ color: "red" }}>*</span>
+              </label>
               <input
                 className="uk-input"
                 type="date"
@@ -286,81 +307,64 @@ const CustomerCreditNotes = observer(() => {
                 required
               />
             </div>
-            <div className="uk-width-1-3 ">
-              <label>Customer</label>
-              <select
-                className="uk-input"
-                onChange={(e) => setUnitId(e.target.value)}
+            <div className="uk-width-1-2 ">
+              <label>
+                Customer <span style={{ color: "red" }}>*</span>
+              </label>
+              <SingleSelect
+                onChange={handleSelectUnit}
+                options={_units}
                 required
-              >
-                <option value="">Select Customer (unit)</option>
-                {store.bodyCorperate.unit.all.map((u) => (
-                  <option value={u.asJson.id}>Unit {u.asJson.unitName}</option>
-                ))}
-              </select>
+              />
             </div>
-            <div className="uk-width-1-3 ">
-              <label>Balance</label>
+
+            <div className="uk-width-1-2 ">
+              <label>
+                Invoice <span style={{ color: "red" }}>*</span>
+              </label>
+              <SingleSelect options={invs} onChange={handleSelectInvoice} />
+            </div>
+            <div className="uk-width-1-2 ">
+              <label>
+                Balance <span style={{ color: "red" }}>*</span>
+              </label>
               <NumberInput
                 value={balance}
                 onChange={(e) => setBalance(Number(e))}
+                required
               />
             </div>
-            <div className="uk-width-1-3 ">
-              <label>Invoice</label>
-              <select
-                className="uk-input"
-                onChange={(e) => setInvoiceId(e.target.value)}
-              >
-                <option value="">Select Invoice</option>
-                {store.bodyCorperate.copiedInvoices.all
-                  .filter((inv) => inv.asJson.unitId === unitId)
-                  .map((inv) => (
-                    <option value={inv.asJson.invoiceId}>
-                      Invoice Number: {inv.asJson.invoiceNumber} | Total Paid
-                      {": "}
-                      N$ {inv.asJson.totalPaid.toFixed(2)} | Total Due: N${" "}
-                      {inv.asJson.totalDue.toFixed(2)}
-                    </option>
-                  ))}
-              </select>
+            <div className="uk-width-1-2 ">
+              <label>
+                Account <span style={{ color: "red" }}>*</span>
+              </label>
+              <SingleSelect
+                onChange={handleAccountSelected}
+                options={accounts}
+              />
             </div>
-            <div className="uk-width-1-3 ">
-              <label>Account</label>
-              <select
-                className="uk-input"
-                onChange={(e) => setSelection(e.target.value)}
-              >
-                <option value="">Select Account (Selection)</option>
-                {accounts.map((inv) => (
-                  <option value={inv.id}>{inv.name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="uk-width-1-3 ">
-              <label>Customer Reference</label>
+            <div className="uk-width-1-2 ">
+              <label>
+                Customer Reference <span style={{ color: "red" }}>*</span>
+              </label>
               <input
                 value={customerRef}
                 onChange={(e) => setCustomerRef(e.target.value)}
                 className="uk-input"
                 type="text"
                 aria-label="25"
+                required
               />
             </div>
             <div className="uk-width-1-1">
-              <button
-                className="uk-button primary margin-left"
-                onClick={() => confirm("right")}
-              >
-                Save Credit Note
+              <button className="uk-button primary margin-left" type="submit">
+                Save
+                {loading && <div data-uk-spinner="ratio: .5"></div>}
               </button>
             </div>
-            {/* <IconButton disabled={loading} onClick={() => confirm("right")}>
-              <SaveIcon />
-            </IconButton> */}
+
             <br />
-            {loading && <>loading...</>}
-          </div>
+          </form>
         </div>
       </Modal>
     </div>

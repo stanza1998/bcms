@@ -60,6 +60,10 @@ export const CustomContactDialog = observer(() => {
     hideModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_CUSTOM_CONTACT);
   };
 
+  const reset = () => {
+    store.communication.customContacts.clearSelected();
+  };
+
   useEffect(() => {
     if (store.communication.customContacts.selected)
       setCustomContact(store.communication.customContacts.selected);
@@ -73,6 +77,7 @@ export const CustomContactDialog = observer(() => {
       <button
         className="uk-modal-close-default"
         type="button"
+        onClick={reset}
         data-uk-close
       ></button>
 
@@ -82,10 +87,10 @@ export const CustomContactDialog = observer(() => {
           <form className="uk-form-stacked" onSubmit={onSave}>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-              {customContact.name === '' && (
-    <span style={{ color: "red" }}>*</span>
-  )}
                 Name
+                {customContact.name === "" && (
+                  <span style={{ color: "red" }}>*</span>
+                )}
               </label>
               <div className="uk-form-controls">
                 <input
@@ -105,12 +110,12 @@ export const CustomContactDialog = observer(() => {
             </div>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-              {customContact.email === '' && (
-    <span style={{ color: "red" }}>*</span>
-  )}
                 Email
+                {customContact.email === "" && (
+                  <span style={{ color: "red" }}>*</span>
+                )}
               </label>
-         
+
               <div className="uk-form-controls">
                 <input
                   className="uk-input"
@@ -129,12 +134,12 @@ export const CustomContactDialog = observer(() => {
             </div>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-                            {customContact.cellTell === '' && (
-    <span style={{ color: "red" }}>*</span>
-  )}
                 Phone Number
+                {customContact.cellTell === "" && (
+                  <span style={{ color: "red" }}>*</span>
+                )}
               </label>
-  
+
               <div className="uk-form-controls">
                 <input
                   className="uk-input"
@@ -153,11 +158,11 @@ export const CustomContactDialog = observer(() => {
             </div>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-              {customContact.cityTown === '' && (
-    <span style={{ color: "red" }}>*</span>
-  )}
-                Town Or City 
-           </label>
+                Town Or City
+                {customContact.cityTown === "" && (
+                  <span style={{ color: "red" }}>*</span>
+                )}
+              </label>
               <div className="uk-form-controls">
                 <input
                   className="uk-input"
@@ -176,10 +181,10 @@ export const CustomContactDialog = observer(() => {
             </div>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-              {customContact.location === '' && (
-    <span style={{ color: "red" }}>*</span>
-  )}
                 Location
+                {customContact.location === "" && (
+                  <span style={{ color: "red" }}>*</span>
+                )}
               </label>
               <div className="uk-form-controls">
                 <input

@@ -4,8 +4,9 @@
   border-radius: 14px;
 
   .select__control {
-    min-height: 30px; // TODO: make this dynamic
-    border-radius: 0;
+    min-height: 40px; // TODO: make this dynamic
+    border-radius: 3px;
+
 
     &.select__control--is-focused {
       border-color: #1e87f0 !important;

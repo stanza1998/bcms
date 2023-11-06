@@ -22,8 +22,7 @@ export const ExpiredAnnouncements = observer(() => {
       (a, b) =>
         new Date(b.expiryDate).getTime() - new Date(a.expiryDate).getTime()
     )
-
-
+    .filter((announcement) => new Date(announcement.expiryDate) < currentDate);
 
   useEffect(() => {
     const getData = async () => {

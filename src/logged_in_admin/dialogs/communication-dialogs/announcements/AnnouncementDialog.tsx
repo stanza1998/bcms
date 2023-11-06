@@ -66,6 +66,10 @@ export const AnnouncementDialog = observer(() => {
     hideModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_ANNOUNCEMENTS_DIALOG);
   };
 
+  const reset = () => {
+    store.communication.announcements.clearSelected();
+  };
+
   useEffect(() => {
     if (store.communication.announcements.selected)
       setAnnouncement(store.communication.announcements.selected);
@@ -79,6 +83,7 @@ export const AnnouncementDialog = observer(() => {
       <button
         className="uk-modal-close-default"
         type="button"
+        onClick={reset}
         data-uk-close
       ></button>
 
@@ -89,6 +94,9 @@ export const AnnouncementDialog = observer(() => {
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Title
+                {announcement.title === "" && (
+                  <span style={{ color: "red" }}>*</span>
+                )}
               </label>
               <div className="uk-form-controls">
                 <input
@@ -109,6 +117,9 @@ export const AnnouncementDialog = observer(() => {
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Message
+                {announcement.message === "" && (
+                  <span style={{ color: "red" }}>*</span>
+                )}
               </label>
               <div className="uk-form-controls">
                 <textarea
@@ -128,6 +139,9 @@ export const AnnouncementDialog = observer(() => {
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Expiry Date
+                {announcement.dateAndTime === "" && (
+                  <span style={{ color: "red" }}>*</span>
+                )}
               </label>
               <div className="uk-form-controls">
                 <input
@@ -149,6 +163,7 @@ export const AnnouncementDialog = observer(() => {
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Priorty Level
               </label>
+
               <div className="uk-form-controls">
                 <select
                   className="uk-input"

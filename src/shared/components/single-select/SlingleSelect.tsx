@@ -34,7 +34,7 @@ const SingleSelect = (props: IProps) => {
     isClearable = true,
     isLoading = false,
     isSearchable = true,
-    required = false,
+    required = true,
     hideSelectedOptions = false,
     options,
     groupedOptions,

@@ -499,6 +499,7 @@ const OWNER_DRAWER = () => {
           </ul>
         </li>
       </ul>
+      <ACTIONLIST />
     </div>
   );
 };
@@ -684,8 +685,6 @@ const EMPLOYEE_USER_DRAWER = () => {
     </div>
   );
 };
-
-
 
 const DrawerList = observer(() => {
   const { store } = useAppContext();
