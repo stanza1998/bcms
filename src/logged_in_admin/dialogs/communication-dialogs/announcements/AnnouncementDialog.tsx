@@ -39,7 +39,7 @@ export const AnnouncementDialog = observer(() => {
         });
       } else {
         announcement.authorOrSender = me.uid;
-        announcement.dateAndTime = currentDate.toLocaleTimeString();
+        announcement.dateAndTime = currentDate.toUTCString();
 
         await api.communication.announcement.create(
           announcement,
@@ -87,7 +87,7 @@ export const AnnouncementDialog = observer(() => {
         data-uk-close
       ></button>
 
-      <h3 className="uk-modal-title">Announcement</h3>
+      <h3 className="uk-modal-title">Notice</h3>
       <div className="dialog-content uk-position-relative">
         <div className="reponse-form">
           <form className="uk-form-stacked" onSubmit={onSave}>

@@ -7,8 +7,8 @@ import MessageIcon from "@mui/icons-material/Message";
 import OverviewRequests from "./OverviewRequestsGrid";
 import Loading from "../../../shared/components/Loading";
 import Toolbar2 from "../../shared/Toolbar2";
-import ArrowCircleUpSharpIcon from "@mui/icons-material/ArrowCircleUpSharp";
-import ArrowCircleDownSharpIcon from "@mui/icons-material/ArrowCircleDownSharp";
+import icon1 from "../../../assets/undraw_discount_d-4-bd.svg";
+import { observer } from "mobx-react-lite";
 import PrintIcon from "@mui/icons-material/Print";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ArticleIcon from "@mui/icons-material/Article";
@@ -53,7 +53,7 @@ const totalRequests = maintenanceRequests.length;
 const totalClosedRequests = maintenanceRequests.filter((request)=>request.status ==="Closed").length;
 const totalOpenedRequests = maintenanceRequests.filter((request )=>request.status ==="Open").length;
 const totalInProgressRequests = maintenanceRequests.filter((request)=>request.status ==="In Progress").length;
-const totalDoneRequests = maintenanceRequests.filter((request)=>request.status ==="Done").length;
+// const totalDoneRequests = maintenanceRequests.filter((request)=>request.status ==="Done").length;
 const totalServiceProviders = serviceProviders.length;
 
   return (
@@ -180,7 +180,7 @@ const totalServiceProviders = serviceProviders.length;
             <p>{totalInProgressRequests}</p>
           </div>
         </div>
-        <div>
+        {/* <div>
           <div
             className="uk-card uk-card-default uk-card-body uk-card-small"
             style={{ background: "#000c37" }}
@@ -198,7 +198,7 @@ const totalServiceProviders = serviceProviders.length;
             </h3>
             <p> {totalDoneRequests}</p>
           </div>
-        </div>
+        </div> */}
       </div>
       <div className="tool-bar"></div>
       <div style={{padding:"10px"}}>

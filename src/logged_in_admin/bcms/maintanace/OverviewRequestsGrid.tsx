@@ -70,7 +70,7 @@ interface IProp {
             return (
               <span
                 style={{
-                  background: "blue",
+                  background: "grey",
                   color: "white",
                   padding: "10px",
                   width: "100%",

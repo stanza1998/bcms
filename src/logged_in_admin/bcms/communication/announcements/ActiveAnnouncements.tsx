@@ -4,9 +4,10 @@ import showModalFromId from "../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../../dialogs/Dialogs";
 import Modal from "../../../../shared/components/Modal";
 import { AnnouncementDialog } from "../../../dialogs/communication-dialogs/announcements/AnnouncementDialog";
-import AnnouncementGrid from "./grid/AnnouncementGrid";
 import { useEffect } from "react";
 import { ViewAnnouncementDialog } from "../../../dialogs/communication-dialogs/announcements/ViewAnnouncementDialog";
+import ActiveAnnouncementGrid from "./grid/ActiveAnnouncementsGrid";
+import AnnouncementGrid from "./grid/AnnouncementGrid";
 
 export const ActiveAnnouncements = observer(() => {
   const { api, store } = useAppContext();
@@ -15,7 +16,11 @@ export const ActiveAnnouncements = observer(() => {
 
   const announcements = store.communication.announcements.all.map((a) => {
     return a.asJson;
-  });
+  }).sort((
+    a,b
+  )=>
+  new Date(b.dateAndTime).getTime() - new Date(a.dateAndTime).getTime()
+  );
 
   const filteredAnnouncements = announcements
     .sort(
@@ -23,7 +28,6 @@ export const ActiveAnnouncements = observer(() => {
         new Date(b.expiryDate).getTime() - new Date(a.expiryDate).getTime()
     )
     .filter((announcement) => new Date(announcement.expiryDate) > currentDate);
-
 
   useEffect(() => {
     const getData = async () => {
@@ -37,7 +41,9 @@ export const ActiveAnnouncements = observer(() => {
   return (
     <div className="uk-section leave-analytics-page">
       <div className="uk-container uk-container-large">
-        <AnnouncementGrid data={filteredAnnouncements} />
+      {me?.role === "Owner" && (<ActiveAnnouncementGrid data={filteredAnnouncements}/>)}
+      {me?.role !=="Owner" && <AnnouncementGrid data={filteredAnnouncements} />}
+       
       </div>
       <Modal modalId={DIALOG_NAMES.COMMUNICATION.CREATE_ANNOUNCEMENTS_DIALOG}>
         <AnnouncementDialog />

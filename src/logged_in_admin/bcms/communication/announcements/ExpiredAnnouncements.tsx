@@ -7,6 +7,7 @@ import { AnnouncementDialog } from "../../../dialogs/communication-dialogs/annou
 import AnnouncementGrid from "./grid/AnnouncementGrid";
 import { useEffect } from "react";
 import { ViewAnnouncementDialog } from "../../../dialogs/communication-dialogs/announcements/ViewAnnouncementDialog";
+import ExpiredAnnouncementGrid from "./grid/ExpiredAnnouncementGrid";
 
 export const ExpiredAnnouncements = observer(() => {
   const { api, store } = useAppContext();
@@ -36,7 +37,7 @@ export const ExpiredAnnouncements = observer(() => {
   return (
     <div className="uk-section leave-analytics-page">
       <div className="uk-container uk-container-large">
-        <AnnouncementGrid data={filteredAnnouncements} />
+        <ExpiredAnnouncementGrid data={filteredAnnouncements} />
       </div>
       <Modal modalId={DIALOG_NAMES.COMMUNICATION.CREATE_ANNOUNCEMENTS_DIALOG}>
         <AnnouncementDialog />

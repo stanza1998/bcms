@@ -59,7 +59,7 @@ export const Communication = observer(() => {
   ]);
 
   const toAnnouncements = () => {
-    navigate("/c/communication/announcements");
+    navigate("/c/communication/notices");
   };
   const toContactManagement = () => {
     navigate("/c/communication/contact-management");

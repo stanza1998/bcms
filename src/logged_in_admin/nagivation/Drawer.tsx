@@ -212,21 +212,21 @@ const ADMIN_DRAWER = () => {
               </NavLink>
             </li>
             <li>
-              <NavLink to={`communication/announcements`} className="navlink">
+              <NavLink to={`communication/notices`} className="navlink">
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
-                Announcements
+                Notices
               </NavLink>
             </li>
-            <li>
+            {/* <li>
               <NavLink to={`communication/private-message`} className="navlink">
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
                 Message Board
               </NavLink>
-            </li>
+            </li> */}
             <li>
               <NavLink
                 to={`communication/contact-management`}
@@ -485,7 +485,7 @@ const OWNER_DRAWER = () => {
                 Overview
               </NavLink>
             </li> */}
-            <li>
+            {/* <li>
               <NavLink
                 to={`finance/owner-communication/owner-private-message`}
                 className="navlink"
@@ -494,6 +494,14 @@ const OWNER_DRAWER = () => {
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
                 Chat
+              </NavLink>
+            </li> */}
+            <li>
+              <NavLink to={`finance/owner-communication/notices`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Notices
               </NavLink>
             </li>
           </ul>

@@ -27,12 +27,12 @@ export const Announcements = observer(() => {
     <div className="uk-section leave-analytics-page">
       <div className="uk-container uk-container-large">
         <div className="section-toolbar uk-margin">
-          <h4 className="section-heading uk-heading">Announcements</h4>
+          <h4 className="section-heading uk-heading">Notices</h4>
           <div className="controls">
             <div className="uk-inline">
-              <button className="uk-button primary" onClick={onCreate}>
-                Create announcement
-              </button>
+              {me?.role !=="Owner" && (    <button className="uk-button primary" onClick={onCreate}>
+                Create Notice
+              </button>)}
             </div>
           </div>
         </div>
@@ -42,19 +42,21 @@ export const Announcements = observer(() => {
             className="uk-margin  uk-card-default"
           >
             <Tab
-              label="Active Announcements"
+              label="Active Notices"
               isActive={activeTab === "Active"}
               onClick={() => handleTabClick("Active")}
             />
             <Tab
-              label="Expired Announcement"
+              label="Expired Notices"
               isActive={activeTab === "Expired"}
               onClick={() => handleTabClick("Expired")}
             />
           </div>
           <div className="tab-content">
+            
             {activeTab === "Active" && <ActiveAnnouncements />}
             {activeTab === "Expired" && <ExpiredAnnouncements />}
+            
           </div>
         </div>
         <Modal modalId={DIALOG_NAMES.COMMUNICATION.CREATE_ANNOUNCEMENTS_DIALOG}>

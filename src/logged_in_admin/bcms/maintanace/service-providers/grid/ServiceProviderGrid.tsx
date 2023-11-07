@@ -13,16 +13,26 @@ interface IProp {
   }
   
   const ProviderGrid = observer(({ data }: IProp) => {
-    const { store, api } = useAppContext();
-  
+    const { store, api,ui } = useAppContext();
+    const me = store.user.meJson;
     const onUpdate = (providers: IServiceProvider) => {
       store.maintenance.servie_provider.select(providers);
       showModalFromId(DIALOG_NAMES.MAINTENANCE.UPDATE_SERVICE_PROVIDER);
     };
-    const onDelete = (providers: IServiceProvider) => {
-      store.maintenance.servie_provider.select(providers);
-      showModalFromId(DIALOG_NAMES.COMMUNICATION.VIEW_ANNOUNCEMENT_DIALOG);
+    const onDelete = async (uid: string) => {
+      if (!window.confirm("Delete Service Provider?")) return;
+      if (me?.property) {
+      await api.maintenance.service_provider.delete(uid , me.property);
+      store.maintenance.servie_provider.remove(uid);
+      }
+      ui.snackbar.load({
+        id: Date.now(),
+        message: "Service Provider deleted!",
+        type: "success",
+      });
     };
+
+    
   
     useEffect(() => {
       const getUsers = async () => {
@@ -72,7 +82,7 @@ interface IProp {
             <button
               className="uk-margin-right uk-icon"
               data-uk-icon="trash"
-              onClick={() => onDelete(params.row)}
+              onClick={() => onDelete(params.row.id)}
             ></button>
           </div>
         ),

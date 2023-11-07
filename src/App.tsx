@@ -82,7 +82,7 @@ const ADMIN_USER_ROUTES = () => {
             element={<Communication />}
           />
           <Route
-            path={`communication/announcements`}
+            path={`communication/notices`}
             element={<Announcements />}
           />
           <Route
@@ -249,6 +249,10 @@ const OWNER_ROUTES = () => {
           <Route
             path={`/c/finance/owner-communication/owner-private-message`}
             element={<OwnerPrivateMessage />}
+          />
+           <Route
+            path={`/c/finance/owner-communication/notices`}
+            element={<Announcements />}
           />
         </Route>
         <Route path="/" element={<SignIn />} />
