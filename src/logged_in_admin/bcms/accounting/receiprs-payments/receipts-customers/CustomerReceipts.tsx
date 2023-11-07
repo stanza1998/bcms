@@ -251,6 +251,11 @@ const CustomerReceipts = observer(() => {
   };
 
   const invoices = store.bodyCorperate.copiedInvoices.all
+    .sort(
+      (a, b) =>
+        new Date(b.asJson.dateIssued).getTime() -
+        new Date(a.asJson.dateIssued).getTime()
+    )
     .filter(
       (inv) =>
         inv.asJson.unitId === unitId &&
@@ -259,6 +264,9 @@ const CustomerReceipts = observer(() => {
     .map((inv) => {
       return {
         label:
+          "Date: " +
+          inv.asJson.dateIssued +
+          " | " +
           inv.asJson.invoiceNumber +
           " Due: " +
           nadFormatter.format(inv.asJson.totalDue - inv.asJson.totalPaid),

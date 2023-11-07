@@ -219,9 +219,17 @@ const CustomerCreditNotes = observer(() => {
 
   const invs = store.bodyCorperate.copiedInvoices.all
     .filter((inv) => inv.asJson.unitId === unitId)
+    .sort(
+      (a, b) =>
+        new Date(b.asJson.dateIssued).getTime() -
+        new Date(a.asJson.dateIssued).getTime()
+    )
     .map((inv) => {
       return {
         label:
+          "Date: " +
+          inv.asJson.dateIssued +
+          " | " +
           inv.asJson.invoiceNumber +
           " Due: " +
           nadFormatter.format(inv.asJson.totalDue - inv.asJson.totalPaid),
