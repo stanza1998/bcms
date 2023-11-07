@@ -84,9 +84,11 @@ export const MaintenanceRequestDialog = observer(() => {
           <form className="uk-form-stacked" onSubmit={onSave}>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
+
                 Description
-                {maintenanceRequest.description ==="" &&
-                (<span style={{color:"red"}}>*</span>)}
+                {maintenanceRequest.description === "" && (
+                  <span style={{ color: "red" }}>*</span>
+                )}
               </label>
               <div className="uk-form-controls">
                 <input

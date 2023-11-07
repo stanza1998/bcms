@@ -57,7 +57,9 @@ export const OwnerAccount = observer(() => {
                 <div
                   className="uk-card uk-card-default uk-card-body"
                   onClick={onView}
-                  style={{ cursor: "pointer" }}
+                  style={{ cursor: "pointer",
+                
+                }}
                 >
                   <p>
                     Property Name:

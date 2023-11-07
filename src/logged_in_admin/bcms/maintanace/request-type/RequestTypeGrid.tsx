@@ -3,6 +3,7 @@ import { GridColDef, DataGrid } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useAppContext } from "../../../../shared/functions/Context";
 import { IRequestType } from "../../../../shared/models/maintenance/request/maintenance-request/types/RequestTypes";
+import { useEffect } from "react";
 
 
 interface IProp {
@@ -10,7 +11,7 @@ interface IProp {
 }
 
 const RequestTypeGrid = observer(({ data }: IProp) => {
-  const { store } = useAppContext();
+  const { store,api } = useAppContext();
   const me = store.user.meJson;
 
   const columns: GridColDef[] = [
@@ -23,13 +24,7 @@ const RequestTypeGrid = observer(({ data }: IProp) => {
       field: "Action",
       headerName: "Action",
       width: 0,
-    //   renderCell: (params) => (
-    //     <div>
-    //       {params.row.id === me?.property && (
-    //         <CorporateCard key={params.id} body={params.row} />
-    //       )}
-    //     </div>
-    //   ),
+
     },
   ];
 

@@ -16,6 +16,8 @@ export const ViewRequestTypes = observer(() => {
       ...defaultRequestType,
     });
 
+    const requests = store.maintenance.requestType.all;
+
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -61,18 +63,28 @@ export const ViewRequestTypes = observer(() => {
     hideModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_REQUEST_TYPE);
   };
 
+ 
   useEffect(() => {
     const getData = async () => {
-      if (me?.property && me?.year) {
+      try {
+        if(me?.property){
+          await api.maintenance.request_type.getAll(me?.property);
+        }
+      } catch (error) {
+        console.error("Error occurred while fetching data:", error);
       }
     };
     getData();
-    if (store.maintenance.requestType.selected && me?.property)
-    setRequestType(store.maintenance.requestType.selected);
-    else setRequestType({ ...defaultRequestType });
+  }, [api.maintenance.request_type]);
 
-    return () => {};
-  }, [store.maintenance.requestType.selected]);
+  setTimeout(() => {
+    setLoading(false);
+  }, 1000);
+  const requestTypes = requests.sort((a, b) => {
+    if (a.asJson.id === me?.property) return -1; // 'abc' comes first
+    if (b.asJson.id === me?.property) return 1; // 'abc' comes first
+    return 0; // keep the order for non-'abc' elements
+  });
 
   console.log("Type"+ requestType);
 

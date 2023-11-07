@@ -88,7 +88,7 @@ export const ServiceProviderDialog = observer(() => {
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Service Provider
-                {serviceProviderRequest.serviceProvideName===" "&& <span style={{color:"red", marginLeft:"10px"}}>* Required</span>}
+                {serviceProviderRequest.serviceProvideName==="" && <span style={{color:"red", marginLeft:"10px"}}>*</span>}
               </label>
               <div className="uk-form-controls">
                 <input
@@ -109,7 +109,7 @@ export const ServiceProviderDialog = observer(() => {
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Email
-                {serviceProviderRequest.email===" "&& <span style={{color:"red", marginLeft:"10px"}}>* Required</span>}
+                {serviceProviderRequest.email==="" && <span style={{color:"red", marginLeft:"10px"}}>*</span>}
               </label>
               <div className="uk-form-controls">
                 <input
@@ -130,7 +130,7 @@ export const ServiceProviderDialog = observer(() => {
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Phone Number
-                {serviceProviderRequest.phoneNumber===" "&& <span style={{color:"red", marginLeft:"10px"}}>* Required</span>}
+                {serviceProviderRequest.phoneNumber==="" && <span style={{color:"red", marginLeft:"10px"}}>*</span>}
               </label>
               <div className="uk-form-controls">
                 <input
@@ -151,7 +151,7 @@ export const ServiceProviderDialog = observer(() => {
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Date Created 
-                {serviceProviderRequest.dateCreated===" "&& <span style={{color:"red", marginLeft:"10px"}}>* Required</span>}
+                {serviceProviderRequest.dateCreated==="" && <span style={{color:"red", marginLeft:"10px"}}>*</span>}
               </label>
               <div className="uk-form-controls">
                 <input
@@ -172,7 +172,7 @@ export const ServiceProviderDialog = observer(() => {
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Specialisation 
-                {serviceProviderRequest.specializationi===" "&& <span style={{color:"red", marginLeft:"10px"}}>* Required</span>}
+                {serviceProviderRequest.specializationi === "" && <span style={{color:"red", marginLeft:"10px"}}>*</span>}
               </label>
               <div className="uk-form-controls">
                 <input

@@ -64,13 +64,13 @@ export const RequestTypeDialog = observer(() => {
     hideModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_REQUEST_TYPE);
   };
 
-//   useEffect(() => {
-//     if (store.maintenance.requestType.selected)
-//     setRequestType(store.maintenance.maintenance_request.selected);
-//     else setRequestType({ ...defaultMaintenanceRequest });
+  useEffect(() => {
+    if (store.maintenance.requestType.selected)
+    setRequestType(store.maintenance.requestType.selected);
+    else setRequestType({ ...defaultRequestType });
 
-//     return () => {};
-//   }, [store.maintenance.maintenance_request.selected]);
+    return () => {};
+  }, [store.maintenance.requestType.selected]);
 
   return (
     <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
@@ -87,7 +87,7 @@ export const RequestTypeDialog = observer(() => {
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Type Name
-                {requestType.typeName===" "&& <span style={{color:"red", marginLeft:"10px"}}>*</span>}
+                {requestType.typeName === "" && <span style={{color:"red", marginLeft:"10px"}}>*</span>}
               </label>
               <div className="uk-form-controls">
                 <input

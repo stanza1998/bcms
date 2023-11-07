@@ -93,9 +93,6 @@ export const AnnouncementDialog = observer(() => {
           <form className="uk-form-stacked" onSubmit={onSave}>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-              {announcement.title === '' && (
-    <span style={{ color: "red" }}>*</span>
-  )}
                 Title
                 {announcement.title === "" && (
                   <span style={{ color: "red" }}>*</span>
@@ -119,9 +116,6 @@ export const AnnouncementDialog = observer(() => {
             </div>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-              {announcement.message === '' && (
-    <span style={{ color: "red" }}>*</span>
-  )}
                 Message
                 {announcement.message === "" && (
                   <span style={{ color: "red" }}>*</span>
@@ -144,9 +138,6 @@ export const AnnouncementDialog = observer(() => {
             </div>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-              {announcement.expiryDate === '' && (
-    <span style={{ color: "red" }}>*</span>
-  )}
                 Expiry Date
                 {announcement.dateAndTime === "" && (
                   <span style={{ color: "red" }}>*</span>
@@ -170,10 +161,10 @@ export const AnnouncementDialog = observer(() => {
             </div>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-              {announcement.priorityLevel === '' && (
+                Priorty Level
+                {announcement.priorityLevel === '' && (
     <span style={{ color: "red" }}>*</span>
   )}
-                Priorty Level
               </label>
 
               <div className="uk-form-controls">

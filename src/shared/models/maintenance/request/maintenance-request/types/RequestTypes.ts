@@ -3,7 +3,7 @@ import AppStore from "../../../../../stores/AppStore";
 
 export const defaultRequestType: IRequestType = {
     id: "",
-    typeName: ""
+    typeName: "",
 };
 
 export interface IRequestType {
