@@ -47,10 +47,13 @@ const CustomerBalance = observer(() => {
     if (differenceInDays <= 30) {
       unitAgingTotals[unitId].current += totalDue;
     } else if (differenceInDays <= 60) {
+      // Changed the condition here
       unitAgingTotals[unitId].days30 += totalDue;
     } else if (differenceInDays <= 90) {
+      // Changed the condition here
       unitAgingTotals[unitId].days60 += totalDue;
     } else if (differenceInDays <= 120) {
+      // Changed the condition here
       unitAgingTotals[unitId].days90 += totalDue;
     } else {
       unitAgingTotals[unitId].days120Plus += totalDue;

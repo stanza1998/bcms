@@ -8,7 +8,6 @@ import icon3 from "../../assets/undraw_segmentation_re_gduq.svg";
 import icon4 from "../../assets/undraw_setup_analytics_re_foim.svg";
 import icon5 from "../../assets/undraw_charts_re_5qe9.svg";
 
-
 export const SupplierInvoicesOverview = () => {
   //tabs
 
@@ -120,15 +119,12 @@ export const SupplierInvoicesOverview = () => {
             </div>
             <div className="tab-content">
               {activeTab === "normal" && (
-                <div
-                  className="uk-card-extra uk-card-default uk-card-body uk-width-1-1@m"
-                  style={{ height: "30rem" }}
-                >
+                <div className=" uk-card-default uk-card-body uk-width-1-1@m">
                   <NormalLineGraph />
                 </div>
               )}
               {activeTab === "recuring" && (
-                <div className="uk-card-extra uk-card-default uk-card-body uk-width-1-1@m">
+                <div className=" uk-card-default uk-card-body uk-width-1-1@m">
                   <PieChart />
                 </div>
               )}
