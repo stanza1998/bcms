@@ -3,76 +3,68 @@ import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
-  Filler,
   Legend,
 } from "chart.js";
-import { Line } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
-  Filler,
   Legend
 );
 
 export const options = {
   responsive: true,
-  with: 400,
-  maintainAspectRatio: false,
-  innerHeight: 800,
   plugins: {
     legend: {
       position: "top" as const,
     },
     title: {
       display: true,
-      text: "Revenue Trend",
+      text: "",
     },
   },
 };
 
 const labels = [
-  "January",
-  "February",
-  "March",
+  "Jan",
+  "Feb",
+  "Mar",
   "April",
   "May",
   "June",
   "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ];
 
 export const data = {
   labels,
   datasets: [
     {
-      fill: true,
       label: "Revenue",
       data: [
-        220, 210, 212, 213, 233, 244, 230, 221, 231, 243, 233, 220, 200, 201,
+        3300, 24000, 2345, 2000, 20000, 18000, 9000, 19000, 18500, 10000, 75000,
+        4000,
       ],
-      borderColor: "#01aced",
-      backgroundColor: "#000c37",
+      backgroundColor: "#01aced",
     },
   ],
 };
 
 export function NormalLineGraph() {
   return (
-
-      <Line options={options} data={data} />
-
+    <div style={{ width: "100%" }}>
+      <Bar options={options} data={data} />
+    </div>
   );
 }

@@ -261,7 +261,7 @@ const CustomerReceipts = observer(() => {
         label:
           inv.asJson.invoiceNumber +
           " Due: " +
-          nadFormatter.format(inv.asJson.totalDue),
+          nadFormatter.format(inv.asJson.totalDue - inv.asJson.totalPaid),
         value: inv.asJson.invoiceId,
       };
     });

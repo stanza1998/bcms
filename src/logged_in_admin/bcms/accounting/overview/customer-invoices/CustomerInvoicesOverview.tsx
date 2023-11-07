@@ -163,14 +163,14 @@ export const CustomerInvoicesOverview = observer(() => {
             <div className="tab-content">
               {activeTab === "normal" && (
                 <div
-                  className="uk-card-extra uk-card-default uk-card-body uk-width-1-1@m"
-                  style={{ height: "30rem" }}
+                  className="uk-card-default uk-card-body uk-width-1-1@m"
+              
                 >
                   <NormalLineGraph />
                 </div>
               )}
               {activeTab === "recuring" && (
-                <div className="uk-card-extra uk-card-default uk-card-body uk-width-1-1@m">
+                <div className="uk-card-default uk-card-body uk-width-1-1@m">
                   <PieChart />
                 </div>
               )}
