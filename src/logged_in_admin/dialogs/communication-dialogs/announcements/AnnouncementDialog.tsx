@@ -7,6 +7,7 @@ import {
   IAnnouncements,
   defaultAnnouncements,
 } from "../../../../shared/models/communication/announcements/AnnouncementModel";
+import { MAIL_ANNOUNCEMENTS } from "../../../shared/mailMessages";
 
 export const AnnouncementDialog = observer(() => {
   const { api, store, ui } = useAppContext();
@@ -59,9 +60,24 @@ export const AnnouncementDialog = observer(() => {
         type: "danger",
       });
     }
+    //send emails to owners wuth units in that specific property.
+
+    const { MY_SUBJECT, MY_BODY } = MAIL_ANNOUNCEMENTS(
+      announcement.title,
+      announcement.message
+    );
+
+    await api.mail.sendMail(
+      "",
+      ["narib98jerry@gmail.com"],
+      MY_SUBJECT,
+      MY_BODY,
+      ""
+    );
 
     store.communication.announcements.clearSelected();
     setAnnouncement({ ...defaultAnnouncements });
+
     setLoading(false);
     hideModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_ANNOUNCEMENTS_DIALOG);
   };
@@ -162,9 +178,9 @@ export const AnnouncementDialog = observer(() => {
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Priorty Level
-                {announcement.priorityLevel === '' && (
-    <span style={{ color: "red" }}>*</span>
-  )}
+                {announcement.priorityLevel === "" && (
+                  <span style={{ color: "red" }}>*</span>
+                )}
               </label>
 
               <div className="uk-form-controls">

@@ -60,6 +60,7 @@ import { RequestMaintenance } from "./logged_in_admin/bcms/maintanace/request/Re
 import { ServiceProvider } from "./logged_in_admin/bcms/maintanace/service-providers/ServiceProvider";
 import { MaintenenceReports } from "./logged_in_admin/bcms/maintanace/reports/Reports";
 import { WorkOrder } from "./logged_in_admin/bcms/maintanace/work-order/WorkOrder";
+import { ViewFolder } from "./logged_in_admin/bcms/meetings/ViewFolder";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -81,10 +82,7 @@ const ADMIN_USER_ROUTES = () => {
             path={`communication/com-overview`}
             element={<Communication />}
           />
-          <Route
-            path={`communication/notices`}
-            element={<Announcements />}
-          />
+          <Route path={`communication/notices`} element={<Announcements />} />
           <Route
             path={`communication/private-message`}
             element={<PrivateMessage />}
@@ -92,6 +90,12 @@ const ADMIN_USER_ROUTES = () => {
           <Route
             path={`communication/contact-management`}
             element={<ContactOverview />}
+          />
+          <Route path={`communication/documents`} element={<Documents />} />
+          <Route path={`communication/meetings`} element={<Meetings />} />
+          <Route
+            path={`/c/communication/meetings/:folderId`}
+            element={<ViewFolder />}
           />
           {/* Communication ends here */}
           {/* Meetings  */}
@@ -250,7 +254,7 @@ const OWNER_ROUTES = () => {
             path={`/c/finance/owner-communication/owner-private-message`}
             element={<OwnerPrivateMessage />}
           />
-           <Route
+          <Route
             path={`/c/finance/owner-communication/notices`}
             element={<Announcements />}
           />

@@ -47,11 +47,13 @@ const DIALOG_NAMES = {
     VIEW_ANNOUNCEMENT_DIALOG: "view-announcement-dialog",
     CREATE_CUSTOM_CONTACT: "create-custom-contact",
     VIEW_ANNOUNCEMENTS_DIALOG: "view-announcements-dialog",
+    CREATE_MEETING_FOLDER: "create-meeting-folder",
+    CREATE_MEETING_DIALOG: "create-meeting-dialog"
   },
 
   MAINTENANCE: {
     CREATE_SERVICE_PROVIDER: "create-service-provider",
-    UPDATE_SERVICE_PROVIDER:"update-service-provider",
+    UPDATE_SERVICE_PROVIDER: "update-service-provider",
     CREATE_MAINTENANCE_REQUEST: "create-maintenance-request",
     CREATE_WORK_ORDER: "create-work-order",
     CREATE_REQUEST_TYPE: "create-request-type",

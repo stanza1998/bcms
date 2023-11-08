@@ -59,10 +59,10 @@ export const Communication = observer(() => {
   ]);
 
   const toAnnouncements = () => {
-    navigate("/c/communication/notices");
+    // navigate("/c/communication/notices");
   };
   const toContactManagement = () => {
-    navigate("/c/communication/contact-management");
+    // navigate("/c/communication/contact-management");
   };
 
   const _announcements = store.communication.announcements.all.map((a) => {
@@ -104,7 +104,7 @@ export const Communication = observer(() => {
                 }}
               >
                 <CampaignIcon style={{ color: "#01aced", fontSize: "34px" }} />{" "}
-                Total Announcement
+                Total Notices
               </h3>
               <p>{totalAnnouments}</p>
             </div>
@@ -123,7 +123,7 @@ export const Communication = observer(() => {
                 }}
               >
                 <CampaignIcon style={{ color: "green", fontSize: "34px" }} />{" "}
-                Active Announcement
+                Active Notices
               </h3>
               <p>{totalActiveAnnouncements}</p>
             </div>
@@ -142,7 +142,7 @@ export const Communication = observer(() => {
                 }}
               >
                 <CampaignIcon style={{ color: "red", fontSize: "34px" }} />{" "}
-                Expired Announcements
+                Expired Notices
               </h3>
               <p>{totalExpiredAnnouncements}</p>
             </div>
@@ -179,7 +179,7 @@ export const Communication = observer(() => {
           <div>
             <div className="uk-child-width-1-1 uk-text-center" data-uk-grid>
               <div>
-                <ExpiredAnnouncementGrid data={_announcements} />
+                <ExpiredAnnouncementGrid data={filteredAnnouncements} />
               </div>
             </div>
           </div>

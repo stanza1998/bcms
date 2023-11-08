@@ -45,23 +45,23 @@ const OwnerDashBoard = () => {
     setAttachment(file || null);
   };
 
-  const sendMail = async (e: any) => {
-    e.preventDefault();
-    if (!attachment) return;
+  // const sendMail = async (e: any) => {
+  //   e.preventDefault();
+  //   if (!attachment) return;
 
-    try {
-      await api.mail.sendMail(
-        fullname,
-        email,
-        subject,
-        message,
-        link,
-        attachment
-      );
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //   try {
+  //     await api.mail.sendMail(
+  //       fullname,
+  //       email,
+  //       subject,
+  //       message,
+  //       link,
+  //       attachment
+  //     );
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   return (
     <>
@@ -69,7 +69,7 @@ const OwnerDashBoard = () => {
         // action="https://www.koshaservices.com/php/bcms.php?"
         // method="post"
         encType="multipart/form-data"
-        onSubmit={sendMail}
+        // onSubmit={sendMail}
       >
         <input
           className="uk-input"

@@ -238,6 +238,20 @@ const ADMIN_DRAWER = () => {
                 Contacts
               </NavLink>
             </li>
+            <li>
+              <NavLink to={`communication/meetings`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Meetings
+              </NavLink>
+              <NavLink to={`communication/documents`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Documents
+              </NavLink>
+            </li>
           </ul>
         </li>
         <li className="list-item uk-parent">
@@ -290,7 +304,7 @@ const ADMIN_DRAWER = () => {
             </li> */}
           </ul>
         </li>
-        <li className="list-item uk-parent">
+        {/* <li className="list-item uk-parent">
           <NavLink to={`meetings`} className="navlink">
             <span className="uk-margin-small-right">
               <MeetingRoomIcon style={{ fontSize: "16px" }} />
@@ -335,7 +349,7 @@ const ADMIN_DRAWER = () => {
               </NavLink>
             </li>
           </ul>
-        </li>
+        </li> */}
 
         <li className="list-item uk-parent">
           <NavLink to={`admin`} className="navlink">
@@ -497,7 +511,10 @@ const OWNER_DRAWER = () => {
               </NavLink>
             </li> */}
             <li>
-              <NavLink to={`finance/owner-communication/notices`} className="navlink">
+              <NavLink
+                to={`finance/owner-communication/notices`}
+                className="navlink"
+              >
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
