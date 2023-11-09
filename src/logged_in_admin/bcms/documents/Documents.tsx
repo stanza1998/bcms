@@ -8,6 +8,7 @@ import DIALOG_NAMES from "../../dialogs/Dialogs";
 import folder from "./assets/folder_3139112.png";
 import Modal from "../../../shared/components/Modal";
 import { DocumentCategoryDialog } from "../../dialogs/communication-dialogs/documents/DocumentCategories";
+import "./meeting-card.scss";
 
 export const Documents = observer(() => {
   const { api, store } = useAppContext();
@@ -41,7 +42,7 @@ export const Documents = observer(() => {
   }, [api.communication.documentCategory, me?.property]);
 
   return (
-    <div className="uk-section leave-analytics-page">
+    <div className="uk-section leave-analytics-page meeting-card">
       <div className="uk-container uk-container-large">
         <div className="section-toolbar uk-margin">
           <h4 className="section-heading uk-heading">Document Folders</h4>

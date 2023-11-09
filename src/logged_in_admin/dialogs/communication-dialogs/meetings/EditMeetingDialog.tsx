@@ -17,6 +17,7 @@ import {
   getFileName,
   getIconForExtension,
   getUsersEmail,
+  isDateAfterCurrentDate,
 } from "../../../shared/common";
 import {
   getStorage,
@@ -197,7 +198,7 @@ export const EditMeetingDialog = observer(() => {
   return (
     <div
       className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical uk-width-2-3@s uk-width-2-3@m uk-width-2-1@l"
-    //   style={{ width: "80%" }}
+      //   style={{ width: "80%" }}
     >
       <button
         className="uk-modal-close-default"
@@ -231,6 +232,7 @@ export const EditMeetingDialog = observer(() => {
                       })
                     }
                     required
+                    disabled={isDateAfterCurrentDate(meeting.startDateAndTime)}
                   />
                 </div>
               </div>
@@ -254,6 +256,7 @@ export const EditMeetingDialog = observer(() => {
                       })
                     }
                     required
+                    disabled={isDateAfterCurrentDate(meeting.startDateAndTime)}
                   />
                 </div>
               </div>
@@ -276,6 +279,7 @@ export const EditMeetingDialog = observer(() => {
                       })
                     }
                     required
+                    disabled={isDateAfterCurrentDate(meeting.startDateAndTime)}
                   />
                 </div>
               </div>
@@ -298,6 +302,7 @@ export const EditMeetingDialog = observer(() => {
                       })
                     }
                     required
+                    disabled={isDateAfterCurrentDate(meeting.startDateAndTime)}
                   />
                 </div>
               </div>
@@ -320,6 +325,7 @@ export const EditMeetingDialog = observer(() => {
                         location: e.target.value,
                       })
                     }
+                    disabled={isDateAfterCurrentDate(meeting.startDateAndTime)}
                   />
                 </div>
               </div>
@@ -342,6 +348,7 @@ export const EditMeetingDialog = observer(() => {
                         meetingLink: e.target.value,
                       })
                     }
+                    disabled={isDateAfterCurrentDate(meeting.startDateAndTime)}
                   />
                 </div>
               </div>
@@ -376,6 +383,9 @@ export const EditMeetingDialog = observer(() => {
                           }
                         : null;
                     })}
+                    isDisabled={isDateAfterCurrentDate(
+                      meeting.startDateAndTime
+                    )}
                   />
                 </div>
               </div>
@@ -410,50 +420,57 @@ export const EditMeetingDialog = observer(() => {
                           }
                         : null;
                     })}
+                    isDisabled={isDateAfterCurrentDate(
+                      meeting.startDateAndTime
+                    )}
                   />
                 </div>
               </div>
               {/* display attachments */}
-              <table className="uk-table uk-table-small uk-table-striped">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Extension</th>
-                    <th>file</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {meeting.attachments.map((attachment, index) => {
-                    const fileName = getFileName(attachment);
-                    const extension = getFileExtension(attachment);
-                    const icon = getIconForExtensionExtra(extension); // You can use your existing getIconForExtension function here
+              {meeting.attachments.length === 0 ? (
+                <span style={{ color: "red" }}>No Attachements</span>
+              ) : (
+                <table className="uk-table uk-table-small uk-table-striped">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Extension</th>
+                      <th>file</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {meeting.attachments.map((attachment, index) => {
+                      const fileName = getFileName(attachment);
+                      const extension = getFileExtension(attachment);
+                      const icon = getIconForExtensionExtra(extension); // You can use your existing getIconForExtension function here
 
-                    return (
-                      <tr key={index}>
-                        <td>{fileName}</td>
-                        <td>{extension}</td>
-                        <td>
-                          <a
-                            href={attachment}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <img
-                              src={icon}
-                              alt="File icon"
-                              width="24"
-                              height="24"
-                              style={{ cursor: "pointer" }}
-                            />
-                          </a>
-                          <br />
-                          {/* File Extension: {extension} */}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                      return (
+                        <tr key={index}>
+                          <td>{fileName}</td>
+                          <td>{extension}</td>
+                          <td>
+                            <a
+                              href={attachment}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <img
+                                src={icon}
+                                alt="File icon"
+                                width="24"
+                                height="24"
+                                style={{ cursor: "pointer" }}
+                              />
+                            </a>
+                            <br />
+                            {/* File Extension: {extension} */}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
               <div className="uk-width-1-1">
                 <label className="uk-form-label" htmlFor="attachments">
                   Meeting Attachments
