@@ -34,3 +34,10 @@ export const MAIL_ANNOUNCEMENTS = (
         MY_BODY: MY_BODY.join("<br/>")
     };
 };
+
+export const MAIL_MEETINGS = (
+    title: string | null | undefined,
+    message: string | null | undefined
+) => {
+    //to complete email notifications
+}

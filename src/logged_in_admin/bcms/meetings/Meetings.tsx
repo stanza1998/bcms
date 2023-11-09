@@ -13,7 +13,6 @@ import { useNavigate, useParams } from "react-router-dom";
 export const Meetings = observer(() => {
   const { api, store } = useAppContext();
   const me = store.user.meJson;
-  const { id } = useParams();
   const navigate = useNavigate();
 
   const folders = store.communication.meetingFolder.all.map((f) => {
@@ -85,7 +84,7 @@ export const Meetings = observer(() => {
               </div>
             </div>
           ))}
-          {folder.length === 0 && (
+          {folders.length === 0 && (
             <span style={{ color: "red" }}>No folders</span>
           )}
         </div>

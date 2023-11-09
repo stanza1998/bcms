@@ -48,7 +48,10 @@ const DIALOG_NAMES = {
     CREATE_CUSTOM_CONTACT: "create-custom-contact",
     VIEW_ANNOUNCEMENTS_DIALOG: "view-announcements-dialog",
     CREATE_MEETING_FOLDER: "create-meeting-folder",
-    CREATE_MEETING_DIALOG: "create-meeting-dialog"
+    CREATE_MEETING_DIALOG: "create-meeting-dialog",
+    EDIT_MEETING_DIALOG: "edit-meeting-dialog",
+    CREATE_DOCUMENT_CATEGORY: "create-document-category",
+    CREATE_DOCUMENT_FILE: "create-document-file"
   },
 
   MAINTENANCE: {

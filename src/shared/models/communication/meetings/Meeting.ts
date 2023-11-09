@@ -3,6 +3,7 @@ import AppStore from "../../../stores/AppStore";
 
 export const defaultMeeting: IMeeting = {
     id: "",
+    dateCreate: "",
     folderId: "",
     title: "",
     startDateAndTime: "",
@@ -12,21 +13,16 @@ export const defaultMeeting: IMeeting = {
     meetingLink: "",
     organizer: "",
     status: "Scheduled",
-    ownerParticipants: [{
-        ownerName: "",
-        emailAddress: ""
-    }],
-    externalParticipants: [{
-        externalPersonName: "",
-        emailAddress: ""
-    }],
     meetingNote: "",
     priority: "",
     attachments: [],
+    ownerParticipants: [],
+    externalParticipants: []
 };
 
 export interface IMeeting {
     id: string;
+    dateCreate: string;
     folderId: string;
     title: string;
     startDateAndTime: string;
@@ -36,18 +32,20 @@ export interface IMeeting {
     location: string;
     organizer: string;
     status: string;
-    ownerParticipants: IOwnerParticipants[];
-    externalParticipants: IExternalParticipants[];
+    ownerParticipants: string[];
+    externalParticipants: string[];
     meetingNote: string;
     priority: string;
     meetingLink: string;
 }
 
-interface IOwnerParticipants {
+export interface IOwnerParticipants {
+    id: string;
     ownerName: string;
     emailAddress: string;
 }
-interface IExternalParticipants {
+export interface IExternalParticipants {
+    id: string;
     externalPersonName: string;
     emailAddress: string;
 }

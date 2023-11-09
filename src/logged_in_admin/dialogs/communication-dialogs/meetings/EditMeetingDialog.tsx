@@ -12,6 +12,9 @@ import makeAnimated from "react-select/animated";
 import Select from "react-select";
 import {
   getCustomUserEmail,
+  getFileExtension,
+  getIconForExtensionExtra,
+  getFileName,
   getIconForExtension,
   getUsersEmail,
 } from "../../../shared/common";
@@ -33,13 +36,12 @@ interface Attachment {
   extension: string;
 }
 
-export const MeetingDialog = observer(() => {
+export const EditMeetingDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
   const me = store.user.meJson;
   const [folder, setFolder] = useState<string>("");
   const animatedComponents = makeAnimated();
-  const currentDate = Date.now();
   const [attachmentUploading, setAttachmentUploading] = useState<number>(0);
 
   const [meeting, setMeeting] = useState<IMeeting>({
@@ -105,72 +107,51 @@ export const MeetingDialog = observer(() => {
     e.preventDefault();
     setLoading(true);
 
-    const uploadTasks: Promise<string>[] = attachments.map(
-      async (attachment) => {
-        const { file, name } = attachment;
-        const storagePath = `meeting-attachments/${encodeURIComponent(
-          meeting.title
-        )}/${encodeURIComponent(name)}`;
-        const storageChildRef = ref(storage, storagePath);
-
-        // Upload file to storage and get download URL
-        const uploadTask: UploadTask = uploadBytesResumable(
-          storageChildRef,
-          file
-        );
-        const snapshot = await uploadTask;
-
-        // Get download URL after upload
-        const downloadUrl = await getDownloadURL(storageChildRef);
-        return downloadUrl;
-      }
-    );
-
     try {
+      const uploadTasks: Promise<string>[] = attachments.map(
+        async (attachment) => {
+          const { file, name } = attachment;
+          const storagePath = `meeting-attachments/${encodeURIComponent(
+            meeting.title
+          )}/${encodeURIComponent(name)}`;
+          const storageChildRef = ref(storage, storagePath);
+
+          // Upload file to storage and get download URL
+          const uploadTask: UploadTask = uploadBytesResumable(
+            storageChildRef,
+            file
+          );
+          const snapshot = await uploadTask;
+
+          // Get download URL after upload
+          const downloadUrl = await getDownloadURL(storageChildRef);
+          return downloadUrl;
+        }
+      );
+
       // Wait for all uploads to complete and get download URLs
       const attachmentUrls = await Promise.all(uploadTasks);
 
-      // Create a new meeting object with attachment URLs
+      // Create a new meeting object with updated attachment URLs
       const updatedMeeting: IMeeting = {
         ...meeting,
         attachments: [...meeting.attachments, ...attachmentUrls],
       };
 
-      if (store.communication.meeting.selected) {
+      if (store.communication.meeting.selected && me?.property) {
         // If meeting is selected, update the existing meeting
-        if (me?.property) {
-          await api.communication.meeting.update(
-            updatedMeeting,
-            me.property,
-            folder
-          );
-          await store.communication.meeting.load();
-        }
+        await api.communication.meeting.update(
+          updatedMeeting,
+          me.property,
+          meeting.folderId
+        );
+        await store.communication.meeting.load();
+
         ui.snackbar.load({
           id: Date.now(),
           message: "Meeting updated!",
           type: "success",
         });
-      } else {
-        // If meeting is not selected, create a new meeting
-        updatedMeeting.folderId = folder;
-        updatedMeeting.organizer = me?.uid || "";
-        updatedMeeting.dateCreate = currentDate.toLocaleString();
-        if (me?.property) {
-          await api.communication.meeting.create(
-            updatedMeeting,
-            me?.property,
-            folder
-          );
-          ui.snackbar.load({
-            id: Date.now(),
-            message: "Meeting created!",
-            type: "success",
-          });
-          setMeeting({ ...updatedMeeting, externalParticipants: [] });
-          setMeeting({ ...updatedMeeting, ownerParticipants: [] });
-          setMeeting({ ...updatedMeeting, folderId: "" });
-        }
       }
     } catch (error) {
       ui.snackbar.load({
@@ -178,14 +159,12 @@ export const MeetingDialog = observer(() => {
         message: "Error! Failed to save Meeting.",
         type: "danger",
       });
+    } finally {
+      // Clear attachments and reset form state
+      setAttachments([]);
+      setLoading(false);
+      hideModalFromId(DIALOG_NAMES.COMMUNICATION.EDIT_MEETING_DIALOG);
     }
-
-    // Clear attachments and reset form state
-    setAttachments([]);
-    setFolder("");
-    setMeeting({ ...defaultMeeting });
-    setLoading(false);
-    hideModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_MEETING_DIALOG);
   };
 
   const reset = () => {
@@ -217,8 +196,8 @@ export const MeetingDialog = observer(() => {
 
   return (
     <div
-      className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical"
-      style={{ width: "70%" }}
+      className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical uk-width-2-3@s uk-width-2-3@m uk-width-2-1@l"
+    //   style={{ width: "80%" }}
     >
       <button
         className="uk-modal-close-default"
@@ -232,7 +211,7 @@ export const MeetingDialog = observer(() => {
         <div className="reponse-form">
           <form className="uk-form-stacked " onSubmit={onSave}>
             <div className="uk-grid-small" data-uk-grid>
-              <div className="uk-width-1-2">
+              <div className="uk-width-1-1">
                 <label className="uk-form-label" htmlFor="form-stacked-text">
                   Meeting Title
                   {meeting.title === "" && (
@@ -255,21 +234,7 @@ export const MeetingDialog = observer(() => {
                   />
                 </div>
               </div>
-              <div className="uk-width-1-2">
-                <label className="uk-form-label" htmlFor="form-stacked-text">
-                  Select Folder
-                  {meeting.folderId === "" && (
-                    <span style={{ color: "red" }}>*</span>
-                  )}
-                </label>
-                <div className="uk-form-controls">
-                  <SingleSelect
-                    onChange={handleSelectFolder}
-                    options={folders}
-                    value={folder}
-                  />
-                </div>
-              </div>
+
               <div className="uk-width-1-2">
                 <label className="uk-form-label" htmlFor="form-stacked-text">
                   Start Date And Time
@@ -387,7 +352,7 @@ export const MeetingDialog = observer(() => {
                     <span style={{ color: "" }}> (optional)</span>
                   )}
                 </label>
-                <div className="uk-margin uk-form-controls">
+                <div className="uk-form-controls">
                   <Select
                     closeMenuOnSelect={false}
                     components={animatedComponents}
@@ -414,7 +379,7 @@ export const MeetingDialog = observer(() => {
                   />
                 </div>
               </div>
-              <div className="uk-margin uk-width-1-1">
+              <div className="uk-width-1-1">
                 <label className="uk-form-label" htmlFor="form-stacked-text">
                   Custom Created Attendees
                   {meeting.meetingLink === "" && (
@@ -448,6 +413,47 @@ export const MeetingDialog = observer(() => {
                   />
                 </div>
               </div>
+              {/* display attachments */}
+              <table className="uk-table uk-table-small uk-table-striped">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Extension</th>
+                    <th>file</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {meeting.attachments.map((attachment, index) => {
+                    const fileName = getFileName(attachment);
+                    const extension = getFileExtension(attachment);
+                    const icon = getIconForExtensionExtra(extension); // You can use your existing getIconForExtension function here
+
+                    return (
+                      <tr key={index}>
+                        <td>{fileName}</td>
+                        <td>{extension}</td>
+                        <td>
+                          <a
+                            href={attachment}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <img
+                              src={icon}
+                              alt="File icon"
+                              width="24"
+                              height="24"
+                              style={{ cursor: "pointer" }}
+                            />
+                          </a>
+                          <br />
+                          {/* File Extension: {extension} */}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
               <div className="uk-width-1-1">
                 <label className="uk-form-label" htmlFor="attachments">
                   Meeting Attachments

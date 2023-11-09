@@ -1,0 +1,53 @@
+.meeting-card {
+  .uk-card {
+    transition: transform 0.7s ease, border 0.3s ease;
+    border-radius: 7px;
+  }
+
+  .uk-card:hover {
+    transform: scale(1.05);
+    border: 2px solid #01aced;
+  }
+  .status-indicator {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #ff5733;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  .scheduled {
+    background-color: #ffce0b;
+    color: black;
+    /* Scheduled status color (yellow) */
+  }
+
+  .in-progress {
+    background-color: #01aced; /* In Progress status color (blue) */
+  }
+
+  .done {
+    background-color: #00ae00; /* Done status color (green) */
+  }
+
+  .top-left-span {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+  }
+
+  .top-right-span {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+
+  .bottom-right-span {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+  }
+}
