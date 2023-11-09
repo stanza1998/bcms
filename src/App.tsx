@@ -61,6 +61,7 @@ import { ServiceProvider } from "./logged_in_admin/bcms/maintanace/service-provi
 import { MaintenenceReports } from "./logged_in_admin/bcms/maintanace/reports/Reports";
 import { WorkOrder } from "./logged_in_admin/bcms/maintanace/work-order/WorkOrder";
 import { ViewFolder } from "./logged_in_admin/bcms/meetings/ViewFolder";
+import { ViewDocuments } from "./logged_in_admin/bcms/documents/ViewDocuments";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -96,6 +97,10 @@ const ADMIN_USER_ROUTES = () => {
           <Route
             path={`/c/communication/meetings/:folderId`}
             element={<ViewFolder />}
+          />
+          <Route
+            path={`/c/communication/documents/:documenrFolderId`}
+            element={<ViewDocuments />}
           />
           {/* Communication ends here */}
           {/* Meetings  */}

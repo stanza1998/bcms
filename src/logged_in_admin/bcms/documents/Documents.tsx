@@ -28,8 +28,8 @@ export const Documents = observer(() => {
     showModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_DOCUMENT_CATEGORY);
   };
 
-  const toFolder = (folderId: string) => {
-    // navigate(`/c/communication/meetings/${folderId}`);
+  const toFolder = (documenrFolderId: string) => {
+    navigate(`/c/communication/documents/${documenrFolderId}`);
   };
 
   useEffect(() => {

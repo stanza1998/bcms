@@ -4,13 +4,17 @@ import AppStore from "../../../stores/AppStore";
 export const defaultDocumentFile: IDocumentFile = {
     id: "",
     documentFileName: "",
-    fileUrl: ""
+    fileUrl: "",
+    dateCreated: "",
+    fid: ""
 };
 
 export interface IDocumentFile {
     id: string;
     documentFileName: string;
     fileUrl: string;
+    dateCreated: string;
+    fid: string
 }
 
 export default class DocumentFileModel {
