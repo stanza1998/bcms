@@ -15,29 +15,64 @@ import MapsHomeWorkIcon from "@mui/icons-material/MapsHomeWork";
 import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ApartmentIcon from "@mui/icons-material/Apartment";
-import { FailedAction, SuccessfulAction } from "../../shared/models/Snackbar";
-import showModalFromId, {
-  hideModalFromId,
-} from "../../shared/functions/ModalShow";
-import DIALOG_NAMES from "../dialogs/Dialogs";
-import Modal from "../../shared/components/Modal";
-import { IconButton } from "@mui/material";
-import { IPropertyBankAccount } from "../../shared/models/property-bank-account/PropertyBankAccount";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../../shared/database/FirebaseConfig";
 import { ACTIONLIST } from "./Account";
 
 interface IImage {
   imgUrl: string | undefined;
 }
 
-export const Account = (props: IImage) => {
+export const Account = observer((props: IImage) => {
+  const { store, api } = useAppContext();
+  const me = store.user.meJson;
+
+  const properties = store.bodyCorperate.bodyCop.all;
+
+  useEffect(() => {
+    const getData = async () => {
+      if ((me?.property, me?.year)) {
+        await api.body.body.getAll();
+        await api.body.propertyBankAccount.getAll(me.property);
+        await api.body.financialYear.getAll(me?.property);
+        await api.communication.announcement.getAll(me.property, me.year);
+        await api.body.financialMonth.getAll(me.property, me.year);
+      } else if (me?.property === "") {
+        // FailedAction("User property not set");
+      }
+    };
+    getData();
+  }, [
+    api.body.body,
+    api.body.financialMonth,
+    api.body.financialYear,
+    api.communication.announcement,
+    api.body.propertyBankAccount,
+    me?.property,
+    me?.year,
+  ]);
+
   return (
     <div className="brand uk-margin">
-      <img src={`${props.imgUrl}`} alt="LOGO" />
+      <img src={`${props.imgUrl}`} alt="L5OGO" />
+      <div style={{ margin: "30px" }}>
+        <span
+          className="uk-margin-right"
+          style={{ textTransform: "uppercase" }}
+        >
+          {properties
+            .filter((p) => p.asJson.id === me?.property)
+            .map((p) => {
+              return p?.asJson.BodyCopName;
+            })}
+          {properties
+            .filter((p) => p.asJson.id === me?.property)
+            .map((p) => {
+              return p.asJson.BodyCopName;
+            }).length === 0 && <>Property NOT Selected</>}
+        </span>
+      </div>
     </div>
   );
-};
+});
 
 const ADMIN_DRAWER = () => {
   return (
@@ -78,10 +113,10 @@ const ADMIN_DRAWER = () => {
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
-                Customers list
+                Properties list
               </NavLink>
             </li>
-            <li>
+            {/* <li>
               <NavLink to={`body/suppliers`} className="navlink">
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
@@ -104,7 +139,7 @@ const ADMIN_DRAWER = () => {
                 </span>
                 Account Categories
               </NavLink>
-            </li>
+            </li> */}
             {/* <li>
               <NavLink to={`body/transfer`} className="navlink">
                 <span className="uk-margin-small-right">
@@ -116,7 +151,7 @@ const ADMIN_DRAWER = () => {
           </ul>
         </li>
 
-        <li className="list-item uk-parent">
+        {/* <li className="list-item uk-parent">
           <NavLink to={`accounting`} className="navlink">
             <span className="uk-margin-small-right">
               <MoneyIcon style={{ fontSize: "16px" }} />
@@ -189,7 +224,7 @@ const ADMIN_DRAWER = () => {
               </NavLink>
             </li>
           </ul>
-        </li>
+        </li> */}
         <li className="list-item uk-parent">
           <NavLink to={`communication`} className="navlink">
             <span className="uk-margin-small-right">
@@ -381,14 +416,14 @@ const ADMIN_DRAWER = () => {
               </NavLink>
             </li>
             <li>
-              <li>
+              {/* <li>
                 <NavLink to={`admin/others`} className="navlink">
                   <span className="uk-margin-small-right">
                     <DoubleArrowIcon style={{ fontSize: "15px" }} />
                   </span>
                   Settings
                 </NavLink>
-              </li>
+              </li> */}
               <NavLink to={`admin/appearance`} className="navlink">
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />

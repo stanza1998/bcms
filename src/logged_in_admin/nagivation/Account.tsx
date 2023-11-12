@@ -28,9 +28,6 @@ export const ACTIONLIST = observer(() => {
   const onUpdateYear = () => {
     showModalFromId(DIALOG_NAMES.BODY.FINANCIAL_YEAR);
   };
-  const onUpdateMonth = () => {
-    showModalFromId(DIALOG_NAMES.BODY.FINANCIAL_MONTH);
-  };
   const onUpdateAccoount = () => {
     showModalFromId(DIALOG_NAMES.BODY.BANK_ACCOUNT_UPDATE);
   };
@@ -146,7 +143,7 @@ export const ACTIONLIST = observer(() => {
         <></>
       ) : (
         <>
-          <div className="uk-margin">
+          {/* <div className="uk-margin">
             <div className="uk-margin-left">
               <button
                 onClick={onUpdateYear}
@@ -178,7 +175,7 @@ export const ACTIONLIST = observer(() => {
                 Create Bank
               </button>
             </div>
-          </div>
+          </div> */}
         </>
       )}
       <Modal modalId={DIALOG_NAMES.BODY.PROPERTY_ACCOUNT}>

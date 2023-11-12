@@ -106,7 +106,7 @@ export const Communication = observer(() => {
                 <CampaignIcon style={{ color: "#01aced", fontSize: "34px" }} />{" "}
                 Total Notices
               </h3>
-              <p>{totalAnnouments}</p>
+              <p className="number">{totalAnnouments}</p>
             </div>
           </div>
           <div onClick={toAnnouncements}>
@@ -125,7 +125,7 @@ export const Communication = observer(() => {
                 <CampaignIcon style={{ color: "green", fontSize: "34px" }} />{" "}
                 Active Notices
               </h3>
-              <p>{totalActiveAnnouncements}</p>
+              <p className="number">{totalActiveAnnouncements}</p>
             </div>
           </div>
           <div onClick={toAnnouncements}>
@@ -144,7 +144,7 @@ export const Communication = observer(() => {
                 <CampaignIcon style={{ color: "red", fontSize: "34px" }} />{" "}
                 Expired Notices
               </h3>
-              <p>{totalExpiredAnnouncements}</p>
+              <p className="number">{totalExpiredAnnouncements}</p>
             </div>
           </div>
           <div onClick={toContactManagement}>
@@ -166,13 +166,13 @@ export const Communication = observer(() => {
                 />{" "}
                 Total Contacts
               </h3>
-              <p> {totalContact}</p>
+              <p className="number"> {totalContact}</p>
             </div>
           </div>
         </div>
         <div className="uk-child-width-1-2 uk-text-center" data-uk-grid>
           <div>
-            <div style={{ height: "50rem" }}>
+            <div style={{ height: "100%" }}>
               <AnnouncementGraph />
             </div>
           </div>

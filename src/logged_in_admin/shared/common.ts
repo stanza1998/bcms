@@ -11,6 +11,7 @@ import ppt from "./file-icons/ppt_4726016.png"
 import xls from "./file-icons/xls-file_9681350.png"
 import _xlsx from "./file-icons/xlsx_8361467.png"
 import d from "./file-icons/documentation_10517465.png"
+import { IUser } from "../../shared/interfaces/IUser";
 
 
 export const getFileExtension = (url: string): string => {
@@ -117,34 +118,34 @@ export function formatMeetingTime(startTimestamp: string, endTimestamp: string) 
         // Meeting is in the future
         const minutesLeft = Math.floor(timeDifferenceStart / (1000 * 60));
         if (minutesLeft < 60) {
-            return `${minutesLeft} minute${minutesLeft !== 1 ? 's' : ''} left`;
+            return `Meeting Starts in ${minutesLeft} minute${minutesLeft !== 1 ? 's' : ''} `;
         } else if (minutesLeft < 1440) {
             const hoursLeft = Math.floor(minutesLeft / 60);
-            return `${hoursLeft} hour${hoursLeft !== 1 ? 's' : ''} left`;
+            return `Meeting Starts in ${hoursLeft} hour${hoursLeft !== 1 ? 's' : ''} `;
         } else if (minutesLeft < 43200) { // 43200 minutes in a month (assuming 30 days in a month)
             const daysLeft = Math.floor(minutesLeft / 1440);
-            return `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left`;
+            return `Meeting Starts in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}`;
         } else if (minutesLeft < 525600) { // 525600 minutes in a year (assuming 365 days in a year)
             const monthsLeft = Math.floor(minutesLeft / 43200);
-            return `${monthsLeft} month${monthsLeft !== 1 ? 's' : ''} left`;
+            return `Meeting Starts in ${monthsLeft} month${monthsLeft !== 1 ? 's' : ''} `;
         } else {
             const yearsLeft = Math.floor(minutesLeft / 525600);
-            return `${yearsLeft} year${yearsLeft !== 1 ? 's' : ''} left`;
+            return `Meeting Starts in ${yearsLeft} year${yearsLeft !== 1 ? 's' : ''} left`;
         }
     } else if (timeDifferenceEnd > 0) {
         // Meeting has ended
         const minutesAgo = Math.floor(timeDifferenceEnd / (1000 * 60));
         if (minutesAgo < 60) {
-            return `${minutesAgo} minute${minutesAgo !== 1 ? 's' : ''} ago`;
+            return `Meeting Ended ${minutesAgo} minute${minutesAgo !== 1 ? 's' : ''} ago`;
         } else if (minutesAgo < 1440) {
             const hoursAgo = Math.floor(minutesAgo / 60);
-            return `${hoursAgo} hour${hoursAgo !== 1 ? 's' : ''} ago`;
+            return `Meeting Ended ${hoursAgo} hour${hoursAgo !== 1 ? 's' : ''} ago`;
         } else if (minutesAgo < 43200) { // 43200 minutes in a month (assuming 30 days in a month)
             const daysAgo = Math.floor(minutesAgo / 1440);
-            return `${daysAgo} day${daysAgo !== 1 ? 's' : ''} ago`;
+            return `Meeting Ended ${daysAgo} day${daysAgo !== 1 ? 's' : ''} ago`;
         } else if (minutesAgo < 525600) { // 525600 minutes in a year (assuming 365 days in a year)
             const monthsAgo = Math.floor(minutesAgo / 43200);
-            return `${monthsAgo} month${monthsAgo !== 1 ? 's' : ''} ago`;
+            return `Meeting Ended ${monthsAgo} month${monthsAgo !== 1 ? 's' : ''} ago`;
         } else {
             const yearsAgo = Math.floor(minutesAgo / 525600);
             return `${yearsAgo} year${yearsAgo !== 1 ? 's' : ''} ago`;
@@ -162,5 +163,23 @@ export function isDateAfterCurrentDate(dateString: string) {
     const currentDate = new Date();
 
     return providedDate < currentDate;
+}
+
+// export function displayUserStatus(userId: string, currentLoggedInUserId: string, firstName: string, lastName: string) {
+//     if (userId === currentLoggedInUserId) {
+//         return "ME";
+//     } else {
+//         return firstName + " " + lastName;
+//     }
+// }
+
+export function displayUserStatus(userId: string, currentLoggedInUserId: string, users: IUser[]) {
+    const organizerUser = users.find((user) => user.uid === userId);
+
+    if (userId === currentLoggedInUserId) {
+        return "ME";
+    } else {
+        return organizerUser ? `${organizerUser.firstName} ${organizerUser.lastName}` : "";
+    }
 }
 

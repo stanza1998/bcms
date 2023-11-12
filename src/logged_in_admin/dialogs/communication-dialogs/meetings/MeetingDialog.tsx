@@ -26,6 +26,7 @@ import {
 import { storage } from "../../../../shared/database/FirebaseConfig";
 import { DeleteOutline as FileIcon } from "@mui/icons-material"; // Import Material-UI icons
 import { IconButton } from "@mui/material"; // Import IconButton component from Material-UI
+import { MAIL_MEETINGS } from "../../../shared/mailMessages";
 
 interface Attachment {
   file: File;
@@ -167,6 +168,29 @@ export const MeetingDialog = observer(() => {
             message: "Meeting created!",
             type: "success",
           });
+
+          //send emails
+
+          const { MY_SUBJECT, MY_BODY } = MAIL_MEETINGS(
+            meeting.title,
+            meeting.description,
+            `${new Date(
+              meeting.startDateAndTime
+            ).toLocaleDateString()} ${new Date(
+              meeting.startDateAndTime
+            ).toLocaleTimeString()} `,
+            meeting.location,
+            meeting.meetingLink
+          );
+
+          await api.mail.sendMail(
+            "",
+            ["narib98jerry@gmail.com"],
+            MY_SUBJECT,
+            MY_BODY,
+            ""
+          );
+
           setMeeting({ ...updatedMeeting, externalParticipants: [] });
           setMeeting({ ...updatedMeeting, ownerParticipants: [] });
           setMeeting({ ...updatedMeeting, folderId: "" });

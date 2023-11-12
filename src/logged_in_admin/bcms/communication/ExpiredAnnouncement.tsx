@@ -41,35 +41,7 @@ const ExpiredAnnouncementGrid = observer(({ data }: IProp) => {
       headerName: "Title",
       flex: 1,
     },
-    {
-      field: "dateAndTime",
-      headerName: "Date",
-      flex: 1,
-    },
-    {
-      field: "authorOrSender",
-      headerName: "Author/Sender",
-      flex: 1,
-      renderCell: (params) => (
-        <>
-          {users
-            .filter((u) => u.uid === params.row.authorOrSender)
-            .map((user) => {
-              return user.firstName + " " + user.lastName;
-            })}
-        </>
-      ),
-    },
-    {
-      field: "message",
-      headerName: "Message",
-      flex: 1,
-    },
-    {
-      field: "expiryDate",
-      headerName: "Exipiry Date",
-      flex: 1,
-    },
+
     {
       field: "priorityLevel",
       headerName: "Priority Level",

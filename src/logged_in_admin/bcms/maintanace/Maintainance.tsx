@@ -98,7 +98,7 @@ const totalServiceProviders = serviceProviders.length;
               <CampaignIcon style={{ color: "#01aced", fontSize: "34px" }} />{" "}
               Total Requests
             </h3>
-            <p>{totalRequests}</p>
+            <p className="number">{totalRequests}</p>
           </div>
         </div>
         <div>
@@ -117,7 +117,7 @@ const totalServiceProviders = serviceProviders.length;
               <CampaignIcon style={{ color: "green", fontSize: "34px" }} />{" "}
               Total Service Providers
             </h3>
-            <p>{totalServiceProviders}</p>
+            <p className="number">{totalServiceProviders}</p>
           </div>
         </div>
         <div>
@@ -136,7 +136,7 @@ const totalServiceProviders = serviceProviders.length;
               <CampaignIcon style={{ color: "red", fontSize: "34px" }} />{" "}
               Total Closed Requests
             </h3>
-            <p>{totalClosedRequests}</p>
+            <p className="number">{totalClosedRequests}</p>
           </div>
         </div>
         <div>
@@ -158,7 +158,7 @@ const totalServiceProviders = serviceProviders.length;
               />{" "}
               Total Opened Requests
             </h3>
-            <p> {totalOpenedRequests}</p>
+            <p className="number"> {totalOpenedRequests}</p>
           </div>
         </div>
         <div>
@@ -177,7 +177,7 @@ const totalServiceProviders = serviceProviders.length;
               <ForumIcon style={{ color: "#01aced", fontSize: "34px" }} />{" "}
               Total Requests In Progress
             </h3>
-            <p>{totalInProgressRequests}</p>
+            <p className="number">{totalInProgressRequests}</p>
           </div>
         </div>
         {/* <div>

@@ -1,6 +1,10 @@
 import { observer } from "mobx-react-lite";
 import { useAppContext } from "../../shared/functions/Context";
 import { useState } from "react";
+import { Grid, Paper, styled } from "@mui/material";
+import "./DashboardCard.scss";
+import { RequestBarChat } from "./dashboardGraphs.tsx/RequestBarChart";
+import "./Dashtable.scss";
 
 const Dashboard = observer(() => {
   const { store, api } = useAppContext();
@@ -9,19 +13,9 @@ const Dashboard = observer(() => {
   return (
     <div className="uk-section leave-analytics-page">
       <div className="uk-container uk-container-large">
-        <div className="section-toolbar uk-margin">
-          <h4 className="section-heading uk-heading">Dashboard</h4>
-          <div className="controls">
-            <div className="uk-inline">
-              {/* <button className="uk-button primary" type="button">
-                Add Supplier
-              </button> */}
-            </div>
-          </div>
-        </div>
         {me === "Owner" && <p>Owner</p>}
         {me === "Employee" && <p>Emp</p>}
-        {/* {me === "Admin" && <OwnerDashBoard />} */}
+        {me === "Admin" && <ManagerDashBoard />}
       </div>
     </div>
   );
@@ -30,73 +24,221 @@ const Dashboard = observer(() => {
 export default Dashboard;
 
 const OwnerDashBoard = () => {
-  const { api } = useAppContext();
-  const fullname = "John Doe";
-  const email = "engdesign@lotsinsights.com";
-  const subject = "Subject of the email";
-  const message = "Body of the email";
-  const link = "http://example.com";
-  const [attachment, setAttachment] = useState<File | null>(null);
-
-  const handleFileInputChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    setAttachment(file || null);
-  };
-
-  // const sendMail = async (e: any) => {
-  //   e.preventDefault();
-  //   if (!attachment) return;
-
-  //   try {
-  //     await api.mail.sendMail(
-  //       fullname,
-  //       email,
-  //       subject,
-  //       message,
-  //       link,
-  //       attachment
-  //     );
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-  return (
-    <>
-      <form
-        // action="https://www.koshaservices.com/php/bcms.php?"
-        // method="post"
-        encType="multipart/form-data"
-        // onSubmit={sendMail}
-      >
-        <input
-          className="uk-input"
-          type="file"
-          name="attachment"
-          onChange={handleFileInputChange}
-        />
-        <br />
-        <button className="uk-input" type="submit">
-          Submit
-        </button>
-      </form>
-    </>
-  );
+  return <></>;
 };
 
-const ManagerDashBoard = () => {};
+const ManagerDashBoard = () => {
+  const Item = styled(Paper)(({ theme }) => ({
+    backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    textAlign: "center",
+    color: theme.palette.text.secondary,
+  }));
 
-// try {
-//   await api.mail.sendMail(
-//     name, // Assuming 'name' is the full name
-//     email,
-//     subject,
-//     message,
-//     link,
-//     attachment
-//   );
-// } catch (error) {
-//   console.log(error);
-// }
+  return (
+    <div className="uk-section leave-analytics-page dashboard-card">
+      <div className="uk-container uk-container-large">
+        <div className="section-toolbar uk-margin">
+          <h4 className="section-heading uk-heading">Dashboard</h4>
+          <div className="controls">
+            <div className="uk-inline">
+              {/* <button
+       
+                className="uk-button primary"
+                type="button"
+              >
+                Add Supplier
+              </button> */}
+            </div>
+          </div>
+        </div>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={8}>
+            <Item>
+              <div className="dashboard-card">
+                <div className="uk-card">
+                  <div className="uk-card-body">
+                    <h3 className="uk-card-title">New Notices</h3>
+                    <h3 className="number">40</h3>
+                  </div>
+                </div>
+                <div className="uk-card">
+                  <div className="uk-card-body">
+                    <h3 className="uk-card-title">New Maintenance Requests</h3>
+                    <h3 className="number">40</h3>
+                  </div>
+                </div>
+                <div className="uk-card">
+                  <div className="uk-card-body">
+                    <h3 className="uk-card-title">Scheduled Meetings</h3>
+                    <h3 className="number">40</h3>
+                  </div>
+                </div>
+                <div className="uk-card">
+                  <div className="uk-card-body">
+                    <h3 className="uk-card-title">Service Providers</h3>
+                    <h3 className="number">40</h3>
+                  </div>
+                </div>
+              </div>
+              <div className="graph" style={{ height: "50%" }}>
+                <RequestBarChat />
+              </div>
+            </Item>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Item>
+              <div className="dash-table">
+                <div>
+                  <h4
+                    className="uk-title"
+                    style={{
+                      textTransform: "uppercase",
+                      color: "grey",
+                      fontSize: "12px",
+                      fontWeight: "600",
+                    }}
+                  >
+                    New Request
+                  </h4>
+                  <div className="table-container">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Tile</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>John Doe</td>
+                          <td>Developer</td>
+                          <td>Developer</td>
+                        </tr>
+                        <tr>
+                          <td>Jane Smith</td>
+                          <td>Designer</td>
+                          <td>Designer</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div className="uk-margin">
+                  <h4
+                    className="uk-title"
+                    style={{
+                      textTransform: "uppercase",
+                      color: "grey",
+                      fontSize: "12px",
+                      fontWeight: "600",
+                    }}
+                  >
+                    New Notices
+                  </h4>
+                  <div className="table-container">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Tile</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>John Doe</td>
+                          <td>Developer</td>
+                          <td>Developer</td>
+                        </tr>
+                        <tr>
+                          <td>Jane Smith</td>
+                          <td>Designer</td>
+                          <td>Designer</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div>
+                  <h4
+                    className="uk-title"
+                    style={{
+                      textTransform: "uppercase",
+                      color: "grey",
+                      fontSize: "12px",
+                      fontWeight: "600",
+                    }}
+                  >
+                    Recently Added SP's
+                  </h4>
+                  <div className="table-container">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Tile</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>John Doe</td>
+                          <td>Developer</td>
+                          <td>Developer</td>
+                        </tr>
+                        <tr>
+                          <td>Jane Smith</td>
+                          <td>Designer</td>
+                          <td>Designer</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div className="uk-margin">
+                  <h4
+                    className="uk-title"
+                    style={{
+                      textTransform: "uppercase",
+                      color: "grey",
+                      fontSize: "12px",
+                      fontWeight: "600",
+                    }}
+                  >
+                    Recently Added Contacts
+                  </h4>
+                  <div className="table-container">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Tile</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>John Doe</td>
+                          <td>Developer</td>
+                          <td>Developer</td>
+                        </tr>
+                        <tr>
+                          <td>Jane Smith</td>
+                          <td>Designer</td>
+                          <td>Designer</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </Item>
+          </Grid>
+        </Grid>
+      </div>
+    </div>
+  );
+};

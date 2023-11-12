@@ -1,0 +1,43 @@
+.pagination {
+  /* Pagination.css */
+
+  .uk-pagination {
+    list-style: none;
+    display: flex;
+    justify-content: flex-start; // Align to the left
+    margin-top: 20px;
+    padding: 0; // Remove default padding
+  }
+
+  .uk-pagination li {
+    margin: 0 5px;
+    @media (max-width: 768px) {
+      margin: 0 3px; // Adjust margin for smaller screens
+    }
+  }
+
+  .uk-button {
+    cursor: pointer;
+    @media (max-width: 768px) {
+      padding: 8px 12px; // Adjust padding for smaller screens
+      font-size: 12px; // Adjust font size for smaller screens
+    }
+  }
+
+  .uk-button.uk-active {
+    background-color: #007bff;
+    color: #fff;
+  }
+
+  // Add a media query for even smaller screens if necessary
+  @media (max-width: 576px) {
+    .uk-pagination li {
+      margin: 0 2px;
+    }
+
+    .uk-button {
+      padding: 6px 10px;
+      font-size: 11px;
+    }
+  }
+}

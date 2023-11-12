@@ -279,7 +279,7 @@ export const EditMeetingDialog = observer(() => {
                       })
                     }
                     required
-                    disabled={isDateAfterCurrentDate(meeting.startDateAndTime)}
+                    // disabled={isDateAfterCurrentDate(meeting.startDateAndTime)}
                   />
                 </div>
               </div>

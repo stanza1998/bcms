@@ -3,12 +3,10 @@ import {
   Dispatch,
   SetStateAction,
   FormEvent,
-  useEffect,
   ChangeEvent,
   useState,
 } from "react";
 import { IDocumentFile } from "../../../../shared/models/communication/documents/DocumentFiles";
-import { useAppContext } from "../../../../shared/functions/Context";
 
 interface IFormProps {
   documentFile: IDocumentFile;
@@ -24,7 +22,6 @@ interface IFormProps {
 
 export const DocumentFileForm = observer((props: IFormProps) => {
   const [selected, setSelected] = useState<File | undefined>();
-
 
   const {
     onSubmit,

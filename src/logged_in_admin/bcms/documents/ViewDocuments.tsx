@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppContext } from "../../../shared/functions/Context";
 import { useNavigate, useParams } from "react-router-dom";
 import showModalFromId from "../../../shared/functions/ModalShow";
@@ -8,12 +8,14 @@ import { DocumentFileDialog } from "../../dialogs/communication-dialogs/document
 import Modal from "../../../shared/components/Modal";
 import { IDocumentFile } from "../../../shared/models/communication/documents/DocumentFiles";
 import { getIconForExtensionExtra } from "../../shared/common";
+import Loading from "../../../shared/components/Loading";
 
 export const ViewDocuments = observer(() => {
   const { api, store } = useAppContext();
   const me = store.user.meJson;
   const { documenrFolderId } = useParams();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const _folder = store.communication.documentCategory.getById(
     documenrFolderId || ""
@@ -52,6 +54,7 @@ export const ViewDocuments = observer(() => {
 
   useEffect(() => {
     const getDocFolders = async () => {
+      setLoading(true);
       if (me?.property && documenrFolderId) {
         await api.communication.documentCategory.getAll(me.property);
         await api.communication.documentFile.getAll(
@@ -59,6 +62,7 @@ export const ViewDocuments = observer(() => {
           documenrFolderId
         );
       }
+      setLoading(false);
     };
     getDocFolders();
   }, [
@@ -74,75 +78,81 @@ export const ViewDocuments = observer(() => {
 
   return (
     <div className="uk-section leave-analytics-page">
-      <div className="uk-container uk-container-large">
-        <div className="section-toolbar uk-margin">
-          <h4 className="section-heading uk-heading">
-            {_folder?.asJson.documentName} Folder
-          </h4>
-          <div className="controls">
-            <div className="uk-inline">
-              <button
-                onClick={onCreateFile}
-                className="uk-button primary uk-margin-right"
-                type="button"
-              >
-                Attach New Document
-              </button>
-              <button
-                onClick={back}
-                className="uk-button primary"
-                type="button"
-              >
-                Back
-              </button>
-            </div>
-          </div>
-        </div>
-        <div className="meeting-card">
-          {Object.entries(groupedMeetings).map(([key, meetingsGroup]) => (
-            <div key={key} className="uk-margin">
-              <span className="uk-margin">
-                {new Date(key).toLocaleString("default", {
-                  year: "numeric",
-                  month: "long",
-                })}
-              </span>
-              <div
-                className="uk-child-width-1-6@m uk-grid-small uk-grid-match uk-margin"
-                data-uk-grid
-              >
-                {meetingsGroup.map((meeting) => {
-                  return (
-                    <div
-                    // onDoubleClick={() => onEdit(f)}
-                    //   onClick={() => toFolder(f.id)}
-                    // data-uk-tooltip="double click"
-                    >
-                      <div className="uk-card uk-card-body">
-                        <div
-                          className="image-container"
-                          style={{ textAlign: "center" }}
-                        >
-                          <a target="blank" href={meeting.fileUrl}>
-                            <img
-                              src={getIconForExtensionExtra(meeting.fileUrl)}
-                              alt="File Icon"
-                            />
-                          </a>
-                          <div className="icon-container"></div>
-                        </div>
-                        <span style={{ textAlign: "center", display: "block" }}>
-                          {meeting.documentFileName}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
+      {loading ? (
+        <Loading />
+      ) : (
+        <div className="uk-container uk-container-large">
+          <div className="section-toolbar uk-margin">
+            <h4 className="section-heading uk-heading">
+              {_folder?.asJson.documentName} Folder
+            </h4>
+            <div className="controls">
+              <div className="uk-inline">
+                <button
+                  onClick={onCreateFile}
+                  className="uk-button primary uk-margin-right"
+                  type="button"
+                >
+                  Attach New Document
+                </button>
+                <button
+                  onClick={back}
+                  className="uk-button primary"
+                  type="button"
+                >
+                  Back
+                </button>
               </div>
             </div>
-          ))}
+          </div>
+          <div className="meeting-card">
+            {Object.entries(groupedMeetings).map(([key, meetingsGroup]) => (
+              <div key={key} className="uk-margin">
+                <span className="uk-margin">
+                  {new Date(key).toLocaleString("default", {
+                    year: "numeric",
+                    month: "long",
+                  })}
+                </span>
+                <div
+                  className="uk-child-width-1-6@m uk-grid-small uk-grid-match uk-margin"
+                  data-uk-grid
+                >
+                  {meetingsGroup.map((meeting) => {
+                    return (
+                      <div
+                      // onDoubleClick={() => onEdit(f)}
+                      //   onClick={() => toFolder(f.id)}
+                      // data-uk-tooltip="double click"
+                      >
+                        <div className="uk-card uk-card-body">
+                          <div
+                            className="image-container"
+                            style={{ textAlign: "center" }}
+                          >
+                            <a target="blank" href={meeting.fileUrl}>
+                              <img
+                                src={getIconForExtensionExtra(meeting.fileUrl)}
+                                alt="File Icon"
+                              />
+                            </a>
+                            <div className="icon-container"></div>
+                          </div>
+                          <span
+                            style={{ textAlign: "center", display: "block" }}
+                          >
+                            {meeting.documentFileName}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
       <Modal modalId={DIALOG_NAMES.COMMUNICATION.CREATE_DOCUMENT_FILE}>
         <DocumentFileDialog />
       </Modal>

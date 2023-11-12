@@ -17,9 +17,6 @@ const NavBar = observer(() => {
 
   const properties = store.bodyCorperate.bodyCop.all;
   const years = store.bodyCorperate.financialYear.all;
-  const months = store.bodyCorperate.financialMonth.all.map((m) => {
-    return m.asJson;
-  });
 
   const announcements = store.communication.announcements.all.map((a) => {
     return a.asJson;
@@ -77,111 +74,10 @@ const NavBar = observer(() => {
           ></button>
         </div>
         <div className="navbar-right uk-navbar-left">
-          <ul className="uk-navbar-nav">
-            <li className="uk-inline" style={{ color: "white" }}>
-              <h6
-                style={{
-                  color: "white",
-                  fontWeight: "500",
-                  margin: "10px",
-                  fontSize: "12px",
-                }}
-              >
-                <span className="uk-margin-right">
-                  {properties
-                    .filter((p) => p.asJson.id === me?.property)
-                    .map((p) => {
-                      return p?.asJson.BodyCopName;
-                    })}
-                  {properties
-                    .filter((p) => p.asJson.id === me?.property)
-                    .map((p) => {
-                      return p.asJson.BodyCopName;
-                    }).length === 0 && <>Property NOT Selected</>}
-                </span>
-                {me?.role === "Owner" ? (
-                  <></>
-                ) : (
-                  <span className="uk-margin">
-                    {years
-                      .filter((p) => p.asJson.id === me?.year)
-                      .map((p) => {
-                        return p.asJson.year + " ";
-                      })}
-                    {years
-                      .filter((p) => p.asJson.id === me?.year)
-                      .map((p) => {
-                        return p.asJson.year + " ";
-                      }).length === 0 && <>Year NOT Selected </>}
-                  </span>
-                )}
-
-                {/* <span className="uk-margin-right">
-                  {months
-                    .filter((p) => p.month === me?.month)
-                    .map((p) => {
-                      return p.month.slice(-2);
-                    })}
-                  {months
-                    .filter((p) => p.month === me?.month)
-                    .map((p) => {
-                      return p.month.slice(-2);
-                    }).length === 0 && <>Month NOT Selected</>}
-                </span> */}
-              </h6>
-            </li>
-          </ul>
+          <ul className="uk-navbar-nav"></ul>
         </div>
         <div className="navbar-right uk-navbar-center">
-          <ul className="uk-navbar-nav">
-            <li className="uk-inline" style={{ color: "white" }}>
-              <h6
-                style={{
-                  color: "white",
-                  fontWeight: "500",
-                  margin: "14px",
-                  fontSize: "12px",
-                }}
-              >
-                {me?.role !== "Owner" && (
-                  <>
-                    <span>
-                      Bank Account:{" "}
-                      {bank_accounts
-                        .filter((p) => p.id === me?.bankAccountInUse)
-                        .map((p) => {
-                          return p.name === p.name
-                            ? p.name
-                            : "Bank NOT Selected";
-                        })}
-                    </span>
-                  </>
-                )}
-                {/*change back to*/}
-                {me?.role === "Owner" && (
-                  <>
-                    <IconButton
-                      onClick={onViewAnnouncements}
-                      style={{ position: "relative" }}
-                    >
-                      <CircleNotificationsIcon style={{ color: "white" }} />
-                      <span
-                        style={{
-                          color: "white",
-                          fontSize: "14px",
-                          position: "absolute",
-                          top: "0",
-                          right: "0",
-                        }}
-                      >
-                        {latestAnnouncement.length}
-                      </span>
-                    </IconButton>
-                  </>
-                )}
-              </h6>
-            </li>
-          </ul>
+          <ul className="uk-navbar-nav"></ul>
         </div>
         <div className="navbar-right uk-navbar-right">
           <ul className="uk-navbar-nav">
@@ -234,7 +130,7 @@ const NavBar = observer(() => {
       <Modal modalId={DIALOG_NAMES.COMMUNICATION.VIEW_ANNOUNCEMENTS_DIALOG}>
         <div
           className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical staff-dialog announcements-container"
-          style={{ width: "70%" , height:"auto"}}
+          style={{ width: "70%", height: "auto" }}
         >
           <button
             className="uk-modal-close-default"

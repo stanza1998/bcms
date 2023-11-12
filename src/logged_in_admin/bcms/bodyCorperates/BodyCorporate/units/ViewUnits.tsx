@@ -27,8 +27,6 @@ import {
   FailedActionAllFields,
 } from "../../../../../shared/models/Snackbar";
 import { IInvoice } from "../../../../../shared/models/invoices/Invoices";
-import GridViewIcon from "@mui/icons-material/GridView";
-import { nadFormatter } from "../../../../shared/NADFormatter";
 import { IReceiptsPayments } from "../../../../../shared/models/receipts-payments/ReceiptsPayments";
 import { ICustomerTransactions } from "../../../../../shared/models/transactions/customer-transactions/CustomerTransactionModel";
 import UnitsGrid from "./grid/UnitsGrid";
@@ -514,14 +512,14 @@ export const ViewUnit = observer(() => {
             </p>
             <div className="controls">
               <div className="uk-inline">
-                <span
+                {/* <span
                   // onClick={duplicated}
                   onClick={onDupicate}
                   data-uk-tooltip="Generate unit-specific invoices from the master invoice for the current month"
                   style={{ cursor: "pointer" }}
                   data-uk-icon="copy"
                   className="uk-margin-right"
-                ></span>
+                ></span> */}
 
                 <button
                   className="uk-button primary uk-margin-right"
