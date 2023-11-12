@@ -180,7 +180,7 @@ export const ViewFolder = observer(() => {
                               <div className="uk-card uk-card-default uk-card-body">
                                 <span
                                   style={{
-                                    background: "lightgrey",
+                                    background: "#01aced",
                                     padding: "5px",
                                     color: "black",
                                     borderRadius: "3px",
@@ -199,16 +199,16 @@ export const ViewFolder = observer(() => {
                                 >
                                   {statusText}
                                 </span>
-                                <h3 className="uk-card-title">
+                                <h3 className="uk-card-title" style={{color:"#01aced"}}>
                                   {meeting.title}
                                 </h3>
                                 <p>{meeting.description}</p>
                                 <span
                                   className="bottom-right-span"
                                   style={{
-                                    background: "lightgrey",
+                                    background: "#01aced",
                                     padding: "5px",
-                                    color: "black",
+                                    color: "#000c37",
                                     borderRadius: "3px",
                                   }}
                                 >

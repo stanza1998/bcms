@@ -1,38 +1,36 @@
 .dashboard-card {
-    display: flex;
-    flex-wrap: wrap;
-  }
-  
-  .uk-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin: 10px;
-    flex: 1 1 calc(50% - 20px);
-    background-color: #ffffff;
-    color: #2c3e50;
-    overflow: hidden;
-  }
-  
-  .uk-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  }
-  
-  .uk-card-title {
-    font-size: 1.5rem;
-    color: #000c37;
-    margin-bottom: 10px;
-  }
-  
-  .uk-card-body {
-    padding: 20px;
-  }
-  
-  .number {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #3498db;
-  }
+  display: flex;
+  flex-wrap: wrap;
+}
 
-  
+.uk-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 10px;
+  flex: 1 1 calc(50% - 20px);
+  background-color: #000c37;
+  color: #fff;
+  overflow: hidden;
+}
+
+.uk-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.uk-card-title {
+  font-size: 1.5rem;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.uk-card-body {
+  padding: 20px;
+}
+
+.number {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #3498db;
+}
