@@ -3,8 +3,9 @@ import { useAppContext } from "../../shared/functions/Context";
 import { useState } from "react";
 import { Grid, Paper, styled } from "@mui/material";
 import "./DashboardCard.scss";
-import { RequestBarChat } from "./dashboardGraphs.tsx/RequestBarChart";
 import "./Dashtable.scss";
+import MaintenanceTimeRequest from "./dashboardGraphs.tsx/MaintenananceTimeRequest";
+import RequestBarChat from "./dashboardGraphs.tsx/RequestBarChart";
 
 const Dashboard = observer(() => {
   const { store, api } = useAppContext();
@@ -82,9 +83,9 @@ const ManagerDashBoard = () => {
                   </div>
                 </div>
               </div>
-              <div className="graph" style={{ height: "50%" }}>
+              <Paper style={{ width: "100%", height: "600px", padding: 20 }}>
                 <RequestBarChat />
-              </div>
+              </Paper>
             </Item>
           </Grid>
           <Grid item xs={12} sm={4}>
@@ -236,6 +237,13 @@ const ManagerDashBoard = () => {
                 </div>
               </div>
             </Item>
+          </Grid>
+        </Grid>
+        <Grid container spacing={1} style={{ marginTop: "15px" }}>
+          <Grid container spacing={1}>
+            <Paper style={{ width: "100%", height: "600px", padding: 20 }}>
+              <MaintenanceTimeRequest />
+            </Paper>
           </Grid>
         </Grid>
       </div>
