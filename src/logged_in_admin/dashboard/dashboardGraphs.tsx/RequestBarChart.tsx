@@ -44,7 +44,7 @@ export default class RequestBarChat extends PureComponent {
 
   render() {
     return (
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height="80%">
         <ComposedChart
           layout="vertical"
           width={500}
@@ -56,15 +56,15 @@ export default class RequestBarChat extends PureComponent {
             bottom: 20,
             left: 20,
           }}
+          barCategoryGap={3}
+          barGap={3}
         >
           <CartesianGrid stroke="#f5f5f5" />
           <XAxis type="number" />
-          <YAxis dataKey="name" type="category" scale="band" />
+          <YAxis dataKey="name" type="category" scale="band" interval={0} />
           <Tooltip />
           <Legend />
-          {/* <Area dataKey="amt" fill="#01aced" stroke="#000c37" /> */}
           <Bar dataKey="pv" barSize={20} fill="#000c37" />
-          {/* <Line dataKey="uv" stroke="#ff7300" /> */}
         </ComposedChart>
       </ResponsiveContainer>
     );

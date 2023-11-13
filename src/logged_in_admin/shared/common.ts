@@ -1,6 +1,6 @@
 import AppStore from "../../shared/stores/AppStore";
 import csv from "./file-icons/csv (2).png"
-import doc from "./file-icons/doc_4725970.png"
+import _doc from "./file-icons/doc_4725970.png"
 import docx from "./file-icons/docx_8361174.png"
 import odp from "./file-icons/odp_10451906.png"
 import odt from "./file-icons/odt_1975685.png"
@@ -12,6 +12,8 @@ import xls from "./file-icons/xls-file_9681350.png"
 import _xlsx from "./file-icons/xlsx_8361467.png"
 import d from "./file-icons/documentation_10517465.png"
 import { IUser } from "../../shared/interfaces/IUser";
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db } from "../../shared/database/FirebaseConfig";
 
 
 export const getFileExtension = (url: string): string => {
@@ -34,7 +36,7 @@ export const getIconForExtensionExtra = (url: string): string => {
         case 'pdf':
             return pdf;
         case 'doc':
-            return doc;
+            return _doc;
         case 'docx':
             return docx;
         case 'xls':
@@ -65,7 +67,7 @@ export const getIconForExtension = (extension: string): string => {
         case 'pdf':
             return pdf;
         case 'doc':
-            return doc;
+            return _doc;
         case 'docx':
             return docx;
         case 'xls':
@@ -165,13 +167,6 @@ export function isDateAfterCurrentDate(dateString: string) {
     return providedDate < currentDate;
 }
 
-// export function displayUserStatus(userId: string, currentLoggedInUserId: string, firstName: string, lastName: string) {
-//     if (userId === currentLoggedInUserId) {
-//         return "ME";
-//     } else {
-//         return firstName + " " + lastName;
-//     }
-// }
 
 export function displayUserStatus(userId: string, currentLoggedInUserId: string, users: IUser[]) {
     const organizerUser = users.find((user) => user.uid === userId);
@@ -180,6 +175,34 @@ export function displayUserStatus(userId: string, currentLoggedInUserId: string,
         return "ME";
     } else {
         return organizerUser ? `${organizerUser.firstName} ${organizerUser.lastName}` : "";
+    }
+}
+
+
+export const generateMaintenanceRequestReference = (identity: string) => {
+    const randomNumber = Math.floor(Math.random() * 10000); // Generate a random number between 0 and 9999
+    const formattedNumber = randomNumber.toString().padStart(4, "0"); // Pad the number with leading zeros if necessary
+    const generatedInvoiceNumber = `${identity}${formattedNumber}`; // Add the prefix "INV" to the number
+    return generatedInvoiceNumber;
+};
+
+export async function updateById(requestId: string, pid: string, newStatus: string) {
+    const myPath = `BodyCoperate/${pid}/MaintenanceRequest`;
+
+    try {
+        // Get the current document data before the update
+        const docSnapshot = await getDoc(doc(db, myPath, requestId));
+
+        await updateDoc(doc(db, myPath, requestId), {
+            // your update data here
+            status: newStatus
+        });
+
+        const updatedDocSnapshot = await getDoc(doc(db, myPath, requestId));
+        const updatedData = updatedDocSnapshot.data();
+        console.log('Updated Data:', updatedData);
+    } catch (error) {
+        console.error('Error updating document:', error);
     }
 }
 

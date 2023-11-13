@@ -3,17 +3,26 @@ import { FormEvent, useEffect, useState } from "react";
 import { useAppContext } from "../../../../shared/functions/Context";
 import { hideModalFromId } from "../../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../Dialogs";
-import { IMaintenanceRequest, defaultMaintenanceRequest } from "../../../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
+import {
+  IMaintenanceRequest,
+  defaultMaintenanceRequest,
+} from "../../../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
+import SingleSelect from "../../../../shared/components/single-select/SlingleSelect";
 
 export const MaintenanceRequestDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
+  const [ownerId, setOwnerId] = useState<string>("");
+  const [unitId, setUnitId] = useState<string>("");
   const me = store.user.meJson;
   const currentDate = new Date();
+  const dateIssued = currentDate.toUTCString();
 
   const [maintenanceRequest, setMaintenanceRequest] =
     useState<IMaintenanceRequest>({
       ...defaultMaintenanceRequest,
+      ownerId: ownerId,
+      unitId: unitId,
     });
 
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
@@ -36,7 +45,9 @@ export const MaintenanceRequestDialog = observer(() => {
         });
       } else {
         // maintenanceRequest.authorOrSender = me.uid;
-        maintenanceRequest.dateRequested = currentDate.toUTCString();
+        maintenanceRequest.dateRequested = dateIssued;
+        maintenanceRequest.ownerId = ownerId;
+        maintenanceRequest.unitId = unitId;
 
         await api.maintenance.maintenance_request.create(
           maintenanceRequest,
@@ -62,6 +73,37 @@ export const MaintenanceRequestDialog = observer(() => {
     hideModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_MAINTENANCE_REQUEST);
   };
 
+  const reset = () => {
+    setMaintenanceRequest({ ...defaultMaintenanceRequest });
+    store.maintenance.maintenance_request.clearSelected();
+  };
+
+  const owners = store.user.all
+    .filter((u) => u.asJson.role === "Owner")
+    .map((u) => {
+      return {
+        label: u.firstName + " " + u.lastName,
+        value: u.uid,
+      };
+    });
+
+  const handleSelectOwner = (id: string) => {
+    setOwnerId(id);
+  };
+
+  const units = store.bodyCorperate.unit.all
+    .filter((u) => u.asJson.ownerId === ownerId)
+    .map((u) => {
+      return {
+        label: "Unit " + u.asJson.unitName,
+        value: u.asJson.id,
+      };
+    });
+
+  const handleSelectUnit = (id: string) => {
+    setUnitId(id);
+  };
+
   useEffect(() => {
     if (store.maintenance.maintenance_request.selected)
       setMaintenanceRequest(store.maintenance.maintenance_request.selected);
@@ -70,12 +112,22 @@ export const MaintenanceRequestDialog = observer(() => {
     return () => {};
   }, [store.maintenance.maintenance_request.selected]);
 
+  useEffect(() => {
+    const getData = async () => {
+      if (me?.property) {
+        await api.unit.getAll(me.property);
+      }
+    };
+    getData();
+  }, [api.unit, me?.property]);
+
   return (
     <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
       <button
         className="uk-modal-close-default"
         type="button"
         data-uk-close
+        onClick={reset}
       ></button>
 
       <h3 className="uk-modal-title">Maintenance Request</h3>
@@ -84,18 +136,17 @@ export const MaintenanceRequestDialog = observer(() => {
           <form className="uk-form-stacked" onSubmit={onSave}>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-
                 Description
                 {maintenanceRequest.description === "" && (
                   <span style={{ color: "red" }}>*</span>
                 )}
               </label>
               <div className="uk-form-controls">
-                <input
+                <textarea
                   className="uk-input"
-                  type="text"
                   placeholder="Description"
                   value={maintenanceRequest.description}
+                  style={{ height: "7rem" }}
                   onChange={(e) =>
                     setMaintenanceRequest({
                       ...maintenanceRequest,
@@ -106,68 +157,29 @@ export const MaintenanceRequestDialog = observer(() => {
                 />
               </div>
             </div>
-            {/* <div className="uk-margin">
-              <label className="uk-form-label" htmlFor="form-stacked-text">
-                Owner
-                {maintenanceRequest.ownerId ===" "&& <span style={{color:"red", marginLeft:"10px"}}>* Required</span>}
-              </label>
-              <div className="uk-form-controls">
-                <input
-                  className="uk-input"
-                  placeholder="Owner"
-                  value={maintenanceRequest.ownerId.}
-                  onChange={(e) =>
-                    setMaintenanceRequest({
-                      ...maintenanceRequest,
-                      ownerId: e.target.value,
-                    })
-                  }
-                  required
-                />
-              </div>
-            </div> */}
+
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-                Date Requested
-                {maintenanceRequest.dateRequested ==="" &&
-                (<span style={{color:"red"}}>*</span>)}
+                Owner
+                {maintenanceRequest.ownerId === " " && (
+                  <span style={{ color: "red", marginLeft: "10px" }}>
+                    * Required
+                  </span>
+                )}
               </label>
               <div className="uk-form-controls">
-                <input
-                  className="uk-input"
-                  placeholder="Date"
-                  type="date"
-                  value={maintenanceRequest.unitId}
-                  onChange={(e) =>
-                    setMaintenanceRequest({
-                      ...maintenanceRequest,
-                      unitId: e.target.value,
-                    })
-                  }
-                  required
-                />
+                <SingleSelect onChange={handleSelectOwner} options={owners} />
               </div>
             </div>
-            {/* <div className="uk-margin">
+
+            <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-                Status
+                Owner Units
               </label>
               <div className="uk-form-controls">
-                <input
-                  className="uk-input"
-                  placeholder="Status"
-                  type="text"
-                  value={maintenanceRequest.status}
-                  onChange={(e) =>
-                    setMaintenanceRequest({
-                      ...maintenanceRequest,
-                      status: e.target.value,
-                    })
-                  }
-                  required
-                />
+                <SingleSelect onChange={handleSelectUnit} options={units} />
               </div>
-            </div> */}
+            </div>
             <div className="footer uk-margin">
               <button className="uk-button secondary uk-modal-close">
                 Cancel

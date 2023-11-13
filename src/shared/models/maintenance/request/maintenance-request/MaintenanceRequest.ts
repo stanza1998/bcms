@@ -7,7 +7,10 @@ export const defaultMaintenanceRequest: IMaintenanceRequest = {
     unitId: "",
     description: "",
     dateRequested: "",
-    status: "Closed"
+    status: "Closed",
+    startDate: "",
+    completedDate: "",
+    workerOrderLatestNumber: 0
 };
 
 export interface IMaintenanceRequest {
@@ -16,7 +19,10 @@ export interface IMaintenanceRequest {
     unitId: string;
     description: string;
     dateRequested: string;
-    status:string;
+    startDate: string;
+    completedDate: string;
+    status: string;
+    workerOrderLatestNumber: number;
 }
 
 export default class MaintenanceRequestModel {
