@@ -13,7 +13,7 @@ import {
 } from "../../../shared/models/communication/meetings/Meeting";
 import Modal from "../../../shared/components/Modal";
 import { EditMeetingDialog } from "../../dialogs/communication-dialogs/meetings/EditMeetingDialog";
-import { Tooltip } from "react-tooltip";
+
 
 export const CalendarView = observer(() => {
   const { api, store } = useAppContext();

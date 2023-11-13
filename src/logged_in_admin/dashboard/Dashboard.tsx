@@ -11,6 +11,7 @@ const Dashboard = observer(() => {
   const { store, api } = useAppContext();
   const me = store.user.meJson?.role;
 
+
   return (
     <div className="uk-section leave-analytics-page">
       <div className="uk-container uk-container-large">
@@ -29,6 +30,47 @@ const OwnerDashBoard = () => {
 };
 
 const ManagerDashBoard = () => {
+  const { store, api } = useAppContext();
+  const me = store.user.meJson?.role;
+  //New Reuqests and New Maintenance will be based on 8hours cut off time
+  const notices = store.communication.announcements.all.map((announcement)=>{
+    return announcement.asJson;
+  } 
+  ).sort((a,b)=>
+  new Date(b.dateAndTime).getTime() - new Date (a.dateAndTime).getTime()
+  ).filter((notices) => new Date(notices.dateAndTime).getTime() <  28800000 );
+
+
+
+  const maintenanceRequests = store.maintenance.maintenance_request.all.map((request)=>{
+  return request.asJson;
+  } 
+  ).sort((a,b)=>
+  new Date(b.dateRequested).getTime() - new Date (a.dateRequested).getTime()
+  ).filter((requests) => new Date(requests.dateRequested).getTime() <  28800000 );
+
+
+
+    const serviceProviders = store.maintenance.servie_provider.all.map((provider)=>{
+    return provider.asJson;
+  } 
+  )
+
+  // const scheduledMeeetings = store.maintenance.servie_provider.all.map((provider)=>{
+  //   return provider.asJson;
+  // } 
+  // )
+  
+  // const scheduledMeetings = announcements
+  //   .sort(
+  //     (a, b) =>
+  //       new Date(b.expiryDate).getTime() - new Date(a.expiryDate).getTime()
+  //   )
+  //   .filter((announcement) => new Date(announcement.expiryDate) < currentDate);
+  const totalNewRequests = maintenanceRequests.length;
+  const totalServiceProviders = serviceProviders.length;
+  const totalNewNotices = notices.length;
+
   const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
     ...theme.typography.body2,
@@ -61,13 +103,13 @@ const ManagerDashBoard = () => {
                 <div className="uk-card">
                   <div className="uk-card-body">
                     <h3 className="uk-card-title">New Notices</h3>
-                    <h3 className="number">40</h3>
+                    <h3 className="number">{totalNewNotices}</h3>
                   </div>
                 </div>
                 <div className="uk-card">
                   <div className="uk-card-body">
                     <h3 className="uk-card-title">New Maintenance Requests</h3>
-                    <h3 className="number">40</h3>
+                    <h3 className="number">{totalNewRequests}</h3>
                   </div>
                 </div>
                 <div className="uk-card">
@@ -79,7 +121,7 @@ const ManagerDashBoard = () => {
                 <div className="uk-card">
                   <div className="uk-card-body">
                     <h3 className="uk-card-title">Service Providers</h3>
-                    <h3 className="number">40</h3>
+                    <h3 className="number">{totalServiceProviders}</h3>
                   </div>
                 </div>
               </div>
@@ -101,7 +143,7 @@ const ManagerDashBoard = () => {
                       fontWeight: "600",
                     }}
                   >
-                    New Request
+                    Latest Request
                   </h4>
                   <div className="table-container">
                     <table>
@@ -109,6 +151,7 @@ const ManagerDashBoard = () => {
                         <tr>
                           <th>Tile</th>
                           <th>Status</th>
+                          <th>Date</th>
                           <th>Action</th>
                         </tr>
                       </thead>
@@ -137,7 +180,7 @@ const ManagerDashBoard = () => {
                       fontWeight: "600",
                     }}
                   >
-                    New Notices
+                    Latest Notices
                   </h4>
                   <div className="table-container">
                     <table>
@@ -145,6 +188,7 @@ const ManagerDashBoard = () => {
                         <tr>
                           <th>Tile</th>
                           <th>Status</th>
+                          <th>Date</th>
                           <th>Action</th>
                         </tr>
                       </thead>
@@ -181,6 +225,7 @@ const ManagerDashBoard = () => {
                         <tr>
                           <th>Tile</th>
                           <th>Status</th>
+                          <th>Date</th>
                           <th>Action</th>
                         </tr>
                       </thead>
@@ -217,6 +262,7 @@ const ManagerDashBoard = () => {
                         <tr>
                           <th>Tile</th>
                           <th>Status</th>
+                          <th>Date</th>
                           <th>Action</th>
                         </tr>
                       </thead>
@@ -250,3 +296,31 @@ const ManagerDashBoard = () => {
     </div>
   );
 };
+
+
+// {employees
+//   .filter((emp) => emp.role !== "Owner")
+//   .map((employee, index) => (
+//     <tr className="row" key={employee.uid}>
+//       <td className="id">{index + 1}</td>
+//       <td className="customerName">{`${employee.firstName} ${employee.lastName}`}</td>
+//       <td className="department">{employee.departmentName}</td>
+//       <td className="role">{employee.role}</td>
+//       <td className="actions uk-text-right">
+//         <button
+//           className="uk-margin-right uk-icon"
+//           data-uk-icon="pencil"
+//           onClick={() => onEditEmployee(employee.asJson)}
+//         >
+//           {/* Edit */}
+//         </button>
+//         <button
+//           className="uk-margin-right uk-icon"
+//           data-uk-icon="trash"
+//           onClick={() => onDeleteEmployee(employee.uid)}
+//         >
+//           {/* Remove */}
+//         </button>
+//       </td>
+//     </tr>
+//   ))}

@@ -36,6 +36,7 @@
     "react-scripts": "^5.0.1",
     "react-select": "^5.2.2",
     "react-tooltip": "^5.22.0",
+    "rechart": "^0.0.1",
     "recharts": "^2.9.3",
     "sass": "^1.62.1",
     "select2": "^4.1.0-rc.0",
