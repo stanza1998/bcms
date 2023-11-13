@@ -16,16 +16,12 @@ import {
   getUsersEmail,
 } from "../../../shared/common";
 import {
-  getStorage,
   ref,
-  uploadBytes,
   getDownloadURL,
   UploadTask,
   uploadBytesResumable,
 } from "firebase/storage";
 import { storage } from "../../../../shared/database/FirebaseConfig";
-import { DeleteOutline as FileIcon } from "@mui/icons-material"; // Import Material-UI icons
-import { IconButton } from "@mui/material"; // Import IconButton component from Material-UI
 import { MAIL_MEETINGS } from "../../../shared/mailMessages";
 
 interface Attachment {

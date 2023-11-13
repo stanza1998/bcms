@@ -5,12 +5,10 @@ import WorkOderFlowStore from "../individualStore/maintenance/request/work-order
 import ServiceProviderStore from "../individualStore/maintenance/service-provider/ServiceProviderStore";
 
 export default class MaintenanceStore {
-    [x: string]: any;
     servie_provider: ServiceProviderStore;
     maintenance_request: MaintenanceRequestStore;
     work_flow_order: WorkOderFlowStore;
     requestType: RequestTypeStore;
-    service_provider: any;
 
     constructor(store: AppStore) {
         this.servie_provider = new ServiceProviderStore(store);

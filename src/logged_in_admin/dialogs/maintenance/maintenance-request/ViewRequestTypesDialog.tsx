@@ -1,73 +1,20 @@
 import { observer } from "mobx-react-lite";
-import { useState, FormEvent, useEffect } from "react";
+import { useEffect } from "react";
 import { useAppContext } from "../../../../shared/functions/Context";
-import { hideModalFromId } from "../../../../shared/functions/ModalShow";
-import { IRequestType, defaultRequestType } from "../../../../shared/models/maintenance/request/maintenance-request/types/RequestTypes";
-import DIALOG_NAMES from "../../Dialogs";
 import RequestTypeGrid from "../../../bcms/maintanace/request-type/RequestTypeGrid";
 
 export const ViewRequestTypes = observer(() => {
-  const { api, store, ui } = useAppContext();
-  const [loading, setLoading] = useState(false);
+  const { api, store } = useAppContext();
   const me = store.user.meJson;
-  const currentDate = new Date();
-  const [requestType, setRequestType] =
-    useState<IRequestType>({
-      ...defaultRequestType,
-    });
 
-    const requests = store.maintenance.requestType.all;
+  const requestsTypes = store.maintenance.requestType.all.map((r) => {
+    return r.asJson;
+  });
 
-  const onSave = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    if (!me?.property) return;
-    // Update API
-    try {
-      if (store.maintenance.requestType.selected) {
-        const deptment = await api.maintenance.request_type.update(
-            requestType,
-          me.property
-        );
-        await store.maintenance.requestType.load();
-        ui.snackbar.load({
-          id: Date.now(),
-          message: "setRequestType updated!",
-          type: "success",
-        });
-      } else {
-        // maintenanceRequest.authorOrSender = me.uid;
-        //requestType.dateRequested = currentDate.toLocaleTimeString();
-        await api.maintenance.request_type.create(
-            requestType,
-          me.property
-        );
-        ui.snackbar.load({
-          id: Date.now(),
-          message: "Maintenance Request created!",
-          type: "success",
-        });
-      }
-    } catch (error) {
-      ui.snackbar.load({
-        id: Date.now(),
-        message: "Error! Failed to update maintenance Request.",
-        type: "danger",
-      });
-    }
-
-    store.maintenance.requestType.clearSelected();
-    setRequestType({...defaultRequestType,
-    });
-    setLoading(false);
-    hideModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_REQUEST_TYPE);
-  };
-
- 
   useEffect(() => {
     const getData = async () => {
       try {
-        if(me?.property){
+        if (me?.property) {
           await api.maintenance.request_type.getAll(me?.property);
         }
       } catch (error) {
@@ -75,18 +22,7 @@ export const ViewRequestTypes = observer(() => {
       }
     };
     getData();
-  }, [api.maintenance.request_type]);
-
-  setTimeout(() => {
-    setLoading(false);
-  }, 1000);
-  const requestTypes = requests.sort((a, b) => {
-    if (a.asJson.id === me?.property) return -1; // 'abc' comes first
-    if (b.asJson.id === me?.property) return 1; // 'abc' comes first
-    return 0; // keep the order for non-'abc' elements
-  });
-
-  console.log("Type"+ requestType);
+  }, [api.maintenance.request_type, me?.property]);
 
   return (
     <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
@@ -99,33 +35,7 @@ export const ViewRequestTypes = observer(() => {
       <h3 className="uk-modal-title">Request Type</h3>
       <div className="dialog-content uk-position-relative">
         <div className="reponse-form">
-        <RequestTypeGrid data={[requestType]}/>
-        {/* <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr key={requestType.id}>
-          <td>{requestType.typeName}</td>
-          <td>
-            <button
-              className="uk-margin-right uk-icon"
-              data-uk-icon="pencil"
-              onClick={() => onUpdate()}
-            ></button>
-            <br></br>
-            <button
-              className="uk-margin-right uk-icon"
-              data-uk-icon="trash"
-            // onClick={() => onDelete()}  {/* Assuming onDelete() is used to delete the item */}
-            {/* ></button>
-          </td>
-        </tr>
-      </tbody>
-    </table> */} 
+          <RequestTypeGrid data={requestsTypes} />
         </div>
       </div>
     </div>

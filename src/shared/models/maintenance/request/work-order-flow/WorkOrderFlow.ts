@@ -3,22 +3,30 @@ import AppStore from "../../../../stores/AppStore";
 
 export const defaultMaintenanceworkOrder: IWorkOrderFlow = {
     id: "",
-    workOrderNumber: 0,
-    workOrderId: "",
-    serviceProviderId: "",
+    workOrderNumber: "",
+    requestId: "",
+    serviceProviderId: [],
     title: "",
     description: "",
-    status: "Closed"
+    status: "Pending",
+    successfullSP: "",
+    dateCreated: "",
+    startDate: "",
+    completedDate: ""
 };
 
 export interface IWorkOrderFlow {
     id: string;
-    workOrderNumber: number;
-    workOrderId: string;
-    serviceProviderId: string;
+    workOrderNumber: string;
+    requestId: string;
+    serviceProviderId: string[];
     title: string;
     description: string;
     status: string;
+    successfullSP: string;
+    dateCreated: string;
+    startDate: string;
+    completedDate: string;
 }
 
 export default class WorkOrderFlowModel {

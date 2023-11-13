@@ -124,7 +124,7 @@ const ADMIN_USER_ROUTES = () => {
             element={<MaintenenceReports />}
           />
           <Route
-            path={`maintainance/request/:requestId`}
+            path={`maintainance/request/:maintenanceRequestId`}
             element={<WorkOrder />}
           />
           {/* Maintenance  */}
