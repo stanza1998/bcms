@@ -62,6 +62,7 @@ import { MaintenenceReports } from "./logged_in_admin/bcms/maintanace/reports/Re
 import { WorkOrder } from "./logged_in_admin/bcms/maintanace/work-order/WorkOrder";
 import { ViewFolder } from "./logged_in_admin/bcms/meetings/ViewFolder";
 import { ViewDocuments } from "./logged_in_admin/bcms/documents/ViewDocuments";
+import { UploadQuote } from "./logged_in_admin/bcms/maintanace/service-providers-upload-quote/Uploaduote";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -229,6 +230,11 @@ const ADMIN_USER_ROUTES = () => {
         </Route>
         <Route path="/" element={<SignIn />} />
         <Route path="/*" element={<Navigate to="/" />} />
+
+        <Route
+          path={`service-provider-quotes/:maintenanceRequestId/:workOrderId`}
+          element={<UploadQuote />}
+        ></Route>
       </Routes>
     </BrowserRouter>
   );
@@ -266,6 +272,10 @@ const OWNER_ROUTES = () => {
         </Route>
         <Route path="/" element={<SignIn />} />
         <Route path="/*" element={<Navigate to="/" />} />
+        <Route
+   path={`service-provider-quotes/:maintenanceRequestId/:workOrderId`}
+          element={<UploadQuote />}
+        ></Route>
       </Routes>
     </BrowserRouter>
   );
@@ -313,13 +323,14 @@ const EMPLOYEE_USER_ROUTES = () => {
         </Route>
         <Route path="/" element={<SignIn />} />
         <Route path="/*" element={<Navigate to="/" />} />
+        <Route
+        path={`service-provider-quotes/:propertyId/:maintenanceRequestId/:workOrderId`}
+          element={<UploadQuote />}
+        ></Route>
       </Routes>
     </BrowserRouter>
   );
 };
-
-// Lotsengineering2022 or @2022
-// new transnamib.unicomms.app c8R7Dn9ZvGvEyDd
 
 const MainRoutes = observer(() => {
   const { store } = useAppContext();
@@ -360,6 +371,7 @@ const App = () => {
         <Suspense fallback={<LoadingEllipsis />}>
           <MainRoutes />
         </Suspense>
+
         <SnackbarManager />
       </AppContext.Provider>
     </div>

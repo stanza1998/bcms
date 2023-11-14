@@ -8,14 +8,14 @@ import {
   IWorkOrderFlow,
   defaultMaintenanceworkOrder,
 } from "../../../../shared/models/maintenance/request/work-order-flow/WorkOrderFlow";
-import {
-  IServiceProvider,
-  defaultServiceProvider,
-} from "../../../../shared/models/maintenance/service-provider/ServiceProviderModel";
 import { useParams } from "react-router-dom";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
-import { generateMaintenanceRequestReference } from "../../../shared/common";
+import {
+  generateMaintenanceRequestReference,
+  getServiceProviderEmails,
+} from "../../../shared/common";
+import { MAIL_SERVICE_PROVIDER_LINK } from "../../../shared/mailMessages";
 
 export const WorkOrderFlowDialog = observer(() => {
   const { api, store, ui } = useAppContext();
@@ -42,6 +42,11 @@ export const WorkOrderFlowDialog = observer(() => {
       label: user.serviceProvideName,
     }));
 
+  const serviceProvidersEmails = getServiceProviderEmails(
+    workOrder.serviceProviderId,
+    store
+  );
+
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -66,6 +71,7 @@ export const WorkOrderFlowDialog = observer(() => {
           //send link to sps to provide quotes
           workOrder.dateCreated = dateCreated;
           workOrder.requestId = maintenanceRequestId;
+          workOrder.propertyId = me.property || "";
           workOrder.workOrderNumber = generateMaintenanceRequestReference(
             identity || ""
           );
@@ -74,6 +80,20 @@ export const WorkOrderFlowDialog = observer(() => {
             workOrder,
             me.property,
             maintenanceRequestId
+          );
+
+          const { MY_SUBJECT, MY_BODY } = MAIL_SERVICE_PROVIDER_LINK(
+            workOrder.title,
+            workOrder.description,
+            `http://localhost:3000/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`
+          );
+
+          await api.mail.sendMail(
+            "",
+            ["narib98jerry@gmail.com"],
+            MY_SUBJECT,
+            MY_BODY,
+            ""
           );
           ui.snackbar.load({
             id: Date.now(),
@@ -201,6 +221,26 @@ export const WorkOrderFlowDialog = observer(() => {
                         : null;
                     }
                   )}
+                />
+              </div>
+            </div>
+            <div className="uk-margin">
+              <label className="uk-form-label" htmlFor="form-stacked-text">
+                Conclusion date and time of the Window Period
+              </label>
+              <div className="uk-form-controls">
+                <input
+                  className="uk-input"
+                  type="datetime-local"
+                  // placeholder="Title"
+                  value={workOrder.windowPeriod}
+                  onChange={(e) =>
+                    setWorkOrder({
+                      ...workOrder,
+                      windowPeriod: e.target.value,
+                    })
+                  }
+                  required
                 />
               </div>
             </div>

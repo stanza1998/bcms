@@ -12,8 +12,9 @@ import xls from "./file-icons/xls-file_9681350.png"
 import _xlsx from "./file-icons/xlsx_8361467.png"
 import d from "./file-icons/documentation_10517465.png"
 import { IUser } from "../../shared/interfaces/IUser";
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from "../../shared/database/FirebaseConfig";
+import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db, storage } from "../../shared/database/FirebaseConfig";
+import { getDownloadURL, ref, uploadBytes, uploadString } from "firebase/storage";
 
 
 export const getFileExtension = (url: string): string => {
@@ -98,6 +99,13 @@ export function getUsersEmail(users: string[], store: AppStore): string[] {
     return usersEmails;
 }
 
+export function getServiceProviderEmails(serviceProviders: string[], store: AppStore): string[] {
+    const spEmails: string[] = serviceProviders.map(sp => {
+        return store.maintenance.servie_provider.getById(sp)?.asJson.email || "";
+    });
+    return spEmails;
+}
+
 
 
 export function getCustomUserEmail(customUser: string[], store: AppStore): string[] {
@@ -150,7 +158,7 @@ export function formatMeetingTime(startTimestamp: string, endTimestamp: string) 
             return `Meeting Ended ${monthsAgo} month${monthsAgo !== 1 ? 's' : ''} ago`;
         } else {
             const yearsAgo = Math.floor(minutesAgo / 525600);
-            return `${yearsAgo} year${yearsAgo !== 1 ? 's' : ''} ago`;
+            return `Meeting Ended ${yearsAgo} year${yearsAgo !== 1 ? 's' : ''} ago`;
         }
     } else {
         // Meeting is currently ongoing
@@ -192,12 +200,10 @@ export async function updateById(requestId: string, pid: string, newStatus: stri
     try {
         // Get the current document data before the update
         const docSnapshot = await getDoc(doc(db, myPath, requestId));
-
         await updateDoc(doc(db, myPath, requestId), {
             // your update data here
             status: newStatus
         });
-
         const updatedDocSnapshot = await getDoc(doc(db, myPath, requestId));
         const updatedData = updatedDocSnapshot.data();
         console.log('Updated Data:', updatedData);
@@ -205,4 +211,45 @@ export async function updateById(requestId: string, pid: string, newStatus: stri
         console.error('Error updating document:', error);
     }
 }
+export async function updateWorkOrderById(workOrderId: string, pid: string, mid: string, newFiles: File[]) {
+    const myPath = `BodyCoperate/${pid}/MaintenanceRequest/${mid}/WorkFlowOrder`;
+
+    try {
+        // Create a reference for the document
+        const workOrderRef = doc(db, myPath, workOrderId);
+
+        // Get the current document data before the update
+        const docSnapshot = await getDoc(workOrderRef);
+        const currentData = docSnapshot.data();
+
+        // Upload new files to Firebase Storage and get their download URLs
+        const uploadPromises = newFiles.map(async (file) => {
+            const filePath = `workOrderFiles/${workOrderId}/${file.name}`;
+            const fileRef = ref(storage, filePath);
+
+            // Upload file to storage
+            await uploadBytes(fileRef, file);
+
+            // Get download URL
+            const downloadURL = await getDownloadURL(fileRef);
+
+            return downloadURL;
+        });
+
+        const newFileURLs = await Promise.all(uploadPromises);
+
+        // Update the document in Firestore to add new files to the existing array
+        await updateDoc(workOrderRef, {
+            quoteFiles: arrayUnion(...newFileURLs),
+        });
+
+        // Get the updated document data
+        const updatedDocSnapshot = await getDoc(workOrderRef);
+        const updatedData = updatedDocSnapshot.data();
+        console.log('Updated Data:', updatedData);
+    } catch (error) {
+        console.error('Error updating document:', error);
+    }
+}
+
 

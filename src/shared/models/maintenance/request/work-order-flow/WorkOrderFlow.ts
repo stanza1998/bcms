@@ -12,7 +12,10 @@ export const defaultMaintenanceworkOrder: IWorkOrderFlow = {
     successfullSP: "",
     dateCreated: "",
     startDate: "",
-    completedDate: ""
+    completedDate: "",
+    windowPeriod: "",
+    quoteFiles: [],
+    propertyId: ""
 };
 
 export interface IWorkOrderFlow {
@@ -27,6 +30,9 @@ export interface IWorkOrderFlow {
     dateCreated: string;
     startDate: string;
     completedDate: string;
+    windowPeriod: string;
+    quoteFiles: string[];
+    propertyId: string;
 }
 
 export default class WorkOrderFlowModel {

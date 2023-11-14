@@ -58,6 +58,13 @@ export const SuccessfulAction = (ui: any) => {
     type: "success",
   });
 };
+export const SuccessfullQuotAction = (ui: any) => {
+  return ui.snackbar.load({
+    id: Date.now(),
+    message: "You have successfully uploaded your quote.",
+    type: "success",
+  });
+};
 export const SuccessfulActionCustomerReceipt = (ui: any) => {
   return ui.snackbar.load({
     id: Date.now(),

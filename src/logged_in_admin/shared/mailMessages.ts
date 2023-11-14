@@ -35,6 +35,33 @@ export const MAIL_ANNOUNCEMENTS = (
     };
 };
 
+
+export const MAIL_SERVICE_PROVIDER_LINK = (
+    title: string | null | undefined,
+    message: string | null | undefined,
+    spLink: string | null | undefined
+) => {
+    const MY_SUBJECT = `${title}`
+    const MY_BODY = [
+        `${greeting}`,
+        "",
+        `${message}`,
+        "",
+        "Please click the link below to upload your quotation.",
+        `${spLink}`,
+        "",
+        "Regards,",
+        `${username}`,
+        "",
+        `${link}`
+    ];
+
+    return {
+        MY_SUBJECT: MY_SUBJECT,
+        MY_BODY: MY_BODY.join("<br/>")
+    }
+}
+
 export const MAIL_MEETINGS = (
     title: string | null | undefined,
     message: string | null | undefined,
@@ -64,3 +91,5 @@ export const MAIL_MEETINGS = (
         MY_BODY: MY_BODY.join("<br/>")
     };
 }
+
+
