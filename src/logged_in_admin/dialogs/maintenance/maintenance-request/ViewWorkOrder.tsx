@@ -18,6 +18,7 @@ import {
   MAIL_SUCCESSFULL_SERVICE_PROVIDER,
 } from "../../../shared/mailMessages";
 import SingleSelect from "../../../../shared/components/single-select/SlingleSelect";
+import folderIcon from "./assets/folder_3139112.png";
 
 export const ViewWorkOrderDialog = observer(() => {
   const { api, store, ui } = useAppContext();
@@ -225,29 +226,32 @@ export const ViewWorkOrderDialog = observer(() => {
             </div>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-                Quotations Uploaded
+                Uploaded Quote Folders
               </label>
 
               <div
                 className="uk-child-width-1-6@m uk-grid-small uk-grid-match"
                 data-uk-grid
               >
-                {workOrder.quoteFiles.map((f) => (
-                  <div style={{ textAlign: "center" }}>
-                    <div className="uk-card uk-card-body">
-                      <div className="image-container">
-                        <a
-                          target="blank"
-                          href={f}
-                          style={{ cursor: "pointer" }}
-                        >
-                          <img src={getIconForExtensionExtra(f)} />
-                        </a>
-                        <div className="icon-container"></div>
+                {workOrder.quoteFiles.map((f) => {
+                  return (
+                    <div style={{ textAlign: "center" }}>
+                      <div
+                        className="uk-card uk-card-body"
+                        data-uk-tooltip={
+                          store.maintenance.servie_provider.all.find(
+                            (s) => s.asJson.id === f.id
+                          )?.asJson.serviceProvideName
+                        }
+                      >
+                        <div className="image-container">
+                          <img src={folderIcon} alt="image" />
+                          <div className="icon-container"></div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 {workOrder.quoteFiles.length === 0 && (
                   <span style={{ color: "red" }}>No folders</span>
                 )}

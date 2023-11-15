@@ -224,45 +224,72 @@ export async function updateById(requestId: string, pid: string, newStatus: stri
         console.error('Error updating document:', error);
     }
 }
-export async function updateWorkOrderById(workOrderId: string, pid: string, mid: string, newFiles: File[]) {
+
+
+export async function updateWorkOrderById(
+    workOrderId: string,
+    pid: string,
+    mid: string,
+    newQuoteFile: { id: string; quoteFileurl: string; imageUrls: string[] },
+    newImages: File[]
+  ) {
     const myPath = `BodyCoperate/${pid}/MaintenanceRequest/${mid}/WorkFlowOrder`;
-
+  
     try {
-        // Create a reference for the document
-        const workOrderRef = doc(db, myPath, workOrderId);
-
-        // Get the current document data before the update
-        const docSnapshot = await getDoc(workOrderRef);
-        const currentData = docSnapshot.data();
-
-        // Upload new files to Firebase Storage and get their download URLs
-        const uploadPromises = newFiles.map(async (file) => {
-            const filePath = `workOrderFiles/${workOrderId}/${file.name}`;
-            const fileRef = ref(storage, filePath);
-
-            // Upload file to storage
-            await uploadBytes(fileRef, file);
-
-            // Get download URL
-            const downloadURL = await getDownloadURL(fileRef);
-
-            return downloadURL;
-        });
-
-        const newFileURLs = await Promise.all(uploadPromises);
-
-        // Update the document in Firestore to add new files to the existing array
-        await updateDoc(workOrderRef, {
-            quoteFiles: arrayUnion(...newFileURLs),
-        });
-
-        // Get the updated document data
-        const updatedDocSnapshot = await getDoc(workOrderRef);
-        const updatedData = updatedDocSnapshot.data();
-        console.log('Updated Data:', updatedData);
+      // Create a reference for the document
+      const workOrderRef = doc(db, myPath, workOrderId);
+  
+      // Get the current document data before the update
+      const docSnapshot = await getDoc(workOrderRef);
+      const currentData = docSnapshot.data();
+  
+      // Convert quoteFileurl content to a Blob
+      const quoteFileBlob = new Blob([newQuoteFile.quoteFileurl]);
+  
+      // Upload new quote file to Firebase Storage and get its download URL
+      const quoteFilePath = `workOrderFiles/${workOrderId}/${newQuoteFile.id}`;
+      const quoteFileRef = ref(storage, quoteFilePath);
+  
+      // Upload quote file to storage
+      await uploadBytes(quoteFileRef, quoteFileBlob);
+  
+      // Get download URL for the quote file
+      const quoteFileDownloadURL = await getDownloadURL(quoteFileRef);
+  
+      // Upload new images to Firebase Storage and get their download URLs
+      const uploadPromises = newImages.map(async (image) => {
+        const imagePath = `workOrderFiles/${workOrderId}/${image.name}`;
+        const imageRef = ref(storage, imagePath);
+  
+        // Upload image to storage
+        await uploadBytes(imageRef, image);
+  
+        // Get download URL for the image
+        const downloadURL = await getDownloadURL(imageRef);
+  
+        return downloadURL;
+      });
+  
+      const newImageURLs = await Promise.all(uploadPromises);
+  
+      // Update the document in Firestore to add new quote file and images to the existing array
+      await updateDoc(workOrderRef, {
+        quoteFiles: arrayUnion({
+          id: newQuoteFile.id,
+          quoteFileurl: quoteFileDownloadURL,
+          imageUrls: newImageURLs,
+        }),
+      });
+  
+      // Get the updated document data
+      const updatedDocSnapshot = await getDoc(workOrderRef);
+      const updatedData = updatedDocSnapshot.data();
+      console.log('Updated Data:', updatedData);
     } catch (error) {
-        console.error('Error updating document:', error);
+      console.error('Error updating document:', error);
     }
-}
+  }
+  
+  
 
 

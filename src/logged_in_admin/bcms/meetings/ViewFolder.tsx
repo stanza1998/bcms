@@ -177,12 +177,15 @@ export const ViewFolder = observer(() => {
                               data-uk-tooltip="Double click to view"
                               onDoubleClick={() => onViewMeeting(meeting)}
                             >
-                              <div className="uk-card uk-card-default uk-card-body">
+                              <div
+                                className="uk-card uk-card-default uk-card-body"
+                                style={{ background: "white" }}
+                              >
                                 <span
                                   style={{
                                     background: "#01aced",
                                     padding: "5px",
-                                    color: "black",
+                                    color: "white",
                                     borderRadius: "3px",
                                   }}
                                   className="top-left-span"
@@ -199,16 +202,21 @@ export const ViewFolder = observer(() => {
                                 >
                                   {statusText}
                                 </span>
-                                <h3 className="uk-card-title" style={{color:"#01aced"}}>
+                                <h3
+                                  className="uk-card-title"
+                                  style={{ color: "#000" }}
+                                >
                                   {meeting.title}
                                 </h3>
-                                <p>{meeting.description}</p>
+                                <p style={{ color: "black" }}>
+                                  {meeting.description}
+                                </p>
                                 <span
                                   className="bottom-right-span"
                                   style={{
                                     background: "#01aced",
                                     padding: "5px",
-                                    color: "#000c37",
+                                    color: "white",
                                     borderRadius: "3px",
                                   }}
                                 >
