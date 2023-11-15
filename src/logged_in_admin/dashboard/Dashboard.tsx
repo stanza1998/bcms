@@ -1,11 +1,12 @@
 import { observer } from "mobx-react-lite";
 import { useAppContext } from "../../shared/functions/Context";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Grid, Paper, styled } from "@mui/material";
 import "./DashboardCard.scss";
 import "./Dashtable.scss";
 import MaintenanceTimeRequest from "./dashboardGraphs.tsx/MaintenananceTimeRequest";
 import RequestBarChat from "./dashboardGraphs.tsx/RequestBarChart";
+import { LoadingEllipsis } from "../../shared/components/Loading";
 
 const Dashboard = observer(() => {
   const { store, api } = useAppContext();
@@ -31,45 +32,73 @@ const OwnerDashBoard = () => {
 
 const ManagerDashBoard = () => {
   const { store, api } = useAppContext();
-  const me = store.user.meJson?.role;
-  //New Reuqests and New Maintenance will be based on 8hours cut off time
+  const me = store.user.meJson;
+  const currentDate = new Date();
+  const [isLoading,setIsLoading] = useState(true);
+  const [isEmpty, setIsEmpty] = useState(false);
+
   const notices = store.communication.announcements.all.map((announcement)=>{
     return announcement.asJson;
   } 
-  ).sort((a,b)=>
-  new Date(b.dateAndTime).getTime() - new Date (a.dateAndTime).getTime()
-  ).filter((notices) => new Date(notices.dateAndTime).getTime() <  28800000 );
+  ).sort(
+    (a, b) =>
+      new Date(b.dateAndTime).getTime() - new Date(a.dateAndTime).getTime()
+  )
 
 
 
   const maintenanceRequests = store.maintenance.maintenance_request.all.map((request)=>{
   return request.asJson;
   } 
-  ).sort((a,b)=>
-  new Date(b.dateRequested).getTime() - new Date (a.dateRequested).getTime()
-  ).filter((requests) => new Date(requests.dateRequested).getTime() <  28800000 );
-
-
+  ).sort(
+    (a, b) =>
+      new Date(b.dateRequested).getTime() - new Date(a.dateRequested).getTime()
+  ).filter((requests) => requests.status === "Closed" );
 
     const serviceProviders = store.maintenance.servie_provider.all.map((provider)=>{
     return provider.asJson;
   } 
+  ).sort(
+    (a, b) =>
+      new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
   )
 
-  // const scheduledMeeetings = store.maintenance.servie_provider.all.map((provider)=>{
-  //   return provider.asJson;
-  // } 
-  // )
-  
-  // const scheduledMeetings = announcements
-  //   .sort(
-  //     (a, b) =>
-  //       new Date(b.expiryDate).getTime() - new Date(a.expiryDate).getTime()
+  // const requests =()=>{
+  //   maintenanceRequests.filter((requests)=> 
+  //   new Date (requests.dateRequested).getTime() < currentDate.getTime()
   //   )
-  //   .filter((announcement) => new Date(announcement.expiryDate) < currentDate);
+  // }
+
+  
+
+  useEffect(() => {
+    const getData = async () => {
+      if (me?.property && me?.year) {
+        await api.communication.announcement.getAll(me.property, me.year);
+        await api.maintenance.maintenance_request.getAll(me.property);
+        await api.maintenance.service_provider.getAll(me.property);
+        // await api.maintenance.maintenance_request.getAll(me.property); //meetings
+        await api.auth.loadAll();
+        await api.body.supplier.getAll(me.property);
+        setIsLoading(false);
+      }
+    };
+    getData();
+  }, [
+    api.auth,
+    api.communication.announcement,
+    api.maintenance.maintenance_request,
+    api.maintenance.service_provider,
+    me?.property,
+    me?.year,
+  ]);
   const totalNewRequests = maintenanceRequests.length;
   const totalServiceProviders = serviceProviders.length;
   const totalNewNotices = notices.length;
+
+  const latestNotices = notices.slice(0, 3);
+  const latestProviders = serviceProviders.slice(0, 3);
+  const latestRequests = maintenanceRequests.slice(0, 3);
 
   const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -80,7 +109,8 @@ const ManagerDashBoard = () => {
   }));
 
   return (
-    <div className="uk-section leave-analytics-page dashboard-card">
+    isLoading === false ? (
+      <div className="uk-section leave-analytics-page dashboard-card">
       <div className="uk-container uk-container-large">
         <div className="section-toolbar uk-margin">
           <h4 className="section-heading uk-heading">Dashboard</h4>
@@ -182,22 +212,37 @@ const ManagerDashBoard = () => {
                   >
                     Latest Notices
                   </h4>
+                      {!isEmpty?(   <div className="no-orders">
+            <p className="uk-text-center">
+              Empty (no employees) <span>😔</span>
+            </p>
+          </div>):(   <div className="no-orders">
+            <p className="uk-text-center">
+              Empty (no employees) <span>😔</span>
+            </p>
+          </div>)}
                   <div className="table-container">
                     <table>
                       <thead>
                         <tr>
-                          <th>Tile</th>
-                          <th>Status</th>
-                          <th>Date</th>
+                          <th>Owner</th>
+                          <th>Unit</th>
+                          <th>Date Requested</th>
                           <th>Action</th>
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td>John Doe</td>
-                          <td>Developer</td>
+                        {latestRequests.map((request,index)=>
+                        (
+                          <tr className="row" key={request.id}>
+                          <td className="id">{index + 1}</td>
+                          <td className="owner">{`${request.ownerId}`}</td>
+                          <td className="date">Date Requested</td>
                           <td>Developer</td>
                         </tr>
+                        )
+                        )}
+                   
                         <tr>
                           <td>Jane Smith</td>
                           <td>Designer</td>
@@ -294,6 +339,9 @@ const ManagerDashBoard = () => {
         </Grid>
       </div>
     </div>
+    ):(
+     <LoadingEllipsis/>
+    )
   );
 };
 
