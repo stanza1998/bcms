@@ -41,11 +41,6 @@ export const RequestMaintenance = observer(() => {
     getData();
   }, [api.maintenance.maintenance_request, me?.property]);
 
-
-
-
-
-
   return (
     <>
       <div className="uk-section leave-analytics-page">
@@ -88,3 +83,6 @@ export const RequestMaintenance = observer(() => {
     </>
   );
 });
+
+
+
