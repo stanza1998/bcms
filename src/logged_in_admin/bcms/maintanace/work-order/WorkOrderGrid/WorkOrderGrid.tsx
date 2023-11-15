@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, IconButton } from "@mui/material";
 import { GridColDef, DataGrid } from "@mui/x-data-grid";
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
@@ -6,8 +6,12 @@ import { useAppContext } from "../../../../../shared/functions/Context";
 import showModalFromId from "../../../../../shared/functions/ModalShow";
 import { IMaintenanceRequest } from "../../../../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
 import DIALOG_NAMES from "../../../../dialogs/Dialogs";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { IWorkOrderFlow } from "../../../../../shared/models/maintenance/request/work-order-flow/WorkOrderFlow";
+import PreviewIcon from "@mui/icons-material/Preview";
+import Badge from "@mui/material/Badge";
+import { getQuoteFilesLength } from "../../../../shared/common";
+import CircleIcon from "@mui/icons-material/Circle";
 
 interface IProp {
   data: IWorkOrderFlow[];
@@ -15,10 +19,11 @@ interface IProp {
 
 const WorkOrderGrid = observer(({ data }: IProp) => {
   const { store, api } = useAppContext();
-  const navigate = useNavigate();
+  const me = store.user.meJson;
+  const { maintenanceRequestId } = useParams();
 
-  const users = store.user.all.map((user) => {
-    return user.asJson;
+  const orders = store.maintenance.work_flow_order.all.map((w) => {
+    return w.asJson;
   });
 
   const onUpdate = (workOrder: IWorkOrderFlow) => {
@@ -26,16 +31,31 @@ const WorkOrderGrid = observer(({ data }: IProp) => {
     showModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_WORK_ORDER); //create update modal
   };
   const onView = (workOrder: IWorkOrderFlow) => {
-    //   showModalFromId(DIALOG_NAMES.MAINTENANCE); //create view modal
+    store.maintenance.work_flow_order.select(workOrder);
+    showModalFromId(DIALOG_NAMES.MAINTENANCE.VIEW_WORK_ORDER);
+  };
+  const onExtend = (workOrder: IWorkOrderFlow) => {
+    store.maintenance.work_flow_order.select(workOrder);
+    showModalFromId(DIALOG_NAMES.MAINTENANCE.EXTEND_WINDOW_PERIOD);
   };
 
   useEffect(() => {
     const getUsers = async () => {
       await api.auth.loadAll();
+      if (me?.property && maintenanceRequestId) {
+        await api.maintenance.work_flow_order.getAll(
+          me.property,
+          maintenanceRequestId
+        );
+      }
     };
     getUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [
+    api.auth,
+    api.maintenance.work_flow_order,
+    maintenanceRequestId,
+    me?.property,
+  ]);
 
   const columns: GridColDef[] = [
     {
@@ -71,7 +91,7 @@ const WorkOrderGrid = observer(({ data }: IProp) => {
               {params.row.status}
             </span>
           );
-        } else if (params.row.status === "In Progress") {
+        } else if (params.row.status === "In-Progress") {
           return (
             <span
               style={{
@@ -106,12 +126,9 @@ const WorkOrderGrid = observer(({ data }: IProp) => {
       flex: 1,
       renderCell: (params) => {
         const currentDate = Date.now();
-        const endDate = params.row.windowPeriod;
+        const endDate = new Date(params.row.windowPeriod).getTime();
 
-        const formattedCurrentDate = new Date(currentDate).toUTCString();
-        const formattedEndDate = new Date(endDate).toUTCString();
-
-        if (formattedCurrentDate < formattedEndDate) {
+        if (currentDate < endDate) {
           return (
             <span
               style={{
@@ -124,11 +141,11 @@ const WorkOrderGrid = observer(({ data }: IProp) => {
               Window Active
             </span>
           );
-        } else if (formattedCurrentDate > formattedEndDate) {
+        } else if (currentDate > endDate) {
           return (
             <span
               style={{
-                background: "red",
+                background: "grey",
                 color: "white",
                 padding: "10px",
                 width: "100%",
@@ -144,15 +161,37 @@ const WorkOrderGrid = observer(({ data }: IProp) => {
       field: "Action",
       headerName: "Action",
       flex: 1,
-      renderCell: (params) => (
-        <div>
-          <button
+      renderCell: (params) => {
+        const id = params.row.id;
+
+        return (
+          <div>
+            <IconButton
+              onClick={() => onView(params.row)}
+              data-uk-tooltip="View Quotations and choose Service Provider"
+            >
+              <Badge
+                badgeContent={getQuoteFilesLength(id, orders)}
+                color="secondary"
+              >
+                {" "}
+                <PreviewIcon />
+              </Badge>
+            </IconButton>
+            <IconButton
+              data-uk-tooltip="Extend Window Period"
+              onClick={() => onExtend(params.row)}
+            >
+              <CircleIcon />
+            </IconButton>
+            {/* <button
             className="uk-margin-right uk-icon"
             data-uk-icon="pencil"
             onClick={() => onUpdate(params.row)}
-          ></button>
-        </div>
-      ),
+          ></button> */}
+          </div>
+        );
+      },
     },
   ];
 
@@ -162,7 +201,7 @@ const WorkOrderGrid = observer(({ data }: IProp) => {
         rows={data}
         columns={columns}
         getRowId={(row) => row.id} // Use the appropriate identifier property
-        rowHeight={40}
+        rowHeight={45}
       />
     </Box>
   );

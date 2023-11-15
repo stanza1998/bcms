@@ -35,6 +35,12 @@ export interface IWorkOrderFlow {
     propertyId: string;
 }
 
+// export interface IQuoteFile {
+//     id:string;
+//     url:string;
+//     images: string[]
+// }
+
 export default class WorkOrderFlowModel {
     private workOrder: IWorkOrderFlow;
 

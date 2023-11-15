@@ -15,6 +15,7 @@ import { IUser } from "../../shared/interfaces/IUser";
 import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db, storage } from "../../shared/database/FirebaseConfig";
 import { getDownloadURL, ref, uploadBytes, uploadString } from "firebase/storage";
+import { IWorkOrderFlow } from "../../shared/models/maintenance/request/work-order-flow/WorkOrderFlow";
 
 
 export const getFileExtension = (url: string): string => {
@@ -175,6 +176,18 @@ export function isDateAfterCurrentDate(dateString: string) {
     return providedDate < currentDate;
 }
 
+export function getQuoteFilesLength(workOrderFlowId: string, workOrderFlows: IWorkOrderFlow[]): number {
+    const workOrder = workOrderFlows.find(order => order.id === workOrderFlowId);
+
+    if (workOrder && workOrder.quoteFiles) {
+        return workOrder.quoteFiles.length;
+    } else if (workOrder && workOrder.quoteFiles.length === 0) {
+        return 0;
+    }
+    else {
+        return 0; // Default to 0, modify as needed
+    }
+}
 
 export function displayUserStatus(userId: string, currentLoggedInUserId: string, users: IUser[]) {
     const organizerUser = users.find((user) => user.uid === userId);

@@ -25,14 +25,14 @@ export const UploadQuote = observer(() => {
   const { propertyId, maintenanceRequestId, workOrderId } = useParams();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const currentDate = Date.now();
-  const convertedCurrent = new Date(currentDate).toUTCString();
+  const convertedCurrent = new Date(currentDate).getTime();
   const orderWindowPeriod = store.maintenance.work_flow_order.getById(
     workOrderId || ""
   );
 
   const convertedWindowPeriod = new Date(
     orderWindowPeriod?.asJson.windowPeriod || ""
-  ).toUTCString();
+  ).getTime();
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -116,7 +116,7 @@ export const UploadQuote = observer(() => {
                       {selectedFile ? selectedFile.name : "No file selected"}
                     </p>
                     <img
-                    style={{width:"4rem"}}
+                      style={{ width: "4rem" }}
                       src={`${getIconForExtensionExtra(selectedFile.name)}`}
                       alt="File Preview"
                     />

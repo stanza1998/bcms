@@ -61,6 +61,61 @@ export const MAIL_SERVICE_PROVIDER_LINK = (
         MY_BODY: MY_BODY.join("<br/>")
     }
 }
+export const MAIL_SUCCESSFULL_SERVICE_PROVIDER = (
+    workOrderId: string | null | undefined,
+    description: string | null | undefined,
+    // dueDate: string | null | undefined
+) => {
+    const MY_SUBJECT = `Work Order Awarded`
+    const MY_BODY = [
+        `${greeting}`,
+        "",
+        "Congratulations! You have been awarded a new work order. Here are the details:",
+        "",
+        `Work Order ID: ${workOrderId}`,
+        `Description: ${description}`,
+        // `Due Date: ${dueDate}`,
+        "",
+        "Regards,",
+        `${username}`,
+        "",
+        `${link}`
+    ];
+
+    return {
+        MY_SUBJECT: MY_SUBJECT,
+        MY_BODY: MY_BODY.join("<br/>")
+    }
+}
+
+export const MAIL_WORK_ORDER_WINDOW_PERIOD_EXTENDED = (
+    workOrderId: string | null | undefined,
+    windowDate: string | null | undefined
+) => {
+    const MY_SUBJECT = `Work Order Window Period Extended`
+    const MY_BODY = [
+        `${greeting}`,
+        "",
+        `Work Order ID: ${workOrderId}`,
+        "",
+        `The Work Order Window Period has been extended. The new deadline is ${new Date(windowDate || "").toDateString()} ${new Date(windowDate || "").toTimeString()}. Please ensure timely submission.`,
+        "",
+        "Please use the following link below to upload ",
+        "",
+        "Regards,",
+        `${username}`,
+        "",
+        `${link}`
+    ];
+
+    return {
+        MY_SUBJECT: MY_SUBJECT,
+        MY_BODY: MY_BODY.join("<br/>")
+    }
+}
+
+
+
 
 export const MAIL_MEETINGS = (
     title: string | null | undefined,

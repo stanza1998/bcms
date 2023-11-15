@@ -13,12 +13,17 @@ export const RequestMaintenance = observer(() => {
   const { api, store } = useAppContext();
   const me = store.user.meJson;
 
-  const requests = store.maintenance.maintenance_request.all.map((a) => {
-    return a.asJson;
-  });
+  const requests = store.maintenance.maintenance_request.all
+    .sort(
+      (a, b) =>
+        new Date(b.asJson.dateRequested).getTime() -
+        new Date(a.asJson.dateRequested).getTime()
+    )
+    .map((a) => {
+      return a.asJson;
+    });
 
   console.log(requests);
-  
 
   const onCreate = () => {
     showModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_MAINTENANCE_REQUEST);
@@ -40,11 +45,6 @@ export const RequestMaintenance = observer(() => {
     };
     getData();
   }, [api.maintenance.maintenance_request, me?.property]);
-
-
-
-
-
 
   return (
     <>

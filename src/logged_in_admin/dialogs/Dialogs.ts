@@ -59,6 +59,8 @@ const DIALOG_NAMES = {
     UPDATE_SERVICE_PROVIDER: "update-service-provider",
     CREATE_MAINTENANCE_REQUEST: "create-maintenance-request",
     CREATE_WORK_ORDER: "create-work-order",
+    VIEW_WORK_ORDER: "view-work-order",
+    EXTEND_WINDOW_PERIOD: "extend-window-period",
     CREATE_REQUEST_TYPE: "create-request-type",
     VIEW_REQUEST_TYPE: "view-request-type",
   },

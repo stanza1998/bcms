@@ -8,6 +8,8 @@ import WorkOrderGrid from "./WorkOrderGrid/WorkOrderGrid";
 import { WorkOrderFlowDialog } from "../../../dialogs/maintenance/maintenance-request/WorkOrderFlowDialog";
 import { useNavigate, useParams } from "react-router-dom";
 import { updateById } from "../../../shared/common";
+import { ViewWorkOrderDialog } from "../../../dialogs/maintenance/maintenance-request/ViewWorkOrder";
+import { ExtendWindowPeriod } from "../../../dialogs/maintenance/maintenance-request/ExtenWindowPeriod";
 
 export const WorkOrder = observer(() => {
   const { api, store } = useAppContext();
@@ -18,8 +20,8 @@ export const WorkOrder = observer(() => {
   const workFlowOrders = store.maintenance.work_flow_order.all
     .sort(
       (a, b) =>
-        new Date(a.asJson.dateCreated).getTime() -
-        new Date(b.asJson.dateCreated).getTime()
+        new Date(b.asJson.dateCreated).getTime() -
+        new Date(a.asJson.dateCreated).getTime()
     )
     .filter((a) => a.asJson.requestId === maintenanceRequestId)
     .map((a) => {
@@ -95,6 +97,12 @@ export const WorkOrder = observer(() => {
       </div>
       <Modal modalId={DIALOG_NAMES.MAINTENANCE.CREATE_WORK_ORDER}>
         <WorkOrderFlowDialog />
+      </Modal>
+      <Modal modalId={DIALOG_NAMES.MAINTENANCE.VIEW_WORK_ORDER}>
+        <ViewWorkOrderDialog />
+      </Modal>
+      <Modal modalId={DIALOG_NAMES.MAINTENANCE.EXTEND_WINDOW_PERIOD}>
+        <ExtendWindowPeriod />
       </Modal>
     </>
   );
