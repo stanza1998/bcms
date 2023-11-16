@@ -8,36 +8,46 @@ import {
   IWorkOrderFlow,
   defaultMaintenanceworkOrder,
 } from "../../../../shared/models/maintenance/request/work-order-flow/WorkOrderFlow";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import Select from "react-select";
+import makeAnimated from "react-select/animated";
 import {
   generateMaintenanceRequestReference,
-  getIconForExtensionExtra,
+  getServiceProviderEmails,
+  workerOrdersAndRequestRelationshipStatusUpdate,
 } from "../../../shared/common";
-import {
-  MAIL_SERVICE_PROVIDER_LINK,
-  MAIL_SUCCESSFULL_SERVICE_PROVIDER,
-} from "../../../shared/mailMessages";
-import SingleSelect from "../../../../shared/components/single-select/SlingleSelect";
-import folderIcon from "./assets/folder_3139112.png";
+import { MAIL_SERVICE_PROVIDER_LINK } from "../../../shared/mailMessages";
+import { FailedAction } from "../../../../shared/models/Snackbar";
 
-export const ViewWorkOrderDialog = observer(() => {
+export const CompleteWorkOrderDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
   const me = store.user.meJson;
   const { maintenanceRequestId } = useParams();
+  const animatedComponents = makeAnimated();
   const currentDate = new Date();
   const dateCreated = currentDate.toUTCString();
-  const navigate = useNavigate();
 
   const [workOrder, setWorkOrder] = useState<IWorkOrderFlow>({
     ...defaultMaintenanceworkOrder,
   });
-
   const prefix = store.maintenance.maintenance_request.getById(
     maintenanceRequestId || ""
   );
 
   const identity = prefix?.asJson.description.slice(0, 2);
+
+  const serviceProvider = store.maintenance.servie_provider.all
+    .map((u) => u.asJson)
+    .map((user) => ({
+      value: user.id,
+      label: user.serviceProvideName,
+    }));
+
+  const serviceProvidersEmails = getServiceProviderEmails(
+    workOrder.serviceProviderId,
+    store
+  );
 
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -48,7 +58,7 @@ export const ViewWorkOrderDialog = observer(() => {
     if (maintenanceRequestId) {
       try {
         if (store.maintenance.work_flow_order.selected) {
-          workOrder.status = "In-Progress";
+          workOrder.status = "Done";
 
           const deptment = await api.maintenance.work_flow_order.update(
             workOrder,
@@ -56,18 +66,7 @@ export const ViewWorkOrderDialog = observer(() => {
             maintenanceRequestId
           );
 
-          const { MY_SUBJECT, MY_BODY } = MAIL_SUCCESSFULL_SERVICE_PROVIDER(
-            workOrder.workOrderNumber,
-            workOrder.description
-          );
-          //only to choosen service provider.
-          await api.mail.sendMail(
-            "",
-            ["narib98jerry@gmail.com"],
-            MY_SUBJECT,
-            MY_BODY,
-            ""
-          );
+
 
           await store.maintenance.work_flow_order.load();
           ui.snackbar.load({
@@ -75,39 +74,12 @@ export const ViewWorkOrderDialog = observer(() => {
             message: "Work Order updated!",
             type: "success",
           });
-        } else {
-          //send link to sps to provide quotes
-          workOrder.dateCreated = dateCreated;
-          workOrder.requestId = maintenanceRequestId;
-          workOrder.propertyId = me.property || "";
-          workOrder.workOrderNumber = generateMaintenanceRequestReference(
-            identity || ""
-          );
 
-          await api.maintenance.work_flow_order.create(
-            workOrder,
-            me.property,
-            maintenanceRequestId
-          );
-
-          const { MY_SUBJECT, MY_BODY } = MAIL_SERVICE_PROVIDER_LINK(
-            workOrder.title,
-            workOrder.description,
-            `http://localhost:3000/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`
-          );
-
-          await api.mail.sendMail(
-            "",
-            ["narib98jerry@gmail.com"],
-            MY_SUBJECT,
-            MY_BODY,
-            ""
-          );
-          ui.snackbar.load({
-            id: Date.now(),
-            message: "Work Order created!",
-            type: "success",
-          });
+          try{
+           await workerOrdersAndRequestRelationshipStatusUpdate(maintenanceRequestId, me.property, "Completed")
+          }catch(error){
+            FailedAction(ui)
+          }
         }
       } catch (error) {
         ui.snackbar.load({
@@ -120,41 +92,13 @@ export const ViewWorkOrderDialog = observer(() => {
       store.maintenance.work_flow_order.clearSelected();
       setWorkOrder({ ...defaultMaintenanceworkOrder });
       setLoading(false);
-      hideModalFromId(DIALOG_NAMES.MAINTENANCE.VIEW_WORK_ORDER);
+      hideModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_WORK_ORDER);
     }
   };
-
-  const serviceProviders = store.maintenance.servie_provider.all.map((w) => {
-    return {
-      label: w.asJson.serviceProvideName,
-      value: w.asJson.id,
-    };
-  });
-
-  const handleSelectSp = (id: string) => {
-    setWorkOrder((prevWorkOrder) => ({
-      ...prevWorkOrder,
-      successfullSP: id,
-    }));
-  };
-
-  const specificServiceProvider = store.maintenance.servie_provider.all.find(
-    (sp) => sp.asJson.id === workOrder.successfullSP
-  );
-
-  const serviceProviderName = specificServiceProvider
-    ? specificServiceProvider.asJson.serviceProvideName
-    : null;
 
   const reset = () => {
     setWorkOrder({ ...defaultMaintenanceworkOrder });
     store.maintenance.work_flow_order.clearSelected();
-  };
-
-  const viewQuote = (workOrderId: string, id: string) => {
-    navigate(
-      `/c/maintainance/request/quote-info/${maintenanceRequestId}/${workOrderId}/${id}`
-    );
   };
 
   useEffect(() => {
@@ -175,10 +119,7 @@ export const ViewWorkOrderDialog = observer(() => {
   }, [api.maintenance.service_provider, me?.property]);
 
   return (
-    <div
-      className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical"
-      style={{ width: "50%" }}
-    >
+    <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
       <button
         className="uk-modal-close-default"
         type="button"
@@ -205,8 +146,8 @@ export const ViewWorkOrderDialog = observer(() => {
                       title: e.target.value,
                     })
                   }
-                  required
                   disabled
+                  required
                 />
               </div>
             </div>
@@ -232,86 +173,67 @@ export const ViewWorkOrderDialog = observer(() => {
               </div>
             </div>
             <div className="uk-margin">
+              {/*serviceproviders*/}
               <label className="uk-form-label" htmlFor="form-stacked-text">
-                Uploaded Quote Folders
+                Service Providers
               </label>
-
-              <div
-                className="uk-child-width-1-6@m uk-grid-small uk-grid-match"
-                data-uk-grid
-              >
-                {workOrder.quoteFiles.map((f) => {
-                  return (
-                    <div style={{ textAlign: "center" }}>
-                      <div
-                        className="uk-card uk-card-body"
-                        data-uk-tooltip={
-                          store.maintenance.servie_provider.all.find(
-                            (s) => s.asJson.id === f.id
-                          )?.asJson.serviceProvideName
-                        }
-                        onClick={() => viewQuote(workOrder.id, f.id)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <div className="image-container">
-                          <img src={folderIcon} alt="image" />
-                          <div className="icon-container"></div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-                {workOrder.quoteFiles.length === 0 && (
-                  <span style={{ color: "red" }}>No folders</span>
-                )}
+              <div className="uk-form-controls">
+                <Select
+                  closeMenuOnSelect={false}
+                  components={animatedComponents}
+                  onChange={(value: any) =>
+                    setWorkOrder({
+                      ...workOrder,
+                      serviceProviderId: value.map((t: any) => t.value),
+                    })
+                  }
+                  isMulti
+                  placeholder="Add Service Providers"
+                  options={serviceProvider}
+                  value={workOrder.serviceProviderId.map(
+                    (serviceProviderId) => {
+                      const selectedContact = serviceProvider.find(
+                        (contact) => contact.value === serviceProviderId
+                      );
+                      return selectedContact
+                        ? {
+                            label: selectedContact.label,
+                            value: selectedContact.value,
+                          }
+                        : null;
+                    }
+                  )}
+                  isDisabled
+                />
               </div>
             </div>
-            {workOrder.successfullSP === "" && (
-              <div className="uk-margin">
-                <label className="uk-form-label" htmlFor="form-stacked-text">
-                  Choose Successful Service Provider
-                </label>
-                <div className="uk-form-controls">
-                  <SingleSelect
-                    onChange={handleSelectSp}
-                    options={serviceProviders}
-                  />
-                </div>
-              </div>
-            )}
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-                Due Date
+                Conclusion date and time of the Window Period
               </label>
               <div className="uk-form-controls">
                 <input
                   className="uk-input"
                   type="datetime-local"
                   // placeholder="Title"
-                  value={workOrder.dueDate}
+                  value={workOrder.windowPeriod}
                   onChange={(e) =>
                     setWorkOrder({
                       ...workOrder,
-                      dueDate: e.target.value,
+                      windowPeriod: e.target.value,
                     })
                   }
                   required
+                  disabled
                 />
               </div>
             </div>
-
-            {workOrder.successfullSP !== "" && (
-              <div className="uk-margin">
-                Successfull Service Provider: {serviceProviderName}
-              </div>
-            )}
-
             <div className="footer uk-margin">
               <button className="uk-button secondary uk-modal-close">
                 Cancel
               </button>
               <button className="uk-button primary" type="submit">
-                Save
+                Mark as Done
                 {loading && <div data-uk-spinner="ratio: .5"></div>}
               </button>
             </div>

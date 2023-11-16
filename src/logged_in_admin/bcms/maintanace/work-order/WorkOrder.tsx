@@ -10,6 +10,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { updateById } from "../../../shared/common";
 import { ViewWorkOrderDialog } from "../../../dialogs/maintenance/maintenance-request/ViewWorkOrder";
 import { ExtendWindowPeriod } from "../../../dialogs/maintenance/maintenance-request/ExtenWindowPeriod";
+import { CompleteWorkOrderDialog } from "../../../dialogs/maintenance/maintenance-request/CompleteWorkOrderFlowDialog";
 
 export const WorkOrder = observer(() => {
   const { api, store } = useAppContext();
@@ -103,6 +104,9 @@ export const WorkOrder = observer(() => {
       </Modal>
       <Modal modalId={DIALOG_NAMES.MAINTENANCE.EXTEND_WINDOW_PERIOD}>
         <ExtendWindowPeriod />
+      </Modal>
+      <Modal modalId={DIALOG_NAMES.MAINTENANCE.COMPLETE_WORK_ORDER_DIALOG}>
+        <CompleteWorkOrderDialog />
       </Modal>
     </>
   );

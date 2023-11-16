@@ -12,6 +12,7 @@ import PreviewIcon from "@mui/icons-material/Preview";
 import Badge from "@mui/material/Badge";
 import { getQuoteFilesLength } from "../../../../shared/common";
 import CircleIcon from "@mui/icons-material/Circle";
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 
 interface IProp {
   data: IWorkOrderFlow[];
@@ -25,10 +26,17 @@ const WorkOrderGrid = observer(({ data }: IProp) => {
   const orders = store.maintenance.work_flow_order.all.map((w) => {
     return w.asJson;
   });
+  const orderStatus = store.maintenance.work_flow_order.all.map((w) => {
+    return w.asJson.status;
+  });
 
   const onUpdate = (workOrder: IWorkOrderFlow) => {
     store.maintenance.work_flow_order.select(workOrder);
     showModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_WORK_ORDER); //create update modal
+  };
+  const onComplete = (workOrder: IWorkOrderFlow) => {
+    store.maintenance.work_flow_order.select(workOrder);
+    showModalFromId(DIALOG_NAMES.MAINTENANCE.COMPLETE_WORK_ORDER_DIALOG); //create update modal
   };
   const onView = (workOrder: IWorkOrderFlow) => {
     store.maintenance.work_flow_order.select(workOrder);
@@ -104,17 +112,17 @@ const WorkOrderGrid = observer(({ data }: IProp) => {
               {params.row.status}
             </span>
           );
-        } else if (params.row.status === "Closed") {
+        } else if (params.row.status === "Done") {
           return (
             <span
               style={{
-                background: "blue",
+                background: "green",
                 color: "white",
                 padding: "10px",
                 width: "100%",
               }}
             >
-              {params.row.status}{" "}
+              {params.row.status}
             </span>
           );
         }
@@ -163,6 +171,7 @@ const WorkOrderGrid = observer(({ data }: IProp) => {
       flex: 1,
       renderCell: (params) => {
         const id = params.row.id;
+        const status = params.row.status;
 
         return (
           <div>
@@ -178,12 +187,22 @@ const WorkOrderGrid = observer(({ data }: IProp) => {
                 <PreviewIcon />
               </Badge>
             </IconButton>
-            <IconButton
-              data-uk-tooltip="Extend Window Period"
-              onClick={() => onExtend(params.row)}
-            >
-              <CircleIcon />
-            </IconButton>
+            {status === "Pending" && (
+              <IconButton
+                data-uk-tooltip="Extend Window Period"
+                onClick={() => onExtend(params.row)}
+              >
+                <CircleIcon />
+              </IconButton>
+            )}
+            {status === "In-Progress" && (
+              <IconButton
+                data-uk-tooltip="Mark Order as done"
+                onClick={() => onComplete(params.row)}
+              >
+                <AssignmentTurnedInIcon />
+              </IconButton>
+            )}
             {/* <button
             className="uk-margin-right uk-icon"
             data-uk-icon="pencil"

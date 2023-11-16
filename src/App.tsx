@@ -63,6 +63,7 @@ import { WorkOrder } from "./logged_in_admin/bcms/maintanace/work-order/WorkOrde
 import { ViewFolder } from "./logged_in_admin/bcms/meetings/ViewFolder";
 import { ViewDocuments } from "./logged_in_admin/bcms/documents/ViewDocuments";
 import { UploadQuote } from "./logged_in_admin/bcms/maintanace/service-providers-upload-quote/Uploaduote";
+import { ViewQuoteInfo } from "./logged_in_admin/bcms/maintanace/work-order/view-quotes/ViewQuoteInfo";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -127,6 +128,11 @@ const ADMIN_USER_ROUTES = () => {
           <Route
             path={`maintainance/request/:maintenanceRequestId`}
             element={<WorkOrder />}
+          />
+
+          <Route
+            path={`maintainance/request/quote-info/:maintenanceRequestId/:workOrderId/:id`}
+            element={<ViewQuoteInfo />}
           />
           {/* Maintenance  */}
           {/* Documents */}

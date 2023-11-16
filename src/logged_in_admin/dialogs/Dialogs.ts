@@ -63,6 +63,7 @@ const DIALOG_NAMES = {
     EXTEND_WINDOW_PERIOD: "extend-window-period",
     CREATE_REQUEST_TYPE: "create-request-type",
     VIEW_REQUEST_TYPE: "view-request-type",
+    COMPLETE_WORK_ORDER_DIALOG: "complete-work-order-dialog"
   },
 
   OWNER: {

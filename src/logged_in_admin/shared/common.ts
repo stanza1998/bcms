@@ -12,7 +12,7 @@ import xls from "./file-icons/xls-file_9681350.png"
 import _xlsx from "./file-icons/xlsx_8361467.png"
 import d from "./file-icons/documentation_10517465.png"
 import { IUser } from "../../shared/interfaces/IUser";
-import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { arrayUnion, collection, doc, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { db, storage } from "../../shared/database/FirebaseConfig";
 import { getDownloadURL, ref, uploadBytes, uploadString } from "firebase/storage";
 import { IWorkOrderFlow } from "../../shared/models/maintenance/request/work-order-flow/WorkOrderFlow";
@@ -232,64 +232,106 @@ export async function updateWorkOrderById(
     mid: string,
     newQuoteFile: { id: string; quoteFileurl: string; imageUrls: string[] },
     newImages: File[]
-  ) {
+) {
     const myPath = `BodyCoperate/${pid}/MaintenanceRequest/${mid}/WorkFlowOrder`;
-  
+
     try {
-      // Create a reference for the document
-      const workOrderRef = doc(db, myPath, workOrderId);
-  
-      // Get the current document data before the update
-      const docSnapshot = await getDoc(workOrderRef);
-      const currentData = docSnapshot.data();
-  
-      // Convert quoteFileurl content to a Blob
-      const quoteFileBlob = new Blob([newQuoteFile.quoteFileurl]);
-  
-      // Upload new quote file to Firebase Storage and get its download URL
-      const quoteFilePath = `workOrderFiles/${workOrderId}/${newQuoteFile.id}`;
-      const quoteFileRef = ref(storage, quoteFilePath);
-  
-      // Upload quote file to storage
-      await uploadBytes(quoteFileRef, quoteFileBlob);
-  
-      // Get download URL for the quote file
-      const quoteFileDownloadURL = await getDownloadURL(quoteFileRef);
-  
-      // Upload new images to Firebase Storage and get their download URLs
-      const uploadPromises = newImages.map(async (image) => {
-        const imagePath = `workOrderFiles/${workOrderId}/${image.name}`;
-        const imageRef = ref(storage, imagePath);
-  
-        // Upload image to storage
-        await uploadBytes(imageRef, image);
-  
-        // Get download URL for the image
-        const downloadURL = await getDownloadURL(imageRef);
-  
-        return downloadURL;
-      });
-  
-      const newImageURLs = await Promise.all(uploadPromises);
-  
-      // Update the document in Firestore to add new quote file and images to the existing array
-      await updateDoc(workOrderRef, {
-        quoteFiles: arrayUnion({
-          id: newQuoteFile.id,
-          quoteFileurl: quoteFileDownloadURL,
-          imageUrls: newImageURLs,
-        }),
-      });
-  
-      // Get the updated document data
-      const updatedDocSnapshot = await getDoc(workOrderRef);
-      const updatedData = updatedDocSnapshot.data();
-      console.log('Updated Data:', updatedData);
+        // Create a reference for the document
+        const workOrderRef = doc(db, myPath, workOrderId);
+
+        // Get the current document data before the update
+        const docSnapshot = await getDoc(workOrderRef);
+        const currentData = docSnapshot.data();
+
+        // Convert quoteFileurl content to a Blob
+        const quoteFileBlob = new Blob([newQuoteFile.quoteFileurl]);
+
+        // Upload new quote file to Firebase Storage and get its download URL
+        //   const quoteFilePath = `workOrderFiles/${workOrderId}/${newQuoteFile.id}`;
+        //   const quoteFileRef = ref(storage, quoteFilePath);
+        const fileExtension = newQuoteFile.id.split('.').pop(); // Get the file extension
+        const quoteFilePath = `workOrderFiles/${workOrderId}/${newQuoteFile.id}.${fileExtension}`;
+        const quoteFileRef = ref(storage, quoteFilePath);
+
+
+        // Upload quote file to storage
+        await uploadBytes(quoteFileRef, quoteFileBlob);
+
+        // Get download URL for the quote file
+        const quoteFileDownloadURL = await getDownloadURL(quoteFileRef);
+
+        // Upload new images to Firebase Storage and get their download URLs
+        const uploadPromises = newImages.map(async (image) => {
+            const imagePath = `workOrderFiles/${workOrderId}/${image.name}`;
+            const imageRef = ref(storage, imagePath);
+
+            // Upload image to storage
+            await uploadBytes(imageRef, image);
+
+            // Get download URL for the image
+            const downloadURL = await getDownloadURL(imageRef);
+
+            return downloadURL;
+        });
+
+        const newImageURLs = await Promise.all(uploadPromises);
+
+        // Update the document in Firestore to add new quote file and images to the existing array
+        await updateDoc(workOrderRef, {
+            quoteFiles: arrayUnion({
+                id: newQuoteFile.id,
+                quoteFileurl: quoteFileDownloadURL,
+                imageUrls: newImageURLs,
+            }),
+        });
+
+        // Get the updated document data
+        const updatedDocSnapshot = await getDoc(workOrderRef);
+        const updatedData = updatedDocSnapshot.data();
+        console.log('Updated Data:', updatedData);
     } catch (error) {
-      console.error('Error updating document:', error);
+        console.error('Error updating document:', error);
     }
-  }
-  
-  
+}
+
+
+export async function workerOrdersAndRequestRelationshipStatusUpdate(
+    requestId: string,
+    pid: string,
+    newStatus: string
+) {
+    const workOrderPath = `BodyCoperate/${pid}/MaintenanceRequest/${requestId}/WorkFlowOrder`;
+    const requestPath = `BodyCoperate/${pid}/MaintenanceRequest`;
+
+    try {
+        // Fetch all work order documents
+        const workOrderQuery = query(
+            collection(db, workOrderPath),
+            where('status', '!=', 'Done') // Filter work orders that are not Done
+        );
+
+        const workOrderSnapshot = await getDocs(workOrderQuery);
+
+        // Check if there are any work orders that are not Done
+        if (workOrderSnapshot.size > 0) {
+            console.log('Not all work orders are done. Request status will not be updated.');
+            return;
+        }
+
+        // All work orders are done, proceed to update the request status
+        const docSnapshot = await getDoc(doc(db, requestPath, requestId));
+        await updateDoc(doc(db, requestPath, requestId), {
+            status: newStatus,
+        });
+
+        const updatedDocSnapshot = await getDoc(doc(db, requestPath, requestId));
+        const updatedData = updatedDocSnapshot.data();
+        console.log('Updated Data:', updatedData);
+    } catch (error) {
+        console.error('Error updating document:', error);
+    }
+}
+
+
 
 

@@ -14,8 +14,9 @@ export const defaultMaintenanceworkOrder: IWorkOrderFlow = {
     startDate: "",
     completedDate: "",
     windowPeriod: "",
-    quoteFiles:[],
-    propertyId: ""
+    quoteFiles: [],
+    propertyId: "",
+    dueDate: "",
 };
 
 export interface IWorkOrderFlow {
@@ -32,8 +33,8 @@ export interface IWorkOrderFlow {
     completedDate: string;
     windowPeriod: string;
     quoteFiles: IQuoteFile[];
-
     propertyId: string;
+    dueDate: string;
 }
 
 export interface IQuoteFile {

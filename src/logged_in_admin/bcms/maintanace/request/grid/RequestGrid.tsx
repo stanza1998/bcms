@@ -93,25 +93,12 @@ const RequestGrid = observer(({ data }: IProp) => {
       headerName: "Status",
       flex: 1,
       renderCell: (params) => {
-        if (params.row.status === "Pending") {
+        if (params.row.status === "Completed") {
           return (
             <span
               style={{
-                background: "red",
+                background: "green",
                 color: "white",
-                padding: "10px",
-                width: "100%",
-              }}
-            >
-              {params.row.status}
-            </span>
-          );
-        } else if (params.row.status === "In Progress") {
-          return (
-            <span
-              style={{
-                background: "orange",
-                color: "black",
                 padding: "10px",
                 width: "100%",
               }}
