@@ -51,7 +51,7 @@ const EmployeesTable = (props: EmployeesTableProps) => {
       <div className="company-users uk-margin">
         {!isEmpty ? (
           <div className="uk-overflow-auto">
-            <table className="company-users-table uk-table uk-table-small uk-table-divider uk-table-middle uk-table-responsive">
+            <table style={{color:"black"}} className="company-users-table uk-table uk-table-small uk-table-divider uk-table-middle uk-table-responsive">
               <thead className="table-header">
                 <tr>
                   <th>#</th>
