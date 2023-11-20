@@ -776,9 +776,13 @@ const Drawer = () => {
   const imgUrl = store.settings.theme?.logoUrl;
 
   return (
-    <div className="drawer">
-      <div id="navbar-drawer" data-uk-offcanvas="overlay: true">
-        <div className="uk-offcanvas-bar">
+    <div className="drawer" style={{ background: "white" }}>
+      <div
+        id="navbar-drawer"
+        data-uk-offcanvas="overlay: true"
+        style={{ background: "white" }}
+      >
+        <div className="uk-offcanvas-bar" style={{ background: "white" }}>
           <button
             className="uk-offcanvas-close"
             type="button"

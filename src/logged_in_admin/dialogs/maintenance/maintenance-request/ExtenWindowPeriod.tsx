@@ -68,7 +68,8 @@ export const ExtendWindowPeriod = observer(() => {
           const { MY_SUBJECT, MY_BODY } =
             MAIL_WORK_ORDER_WINDOW_PERIOD_EXTENDED(
               workOrder.workOrderNumber,
-              workOrder.windowPeriod
+              workOrder.windowPeriod,
+              `http://localhost:3000/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`
             );
           //ALL added service providers
           await api.mail.sendMail(
@@ -108,7 +109,7 @@ export const ExtendWindowPeriod = observer(() => {
 
           await api.mail.sendMail(
             "",
-            ["narib98jerry@gmail.com"],
+            serviceProvidersEmails,
             MY_SUBJECT,
             MY_BODY,
             ""

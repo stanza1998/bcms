@@ -10,6 +10,7 @@ import {
 } from "../../../../shared/models/maintenance/request/work-order-flow/WorkOrderFlow";
 import { useNavigate, useParams } from "react-router-dom";
 import {
+  cannotUpdate,
   generateMaintenanceRequestReference,
   getIconForExtensionExtra,
 } from "../../../shared/common";
@@ -58,7 +59,10 @@ export const ViewWorkOrderDialog = observer(() => {
 
           const { MY_SUBJECT, MY_BODY } = MAIL_SUCCESSFULL_SERVICE_PROVIDER(
             workOrder.workOrderNumber,
-            workOrder.description
+            workOrder.description,
+            `${new Date(workOrder.dueDate).toDateString()} ${new Date(
+              workOrder.dueDate
+            ).toTimeString()}`
           );
           //only to choosen service provider.
           await api.mail.sendMail(
@@ -288,6 +292,7 @@ export const ViewWorkOrderDialog = observer(() => {
                   className="uk-input"
                   type="datetime-local"
                   // placeholder="Title"
+                  disabled={cannotUpdate(workOrder.status)}
                   value={workOrder.dueDate}
                   onChange={(e) =>
                     setWorkOrder({

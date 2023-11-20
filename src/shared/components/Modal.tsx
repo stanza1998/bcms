@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import "./Modal.scss";
 
 interface IProps {
   modalId: string;
@@ -33,7 +34,7 @@ export const OffCanvasModal = (props: IProps) => {
   const offCanvas = (
     <div
       id={modalId}
-      className={`custom-modal-style ${cssClass}`}
+      className={`custom-modal-style  ${cssClass}`}
       data-uk-offcanvas="flip: true; overlay: true"
     >
       {children}

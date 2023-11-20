@@ -13,7 +13,11 @@ import PrintIcon from "@mui/icons-material/Print";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ArticleIcon from "@mui/icons-material/Article";
 import { IconButton } from "@mui/material";
-import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder";
+import NumbersIcon from "@mui/icons-material/Numbers";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
+import LockIcon from "@mui/icons-material/Lock";
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
+import ElectricalServicesIcon from "@mui/icons-material/ElectricalServices";
 
 export const Maintainance = () => {
   const { store, api } = useAppContext();
@@ -55,10 +59,10 @@ export const Maintainance = () => {
     (request) => request.status === "Closed"
   ).length;
   const totalOpenedRequests = maintenanceRequests.filter(
-    (request) => request.status === "Open"
+    (request) => request.status === "Opened"
   ).length;
-  const totalInProgressRequests = maintenanceRequests.filter(
-    (request) => request.status === "In Progress"
+  const totalDone = maintenanceRequests.filter(
+    (request) => request.status === "Completed"
   ).length;
   // const totalDoneRequests = maintenanceRequests.filter((request)=>request.status ==="Done").length;
   const totalServiceProviders = serviceProviders.length;
@@ -102,9 +106,7 @@ export const Maintainance = () => {
                     fontSize: "18px",
                   }}
                 >
-                  <CampaignIcon
-                    style={{ color: "#01aced", fontSize: "34px" }}
-                  />{" "}
+                  <NumbersIcon style={{ color: "#01aced", fontSize: "34px" }} />{" "}
                   Total Requests
                 </h3>
                 <p className="number">{totalRequests}</p>
@@ -123,27 +125,8 @@ export const Maintainance = () => {
                     fontSize: "18px",
                   }}
                 >
-                  <CampaignIcon style={{ color: "green", fontSize: "34px" }} />{" "}
-                  Total Service Providers
-                </h3>
-                <p className="number">{totalServiceProviders}</p>
-              </div>
-            </div>
-            <div>
-              <div
-                className="uk-card uk-card-default uk-card-body uk-card-small"
-                style={{ background: "#000c37" }}
-              >
-                <h3
-                  className="uk-card-title"
-                  style={{
-                    color: "white",
-                    textTransform: "uppercase",
-                    fontSize: "18px",
-                  }}
-                >
-                  <CampaignIcon style={{ color: "red", fontSize: "34px" }} />{" "}
-                  Total Closed Requests
+                  <LockIcon style={{ color: "#01aced", fontSize: "34px" }} /> Total
+                  Closed Requests
                 </h3>
                 <p className="number">{totalClosedRequests}</p>
               </div>
@@ -162,7 +145,7 @@ export const Maintainance = () => {
                   }}
                 >
                   {" "}
-                  <ContactPhoneIcon
+                  <LockOpenIcon
                     style={{ color: "#01aced", fontSize: "34px" }}
                   />{" "}
                   Total Opened Requests
@@ -183,10 +166,12 @@ export const Maintainance = () => {
                     fontSize: "18px",
                   }}
                 >
-                  <ForumIcon style={{ color: "#01aced", fontSize: "34px" }} />{" "}
-                  Total Requests In Progress
+                  <AssignmentTurnedInIcon
+                    style={{ color: "#01aced", fontSize: "34px" }}
+                  />{" "}
+                  Total Requests Completed
                 </h3>
-                <p className="number">{totalInProgressRequests}</p>
+                <p className="number">{totalDone}</p>
               </div>
             </div>
             <div>
@@ -202,10 +187,12 @@ export const Maintainance = () => {
                     fontSize: "18px",
                   }}
                 >
-                  <MessageIcon style={{ color: "green", fontSize: "34px" }} />{" "}
-                  Total Requests Done
+                  <ElectricalServicesIcon
+                    style={{ color: "#01aced", fontSize: "34px" }}
+                  />{" "}
+                  Total Service Providers
                 </h3>
-                <p>2</p>
+                <p className="number">{totalServiceProviders}</p>
               </div>
             </div>
           </div>

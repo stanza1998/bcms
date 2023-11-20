@@ -16,6 +16,9 @@ import { arrayUnion, collection, doc, getDoc, getDocs, query, updateDoc, where }
 import { db, storage } from "../../shared/database/FirebaseConfig";
 import { getDownloadURL, ref, uploadBytes, uploadString } from "firebase/storage";
 import { IWorkOrderFlow } from "../../shared/models/maintenance/request/work-order-flow/WorkOrderFlow";
+import { IAnnouncements } from "../../shared/models/communication/announcements/AnnouncementModel";
+import { IMaintenanceRequest } from "../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
+import { IUnit } from "../../shared/models/bcms/Units";
 
 
 export const getFileExtension = (url: string): string => {
@@ -116,6 +119,42 @@ export function getCustomUserEmail(customUser: string[], store: AppStore): strin
     return usersEmails;
 }
 
+export function getUserName(users: IUser[], announcements: IAnnouncements[], announcementId: string): string | undefined {
+    const announcement = announcements.find((notice) => notice.id === announcementId);
+    if (announcement) {
+      const user = users.find((user) => user.uid === announcement.authorOrSender);
+      if (user) {
+        return user.firstName;
+      }
+    }
+   return undefined;
+  }
+
+
+export function getUserNameRequest(users: IUser[], request: IMaintenanceRequest[], id: string): string | undefined {
+    const req = request.find((r) => r.id === id);
+    if (req) {
+      const user = users.find((user) => user.uid === req.ownerId);
+      if (user) {
+        return user.firstName;
+      }
+    }
+   return undefined;
+  }
+
+export function getUnitsRequest(users: IUser[], units: IUnit[], id: string): string | undefined {
+    const unit = units.find((r) => r.id === id);
+    if (unit) {
+      const user = users.find((user) => user.uid === unit.ownerId);
+      if (user) {
+        return user.firstName;
+      }
+    }
+   return undefined;
+  }
+  
+
+
 
 export function formatMeetingTime(startTimestamp: string, endTimestamp: string) {
     const currentDate = new Date();
@@ -199,6 +238,23 @@ export function displayUserStatus(userId: string, currentLoggedInUserId: string,
     }
 }
 
+export function cannotUpdate(status: string): boolean {
+    if (status === 'Done') {
+        return true
+    }
+    else {
+        return false
+    }
+}
+
+export function cannotCreateOrder(orders: IWorkOrderFlow[]): boolean {
+    for (const order of orders) {
+        if (order.status === 'Done') {
+            return true;
+        }
+    }
+    return false;
+}
 
 export const generateMaintenanceRequestReference = (identity: string) => {
     const randomNumber = Math.floor(Math.random() * 10000); // Generate a random number between 0 and 9999

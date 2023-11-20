@@ -7,7 +7,7 @@ import Modal from "../../../../shared/components/Modal";
 import WorkOrderGrid from "./WorkOrderGrid/WorkOrderGrid";
 import { WorkOrderFlowDialog } from "../../../dialogs/maintenance/maintenance-request/WorkOrderFlowDialog";
 import { useNavigate, useParams } from "react-router-dom";
-import { updateById } from "../../../shared/common";
+import { cannotCreateOrder, updateById } from "../../../shared/common";
 import { ViewWorkOrderDialog } from "../../../dialogs/maintenance/maintenance-request/ViewWorkOrder";
 import { ExtendWindowPeriod } from "../../../dialogs/maintenance/maintenance-request/ExtenWindowPeriod";
 import { CompleteWorkOrderDialog } from "../../../dialogs/maintenance/maintenance-request/CompleteWorkOrderFlowDialog";
@@ -81,7 +81,9 @@ export const WorkOrder = observer(() => {
             </h5>
             <div className="controls">
               <div className="uk-inline" style={{ marginRight: "30px" }}>
-                <button className="uk-button primary" onClick={onCreate}>
+                <button
+                style={{background: cannotCreateOrder(workFlowOrders)? "grey":""}} 
+                disabled={cannotCreateOrder(workFlowOrders)} className="uk-button primary" onClick={onCreate}>
                   Create Order
                 </button>
                 <button

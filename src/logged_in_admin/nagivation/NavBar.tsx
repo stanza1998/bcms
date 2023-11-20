@@ -15,9 +15,6 @@ const NavBar = observer(() => {
   const letter1 = me?.firstName.charAt(0);
   const letter2 = me?.lastName.charAt(0);
 
-  const properties = store.bodyCorperate.bodyCop.all;
-  const years = store.bodyCorperate.financialYear.all;
-
   const announcements = store.communication.announcements.all.map((a) => {
     return a.asJson;
   });
@@ -28,14 +25,6 @@ const NavBar = observer(() => {
     const currentTimestamp = Date.now();
     return timestamp > currentTimestamp;
   });
-
-  const bank_accounts = store.bodyCorperate.propetyBankAccount.all.map((m) => {
-    return m.asJson;
-  });
-
-  const onViewAnnouncements = () => {
-    showModalFromId(DIALOG_NAMES.COMMUNICATION.VIEW_ANNOUNCEMENTS_DIALOG);
-  };
 
   useEffect(() => {
     const getData = async () => {
@@ -73,36 +62,40 @@ const NavBar = observer(() => {
             data-uk-toggle="target: #navbar-drawer"
           ></button>
         </div>
-        <div className="navbar-right uk-navbar-left">
-          <ul className="uk-navbar-nav"></ul>
-        </div>
-        <div className="navbar-right uk-navbar-center">
-          <ul className="uk-navbar-nav"></ul>
+        <div className="navbar-center uk-navbar-center">
+          <ul className="uk-navbar-nav">{/* Add your navbar items here */}</ul>
         </div>
         <div className="navbar-right uk-navbar-right">
           <ul className="uk-navbar-nav">
-            <li className="uk-inline" style={{ color: "white" }}>
-              Welcome,{" "}
-              <span className="uk-text-bold">
-                {me?.firstName} {me?.lastName}
-              </span>
-              <button className="user-profile">
-                <div className="profile">
-                  <span>
-                    <h3 className="uk-margin-remove uk-text-bold uk-text-uppercase">
-                      {letter1}
-                      {letter2}
-                    </h3>
+            <li className="uk-inline" style={{ color: "#fff" }}>
+              {/* Updated user profile design */}
+              <div className="user-profile">
+                <div
+                  className="profile-circle"
+                  style={{ backgroundColor: "#01aced" }}
+                >
+                  <span className="initials">
+                    {letter1}
+                    {letter2}
                   </span>
                 </div>
-              </button>
+                <div className="profile-info">
+                  <p className="welcome-message">
+                    <span className="user-name"></span>
+                  </p>
+                </div>
+              </div>
+              {/* Dropdown content */}
               <div
                 className="profile-dropdown-container"
                 data-uk-dropdown="mode: click; pos: bottom-justify"
               >
                 <ul className="profile-dropdown uk-nav uk-dropdown-nav">
                   <li>
-                    <button onClick={() => navigate("/c/settings")}>
+                    <button
+                      className="uk-button primary"
+                      onClick={() => navigate("/c/settings")}
+                    >
                       <span
                         className="uk-margin-small-right"
                         data-uk-icon="settings"
@@ -112,7 +105,10 @@ const NavBar = observer(() => {
                   </li>
                   <li className="uk-nav-divider"></li>
                   <li>
-                    <button onClick={() => api.auth.signOutUser()}>
+                    <button
+                      className="uk-button primary"
+                      onClick={() => api.auth.signOutUser()}
+                    >
                       <span
                         className="uk-margin-small-right"
                         data-uk-icon="sign-out"

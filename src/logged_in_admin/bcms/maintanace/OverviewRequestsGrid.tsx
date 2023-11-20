@@ -9,92 +9,91 @@ import { IMaintenanceRequest } from "../../../shared/models/maintenance/request/
 import DIALOG_NAMES from "../../dialogs/Dialogs";
 
 interface IProp {
-    data: IMaintenanceRequest[];
-  }
-  
-  const OverviewRequests = observer(({ data }: IProp) => {
-    const { store, api } = useAppContext();
-    const navigate = useNavigate();
+  data: IMaintenanceRequest[];
+}
 
-    useEffect(() => {
-      const getUsers = async () => {
-        await api.auth.loadAll();
-      };
-      getUsers();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-  
-    const columns: GridColDef[] = [
-      {
-        field: "description",
-        headerName: "Description",
-        flex: 1,
+const OverviewRequests = observer(({ data }: IProp) => {
+  const { store, api } = useAppContext();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const getUsers = async () => {
+      await api.auth.loadAll();
+    };
+    getUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const columns: GridColDef[] = [
+    {
+      field: "description",
+      headerName: "Description",
+      flex: 1,
+    },
+    {
+      field: "dateRequested",
+      headerName: "Date Requested",
+      flex: 1,
+    },
+    {
+      field: "status",
+      headerName: "Status",
+      flex: 1,
+      renderCell: (params) => {
+        if (params.row.status === "Closed") {
+          return (
+            <span
+              style={{
+                background: "grey",
+                color: "white",
+                padding: "10px",
+                width: "100%",
+              }}
+            >
+              {params.row.status}
+            </span>
+          );
+        } else if (params.row.status === "Opened") {
+          return (
+            <span
+              style={{
+                background: "blue",
+                color: "white",
+                padding: "10px",
+                width: "100%",
+              }}
+            >
+              {params.row.status}
+            </span>
+          );
+        } else if (params.row.status === "Completed") {
+          return (
+            <span
+              style={{
+                background: "green",
+                color: "white",
+                padding: "10px",
+                width: "100%",
+              }}
+            >
+              {params.row.status}{" "}
+            </span>
+          );
+        }
       },
-      {
-        field: "dateRequested",
-        headerName: "Date Requested",
-        flex: 1,
-      },
-      {
-        field: "status",
-        headerName: "Status",
-        flex: 1,
-        renderCell: (params) => {
-          if (params.row.status === "Pending") {
-            return (
-              <span
-                style={{
-                  background: "red",
-                  color: "white",
-                  padding: "10px",
-                  width: "100%",
-                }}
-              >
-                {params.row.status}
-              </span>
-            );
-          } else if (params.row.status === "In Progress") {
-            return (
-              <span
-                style={{
-                  background: "orange",
-                  color: "black",
-                  padding: "10px",
-                  width: "100%",
-                }}
-              >
-                {params.row.status}
-              </span>
-            );
-          } else if (params.row.status === "Closed") {
-            return (
-              <span
-                style={{
-                  background: "grey",
-                  color: "white",
-                  padding: "10px",
-                  width: "100%",
-                }}
-              >
-                {params.row.status}{" "}
-              </span>
-            );
-          }
-        },
-      }
-    ];
-  
-    return (
-      <Box sx={{ height: 300 }}>
-        <DataGrid
-          rows={data}
-          columns={columns}
-          getRowId={(row) =>row.id} 
-          rowHeight={40}
-        />
-      </Box>
-    );
-  });
-  
-  export default OverviewRequests;
-  
+    },
+  ];
+
+  return (
+    <Box sx={{ height: 300 }}>
+      <DataGrid
+        rows={data}
+        columns={columns}
+        getRowId={(row) => row.id}
+        rowHeight={40}
+      />
+    </Box>
+  );
+});
+
+export default OverviewRequests;

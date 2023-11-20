@@ -1,8 +1,7 @@
-import React, { PureComponent } from "react";
+import { observer } from "mobx-react-lite";
+import React, { useEffect } from "react";
 import {
-  ComposedChart,
-  Line,
-  Area,
+  BarChart,
   Bar,
   XAxis,
   YAxis,
@@ -11,62 +10,122 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { useAppContext } from "../../../shared/functions/Context";
 
-const data = [
-  {
-    name: "Opened",
-    uv: 590,
-    pv: 800,
-    amt: 1400,
-  },
-  {
-    name: "Pending",
-    uv: 868,
-    pv: 967,
-    amt: 1506,
-  },
-  {
-    name: "In-Progress",
-    uv: 1397,
-    pv: 1098,
-    amt: 989,
-  },
-  {
-    name: "Closed",
-    uv: 1480,
-    pv: 1200,
-    amt: 1228,
-  },
-];
+const COLORS = ["grey", "blue", "green"];
 
-export default class RequestBarChat extends PureComponent {
-  static demoUrl = "https://codesandbox.io/s/vertical-composed-chart-w6fni";
+const RequestBarChat = observer(() => {
+  const { store, api } = useAppContext();
+  const me = store.user.meJson;
 
-  render() {
-    return (
-      <ResponsiveContainer width="100%" height="80%">
-        <ComposedChart
-          layout="vertical"
-          width={500}
-          height={400}
-          data={data}
-          margin={{
-            top: 20,
-            right: 20,
-            bottom: 20,
-            left: 20,
-          }}
-          barCategoryGap={3}
-          barGap={3}
-        >
-          <CartesianGrid stroke="#f5f5f5" />
-          <XAxis type="number" />
-          <YAxis dataKey="name" type="category" scale="band" interval={0} />
-          <Tooltip />
-          <Legend />
-          <Bar dataKey="pv" barSize={20} fill="#000c37" />
-        </ComposedChart>
-      </ResponsiveContainer>
-    );
-  }
-}
+  const closed = store.maintenance.maintenance_request.all.filter(
+    (r) => r.asJson.status === "Closed"
+  ).length;
+  const opened = store.maintenance.maintenance_request.all.filter(
+    (r) => r.asJson.status === "Opened"
+  ).length;
+  const completed = store.maintenance.maintenance_request.all.filter(
+    (r) => r.asJson.status === "Completed"
+  ).length;
+
+  const data = [
+    {
+      name: "Jan",
+      Closed: closed,
+      Opened: opened,
+      Complete: completed,
+    },
+    {
+      name: "Feb",
+      Closed: closed,
+      Opened: opened,
+      Complete: completed,
+    },
+    {
+      name: "Mar",
+      Closed: closed,
+      Opened: opened,
+      Complete: completed,
+    },
+    {
+      name: "Apr",
+      Closed: closed,
+      Opened: opened,
+      Complete: completed,
+    },
+    {
+      name: "May",
+      Closed: closed,
+      Opened: opened,
+      Complete: completed,
+    },
+    {
+      name: "Jun",
+      Closed: closed,
+      Opened: opened,
+      Complete: completed,
+    },
+    {
+      name: "Jul",
+      Closed: closed,
+      Opened: opened,
+      Complete: completed,
+    },
+    {
+      name: "Aug",
+      Closed: closed,
+      Opened: opened,
+      Complete: completed,
+    },
+    {
+      name: "Sep",
+      Closed: closed,
+      Opened: opened,
+      Complete: completed,
+    },
+    {
+      name: "Oct",
+      Closed: closed,
+      Opened: opened,
+      Complete: completed,
+    },
+    {
+      name: "Nov",
+      Closed: closed,
+      Opened: opened,
+      Complete: completed,
+    },
+    {
+      name: "Descember",
+      Closed: closed,
+      Opened: opened,
+      Complete: completed,
+    },
+  ];
+
+  useEffect(() => {
+    const getData = async () => {
+      if (me?.property) {
+        await api.maintenance.maintenance_request.getAll(me.property);
+      }
+    };
+    getData();
+  }, [api.maintenance.maintenance_request, me?.property]);
+
+  return (
+    <ResponsiveContainer width="100%" height={400}>
+      <BarChart width={800} height={400} data={data}>
+        <XAxis dataKey="name" />
+        <YAxis />
+        <CartesianGrid strokeDasharray="3 3" />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey="Closed" fill={COLORS[0]} />
+        <Bar dataKey="Opened" fill={COLORS[1]} />
+        <Bar dataKey="Complete" fill={COLORS[2]} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+});
+
+export default RequestBarChat;

@@ -90,7 +90,7 @@ export const WorkOrderFlowDialog = observer(() => {
 
           await api.mail.sendMail(
             "",
-            ["narib98jerry@gmail.com"],
+            serviceProvidersEmails,
             MY_SUBJECT,
             MY_BODY,
             ""
