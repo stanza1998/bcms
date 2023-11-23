@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { USER_ROLES } from "../../shared/constants/USER_ROLES";
 import { useAppContext } from "../../shared/functions/Context";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -16,6 +16,9 @@ import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ApartmentIcon from "@mui/icons-material/Apartment";
 import { ACTIONLIST } from "./Account";
+import "uikit/dist/css/uikit.min.css";
+
+declare const UIkit: any;
 
 interface IImage {
   imgUrl: string | undefined;
@@ -56,7 +59,13 @@ export const Account = observer((props: IImage) => {
       <div style={{ margin: "30px" }}>
         <span
           className="uk-margin-right"
-          style={{ textTransform: "uppercase" }}
+          style={{
+            textTransform: "uppercase",
+            background: "#000c37",
+            padding: "3px",
+            borderRadius: "3px",
+            color: "white",
+          }}
         >
           {properties
             .filter((p) => p.asJson.id === me?.property)
@@ -434,7 +443,6 @@ const ADMIN_DRAWER = () => {
           </ul>
         </li>
       </ul>
-      <ACTIONLIST />
     </div>
   );
 };
@@ -474,7 +482,7 @@ const OWNER_DRAWER = () => {
             </li>
           </ul>
         </li>
-        <li className="list-item uk-parent">
+        {/* <li className="list-item uk-parent">
           <NavLink to={`finanace`} className="navlink">
             <span className="uk-margin-small-right">
               <MoneyIcon style={{ fontSize: "16px" }} />
@@ -495,14 +503,14 @@ const OWNER_DRAWER = () => {
                 Invoices
               </NavLink>
             </li>
-            {/* <li>
+           <li>
               <NavLink to={`finance/recuring-invoices-view`} className="navlink">
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
                 Recuring Invoices
               </NavLink>
-            </li> */}
+            </li> 
             <li>
               <NavLink to={`finance/proof-of-payment`} className="navlink">
                 <span className="uk-margin-small-right">
@@ -512,9 +520,9 @@ const OWNER_DRAWER = () => {
               </NavLink>
             </li>
           </ul>
-        </li>
+        </li> */}
         <li className="list-item uk-parent">
-          <NavLink to={`finance/owner-communication`} className="navlink">
+          <NavLink to={`communication`} className="navlink">
             <span className="uk-margin-small-right">
               <SignLanguageIcon style={{ fontSize: "16px" }} />
             </span>
@@ -526,40 +534,91 @@ const OWNER_DRAWER = () => {
             />
           </NavLink>
           <ul className="uk-nav-sub">
-            {/* <li>
+            <li>
               <NavLink to={`communication/com-overview`} className="navlink">
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
                 Overview
               </NavLink>
-            </li> */}
-            {/* <li>
-              <NavLink
-                to={`finance/owner-communication/owner-private-message`}
-                className="navlink"
-              >
-                <span className="uk-margin-small-right">
-                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
-                </span>
-                Chat
-              </NavLink>
-            </li> */}
+            </li>
             <li>
-              <NavLink
-                to={`finance/owner-communication/notices`}
-                className="navlink"
-              >
+              <NavLink to={`communication/notices`} className="navlink">
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
                 Notices
               </NavLink>
             </li>
+            <li>
+              <NavLink to={`communication/meetings`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Meetings
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={`communication/documents`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Documents
+              </NavLink>
+            </li>
+          </ul>
+        </li>
+        <li className="list-item uk-parent">
+          <NavLink to={`maintainance`} className="navlink">
+            <span className="uk-margin-small-right">
+              <EngineeringIcon style={{ fontSize: "16px" }} />
+            </span>
+            Maintenance
+            <span
+              style={{ fontSize: "5px" }}
+              className="down-arrow"
+              data-uk-icon="triangle-down"
+            />
+          </NavLink>
+          <ul className="uk-nav-sub">
+            <li>
+              <NavLink to={`maintainance/main-overview`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Overview
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to={`maintainance/request`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Request
+              </NavLink>
+            </li>
+            {/* <li>
+              <NavLink
+                to={`maintainance/service-providers`}
+                className="navlink"
+              >
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Service Providers
+              </NavLink>
+            </li> */}
+            {/* <li>
+              <NavLink to={`maintainance/reports`} className="navlink">
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Reports
+              </NavLink>
+            </li> */}
           </ul>
         </li>
       </ul>
-      <ACTIONLIST />
     </div>
   );
 };
@@ -774,6 +833,25 @@ const DrawerList = observer(() => {
 const Drawer = () => {
   const { store } = useAppContext();
   const imgUrl = store.settings.theme?.logoUrl;
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Your existing JSX for the Drawer component
+  // ...
+
+  useEffect(() => {
+    const closeOffcanvasOnRouteChange = () => {
+      // Assuming UIkit is available globally
+      const offcanvasElement = UIkit.offcanvas("#navbar-drawer");
+      if (offcanvasElement) {
+        offcanvasElement.hide();
+      }
+
+      window.scrollTo(0, 0);
+    };
+    // Call your function when the pathname changes
+    closeOffcanvasOnRouteChange();
+  }, [location.pathname]);
 
   return (
     <div className="drawer" style={{ background: "white" }}>
@@ -790,11 +868,13 @@ const Drawer = () => {
           ></button>
           <Account imgUrl={imgUrl} />
           <DrawerList />
+          <ACTIONLIST />
         </div>
       </div>
       <div className="fixed-drawer uk-visible@s">
         <Account imgUrl={imgUrl} />
         <DrawerList />
+        <ACTIONLIST />
       </div>
     </div>
   );

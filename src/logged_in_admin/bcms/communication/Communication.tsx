@@ -11,6 +11,7 @@ import DIALOG_NAMES from "../../dialogs/Dialogs";
 import { AnnouncementDialog } from "../../dialogs/communication-dialogs/announcements/AnnouncementDialog";
 import { ViewAnnouncementDialog } from "../../dialogs/communication-dialogs/announcements/ViewAnnouncementDialog";
 import Modal from "../../../shared/components/Modal";
+import { Grid } from "@mui/material";
 
 export const Communication = observer(() => {
   const { store, api } = useAppContext();
@@ -147,42 +148,53 @@ export const Communication = observer(() => {
               <p className="number">{totalExpiredAnnouncements}</p>
             </div>
           </div>
-          <div onClick={toContactManagement}>
-            <div
-              className="uk-card uk-card-default uk-card-body"
-              style={{ background: "#000c37" }}
-            >
-              <h3
-                className="uk-card-title"
-                style={{
-                  color: "white",
-                  textTransform: "uppercase",
-                  fontSize: "18px",
-                }}
+          {me?.role !== "Owner" && (
+            <div onClick={toContactManagement}>
+              <div
+                className="uk-card uk-card-default uk-card-body"
+                style={{ background: "#000c37" }}
               >
-                {" "}
-                <ContactPhoneIcon
-                  style={{ color: "#01aced", fontSize: "34px" }}
-                />{" "}
-                Total Contacts
-              </h3>
-              <p className="number"> {totalContact}</p>
-            </div>
-          </div>
-        </div>
-        <div className="uk-child-width-1-2 uk-text-center" data-uk-grid>
-          <div>
-            <div style={{ height: "100%" }}>
-              <AnnouncementGraph />
-            </div>
-          </div>
-          <div>
-            <div className="uk-child-width-1-1 uk-text-center" data-uk-grid>
-              <div>
-                <ExpiredAnnouncementGrid data={filteredAnnouncements} />
+                <h3
+                  className="uk-card-title"
+                  style={{
+                    color: "white",
+                    textTransform: "uppercase",
+                    fontSize: "18px",
+                  }}
+                >
+                  {" "}
+                  <ContactPhoneIcon
+                    style={{ color: "#01aced", fontSize: "34px" }}
+                  />{" "}
+                  Total Contacts
+                </h3>
+                <p className="number"> {totalContact}</p>
               </div>
             </div>
-          </div>
+          )}
+        </div>
+        <div className="uk-margin">
+          {me?.role !== "Owner" && (
+            <Grid container spacing={2}>
+              {/* First Grid Item */}
+              <Grid item xs={12} md={6}>
+                <div style={{ height: "100%" }}>
+                  {/* Conditionally render based on screen size */}
+                  <AnnouncementGraph />
+                </div>
+              </Grid>
+
+              {/* Second Grid Item */}
+              <Grid item xs={12} md={6}>
+                <Grid container spacing={2}>
+                  {/* Nested Grid Item */}
+                  <Grid item xs={12}>
+                    <ExpiredAnnouncementGrid data={filteredAnnouncements} />
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          )}
         </div>
       </div>
       <Modal modalId={DIALOG_NAMES.COMMUNICATION.CREATE_ANNOUNCEMENTS_DIALOG}>

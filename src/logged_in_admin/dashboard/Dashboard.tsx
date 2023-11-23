@@ -1,17 +1,34 @@
 import { observer } from "mobx-react-lite";
 import { useAppContext } from "../../shared/functions/Context";
 import { useEffect, useState } from "react";
-import { Grid, Paper, styled } from "@mui/material";
+import { Grid, IconButton, Paper, styled } from "@mui/material";
 import "./DashboardCard.scss";
 import "./Dashtable.scss";
 import MaintenanceTimeRequest from "./dashboardGraphs.tsx/MaintenananceTimeRequest";
-import RequestBarChat from "./dashboardGraphs.tsx/RequestBarChart";
+
 import Loading, { LoadingEllipsis } from "../../shared/components/Loading";
 import {
   getUserName,
   getUserNameRequest,
   getUnitsRequest,
+  cannotCreateNotices,
+  cannotCreateSP,
+  cannotCreateMeetingFolder,
+  cannotCreateDocumentFolder,
 } from "../shared/common";
+import { AnnouncementDistribution } from "./dashboardGraphs.tsx/AnnouncementDistrunbution";
+import { MaintenananceRequestChart } from "./dashboardGraphs.tsx/MaintenaceRequestChart";
+import showModalFromId from "../../shared/functions/ModalShow";
+import DIALOG_NAMES from "../dialogs/Dialogs";
+import Modal from "../../shared/components/Modal";
+import { AnnouncementDialog } from "../dialogs/communication-dialogs/announcements/AnnouncementDialog";
+import { MaintenanceRequestDialog } from "../dialogs/maintenance/maintenance-request/MaintenanceRequestDialog";
+import { OwnerRequestDialog } from "../dialogs/maintenance/maintenance-request/OwnerRequestDialog";
+import { ServiceProviderDialog } from "../dialogs/maintenance/maintenance-request/ServiceProviderDialog";
+import { MeetingFolderDialog } from "../dialogs/communication-dialogs/meetings/MeetingFolderDialog";
+import { DocumentCategoryDialog } from "../dialogs/communication-dialogs/documents/DocumentCategories";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = observer(() => {
   const { store, api } = useAppContext();
@@ -20,8 +37,7 @@ const Dashboard = observer(() => {
   return (
     <div className="uk-section leave-analytics-page">
       <div className="uk-container uk-container-large">
-        {me === "Owner" && <p>Owner</p>}
-        {me === "Employee" && <p>Emp</p>}
+        {me === "Owner" && <ManagerDashBoard />}
         {me === "Admin" && <ManagerDashBoard />}
       </div>
     </div>
@@ -30,14 +46,11 @@ const Dashboard = observer(() => {
 
 export default Dashboard;
 
-const OwnerDashBoard = () => {
-  return <></>;
-};
-
 const ManagerDashBoard = () => {
   const { store, api } = useAppContext();
   const me = store.user.meJson;
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   const notices = store.communication.announcements.all
     .map((announcement) => {
@@ -78,28 +91,43 @@ const ManagerDashBoard = () => {
     const getData = async () => {
       setIsLoading(true);
       if (me?.property && me?.year) {
-        await api.communication.announcement.getAll(me.property, me.year);
-        await api.maintenance.maintenance_request.getAll(me.property);
-        await api.maintenance.service_provider.getAll(me.property);
-        // await api.maintenance.maintenance_request.getAll(me.property); //meetings
-        await api.auth.loadAll();
-        await api.body.supplier.getAll(me.property);
-        setIsLoading(false);
+        try {
+          await api.communication.announcement.getAll(me.property, me.year);
+          await api.maintenance.maintenance_request.getAll(me.property);
+          await api.maintenance.service_provider.getAll(me.property);
+          await api.communication.meetingFolder.getAll(me.property);
+          await api.communication.documentCategory.getAll(me.property);
+          await api.unit.getAll(me.property);
+          // await api.maintenance.maintenance_request.getAll(me.property); //meetings
+          await api.auth.loadAll();
+          await api.body.supplier.getAll(me.property);
+          setIsLoading(false);
+        } catch (error) {
+          console.log(error);
+        }
       }
       setIsLoading(false);
     };
     getData();
   }, [
     api.auth,
+    api.body.supplier,
     api.communication.announcement,
+    api.communication.documentCategory,
+    api.communication.meetingFolder,
     api.maintenance.maintenance_request,
     api.maintenance.service_provider,
+    api.unit,
     me?.property,
     me?.year,
   ]);
+
   const totalNewRequests = maintenanceRequests.length;
   const totalServiceProviders = serviceProviders.length;
   const totalNewNotices = notices.length;
+  const totalUnits = store.bodyCorperate.unit.all.length;
+  const totalMeetings = store.communication.meetingFolder.all.length;
+  const totalDocuments = store.communication.documentCategory.all.length;
 
   const latestNotices = notices.slice(0, 3);
   const latestProviders = serviceProviders.slice(0, 3);
@@ -136,13 +164,51 @@ const ManagerDashBoard = () => {
 
   const users = store.user.all.map((u) => u.asJson);
 
+  //create part
+
+  const onCreateUnit = () => {
+    showModalFromId(DIALOG_NAMES.BODY.BODY_UNIT_DIALOG);
+  };
+  const onCreateNotice = () => {
+    showModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_ANNOUNCEMENTS_DIALOG);
+  };
+  const onCreateRequest = () => {
+    if (me?.role === "Owner") {
+      showModalFromId(DIALOG_NAMES.OWNER.CREATE_REQUEST);
+    } else {
+      showModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_MAINTENANCE_REQUEST);
+    }
+  };
+  const onCreateSP = () => {
+    showModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_SERVICE_PROVIDER);
+  };
+  const onCreateMeetingFolder = () => {
+    showModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_MEETING_FOLDER);
+  };
+  const onCreateDocumentFolder = () => {
+    showModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_DOCUMENT_CATEGORY);
+  };
+
+  //navigation
+
+  const toCom = () => {
+    navigate("/c/communication/com-overview");
+  };
+
+  const toMain = () => {
+    navigate("/c/maintainance/main-overview");
+  };
+
   return (
     <div className="uk-section leave-analytics-page dashboard-card">
       {isLoading ? (
         <Loading />
       ) : (
         <div className="uk-container uk-container-large">
-          <div className="section-toolbar uk-margin">
+          <div
+            className="section-toolbar uk-margin"
+            style={{ marginTop: "-5rem" }}
+          >
             <h4 className="section-heading uk-heading">Dashboard</h4>
             <div className="controls">
               <div className="uk-inline">
@@ -160,30 +226,64 @@ const ManagerDashBoard = () => {
             <Grid item xs={12} sm={8}>
               <Item>
                 <div className="dashboard-card">
-                  <div className="uk-card">
-                    <div className="uk-card-body">
-                      <h3 className="uk-card-title">New Notices</h3>
-                      <h3 className="number">{totalNewNotices}</h3>
-                    </div>
-                  </div>
-                  <div className="uk-card">
-                    <div className="uk-card-body">
-                      <h3 className="uk-card-title">
-                        New Maintenance Requests
-                      </h3>
-                      <h3 className="number">{totalNewRequests}</h3>
-                    </div>
-                  </div>
-                  <div className="uk-card">
-                    <div className="uk-card-body">
-                      <h3 className="uk-card-title">Service Providers</h3>
-                      <h3 className="number">{totalServiceProviders}</h3>
-                    </div>
-                  </div>
+                  <Grid container spacing={1}>
+                    <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+                      <div className="uk-card">
+                        <div className="uk-card-body">
+                          <h3 className="uk-card-title">Total Units</h3>
+                          <h3 className="number">{totalUnits}</h3>
+                          <div className="button-section"></div>
+                        </div>
+                      </div>
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+                      <div className="uk-card">
+                        <div className="uk-card-body">
+                          <h3 className="uk-card-title">New Notices</h3>
+                          <h3 className="number">{totalNewNotices}</h3>
+                          <div className="button-section">
+                            {cannotCreateNotices(me?.role || "") && (
+                              <button onClick={onCreateNotice}>
+                                Create New Notice
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+                      <div className="uk-card">
+                        <div className="uk-card-body">
+                          <h3 className="uk-card-title">
+                            New Maintenance Requests
+                          </h3>
+                          <h3 className="number">{totalNewRequests}</h3>
+                          <div className="button-section">
+                            <button onClick={onCreateRequest}>
+                              Create New Request
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+                      <div className="uk-card">
+                        <div className="uk-card-body">
+                          <h3 className="uk-card-title">Service Providers</h3>
+                          <h3 className="number">{totalServiceProviders}</h3>
+                          <div className="button-section">
+                            {cannotCreateSP(me?.role || "") && (
+                              <button onClick={onCreateSP}>
+                                Create New SP
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </Grid>
+                  </Grid>
                 </div>
               </Item>
-            </Grid>
-            <Grid item xs={12} sm={4}>
               <Item>
                 <div className="dash-table">
                   <div>
@@ -248,7 +348,6 @@ const ManagerDashBoard = () => {
                             <th>#</th>
                             <th>Created By</th>
                             <th>Priority Level</th>
-                            <th>Action</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -262,7 +361,6 @@ const ManagerDashBoard = () => {
                                 {getUserName(users, notices, notice.id)}
                               </td>
                               <td className="owner">{notice.priorityLevel}</td>
-                              <td>Developer</td>
                             </tr>
                           ))}
                         </tbody>
@@ -309,16 +407,113 @@ const ManagerDashBoard = () => {
                 </div>
               </Item>
             </Grid>
-          </Grid>
-          <Grid container spacing={1} style={{ marginTop: "15px" }}>
-            <Grid container spacing={1}>
-              <Paper style={{ width: "100%", height: "600px", padding: 20 }}>
-                <div style={{ marginLeft: "-3rem" }}>
-                  <RequestBarChat />
-                </div>
-              </Paper>
+            <Grid item xs={12} sm={4}>
+              <Item>
+                <Grid
+                  container
+                  spacing={1}
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  <Grid item xs={12}>
+                    <h4 style={{ margin: "8px" }}>
+                      Notice Priority Distribution Chart{" "}
+                      <IconButton
+                        onClick={toCom}
+                        data-uk-tooltip="More details"
+                      >
+                        <MoreVertIcon />
+                      </IconButton>
+                    </h4>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Paper>
+                      <AnnouncementDistribution />
+                    </Paper>
+                  </Grid>
+                </Grid>
+                <Grid
+                  container
+                  spacing={1}
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  <Grid item xs={12}>
+                    <h4 style={{ margin: "8px" }}>
+                      Maintenance Request Status Chart{" "}
+                      <IconButton
+                        onClick={toMain}
+                        data-uk-tooltip="More details"
+                      >
+                        <MoreVertIcon />
+                      </IconButton>
+                    </h4>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Paper>
+                      <MaintenananceRequestChart />
+                    </Paper>
+                  </Grid>
+                </Grid>
+                <Grid container spacing={1}>
+                  <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+                    <div className="uk-card">
+                      <div className="uk-card-body">
+                        <h3 className="uk-card-title">Total Meeting Folders</h3>
+                        <h3 className="number">{totalMeetings}</h3>
+                        <div className="button-section">
+                          {cannotCreateMeetingFolder(me?.role || "") && (
+                            <button onClick={onCreateMeetingFolder}>
+                              Create New Meetings Folder
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </Grid>
+                  <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+                    <div className="uk-card">
+                      <div className="uk-card-body">
+                        <h3 className="uk-card-title">
+                          Total Document Folders
+                        </h3>
+                        <h3 className="number">{totalDocuments}</h3>
+                        <div className="button-section">
+                          {cannotCreateDocumentFolder(me?.role || "") && (
+                            <button onClick={onCreateDocumentFolder}>
+                              Create New Documents Folder
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </Grid>
+                </Grid>
+              </Item>
             </Grid>
           </Grid>
+          <Grid container spacing={1} style={{ marginTop: "15px" }}></Grid>
+
+          <Modal
+            modalId={DIALOG_NAMES.COMMUNICATION.CREATE_ANNOUNCEMENTS_DIALOG}
+          >
+            <AnnouncementDialog />
+          </Modal>
+          <Modal modalId={DIALOG_NAMES.MAINTENANCE.CREATE_MAINTENANCE_REQUEST}>
+            <MaintenanceRequestDialog />
+          </Modal>
+          <Modal modalId={DIALOG_NAMES.OWNER.CREATE_REQUEST}>
+            <OwnerRequestDialog />
+          </Modal>
+          <Modal modalId={DIALOG_NAMES.MAINTENANCE.CREATE_SERVICE_PROVIDER}>
+            <ServiceProviderDialog />
+          </Modal>
+          <Modal modalId={DIALOG_NAMES.COMMUNICATION.CREATE_MEETING_FOLDER}>
+            <MeetingFolderDialog />
+          </Modal>
+          <Modal modalId={DIALOG_NAMES.COMMUNICATION.CREATE_DOCUMENT_CATEGORY}>
+            <DocumentCategoryDialog />
+          </Modal>
         </div>
       )}
     </div>

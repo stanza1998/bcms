@@ -12,6 +12,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   cannotUpdate,
   generateMaintenanceRequestReference,
+  getAwardedEmail,
   getIconForExtensionExtra,
 } from "../../../shared/common";
 import {
@@ -36,6 +37,15 @@ export const ViewWorkOrderDialog = observer(() => {
 
   const prefix = store.maintenance.maintenance_request.getById(
     maintenanceRequestId || ""
+  );
+
+  const _serviceProviders = store.maintenance.servie_provider.all.map((sp) => {
+    return sp.asJson;
+  });
+
+  const awardedEmail = getAwardedEmail(
+    _serviceProviders,
+    workOrder.successfullSP
   );
 
   const identity = prefix?.asJson.description.slice(0, 2);
@@ -67,7 +77,7 @@ export const ViewWorkOrderDialog = observer(() => {
           //only to choosen service provider.
           await api.mail.sendMail(
             "",
-            ["narib98jerry@gmail.com"],
+            [awardedEmail || ""],
             MY_SUBJECT,
             MY_BODY,
             ""
@@ -97,7 +107,8 @@ export const ViewWorkOrderDialog = observer(() => {
           const { MY_SUBJECT, MY_BODY } = MAIL_SERVICE_PROVIDER_LINK(
             workOrder.title,
             workOrder.description,
-            `http://localhost:3000/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`
+            // `http://localhost:3000/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`
+            `https://vanwylbcms.web.app/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`
           );
 
           await api.mail.sendMail(

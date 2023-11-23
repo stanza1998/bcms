@@ -10,7 +10,7 @@ import {
 } from "../../../shared/models/Snackbar";
 import DIALOG_NAMES from "../Dialogs";
 
-const UserDialog = observer(() => {
+const OwnerDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<IUser>({ ...defaultUser });
@@ -29,7 +29,10 @@ const UserDialog = observer(() => {
     setLoading(true);
     try {
       if (store.user.selected) await api.auth.updateUser(_user);
-      else await api.auth.createUser(_user);
+      else {
+        _user.role = "Owner";
+        await api.auth.createUser(_user);
+      }
       SuccessfulAction(ui);
     } catch (error) {
       FailedAction(ui);
@@ -37,7 +40,7 @@ const UserDialog = observer(() => {
 
     store.user.clearSelected();
     setLoading(false);
-    hideModalFromId(DIALOG_NAMES.TEAM.USER_DIALOG);
+    hideModalFromId(DIALOG_NAMES.OWNER.UPDATE_OWNER_DIALOG);
   };
 
   const onDepartmentChange = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -45,14 +48,6 @@ const UserDialog = observer(() => {
       ...user,
       departmentId: e.target.value,
       departmentName: e.target.options[e.target.selectedIndex].text,
-    });
-  };
-
-  const onRegionChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setUser({
-      ...user,
-      regionId: e.target.value,
-      region: e.target.options[e.target.selectedIndex].text,
     });
   };
 
@@ -87,29 +82,6 @@ const UserDialog = observer(() => {
         <div className="reponse-form">
           <form className="uk-form-stacked" onSubmit={onSave}>
             <div className="uk-grid-small uk-child-width-1-1@m" data-uk-grid>
-              <div>
-                <div className="uk-margin">
-                  <label className="uk-form-label" htmlFor="department">
-                    Department
-                  </label>
-                  <div className="uk-form-controls">
-                    <select
-                      id="department"
-                      className="uk-select "
-                      value={user.departmentId}
-                      onChange={onDepartmentChange}
-                      required
-                    >
-                      <option>Select...</option>
-                      {store.department.all.map((department) => (
-                        <option value={department.id} key={department.id}>
-                          {department.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
               <div className="uk-width-1-2@m">
                 <div className="uk-margin">
                   <label className="uk-form-label" htmlFor="first-name">
@@ -166,6 +138,26 @@ const UserDialog = observer(() => {
                         setUser({ ...user, email: e.target.value })
                       }
                       disabled={selected}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div className="uk-margin">
+                  <label className="uk-form-label" htmlFor="user-email">
+                    Cellphone
+                  </label>
+                  <div className="uk-form-controls">
+                    <input
+                      id=""
+                      className="uk-input "
+                      type="number"
+                      placeholder="Cellphone Number"
+                      value={user.cellphone}
+                      onChange={(e) =>
+                        setUser({ ...user, cellphone: Number(e.target.value) })
+                      }
                       required
                     />
                   </div>
@@ -236,74 +228,6 @@ const UserDialog = observer(() => {
                   </div>
                 </div>
               </div>
-              <div>
-                <div className="uk-margin">
-                  <label className="uk-form-label" htmlFor="supervisor">
-                    Supervisor (Deparmental Lead)
-                  </label>
-                  <div className="uk-form-controls">
-                    <select
-                      id="supervisor"
-                      className="uk-select "
-                      value={user.supervisor}
-                      onChange={(e) =>
-                        setUser({ ...user, supervisor: e.target.value })
-                      }
-                      required
-                    >
-                      <option>Select...</option>
-                      {store.user.all.map((user) => (
-                        <option value={user.uid} key={user.uid}>
-                          {user.firstName} {user.lastName}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <div className="uk-margin">
-                  <label className="uk-form-label" htmlFor="region">
-                    Region
-                  </label>
-                </div>
-              </div>
-              <div>
-                <div className="uk-margin">
-                  <div className="uk-form-label">Role</div>
-                  <div className="uk-form-controls">
-                    <div className="uk-margin">
-                      <select
-                        className="uk-select "
-                        value={user.role}
-                        onChange={(e) =>
-                          setUser({ ...user, role: e.target.value })
-                        }
-                        required
-                      >
-                        <option>Select...</option>
-                        <option value={USER_ROLES.ADMIN}>Administrator</option>
-                        <option value={USER_ROLES.HUMAN_RESOURCE}>
-                          Human Resources
-                        </option>
-                        <option value={USER_ROLES.DIRECTOR}>Director</option>
-                        <option value={USER_ROLES.MANAGING_DIRECTOR}>
-                          Managing Director
-                        </option>
-                        <option value={USER_ROLES.GENERAL_MANAGER}>
-                          General Manager
-                        </option>
-                        <option value={USER_ROLES.MANAGER}>Manager</option>
-                        <option value={USER_ROLES.SUPERVISOR}>
-                          Supervisor
-                        </option>
-                        <option value={USER_ROLES.EMPLOYEE}>Employee</option>
-                        <option value={USER_ROLES.INTERN}>Intern</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
             <div className="footer uk-margin">
               <button className="uk-button secondary uk-modal-close">
@@ -321,4 +245,4 @@ const UserDialog = observer(() => {
   );
 });
 
-export default UserDialog;
+export default OwnerDialog;

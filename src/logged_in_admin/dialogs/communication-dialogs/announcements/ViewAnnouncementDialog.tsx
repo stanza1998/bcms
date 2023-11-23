@@ -65,6 +65,11 @@ export const ViewAnnouncementDialog = observer(() => {
     hideModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_ANNOUNCEMENTS_DIALOG);
   };
 
+  const reset = () => {
+    setAnnouncement({ ...defaultAnnouncements });
+    store.communication.announcements.clearSelected();
+  };
+
   useEffect(() => {
     if (store.communication.announcements.selected)
       setAnnouncement(store.communication.announcements.selected);
@@ -79,6 +84,7 @@ export const ViewAnnouncementDialog = observer(() => {
         className="uk-modal-close-default"
         type="button"
         data-uk-close
+        onClick={reset}
       ></button>
 
       <h3 className="uk-modal-title">Announcement</h3>
@@ -115,7 +121,7 @@ export const ViewAnnouncementDialog = observer(() => {
                   disabled
                   className="uk-input"
                   placeholder="Message"
-                  style={{height:"80px"}}
+                  style={{ height: "80px" }}
                   value={announcement.message}
                   onChange={(e) =>
                     setAnnouncement({

@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useAppContext } from "../../shared/functions/Context";
-import showModalFromId from "../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../dialogs/Dialogs";
 import Modal from "../../shared/components/Modal";
-import { IconButton } from "@mui/material";
 import { observer } from "mobx-react-lite";
-import CircleNotificationsIcon from "@mui/icons-material/CircleNotifications";
+import { Badge, IconButton } from "@mui/material";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import showModalFromId from "../../shared/functions/ModalShow";
 
 const NavBar = observer(() => {
   const { store, api } = useAppContext();
@@ -14,10 +14,17 @@ const NavBar = observer(() => {
   const me = store.user.meJson;
   const letter1 = me?.firstName.charAt(0);
   const letter2 = me?.lastName.charAt(0);
+  const currentDate = new Date();
 
   const announcements = store.communication.announcements.all.map((a) => {
     return a.asJson;
   });
+
+  console.log("Notices ", announcements);
+
+  const active = announcements.filter(
+    (a) => new Date(a.expiryDate) >= new Date(currentDate)
+  ).length;
 
   const latestAnnouncement = announcements.filter((an) => {
     const expiryDate = new Date(an.expiryDate);
@@ -49,6 +56,10 @@ const NavBar = observer(() => {
     me?.year,
   ]);
 
+  const onShowNotices = () => {
+    showModalFromId(DIALOG_NAMES.COMMUNICATION.VIEW_ANNOUNCEMENTS_DIALOG);
+  };
+
   return (
     <div
       className="sticky"
@@ -74,14 +85,28 @@ const NavBar = observer(() => {
                   className="profile-circle"
                   style={{ backgroundColor: "#01aced" }}
                 >
-                  <span className="initials">
+                  <span
+                    className="initials"
+                    style={{ textTransform: "uppercase" }}
+                  >
                     {letter1}
                     {letter2}
                   </span>
                 </div>
                 <div className="profile-info">
                   <p className="welcome-message">
-                    <span className="user-name"></span>
+                    <span className="user-name">
+                      <IconButton
+                        onClick={onShowNotices}
+                        aria-label="Notifications"
+                      >
+                        {me?.role === "Owner" && (
+                          <Badge badgeContent={active} color="secondary">
+                            <NotificationsIcon style={{ color: "white" }} />
+                          </Badge>
+                        )}
+                      </IconButton>
+                    </span>
                   </p>
                 </div>
               </div>
@@ -126,7 +151,7 @@ const NavBar = observer(() => {
       <Modal modalId={DIALOG_NAMES.COMMUNICATION.VIEW_ANNOUNCEMENTS_DIALOG}>
         <div
           className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical staff-dialog announcements-container"
-          style={{ width: "70%", height: "auto" }}
+      
         >
           <button
             className="uk-modal-close-default"

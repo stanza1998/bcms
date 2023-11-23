@@ -64,6 +64,8 @@ import { ViewFolder } from "./logged_in_admin/bcms/meetings/ViewFolder";
 import { ViewDocuments } from "./logged_in_admin/bcms/documents/ViewDocuments";
 import { UploadQuote } from "./logged_in_admin/bcms/maintanace/service-providers-upload-quote/Uploaduote";
 import { ViewQuoteInfo } from "./logged_in_admin/bcms/maintanace/work-order/view-quotes/ViewQuoteInfo";
+import { Notices } from "./logged_in_admin/bcms/owner-accounts/owner-communication/announcements/Notices";
+import { OwnerRequest } from "./logged_in_admin/bcms/owner-accounts/maintenance-request/OwnerReqquest";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -129,7 +131,6 @@ const ADMIN_USER_ROUTES = () => {
             path={`maintainance/request/:maintenanceRequestId`}
             element={<WorkOrder />}
           />
-
           <Route
             path={`maintainance/request/quote-info/:maintenanceRequestId/:workOrderId/:id`}
             element={<ViewQuoteInfo />}
@@ -268,18 +269,51 @@ const OWNER_ROUTES = () => {
             element={<Communication />}
           />
           <Route
-            path={`/c/finance/owner-communication/owner-private-message`}
-            element={<OwnerPrivateMessage />}
+            path={`communication/com-overview`}
+            element={<Communication />}
+          />
+          <Route path={`communication/documents`} element={<Documents />} />
+          <Route path={`communication/meetings`} element={<Meetings />} />
+          <Route
+            path={`/c/communication/meetings/:folderId`}
+            element={<ViewFolder />}
           />
           <Route
-            path={`/c/finance/owner-communication/notices`}
-            element={<Announcements />}
+            path={`/c/communication/documents/:documenrFolderId`}
+            element={<ViewDocuments />}
           />
+          <Route path={`communication/notices`} element={<Notices />} />
+          {/* Communication ends here */}
+          {/* Meetings  */}
+          <Route path={`meetings/meetings-overview`} element={<Meetings />} />
+
+          {/* maintenance */}
+          <Route
+            path={`maintainance/main-overview`}
+            element={<Maintainance />}
+          />
+          <Route
+            path={`maintainance/request`}
+            element={<OwnerRequest />}
+          />
+          <Route
+            path={`maintainance/service-providers`}
+            element={<ServiceProvider />}
+          />
+          <Route
+            path={`maintainance/reports`}
+            element={<MaintenenceReports />}
+          />
+          <Route
+            path={`maintainance/request/:maintenanceRequestId`}
+            element={<WorkOrder />}
+          />
+          {/* maintenance */}
         </Route>
         <Route path="/" element={<SignIn />} />
         <Route path="/*" element={<Navigate to="/" />} />
         <Route
-   path={`service-provider-quotes/:maintenanceRequestId/:workOrderId`}
+          path={`service-provider-quotes/:maintenanceRequestId/:workOrderId`}
           element={<UploadQuote />}
         ></Route>
       </Routes>
@@ -330,7 +364,7 @@ const EMPLOYEE_USER_ROUTES = () => {
         <Route path="/" element={<SignIn />} />
         <Route path="/*" element={<Navigate to="/" />} />
         <Route
-        path={`service-provider-quotes/:propertyId/:maintenanceRequestId/:workOrderId`}
+          path={`service-provider-quotes/:propertyId/:maintenanceRequestId/:workOrderId`}
           element={<UploadQuote />}
         ></Route>
       </Routes>

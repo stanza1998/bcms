@@ -18,6 +18,7 @@ import LockOpenIcon from "@mui/icons-material/LockOpen";
 import LockIcon from "@mui/icons-material/Lock";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import ElectricalServicesIcon from "@mui/icons-material/ElectricalServices";
+import { cannotViewMaintenanceGrid } from "../../shared/common";
 
 export const Maintainance = () => {
   const { store, api } = useAppContext();
@@ -74,7 +75,7 @@ export const Maintainance = () => {
       ) : (
         <div className="uk-container uk-container-large">
           <h4 className="section-heading uk-heading">Overview</h4>
-          <Toolbar2
+          {/* <Toolbar2
             rightControls={
               <div>
                 <IconButton uk-tooltip="Print invoices">
@@ -88,7 +89,7 @@ export const Maintainance = () => {
                 </IconButton>
               </div>
             }
-          />
+          /> */}
           <div
             className="uk-child-width-1-3@m uk-grid-small uk-grid-match"
             data-uk-grid
@@ -125,8 +126,8 @@ export const Maintainance = () => {
                     fontSize: "18px",
                   }}
                 >
-                  <LockIcon style={{ color: "#01aced", fontSize: "34px" }} /> Total
-                  Closed Requests
+                  <LockIcon style={{ color: "#01aced", fontSize: "34px" }} />{" "}
+                  Total Closed Requests
                 </h3>
                 <p className="number">{totalClosedRequests}</p>
               </div>
@@ -198,7 +199,9 @@ export const Maintainance = () => {
           </div>
           <div className="tool-bar"></div>
           <div style={{ padding: "10px" }}>
-            <OverviewRequests data={filteredRequests} />
+            {cannotViewMaintenanceGrid(me?.role || "") && (
+              <OverviewRequests data={filteredRequests} />
+            )}
           </div>
         </div>
       )}

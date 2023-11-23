@@ -85,7 +85,8 @@ export const WorkOrderFlowDialog = observer(() => {
           const { MY_SUBJECT, MY_BODY } = MAIL_SERVICE_PROVIDER_LINK(
             workOrder.title,
             workOrder.description,
-            `http://localhost:3000/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`
+            // `http://localhost:3000/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`
+            `https://vanwylbcms.web.app/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`
           );
 
           await api.mail.sendMail(

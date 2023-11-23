@@ -68,7 +68,8 @@ const DIALOG_NAMES = {
 
   OWNER: {
     UPLOAD_POP: "upload-POP",
-    UPDATE_OWNER_DIALOG: "update-owner-dialog"
+    UPDATE_OWNER_DIALOG: "update-owner-dialog",
+    CREATE_REQUEST: "create-request"
   },
 
   SETTINGG: {

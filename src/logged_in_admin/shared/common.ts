@@ -19,6 +19,7 @@ import { IWorkOrderFlow } from "../../shared/models/maintenance/request/work-ord
 import { IAnnouncements } from "../../shared/models/communication/announcements/AnnouncementModel";
 import { IMaintenanceRequest } from "../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
 import { IUnit } from "../../shared/models/bcms/Units";
+import { IServiceProvider } from "../../shared/models/maintenance/service-provider/ServiceProviderModel";
 
 
 export const getFileExtension = (url: string): string => {
@@ -110,6 +111,16 @@ export function getServiceProviderEmails(serviceProviders: string[], store: AppS
     return spEmails;
 }
 
+export function getAwardedEmail(serviceProviders: IServiceProvider[], spId: string): string | undefined {
+    const awardedEmail = serviceProviders.find((sp) => sp.id === spId)?.email;
+    if (awardedEmail) {
+        return awardedEmail;
+    }
+    else {
+        return "Not awarded email found"
+    }
+}
+
 
 
 export function getCustomUserEmail(customUser: string[], store: AppStore): string[] {
@@ -122,37 +133,59 @@ export function getCustomUserEmail(customUser: string[], store: AppStore): strin
 export function getUserName(users: IUser[], announcements: IAnnouncements[], announcementId: string): string | undefined {
     const announcement = announcements.find((notice) => notice.id === announcementId);
     if (announcement) {
-      const user = users.find((user) => user.uid === announcement.authorOrSender);
-      if (user) {
-        return user.firstName;
-      }
+        const user = users.find((user) => user.uid === announcement.authorOrSender);
+        if (user) {
+            return user.firstName;
+        }
     }
-   return undefined;
-  }
+    return undefined;
+}
 
 
 export function getUserNameRequest(users: IUser[], request: IMaintenanceRequest[], id: string): string | undefined {
     const req = request.find((r) => r.id === id);
     if (req) {
-      const user = users.find((user) => user.uid === req.ownerId);
-      if (user) {
-        return user.firstName;
-      }
+        const user = users.find((user) => user.uid === req.ownerId);
+        if (user) {
+            return user.firstName;
+        }
     }
-   return undefined;
-  }
+    return undefined;
+}
 
 export function getUnitsRequest(users: IUser[], units: IUnit[], id: string): string | undefined {
     const unit = units.find((r) => r.id === id);
     if (unit) {
-      const user = users.find((user) => user.uid === unit.ownerId);
-      if (user) {
-        return user.firstName;
-      }
+        const user = users.find((user) => user.uid === unit.ownerId);
+        if (user) {
+            return user.firstName;
+        }
     }
-   return undefined;
-  }
-  
+    return undefined;
+}
+export function getUnitName(units: IUnit[], id: string): string | undefined {
+    const myUnit = units.find((u) => u.id === id)
+    if (myUnit) {
+        return "Unit " + myUnit.unitName
+    }
+    else {
+        return "No Unit Number"
+    }
+
+}
+
+
+export function getUnitsRequestOwner(users: IUser[], units: IUnit[], id: string): string | undefined {
+    const unit = units.find((r) => r.id === id);
+    if (unit) {
+        const user = users.find((user) => user.uid === unit.ownerId);
+        if (user) {
+            return user.firstName + " " + user.lastName;
+        }
+    }
+    return undefined;
+}
+
 
 
 
@@ -387,6 +420,84 @@ export async function workerOrdersAndRequestRelationshipStatusUpdate(
         console.error('Error updating document:', error);
     }
 }
+
+
+export function cannotCreateFolder(role: string): boolean {
+    if (role === "Owner") {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+export function cannotCreateMeeting(role: string): boolean {
+    if (role === "Owner") {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+export function cannotCreateAttachDocuments(role: string): boolean {
+    if (role === "Owner") {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+export function cannotEditMeeting(role: string): boolean {
+    if (role === "Owner") {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+
+export function cannotViewMaintenanceGrid(role: string): boolean {
+    if (role === "Owner") {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+export function cannotCreateNotices(role: string): boolean {
+    if (role === "Owner") {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+export function cannotCreateSP(role: string): boolean {
+    if (role === "Owner") {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+export function cannotCreateMeetingFolder(role: string): boolean {
+    if (role === "Owner") {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+export function cannotCreateDocumentFolder(role: string): boolean {
+    if (role === "Owner") {
+        return false;
+    }
+    else {
+        return true;
+    }
+}
+
+
+
 
 
 

@@ -9,7 +9,12 @@ import { MeetingDialog } from "../../dialogs/communication-dialogs/meetings/Meet
 import { IMeeting } from "../../../shared/models/communication/meetings/Meeting";
 import { EditMeetingDialog } from "../../dialogs/communication-dialogs/meetings/EditMeetingDialog";
 import "./meeting-card.scss";
-import { displayUserStatus, formatMeetingTime } from "../../shared/common";
+import {
+  cannotCreateFolder,
+  cannotCreateMeeting,
+  displayUserStatus,
+  formatMeetingTime,
+} from "../../shared/common";
 import Loading from "../../../shared/components/Loading";
 import { Tab } from "../../../Tab";
 import { CalendarView } from "./CalendarView";
@@ -21,6 +26,7 @@ export const ViewFolder = observer(() => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
   const me = store.user.meJson;
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   const _folder = store.communication.meetingFolder.getById(folderId || "");
 
@@ -83,7 +89,13 @@ export const ViewFolder = observer(() => {
   const totalPages = Math.ceil(sortedMeetings.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentMeetings = sortedMeetings.slice(
+  const lowercaseSearchTerm = searchTerm.toLowerCase();
+
+  const filteredMeetings = sortedMeetings.filter((meeting) =>
+    meeting.title.toLowerCase().includes(lowercaseSearchTerm)
+  );
+
+  const currentMeetings = filteredMeetings.slice(
     indexOfFirstItem,
     indexOfLastItem
   );
@@ -101,13 +113,15 @@ export const ViewFolder = observer(() => {
               </h4>
               <div className="controls">
                 <div className="uk-inline">
-                  <button
-                    onClick={onCreateMeeting}
-                    className="uk-button primary uk-margin-right"
-                    type="button"
-                  >
-                    New Meeting
-                  </button>
+                  {cannotCreateMeeting(me?.role || "") && (
+                    <button
+                      onClick={onCreateMeeting}
+                      className="uk-button primary uk-margin-right"
+                      type="button"
+                    >
+                      New Meeting
+                    </button>
+                  )}
                   <button
                     onClick={back}
                     className="uk-button primary"
@@ -139,6 +153,18 @@ export const ViewFolder = observer(() => {
                   isActive={activeTab === "list"}
                   onClick={() => handleTabClick("list")}
                 /> */}
+              </div>
+              <div className="uk-margin">
+                <div className="uk-margin">Search Meeting</div>
+                <div className="uk-margin">
+                  <input
+                    className="uk-input"
+                    placeholder="Search for a Meeting"
+                    style={{ width: "60%" }}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
               </div>
               <div className="tab-content">
                 {activeTab === "card" && (
@@ -174,8 +200,7 @@ export const ViewFolder = observer(() => {
                                 cursor: "pointer",
                                 position: "relative",
                               }}
-                              data-uk-tooltip="Double click to view"
-                              onDoubleClick={() => onViewMeeting(meeting)}
+                              onClick={() => onViewMeeting(meeting)}
                             >
                               <div
                                 className="uk-card uk-card-default uk-card-body"

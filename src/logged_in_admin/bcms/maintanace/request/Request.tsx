@@ -58,7 +58,7 @@ export const RequestMaintenance = observer(() => {
                   Create Request
                 </button>
               </div>
-              <div className="uk-inline" style={{ marginRight: "30px" }}>
+              {/* <div className="uk-inline" style={{ marginRight: "30px" }}>
                 <button className="uk-button primary" onClick={onView}>
                   View Request Type
                 </button>
@@ -70,7 +70,7 @@ export const RequestMaintenance = observer(() => {
                 >
                   Create Request Type
                 </button>
-              </div>
+              </div> */}
             </div>
           </div>
           <RequestGrid data={requests} />

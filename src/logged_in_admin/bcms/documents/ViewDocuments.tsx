@@ -7,7 +7,10 @@ import DIALOG_NAMES from "../../dialogs/Dialogs";
 import { DocumentFileDialog } from "../../dialogs/communication-dialogs/documents/DocumentsDialog";
 import Modal from "../../../shared/components/Modal";
 import { IDocumentFile } from "../../../shared/models/communication/documents/DocumentFiles";
-import { getIconForExtensionExtra } from "../../shared/common";
+import {
+  cannotCreateAttachDocuments,
+  getIconForExtensionExtra,
+} from "../../shared/common";
 import Loading from "../../../shared/components/Loading";
 
 export const ViewDocuments = observer(() => {
@@ -88,13 +91,15 @@ export const ViewDocuments = observer(() => {
             </h4>
             <div className="controls">
               <div className="uk-inline">
-                <button
-                  onClick={onCreateFile}
-                  className="uk-button primary uk-margin-right"
-                  type="button"
-                >
-                  Attach New Document
-                </button>
+                {cannotCreateAttachDocuments(me?.role || "") && (
+                  <button
+                    onClick={onCreateFile}
+                    className="uk-button primary uk-margin-right"
+                    type="button"
+                  >
+                    Attach New Document
+                  </button>
+                )}
                 <button
                   onClick={back}
                   className="uk-button primary"

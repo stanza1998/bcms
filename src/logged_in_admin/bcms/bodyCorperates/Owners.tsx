@@ -7,6 +7,8 @@ import { UserModel } from "../../../shared/models/User";
 import { IUser, defaultUser } from "../../../shared/interfaces/IUser";
 import DIALOG_NAMES from "../../dialogs/Dialogs";
 import OwnersTable from "./OwnersGrid";
+import showModalFromId from "../../../shared/functions/ModalShow";
+import OwnerDialog from "../../dialogs/user-dialog/OwnerDialog";
 
 interface ToolBarProps {
   showUserDialog: (user?: IUser | undefined) => void;
@@ -14,14 +16,22 @@ interface ToolBarProps {
 
 const ToolBar = (props: ToolBarProps) => {
   const { showUserDialog } = props;
+
+  const onCreate = () => {
+    showModalFromId(DIALOG_NAMES.OWNER.UPDATE_OWNER_DIALOG);
+  };
+
   return (
     <div className="section-toolbar uk-margin">
       <h4 className="section-heading uk-heading">OWNERS</h4>
       <div className="controls">
-        <button className="uk-button primary" onClick={() => showUserDialog()}>
+        <button className="uk-button primary" onClick={onCreate}>
           Add Owner
         </button>
       </div>
+      <Modal modalId={DIALOG_NAMES.OWNER.UPDATE_OWNER_DIALOG}>
+        <OwnerDialog />
+      </Modal>
     </div>
   );
 };

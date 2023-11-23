@@ -23,6 +23,7 @@ import {
 } from "firebase/storage";
 import { storage } from "../../../../shared/database/FirebaseConfig";
 import { MAIL_MEETINGS } from "../../../shared/mailMessages";
+import { useParams } from "react-router-dom";
 
 interface Attachment {
   file: File;
@@ -34,6 +35,7 @@ export const MeetingDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
   const me = store.user.meJson;
+  const { folderId } = useParams();
   const [folder, setFolder] = useState<string>("");
   const animatedComponents = makeAnimated();
   const currentDate = Date.now();
@@ -88,7 +90,11 @@ export const MeetingDialog = observer(() => {
     store
   );
 
+  console.log("Emails ", emails);
+
   const customEmails = getCustomUserEmail(meeting.externalParticipants, store);
+
+  console.log("Guest ", customEmails);
 
   const customContact = store.communication.customContacts.all
     .map((u) => u.asJson)
@@ -139,7 +145,7 @@ export const MeetingDialog = observer(() => {
           await api.communication.meeting.update(
             updatedMeeting,
             me.property,
-            folder
+            folderId || ""
           );
           await store.communication.meeting.load();
         }
@@ -150,14 +156,14 @@ export const MeetingDialog = observer(() => {
         });
       } else {
         // If meeting is not selected, create a new meeting
-        updatedMeeting.folderId = folder;
+        updatedMeeting.folderId = folderId || "";
         updatedMeeting.organizer = me?.uid || "";
         updatedMeeting.dateCreate = currentDate.toLocaleString();
         if (me?.property) {
           await api.communication.meeting.create(
             updatedMeeting,
             me?.property,
-            folder
+            folderId || ""
           );
           ui.snackbar.load({
             id: Date.now(),
@@ -179,13 +185,12 @@ export const MeetingDialog = observer(() => {
             meeting.meetingLink
           );
 
-          await api.mail.sendMail(
-            "",
-            ["narib98jerry@gmail.com"],
-            MY_SUBJECT,
-            MY_BODY,
-            ""
-          );
+          try {
+            await api.mail.sendMail("", emails, MY_SUBJECT, MY_BODY, "");
+            await api.mail.sendMail("", customEmails, MY_SUBJECT, MY_BODY, "");
+          } catch (error) {
+            console.log(error);
+          }
 
           setMeeting({ ...updatedMeeting, externalParticipants: [] });
           setMeeting({ ...updatedMeeting, ownerParticipants: [] });
@@ -252,7 +257,7 @@ export const MeetingDialog = observer(() => {
         <div className="reponse-form">
           <form className="uk-form-stacked " onSubmit={onSave}>
             <div className="uk-grid-small" data-uk-grid>
-              <div className="uk-width-1-2">
+              <div className="uk-width-1-1">
                 <label className="uk-form-label" htmlFor="form-stacked-text">
                   Meeting Title
                   {meeting.title === "" && (
@@ -275,7 +280,7 @@ export const MeetingDialog = observer(() => {
                   />
                 </div>
               </div>
-              <div className="uk-width-1-2">
+              {/* <div className="uk-width-1-2">
                 <label className="uk-form-label" htmlFor="form-stacked-text">
                   Select Folder
                   {meeting.folderId === "" && (
@@ -289,7 +294,7 @@ export const MeetingDialog = observer(() => {
                     value={folder}
                   />
                 </div>
-              </div>
+              </div> */}
               <div className="uk-width-1-2">
                 <label className="uk-form-label" htmlFor="form-stacked-text">
                   Start Date And Time
@@ -402,7 +407,7 @@ export const MeetingDialog = observer(() => {
               </div>
               <div className="uk-width-1-1">
                 <label className="uk-form-label" htmlFor="form-stacked-text">
-                  System Attendees
+                  Attendees
                   {meeting.meetingLink === "" && (
                     <span style={{ color: "" }}> (optional)</span>
                   )}
@@ -436,7 +441,7 @@ export const MeetingDialog = observer(() => {
               </div>
               <div className="uk-margin uk-width-1-1">
                 <label className="uk-form-label" htmlFor="form-stacked-text">
-                  Custom Created Attendees
+                  Guest
                   {meeting.meetingLink === "" && (
                     <span style={{ color: "" }}> (optional)</span>
                   )}

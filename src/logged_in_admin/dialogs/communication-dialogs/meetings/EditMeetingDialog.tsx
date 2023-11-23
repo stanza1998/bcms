@@ -18,6 +18,7 @@ import {
   getIconForExtension,
   getUsersEmail,
   isDateAfterCurrentDate,
+  cannotEditMeeting,
 } from "../../../shared/common";
 import {
   getStorage,
@@ -210,7 +211,7 @@ export const EditMeetingDialog = observer(() => {
       <h3 className="uk-modal-title">Meeting</h3>
       <div className="dialog-content uk-position-relative">
         <div className="reponse-form">
-          <form className="uk-form-stacked " onSubmit={onSave}>
+          <form className="uk-form-stacked" onSubmit={onSave}>
             <div className="uk-grid-small" data-uk-grid>
               <div className="uk-width-1-1">
                 <label className="uk-form-label" htmlFor="form-stacked-text">
@@ -237,7 +238,7 @@ export const EditMeetingDialog = observer(() => {
                 </div>
               </div>
 
-              <div className="uk-width-1-2">
+              <div className="uk-width-1-2@s">
                 <label className="uk-form-label" htmlFor="form-stacked-text">
                   Start Date And Time
                   {meeting.startDateAndTime === "" && (
@@ -260,7 +261,7 @@ export const EditMeetingDialog = observer(() => {
                   />
                 </div>
               </div>
-              <div className="uk-width-1-2">
+              <div className="uk-width-1-2@s">
                 <label className="uk-form-label" htmlFor="form-stacked-text">
                   End Date And Time
                   {meeting.endDateAndTime === "" && (
@@ -292,8 +293,7 @@ export const EditMeetingDialog = observer(() => {
                 </label>
                 <div className="uk-form-controls">
                   <textarea
-                    className="uk-input"
-                    style={{ height: "6rem" }}
+                    className="uk-textarea"
                     value={meeting.description}
                     onChange={(e) =>
                       setMeeting({
@@ -306,7 +306,7 @@ export const EditMeetingDialog = observer(() => {
                   />
                 </div>
               </div>
-              <div className="uk-width-1-2">
+              <div className="uk-width-1-2@s">
                 <label className="uk-form-label" htmlFor="form-stacked-text">
                   Location
                   {meeting.location === "" && (
@@ -329,7 +329,7 @@ export const EditMeetingDialog = observer(() => {
                   />
                 </div>
               </div>
-              <div className="uk-width-1-2">
+              <div className="uk-width-1-2@s">
                 <label className="uk-form-label" htmlFor="form-stacked-text">
                   Online Link
                   {meeting.meetingLink === "" && (
@@ -428,48 +428,48 @@ export const EditMeetingDialog = observer(() => {
               </div>
               {/* display attachments */}
               {meeting.attachments.length === 0 ? (
-                <span style={{ color: "red" }}>No Attachements</span>
+                <span style={{ color: "red" }}>No Attachments</span>
               ) : (
-                <table className="uk-table uk-table-small uk-table-striped">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Extension</th>
-                      <th>file</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {meeting.attachments.map((attachment, index) => {
-                      const fileName = getFileName(attachment);
-                      const extension = getFileExtension(attachment);
-                      const icon = getIconForExtensionExtra(extension); // You can use your existing getIconForExtension function here
+                <div className="uk-width-1-1">
+                  <table className="uk-table uk-table-small uk-table-striped">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Extension</th>
+                        <th>File</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {meeting.attachments.map((attachment, index) => {
+                        const fileName = getFileName(attachment);
+                        const extension = getFileExtension(attachment);
+                        const icon = getIconForExtensionExtra(extension);
 
-                      return (
-                        <tr key={index}>
-                          <td>{fileName}</td>
-                          <td>{extension}</td>
-                          <td>
-                            <a
-                              href={attachment}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <img
-                                src={icon}
-                                alt="File icon"
-                                width="24"
-                                height="24"
-                                style={{ cursor: "pointer" }}
-                              />
-                            </a>
-                            <br />
-                            {/* File Extension: {extension} */}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                        return (
+                          <tr key={index}>
+                            <td>{fileName}</td>
+                            <td>{extension}</td>
+                            <td>
+                              <a
+                                href={attachment}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <img
+                                  src={icon}
+                                  alt="File icon"
+                                  width="24"
+                                  height="24"
+                                  style={{ cursor: "pointer" }}
+                                />
+                              </a>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               )}
               <div className="uk-width-1-1">
                 <label className="uk-form-label" htmlFor="attachments">
@@ -483,13 +483,12 @@ export const EditMeetingDialog = observer(() => {
                     multiple
                   />
                   {/* Display the list of selected attachments */}
-
                   <table className="uk-table uk-table-small uk-table-striped">
                     <thead>
                       <tr>
                         <th>Name</th>
                         <th>Extension</th>
-                        <th>file</th>
+                        <th>File</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -530,12 +529,19 @@ export const EditMeetingDialog = observer(() => {
 
             <div className="footer uk-margin">
               <button className="uk-button secondary uk-modal-close">
-                Cancel
+                Close
               </button>
-              <button className="uk-button primary" type="submit">
-                Save
-                {loading && <div data-uk-spinner="ratio: .5"></div>}
-              </button>
+              {cannotEditMeeting(me?.role || "") && (
+                <button className="uk-button secondary uk-modal-close">
+                  Cancel
+                </button>
+              )}
+              {cannotEditMeeting(me?.role || "") && (
+                <button className="uk-button primary" type="submit">
+                  Save
+                  {loading && <div data-uk-spinner="ratio: .5"></div>}
+                </button>
+              )}
             </div>
           </form>
         </div>

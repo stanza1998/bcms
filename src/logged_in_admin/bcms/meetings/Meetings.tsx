@@ -10,16 +10,20 @@ import { MeetingFolderDialog } from "../../dialogs/communication-dialogs/meeting
 import { IMeetingFolder } from "../../../shared/models/communication/meetings/MeetingFolder";
 import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../../../shared/components/Loading";
+import { cannotCreateFolder } from "../../shared/common";
 
 export const Meetings = observer(() => {
   const { api, store } = useAppContext();
   const me = store.user.meJson;
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
-  const folders = store.communication.meetingFolder.all.map((f) => {
-    return f.asJson;
-  });
+  const folders = store.communication.meetingFolder.all
+    .filter((folder) =>
+      folder.asJson.folderName.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .map((f) => f.asJson);
 
   const onCreate = () => {
     showModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_MEETING_FOLDER);
@@ -62,14 +66,28 @@ export const Meetings = observer(() => {
             <h4 className="section-heading uk-heading">Meeting Folders</h4>
             <div className="controls">
               <div className="uk-inline">
-                <button
-                  onClick={onCreate}
-                  className="uk-button primary"
-                  type="button"
-                >
-                  Create Folder
-                </button>
+                {cannotCreateFolder(me?.role || "") && (
+                  <button
+                    onClick={onCreate}
+                    className="uk-button primary"
+                    type="button"
+                  >
+                    Create Folder
+                  </button>
+                )}
               </div>
+            </div>
+          </div>
+          <div className="uk-margin">
+            <div className="uk-margin">Search Folder</div>
+            <div className="uk-margin">
+              <input
+                className="uk-input"
+                placeholder="Search for a folder"
+                style={{ width: "60%" }}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
           </div>
           <div

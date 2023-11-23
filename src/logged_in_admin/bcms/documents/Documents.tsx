@@ -10,16 +10,26 @@ import Modal from "../../../shared/components/Modal";
 import { DocumentCategoryDialog } from "../../dialogs/communication-dialogs/documents/DocumentCategories";
 import "./meeting-card.scss";
 import Loading from "../../../shared/components/Loading";
+import { cannotCreateFolder } from "../../shared/common";
 
 export const Documents = observer(() => {
   const { api, store } = useAppContext();
   const me = store.user.meJson;
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
-  const folders = store.communication.documentCategory.all.map((f) => {
-    return f.asJson;
-  });
+  // const folders = store.communication.documentCategory.all.map((f) => {
+  //   return f.asJson;
+  // });
+
+  const folders = store.communication.documentCategory.all
+    .filter((folder) =>
+      folder.asJson.documentName
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+    )
+    .map((f) => f.asJson);
 
   const onCreate = () => {
     showModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_DOCUMENT_CATEGORY);
@@ -55,14 +65,28 @@ export const Documents = observer(() => {
             <h4 className="section-heading uk-heading">Document Folders</h4>
             <div className="controls">
               <div className="uk-inline">
-                <button
-                  onClick={onCreate}
-                  className="uk-button primary"
-                  type="button"
-                >
-                  Create Folder
-                </button>
+                {cannotCreateFolder(me?.role || "") && (
+                  <button
+                    onClick={onCreate}
+                    className="uk-button primary"
+                    type="button"
+                  >
+                    Create Folder
+                  </button>
+                )}
               </div>
+            </div>
+          </div>
+          <div className="uk-margin">
+            <div className="uk-margin">Search Folder</div>
+            <div className="uk-margin">
+              <input
+                className="uk-input"
+                placeholder="Search for a folder"
+                style={{ width: "60%" }}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
           </div>
           <div
