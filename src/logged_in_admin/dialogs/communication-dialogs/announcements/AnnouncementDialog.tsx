@@ -47,6 +47,8 @@ export const AnnouncementDialog = observer(() => {
           me.property,
           me.year
         );
+        // sendNoticeMessage(announcement.title, announcement.message);
+        // createNoticeSMS()
         ui.snackbar.load({
           id: Date.now(),
           message: "Announcement created!",
@@ -67,13 +69,7 @@ export const AnnouncementDialog = observer(() => {
       announcement.message
     );
 
-    await api.mail.sendMail(
-      "",
-      ["narib98jerry@gmail.com"],
-      MY_SUBJECT,
-      MY_BODY,
-      ""
-    );
+    await api.mail.sendMail("", [], MY_SUBJECT, MY_BODY, "");
 
     store.communication.announcements.clearSelected();
     setAnnouncement({ ...defaultAnnouncements });

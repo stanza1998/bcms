@@ -227,7 +227,7 @@ const ManagerDashBoard = () => {
               <Item>
                 <div className="dashboard-card">
                   <Grid container spacing={1}>
-                    <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+                    <Grid item xs={12} sm={12} md={4} lg={4} xl={4}>
                       <div className="uk-card">
                         <div className="uk-card-body">
                           <h3 className="uk-card-title">Total Units</h3>
@@ -236,7 +236,7 @@ const ManagerDashBoard = () => {
                         </div>
                       </div>
                     </Grid>
-                    <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+                    <Grid item xs={12} sm={12} md={4} lg={4} xl={4}>
                       <div className="uk-card">
                         <div className="uk-card-body">
                           <h3 className="uk-card-title">New Notices</h3>
@@ -244,29 +244,29 @@ const ManagerDashBoard = () => {
                           <div className="button-section">
                             {cannotCreateNotices(me?.role || "") && (
                               <button onClick={onCreateNotice}>
-                                Create New Notice
+                                Create
                               </button>
                             )}
                           </div>
                         </div>
                       </div>
                     </Grid>
-                    <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+                    <Grid item xs={12} sm={12} md={4} lg={4} xl={4}>
                       <div className="uk-card">
                         <div className="uk-card-body">
                           <h3 className="uk-card-title">
-                            New Maintenance Requests
+                            New Requests
                           </h3>
                           <h3 className="number">{totalNewRequests}</h3>
                           <div className="button-section">
                             <button onClick={onCreateRequest}>
-                              Create New Request
+                              Create
                             </button>
                           </div>
                         </div>
                       </div>
                     </Grid>
-                    <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+                    <Grid item xs={12} sm={12} md={4} lg={4} xl={4}>
                       <div className="uk-card">
                         <div className="uk-card-body">
                           <h3 className="uk-card-title">Service Providers</h3>
@@ -274,7 +274,41 @@ const ManagerDashBoard = () => {
                           <div className="button-section">
                             {cannotCreateSP(me?.role || "") && (
                               <button onClick={onCreateSP}>
-                                Create New SP
+                                Create
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={4} lg={4} xl={4}>
+                      <div className="uk-card">
+                        <div className="uk-card-body">
+                          <h3 className="uk-card-title">
+                            Meeting Folders
+                          </h3>
+                          <h3 className="number">{totalMeetings}</h3>
+                          <div className="button-section">
+                            {cannotCreateMeetingFolder(me?.role || "") && (
+                              <button onClick={onCreateMeetingFolder}>
+                                Create
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={4} lg={4} xl={4}>
+                      <div className="uk-card">
+                        <div className="uk-card-body">
+                          <h3 className="uk-card-title">
+                            Document Folders
+                          </h3>
+                          <h3 className="number">{totalDocuments}</h3>
+                          <div className="button-section">
+                            {cannotCreateDocumentFolder(me?.role || "") && (
+                              <button onClick={onCreateDocumentFolder}>
+                                Create
                               </button>
                             )}
                           </div>
@@ -455,40 +489,7 @@ const ManagerDashBoard = () => {
                     </Paper>
                   </Grid>
                 </Grid>
-                <Grid container spacing={1}>
-                  <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-                    <div className="uk-card">
-                      <div className="uk-card-body">
-                        <h3 className="uk-card-title">Total Meeting Folders</h3>
-                        <h3 className="number">{totalMeetings}</h3>
-                        <div className="button-section">
-                          {cannotCreateMeetingFolder(me?.role || "") && (
-                            <button onClick={onCreateMeetingFolder}>
-                              Create New Meetings Folder
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </Grid>
-                  <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-                    <div className="uk-card">
-                      <div className="uk-card-body">
-                        <h3 className="uk-card-title">
-                          Total Document Folders
-                        </h3>
-                        <h3 className="number">{totalDocuments}</h3>
-                        <div className="button-section">
-                          {cannotCreateDocumentFolder(me?.role || "") && (
-                            <button onClick={onCreateDocumentFolder}>
-                              Create New Documents Folder
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </Grid>
-                </Grid>
+                <Grid container spacing={1}></Grid>
               </Item>
             </Grid>
           </Grid>
