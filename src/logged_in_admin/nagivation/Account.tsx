@@ -66,9 +66,9 @@ export const ACTIONLIST = observer(() => {
         await api.body.body.getAll();
         await api.body.propertyBankAccount.getAll(me.property);
         await api.body.financialYear.getAll(me?.property);
-        if (me?.year === "") {
-          showModalFromId(DIALOG_NAMES.BODY.FINANCIAL_YEAR);
-        }
+        // if (me?.year === "") {
+        //   showModalFromId(DIALOG_NAMES.BODY.FINANCIAL_YEAR);
+        // }
       } else if (me?.property === "") {
         showModalFromId(DIALOG_NAMES.BODY.PROPERTY_ACCOUNT);
       }
