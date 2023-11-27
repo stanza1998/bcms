@@ -127,7 +127,7 @@ export const ViewUnit = observer(() => {
     if (!me?.property) return;
     try {
       if (store.bodyCorperate.unit.selected) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        unit.ownerId = ownerId;
         const supp = await api.unit.update(unit, me.property);
         await store.bodyCorperate.unit.load();
         ui.snackbar.load({

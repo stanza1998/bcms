@@ -11,6 +11,7 @@ import SingleSelect from "../../../../shared/components/single-select/SlingleSel
 import makeAnimated from "react-select/animated";
 import Select from "react-select";
 import {
+  findPropertyUsers,
   getCustomUserEmail,
   getIconForExtension,
   getUsersEmail,
@@ -77,24 +78,18 @@ export const MeetingDialog = observer(() => {
     setFolder(folderSelected);
   };
 
-  const users = store.user.all
-    .map((u) => u.asJson)
-    .map((user) => ({
-      value: user.uid,
-      label: user.firstName + " " + user.lastName,
-    }))
-    .filter((user) => user.value !== me?.uid);
+  const users = store.user.all.map((u) => u.asJson);
+
+  const units = store.bodyCorperate.unit.all.map((u) => {
+    return u.asJson;
+  });
 
   const emails = getUsersEmail(
     meeting.ownerParticipants.filter((id) => id !== me?.uid),
     store
   );
 
-  console.log("Emails ", emails);
-
   const customEmails = getCustomUserEmail(meeting.externalParticipants, store);
-
-  console.log("Guest ", customEmails);
 
   const customContact = store.communication.customContacts.all
     .map((u) => u.asJson)
@@ -229,12 +224,14 @@ export const MeetingDialog = observer(() => {
   useEffect(() => {
     const getFolders = async () => {
       if (me?.property) {
+        await api.unit.getAll(me.property);
         await api.communication.meetingFolder.getAll(me.property);
         await api.communication.customContact.getAll(me.property);
       }
     };
     getFolders();
   }, [
+    api.unit,
     api.communication.customContact,
     api.communication.meetingFolder,
     me?.property,
@@ -424,15 +421,18 @@ export const MeetingDialog = observer(() => {
                     }
                     isMulti
                     placeholder="Search users"
-                    options={users}
+                    options={findPropertyUsers(users, units)}
                     value={meeting.ownerParticipants.map((participantId) => {
                       const selectedContact = users.find(
-                        (contact) => contact.value === participantId
+                        (contact) => contact.uid === participantId
                       );
                       return selectedContact
                         ? {
-                            label: selectedContact.label,
-                            value: selectedContact.value,
+                            label:
+                              selectedContact.firstName +
+                              " " +
+                              selectedContact.lastName,
+                            value: selectedContact.uid,
                           }
                         : null;
                     })}

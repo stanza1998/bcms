@@ -8,12 +8,24 @@ import {
   defaultAnnouncements,
 } from "../../../../shared/models/communication/announcements/AnnouncementModel";
 import { MAIL_ANNOUNCEMENTS } from "../../../shared/mailMessages";
+import { findPropertyUsersEmails } from "../../../shared/common";
+import Loading from "../../../../shared/components/Loading";
 
 export const AnnouncementDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
+  const [_loading, _setLoading] = useState(false);
   const me = store.user.meJson;
   const currentDate = new Date();
+
+  const users = store.user.all.map((u) => {
+    return u.asJson;
+  });
+  const units = store.bodyCorperate.unit.all.map((u) => {
+    return u.asJson;
+  });
+
+  const emails = findPropertyUsersEmails(users, units);
 
   const [announcement, setAnnouncement] = useState<IAnnouncements>({
     ...defaultAnnouncements,
@@ -69,7 +81,7 @@ export const AnnouncementDialog = observer(() => {
       announcement.message
     );
 
-    await api.mail.sendMail("", [], MY_SUBJECT, MY_BODY, "");
+    await api.mail.sendMail("", emails, MY_SUBJECT, MY_BODY, "");
 
     store.communication.announcements.clearSelected();
     setAnnouncement({ ...defaultAnnouncements });
@@ -90,6 +102,18 @@ export const AnnouncementDialog = observer(() => {
     return () => {};
   }, [store.communication.announcements.selected]);
 
+  useEffect(() => {
+    const getData = async () => {
+      _setLoading(true);
+      await api.auth.loadAll();
+      if (me?.property) {
+        await api.unit.getAll(me.property);
+      }
+      _setLoading(false);
+    };
+    getData();
+  }, [api.unit, api.auth, me?.property]);
+
   return (
     <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
       <button
@@ -100,114 +124,118 @@ export const AnnouncementDialog = observer(() => {
       ></button>
 
       <h3 className="uk-modal-title">Notice</h3>
-      <div className="dialog-content uk-position-relative">
-        <div className="reponse-form">
-          <form className="uk-form-stacked" onSubmit={onSave}>
-            <div className="uk-margin">
-              <label className="uk-form-label" htmlFor="form-stacked-text">
-                Title
-                {announcement.title === "" && (
-                  <span style={{ color: "red" }}>*</span>
-                )}
-              </label>
-              <div className="uk-form-controls">
-                <input
-                  className="uk-input"
-                  type="text"
-                  placeholder="Title"
-                  value={announcement.title}
-                  onChange={(e) =>
-                    setAnnouncement({
-                      ...announcement,
-                      title: e.target.value,
-                    })
-                  }
-                  required
-                />
+      {_loading ? (
+        <Loading />
+      ) : (
+        <div className="dialog-content uk-position-relative">
+          <div className="reponse-form">
+            <form className="uk-form-stacked" onSubmit={onSave}>
+              <div className="uk-margin">
+                <label className="uk-form-label" htmlFor="form-stacked-text">
+                  Title
+                  {announcement.title === "" && (
+                    <span style={{ color: "red" }}>*</span>
+                  )}
+                </label>
+                <div className="uk-form-controls">
+                  <input
+                    className="uk-input"
+                    type="text"
+                    placeholder="Title"
+                    value={announcement.title}
+                    onChange={(e) =>
+                      setAnnouncement({
+                        ...announcement,
+                        title: e.target.value,
+                      })
+                    }
+                    required
+                  />
+                </div>
               </div>
-            </div>
-            <div className="uk-margin">
-              <label className="uk-form-label" htmlFor="form-stacked-text">
-                Message
-                {announcement.message === "" && (
-                  <span style={{ color: "red" }}>*</span>
-                )}
-              </label>
-              <div className="uk-form-controls">
-                <textarea
-                  className="uk-input"
-                  placeholder="Message"
-                  value={announcement.message}
-                  onChange={(e) =>
-                    setAnnouncement({
-                      ...announcement,
-                      message: e.target.value,
-                    })
-                  }
-                  required
-                />
+              <div className="uk-margin">
+                <label className="uk-form-label" htmlFor="form-stacked-text">
+                  Message
+                  {announcement.message === "" && (
+                    <span style={{ color: "red" }}>*</span>
+                  )}
+                </label>
+                <div className="uk-form-controls">
+                  <textarea
+                    className="uk-input"
+                    placeholder="Message"
+                    value={announcement.message}
+                    onChange={(e) =>
+                      setAnnouncement({
+                        ...announcement,
+                        message: e.target.value,
+                      })
+                    }
+                    required
+                  />
+                </div>
               </div>
-            </div>
-            <div className="uk-margin">
-              <label className="uk-form-label" htmlFor="form-stacked-text">
-                Expiry Date
-                {announcement.dateAndTime === "" && (
-                  <span style={{ color: "red" }}>*</span>
-                )}
-              </label>
-              <div className="uk-form-controls">
-                <input
-                  className="uk-input"
-                  placeholder="Expiry Date"
-                  type="date"
-                  value={announcement.expiryDate}
-                  onChange={(e) =>
-                    setAnnouncement({
-                      ...announcement,
-                      expiryDate: e.target.value,
-                    })
-                  }
-                  required
-                />
+              <div className="uk-margin">
+                <label className="uk-form-label" htmlFor="form-stacked-text">
+                  Expiry Date
+                  {announcement.dateAndTime === "" && (
+                    <span style={{ color: "red" }}>*</span>
+                  )}
+                </label>
+                <div className="uk-form-controls">
+                  <input
+                    className="uk-input"
+                    placeholder="Expiry Date"
+                    type="date"
+                    value={announcement.expiryDate}
+                    onChange={(e) =>
+                      setAnnouncement({
+                        ...announcement,
+                        expiryDate: e.target.value,
+                      })
+                    }
+                    required
+                  />
+                </div>
               </div>
-            </div>
-            <div className="uk-margin">
-              <label className="uk-form-label" htmlFor="form-stacked-text">
-                Priorty Level
-                {announcement.priorityLevel === "" && (
-                  <span style={{ color: "red" }}>*</span>
-                )}
-              </label>
+              <div className="uk-margin">
+                <label className="uk-form-label" htmlFor="form-stacked-text">
+                  Priorty Level
+                  {announcement.priorityLevel === "" && (
+                    <span style={{ color: "red" }}>*</span>
+                  )}
+                </label>
 
-              <div className="uk-form-controls">
-                <select
-                  className="uk-input"
-                  onChange={(e) =>
-                    setAnnouncement({
-                      ...announcement,
-                      priorityLevel: e.target.value,
-                    })
-                  }
-                >
-                  <option value="">Select priority level</option>
-                  <option value="LOW">Low</option>
-                  <option value="MEDIUM">Medium</option>
-                  <option value="HIGH">High</option>
-                </select>
+                <div className="uk-form-controls">
+                  <select
+                    className="uk-input"
+                    onChange={(e) =>
+                      setAnnouncement({
+                        ...announcement,
+                        priorityLevel: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="">Select priority level</option>
+                    <option value="LOW">Low</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HIGH">High</option>
+                  </select>
+                </div>
               </div>
-            </div>
-            <div className="footer uk-margin">
-              <button className="uk-button secondary uk-modal-close">
-                Cancel
-              </button>
-              <button className="uk-button primary" type="submit">
-                Save
-                {loading && <div data-uk-spinner="ratio: .5"></div>}
-              </button>
-            </div>
-          </form>
+              <div className="footer uk-margin">
+                <button className="uk-button secondary uk-modal-close">
+                  Cancel
+                </button>
+                <button className="uk-button primary" type="submit">
+                  Save
+                  {loading && <div data-uk-spinner="ratio: .5"></div>}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 });

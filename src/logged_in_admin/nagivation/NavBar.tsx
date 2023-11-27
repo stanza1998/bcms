@@ -20,7 +20,7 @@ const NavBar = observer(() => {
     return a.asJson;
   });
 
-  console.log("Notices ", announcements);
+
 
   const active = announcements.filter(
     (a) => new Date(a.expiryDate) >= new Date(currentDate)

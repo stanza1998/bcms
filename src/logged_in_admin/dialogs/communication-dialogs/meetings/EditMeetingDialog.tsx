@@ -19,6 +19,7 @@ import {
   getUsersEmail,
   isDateAfterCurrentDate,
   cannotEditMeeting,
+  findPropertyUsers,
 } from "../../../shared/common";
 import {
   getStorage,
@@ -82,13 +83,13 @@ export const EditMeetingDialog = observer(() => {
     setFolder(folderSelected);
   };
 
-  const users = store.user.all
-    .map((u) => u.asJson)
-    .map((user) => ({
-      value: user.uid,
-      label: user.firstName + " " + user.lastName,
-    }))
-    .filter((user) => user.value !== me?.uid);
+  // const users = store.user.all
+  //   .map((u) => u.asJson)
+  //   .map((user) => ({
+  //     value: user.uid,
+  //     label: user.firstName + " " + user.lastName,
+  //   }))
+  //   .filter((user) => user.value !== me?.uid);
 
   const emails = getUsersEmail(
     meeting.ownerParticipants.filter((id) => id !== me?.uid),
@@ -182,15 +183,23 @@ export const EditMeetingDialog = observer(() => {
     return () => {};
   }, [store.communication.meeting.selected]);
 
+  const users = store.user.all.map((u) => u.asJson);
+
+  const units = store.bodyCorperate.unit.all.map((u) => {
+    return u.asJson;
+  });
+
   useEffect(() => {
     const getFolders = async () => {
       if (me?.property) {
+        await api.unit.getAll(me.property);
         await api.communication.meetingFolder.getAll(me.property);
         await api.communication.customContact.getAll(me.property);
       }
     };
     getFolders();
   }, [
+    api.unit,
     api.communication.customContact,
     api.communication.meetingFolder,
     me?.property,
@@ -371,15 +380,18 @@ export const EditMeetingDialog = observer(() => {
                     }
                     isMulti
                     placeholder="Search users"
-                    options={users}
+                    options={findPropertyUsers(users, units)}
                     value={meeting.ownerParticipants.map((participantId) => {
                       const selectedContact = users.find(
-                        (contact) => contact.value === participantId
+                        (contact) => contact.uid === participantId
                       );
                       return selectedContact
                         ? {
-                            label: selectedContact.label,
-                            value: selectedContact.value,
+                            label:
+                              selectedContact.firstName +
+                              " " +
+                              selectedContact.lastName,
+                            value: selectedContact.uid,
                           }
                         : null;
                     })}
