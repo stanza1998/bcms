@@ -13,8 +13,12 @@ import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { getUnitsRequestOwner } from "../../../shared/common";
+import {
+  canViewPropertyDetails,
+  getUnitsRequestOwner,
+} from "../../../shared/common";
 import Pagination from "../../../shared/PaginationComponent";
+import { NoUnit } from "../../../shared/no-unit-shared/NoUnit";
 
 const bull = (
   <Box
@@ -85,68 +89,74 @@ export const OwnerAccount = observer(() => {
 
   return (
     <div className="uk-section leave-analytics-page sales-order owner-cards">
-      <div className="uk-container uk-container-large">
-        <div className="section-toolbar uk-margin">
-          <h4 className="section-heading uk-heading">My Units</h4>
-          <div className="controls">
-            <div className="uk-inline">
-              {/* <button
+      {me?.role === "Owner" && canViewPropertyDetails(me?.uid || "", units) ? (
+        <>
+          <div className="uk-container uk-container-large">
+            <div className="section-toolbar uk-margin">
+              <h4 className="section-heading uk-heading">My Units</h4>
+              <div className="controls">
+                <div className="uk-inline">
+                  {/* <button
                 // onClick={onCreate}
                 className="uk-button primary"
                 type="button"
               >
                 Add Supplier
               </button> */}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        <div className="uk-margin">
-          <div className="uk-margin">Search Units</div>
-          <div className="uk-margin">
-            <input
-              className="uk-input"
-              placeholder="Search for a unit number"
-              style={{ width: "60%" }}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(Number(e.target.value))}
+            <div className="uk-margin">
+              <div className="uk-margin">Search Units</div>
+              <div className="uk-margin">
+                <input
+                  className="uk-input"
+                  placeholder="Search for a unit number"
+                  style={{ width: "60%" }}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(Number(e.target.value))}
+                />
+              </div>
+            </div>
+            <Grid container spacing={2}>
+              {currentUnit.map((card, index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                  <Card sx={{ minWidth: 275 }}>
+                    <CardContent>
+                      <Typography
+                        sx={{ fontSize: 14 }}
+                        color="text.secondary"
+                        gutterBottom
+                      >
+                        UNIT {card.unitName}
+                      </Typography>
+                      <Typography variant="h5" component="div">
+                        <span style={{ textTransform: "capitalize" }}>
+                          {/* {getUnitsRequestOwner(users, units, card.id)} */}
+                        </span>
+                      </Typography>
+                      <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                        {/* {card.adjective} */}
+                      </Typography>
+                      {/* <Typography variant="body2">{card.description}</Typography> */}
+                    </CardContent>
+                    <CardActions>
+                      {/* <Button size="small">Learn More</Button> */}
+                    </CardActions>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
             />
           </div>
-        </div>
-        <Grid container spacing={2}>
-          {currentUnit.map((card, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
-              <Card sx={{ minWidth: 275 }}>
-                <CardContent>
-                  <Typography
-                    sx={{ fontSize: 14 }}
-                    color="text.secondary"
-                    gutterBottom
-                  >
-                    UNIT {card.unitName}
-                  </Typography>
-                  <Typography variant="h5" component="div">
-                    <span style={{ textTransform: "capitalize" }}>
-                      {getUnitsRequestOwner(users, units, card.id)}
-                    </span>
-                  </Typography>
-                  <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                    {/* {card.adjective} */}
-                  </Typography>
-                  {/* <Typography variant="body2">{card.description}</Typography> */}
-                </CardContent>
-                <CardActions>
-                  {/* <Button size="small">Learn More</Button> */}
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
-      </div>
+        </>
+      ) : (
+        <NoUnit />
+      )}
     </div>
   );
 });

@@ -588,3 +588,39 @@ export function getOwnersEmail(
 }
 
 
+<<<<<<< HEAD
+=======
+export function findPropertyUsersEmails(owners: IUser[], units: IUnit[]): string[] {
+    const _owners = owners.filter((u) => u.role === "Owner").map((u) => u)
+    const _units = units.map((u) => { return u })
+    const propertyUsers = _owners
+        .filter(owner => _units.some(unit => unit.ownerId === owner.uid))
+        .map(owner => owner.email);
+    return propertyUsers;
+
+}
+export function findPropertyUsers(owners: any[], units: IUnit[]): { value: string; label: string }[] {
+    const _owners = owners.filter((u) => u.role === "Owner").map((u) => u);
+    const _units = units.map((u) => ({ ...u })); // Shallow copy of units
+
+    const propertyUsers = _owners
+        .filter(owner => _units.some(unit => unit.ownerId === owner.uid))
+        .map(owner => ({
+            value: owner.uid,
+            label: owner.firstName + " " + owner.lastName,
+        }));
+
+    return propertyUsers;
+}
+
+
+export function canViewPropertyDetails(ownerId: string, units: IUnit[]): boolean {
+    // Check if there is at least one unit with the specified ownerId
+    const hasUnit = units.some(unit => unit.ownerId === ownerId);
+   
+    // Return true if at least one unit is found, otherwise return false
+    return hasUnit;
+}
+
+
+>>>>>>> b661be6078b8cef05d1673d235f81c5965a8f13e
