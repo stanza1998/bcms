@@ -8,6 +8,10 @@ import {
   defaultMaintenanceRequest,
 } from "../../../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
 import SingleSelect from "../../../../shared/components/single-select/SlingleSelect";
+import {
+  MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_MANAGER,
+  MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_OWNER,
+} from "../../../shared/mailMessages";
 
 export const OwnerRequestDialog = observer(() => {
   const { api, store, ui } = useAppContext();
@@ -23,6 +27,9 @@ export const OwnerRequestDialog = observer(() => {
       ownerId: me?.uid || "",
       unitId: unitId,
     });
+
+  const sendToOwner = me?.email;
+  const sendToManager = ["narib98jerry@gmail.com", "dinahmasule@gmail.com"];
 
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -52,6 +59,22 @@ export const OwnerRequestDialog = observer(() => {
           maintenanceRequest,
           me.property
         );
+
+        try {
+          const { MY_SUBJECT, MY_BODY } =
+            MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_MANAGER(
+              maintenanceRequest.description,
+              `${me.firstName} ${me.lastName}`
+            );
+
+          await api.mail.sendMail("", sendToManager, MY_SUBJECT, MY_BODY, "");
+        } catch (error) {}
+        try {
+          const { MY_SUBJECT, MY_BODY } =
+            MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_OWNER();
+          await api.mail.sendMail("", [sendToOwner || ""], MY_SUBJECT, MY_BODY, "");
+        } catch (error) {}
+
         ui.snackbar.load({
           id: Date.now(),
           message: "Maintenance Request created!",

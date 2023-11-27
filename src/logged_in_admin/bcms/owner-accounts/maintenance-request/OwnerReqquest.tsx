@@ -33,6 +33,7 @@ export const OwnerRequest = observer(() => {
   const [searchTerm, setSearchTerm] = useState<string>("");
 
   const myRequest = store.maintenance.maintenance_request.all
+  .sort((a, b) => new Date(b.asJson.dateRequested).getTime() - new Date(a.asJson.dateRequested).getTime())
     .filter((req) => req.asJson.ownerId === me?.uid)
     .map((req) => {
       return req.asJson;

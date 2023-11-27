@@ -155,16 +155,80 @@ export const MAIL_WORK_ORDER_WINDOW_PERIOD_EXTENDED = (
         MY_BODY: MY_BODY.join("<br/>")
     }
 }
+//1. WHEN OWNER CREATES A REQUEST
+export const MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_OWNER = (
+) => {
+    const MY_SUBJECT = `New Request Logged`
+    const MY_BODY = [
+        `${greeting}`,
+        "",
+        `You have successfully logged a new Maintenance request`,
+        "",
+        "Regards,",
+        `${username}`,
+        "",
+        `${link}`
+    ];
+
+    return {
+        MY_SUBJECT: MY_SUBJECT,
+        MY_BODY: MY_BODY.join("<br/>")
+    }
+}
+export const MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_MANAGER = (
+    message:string,
+    ownerName:string,
+) => {
+    const MY_SUBJECT = `New Request Logged`
+    const MY_BODY = [
+        `${greeting}`,
+        "",
+        `Owner: ${ownerName}`,
+        "",
+        `Request: ${message}`,
+        "",
+        "Regards,",
+        `${username}`,
+        "",
+        `${link}`
+    ];
+
+    return {
+        MY_SUBJECT: MY_SUBJECT,
+        MY_BODY: MY_BODY.join("<br/>")
+    }
+}
 
 
 //owners notifications maintenance
-
-//1. CREATE REQUEST
 //2. WHEN MANAGER CREATES A REQUEST FOR THEM
-//3. WHEN OPENED
-//4. COMPLETED
+export const MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_LOGGED = (
+    description: string | null | undefined,
+    managerName: string | null | undefined,
+
+) => {
+    const MY_SUBJECT = `Your Maintenance Request Logged Successfully`
+    const MY_BODY = [
+        `${greeting}`,
+        "",
+        `Description: ${description}`,
+        "",
+        "",
+        `Your Maintenance Request was Logged Successfully by ${managerName}.`,
+        "",
+        "Regards,",
+        `${username}`,
+        "",
+        `${link}`
+    ];
+
+    return {
+        MY_SUBJECT: MY_SUBJECT,
+        MY_BODY: MY_BODY.join("<br/>")
+    }
+}
 
 
 
-//manager notifications maintenance
-//1. WHEN OWNER CREATES A REQUEST
+
+

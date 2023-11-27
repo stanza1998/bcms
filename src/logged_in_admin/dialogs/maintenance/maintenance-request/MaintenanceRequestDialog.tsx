@@ -8,6 +8,12 @@ import {
   defaultMaintenanceRequest,
 } from "../../../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
 import SingleSelect from "../../../../shared/components/single-select/SlingleSelect";
+import { useParams } from "react-router-dom";
+import {
+  MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_LOGGED,
+  MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_OWNER,
+} from "../../../shared/mailMessages";
+import { getOwnersEmail } from "../../../shared/common";
 
 export const MaintenanceRequestDialog = observer(() => {
   const { api, store, ui } = useAppContext();
@@ -15,8 +21,15 @@ export const MaintenanceRequestDialog = observer(() => {
   const [ownerId, setOwnerId] = useState<string>("");
   const [unitId, setUnitId] = useState<string>("");
   const me = store.user.meJson;
+  const { maintenanceRequestId } = useParams();
   const currentDate = new Date();
   const dateIssued = currentDate.toUTCString();
+
+  const _users = store.user.all.map((u) => {
+    return u.asJson;
+  });
+
+  const sendTo = getOwnersEmail(_users, ownerId);
 
   const [maintenanceRequest, setMaintenanceRequest] =
     useState<IMaintenanceRequest>({
@@ -53,6 +66,22 @@ export const MaintenanceRequestDialog = observer(() => {
           maintenanceRequest,
           me.property
         );
+
+        const name = me.firstName + " " + me.lastName;
+        const { MY_SUBJECT, MY_BODY } =
+          MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_LOGGED(
+            maintenanceRequest.description,
+            name
+          );
+        await api.mail.sendMail(
+          "",
+          //owner email
+          [sendTo || ""],
+          MY_SUBJECT,
+          MY_BODY,
+          ""
+        );
+
         ui.snackbar.load({
           id: Date.now(),
           message: "Maintenance Request created!",
