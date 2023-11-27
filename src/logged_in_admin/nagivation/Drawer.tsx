@@ -16,6 +16,7 @@ import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ApartmentIcon from "@mui/icons-material/Apartment";
 import { ACTIONLIST } from "./Account";
+import { canViewPropertyDetails } from "../shared/common";
 
 
 declare const UIkit: any;
