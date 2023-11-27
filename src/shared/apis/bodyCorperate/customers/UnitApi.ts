@@ -3,18 +3,22 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
+  getDocs,
   onSnapshot,
   query,
   setDoc,
   updateDoc,
+  where,
 } from "firebase/firestore";
 import AppApi from "../../AppApi";
 import AppStore from "../../../stores/AppStore";
 import { IUnit } from "../../../models/bcms/Units";
 import { db } from "../../../database/FirebaseConfig";
+import UiStore from "../../../stores/UiStore";
 
 export default class UnitApi {
-  constructor(private api: AppApi, private store: AppStore) {}
+  constructor(private api: AppApi, private store: AppStore, private ui: UiStore) { }
 
   async getAll(pid: string) {
     const myPath = `BodyCoperate/${pid}/Units`;
@@ -58,6 +62,25 @@ export default class UnitApi {
   }
   // remember id
   async create(item: IUnit, pid: string) {
+    // Check if the unit number is valid
+    if (item.unitName === 0) {
+      console.error('Unit number cannot be 0.');
+      alert("Cannot create unit 0")
+      return;
+    }
+
+    // Check if a unit with the same unitName already exists
+    const unitCollectionRef = collection(db, `BodyCoperate/${pid}/Units`);
+    const existingUnitQuery = query(unitCollectionRef, where('unitName', '==', item.unitName));
+    const existingUnitSnapshot = await getDocs(existingUnitQuery);
+
+    if (!existingUnitSnapshot.empty) {
+      alert(`Unit ${item.unitName} already exist`)
+      console.error(`Unit with unitName ${item.unitName} already exists.`);
+      return;
+    }
+
+    // If everything is valid, proceed with creation
     const myPath = `BodyCoperate/${pid}/Units`;
     const itemRef = doc(collection(db, myPath));
     item.id = itemRef.id;
@@ -67,12 +90,25 @@ export default class UnitApi {
       await setDoc(itemRef, item, {
         merge: true,
       });
+
       // create in store
       this.store.bodyCorperate.unit.load([item]);
+      this.ui.snackbar.load({
+        id: Date.now(),
+        message: "Unit created!",
+        type: "success",
+      });
     } catch (error) {
-      // console.log(error);
+      console.error(error);
+      this.ui.snackbar.load({
+        id: Date.now(),
+        message: "Unit not created!",
+        type: "danger",
+      });
     }
   }
+
+
 
   async update(item: IUnit, pid: string) {
     const myPath = `BodyCoperate/${pid}/Units`;
