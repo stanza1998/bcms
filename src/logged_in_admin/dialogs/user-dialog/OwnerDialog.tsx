@@ -154,7 +154,7 @@ const OwnerDialog = observer(() => {
                       className="uk-input "
                       type="number"
                       placeholder="Cellphone Number"
-                      value={user.cellphone}
+                      value={user.cellphone === 0 ? "" : user.cellphone}
                       onChange={(e) =>
                         setUser({ ...user, cellphone: Number(e.target.value) })
                       }

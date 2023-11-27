@@ -402,8 +402,8 @@ const MainRoutes = observer(() => {
 
 const App = () => {
   const store = new AppStore();
-  const api = new AppApi(store);
   const ui = new UiStore();
+  const api = new AppApi(store, ui);
 
   return (
     <div className="app">

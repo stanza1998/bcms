@@ -9,6 +9,7 @@ import EmailApi from "./email-notifiction-function/EmailApi";
 import UnitApi from "./bodyCorperate/customers/UnitApi";
 import CommunicationApi from "./CommunicationApi";
 import MaintenanceApi from "./MaintenanceApi";
+import UiStore from "../stores/UiStore";
 
 export const apiPathProperty = (
   category: "Units" | "FinancialYear"
@@ -35,14 +36,14 @@ export default class AppApi {
   // settings
   settings: SystemSettingsApi;
 
-  constructor(private store: AppStore) {
+  constructor(private store: AppStore, private ui: UiStore) {
     this.department = new DepartmentApi(this, this.store, this.departmentDB);
     this.auth = new UserApi(this, this.store);
     this.settings = new SystemSettingsApi(this, store);
     this.body = new BodyCorpetaApi(this, store);
     this.communication = new CommunicationApi(this, store);
     this.maintenance = new MaintenanceApi(this, store);
-    this.unit = new UnitApi(this, store);
+    this.unit = new UnitApi(this, store, ui);
     this.mail = new EmailApi(this, store, this.mailUri);
   }
 }

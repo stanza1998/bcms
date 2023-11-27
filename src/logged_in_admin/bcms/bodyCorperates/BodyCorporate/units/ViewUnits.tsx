@@ -42,9 +42,24 @@ export const ViewUnit = observer(() => {
   const [ref, setRef] = useState("");
   const me = store.user.meJson;
   const [selection, setSelection] = useState<string>("");
+  const [ownerId, setOwnerId] = useState<string>("");
+
   const units = store.bodyCorperate.unit.all.map((inv) => {
     return inv.asJson;
   });
+
+  const owners = store.user.all
+    .filter((u) => u.asJson.role === "Owner")
+    .map((u) => {
+      return {
+        label: u.asJson.firstName + " " + u.asJson.lastName,
+        value: u.asJson.uid,
+      };
+    });
+
+  const handleOwnerSelect = (id: string) => {
+    setOwnerId(id);
+  };
 
   const [viewBody, setBody] = useState<IBodyCop | undefined>({
     ...defaultBodyCop,
@@ -123,20 +138,20 @@ export const ViewUnit = observer(() => {
       } else {
         // Add the default category ID to the tradingType object
         if (viewBody?.id) unit.bodyCopId = viewBody?.id;
-
+        unit.ownerId = ownerId;
         await api.unit.create(unit, me.property);
         // if (supp) await store.inventory.tradingCategories.load([supp]);
-        ui.snackbar.load({
-          id: Date.now(),
-          message: "unit created!",
-          type: "success",
-        });
+        // ui.snackbar.load({
+        //   id: Date.now(),
+        //   message: "unit created!",
+        //   type: "success",
+        // });
       }
       resetMaterial();
     } catch (error) {
       ui.snackbar.load({
         id: Date.now(),
-        message: "Error! Failed to update tradingCategories.",
+        message: "Error! Failed to update Trading Categories.",
         type: "danger",
       });
     }
@@ -546,7 +561,7 @@ export const ViewUnit = observer(() => {
               type="text"
               name=""
               id=""
-              className="uk-input uk-form-small uk-margin-left"
+              className="uk-input uk-margin-left"
               placeholder="Search by Unit Name"
               style={{ width: "30%" }}
               value={searchQuery}
@@ -587,10 +602,9 @@ export const ViewUnit = observer(() => {
                     </label>
                     <div className="uk-form-controls">
                       <input
-                        className="uk-input uk-form-small"
+                        className="uk-input"
                         type="Number"
-                        // placeholder="Type"
-                        value={unit.unitName}
+                        value={unit.unitName === 0 ? "" : unit.unitName}
                         onChange={(e) =>
                           _setUnit({
                             ...unit,
@@ -609,9 +623,13 @@ export const ViewUnit = observer(() => {
                       Select Owner
                     </label>
                     <div className="uk-form-controls">
-                      <select
+                      <SingleSelect
+                        options={owners}
+                        onChange={handleOwnerSelect}
+                      />
+                      {/* <select
                         name=""
-                        className="uk-input uk-form-small"
+                        className="uk-input"
                         id=""
                         value={unit.ownerId}
                         onChange={(e) =>
@@ -629,7 +647,7 @@ export const ViewUnit = observer(() => {
                               {owner.firstName} {owner.lastName}
                             </option>
                           ))}
-                      </select>
+                      </select> */}
                     </div>
                   </div>
                   <div className="footer uk-margin">
