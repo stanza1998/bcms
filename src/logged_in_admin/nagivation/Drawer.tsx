@@ -16,7 +16,7 @@ import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ApartmentIcon from "@mui/icons-material/Apartment";
 import { ACTIONLIST } from "./Account";
-import "uikit/dist/css/uikit.min.css";
+//import "uikit/dist/css/uikit.min.css";
 
 declare const UIkit: any;
 

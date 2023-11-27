@@ -52,6 +52,7 @@ export const PropertyDialog = observer(() => {
 
   const onClear = () => {
     store.bodyCorperate.bodyCop.clearSelected();
+    setBodyCop({ ...defaultBodyCop });
   };
 
   useEffect(() => {
@@ -79,6 +80,9 @@ export const PropertyDialog = observer(() => {
               <div className="uk-width-1-2@s ">
                 <label className="uk-form-label" htmlFor="property-name">
                   Property Name
+                  {body.BodyCopName === "" && (
+                  <span style={{ color: "red" }}>*</span>
+                )}
                 </label>
                 <div className="uk-form-controls">
                   <input
@@ -97,6 +101,9 @@ export const PropertyDialog = observer(() => {
               <div className="uk-width-1-2@s ">
                 <label className="uk-form-label" htmlFor="property-location">
                   Property Location
+                  {body.location === "" && (
+                  <span style={{ color: "red" }}>*</span>
+                )}
                 </label>
                 <div className="uk-form-controls">
                   <input
@@ -108,6 +115,7 @@ export const PropertyDialog = observer(() => {
                     onChange={(e) =>
                       setBodyCop({ ...body, location: e.target.value })
                     }
+                    required
                   />
                 </div>
               </div>
@@ -115,24 +123,39 @@ export const PropertyDialog = observer(() => {
               <div className="uk-width-1-2@s ">
                 <label className="uk-form-label" htmlFor="bank-name">
                   Bank Name
+                  {body.bankName === "" && (
+                  <span style={{ color: "red" }}>*</span>
+                )}
                 </label>
                 <div className="uk-form-controls">
-                  <input
-                    id="bank-name"
-                    className="uk-input"
-                    type="text"
-                    placeholder="Bank Name"
+                  <select
+                    className="uk-input uk-select"
                     value={body.bankName}
                     onChange={(e) =>
-                      setBodyCop({ ...body, bankName: e.target.value })
+                      setBodyCop({
+                        ...body,
+                        bankName: e.target.value,
+                      })
                     }
-                  />
+                    required
+                  >
+                    <option value={""}>--Select--</option>
+                    <option value="First National Bank">
+                      First National Bank
+                    </option>
+                    <option value="Standard Bank">Standard Bank</option>
+                    <option value="Bank Windhoek">Bank Windhoek</option>
+                    <option value="Nedbank">Nedbank</option>
+                  </select>
                 </div>
               </div>
 
               <div className="uk-width-1-2@s ">
                 <label className="uk-form-label" htmlFor="account-name">
                   Account Name
+                  {body.accountName === "" && (
+                  <span style={{ color: "red" }}>*</span>
+                )}
                 </label>
                 <div className="uk-form-controls">
                   <input
@@ -144,6 +167,7 @@ export const PropertyDialog = observer(() => {
                     onChange={(e) =>
                       setBodyCop({ ...body, accountName: e.target.value })
                     }
+                    required
                   />
                 </div>
               </div>
@@ -151,6 +175,9 @@ export const PropertyDialog = observer(() => {
               <div className="uk-width-1-2@s ">
                 <label className="uk-form-label" htmlFor="account-number">
                   Account Number
+                  {body.accountNumber === "" && (
+                  <span style={{ color: "red" }}>*</span>
+                )}
                 </label>
                 <div className="uk-form-controls">
                   <input
@@ -162,13 +189,40 @@ export const PropertyDialog = observer(() => {
                     onChange={(e) =>
                       setBodyCop({ ...body, accountNumber: e.target.value })
                     }
+                    required
                   />
                 </div>
               </div>
-
+              <div className="uk-width-1-2@s ">
+                <label className="uk-form-label" htmlFor="account-style">
+                  Account Style
+                  {body.accountStyle === "" && (
+                  <span style={{ color: "red" }}>*</span>
+                )}
+                </label>
+                <div className="uk-form-controls">
+                  <select
+                    className="uk-input uk-select"
+                    value={body.accountStyle}
+                    onChange={(e) =>
+                      setBodyCop({
+                        ...body,
+                        accountStyle: e.target.value,
+                      })
+                    }
+                    required
+                  >
+                    <option value={""}>--Select--</option>
+                    <option value={"Cheque"}>Cheque</option>
+                    <option value={"Savings"}>Savings</option>
+                  </select>
+                </div>
+              </div>
               <div className="uk-width-1-2@s ">
                 <label className="uk-form-label" htmlFor="branch-name">
-                  Branch Name
+                  Branch Name     {body.branchName === "" && (
+                  <span style={{ color: "red" }}>*</span>
+                )}
                 </label>
                 <div className="uk-form-controls">
                   <input
@@ -187,6 +241,9 @@ export const PropertyDialog = observer(() => {
               <div className="uk-width-1-2@s ">
                 <label className="uk-form-label" htmlFor="branch-code">
                   Branch Code
+                  {body.branchCode === "" && (
+                  <span style={{ color: "red" }}>*</span>
+                )}
                 </label>
                 <div className="uk-form-controls">
                   <input
@@ -198,24 +255,7 @@ export const PropertyDialog = observer(() => {
                     onChange={(e) =>
                       setBodyCop({ ...body, branchCode: e.target.value })
                     }
-                  />
-                </div>
-              </div>
-
-              <div className="uk-width-1-2@s ">
-                <label className="uk-form-label" htmlFor="account-style">
-                  Account Style
-                </label>
-                <div className="uk-form-controls">
-                  <input
-                    id="account-style"
-                    className="uk-input"
-                    type="text"
-                    placeholder="Account Style"
-                    value={body.accountStyle}
-                    onChange={(e) =>
-                      setBodyCop({ ...body, accountStyle: e.target.value })
-                    }
+                    required
                   />
                 </div>
               </div>
@@ -254,3 +294,21 @@ export const PropertyDialog = observer(() => {
     </div>
   );
 });
+
+//  <div className="uk-form-controls">
+//                   <input  id="bank-name"
+//                     className="uk-input"
+//                     type="text"
+//                     placeholder="Bank Name"
+//                     value={body.bankName}
+//                     onChange={(e) =>
+//                       setBodyCop({ ...body, bankName: e.target.value })
+//                     }>
+//                     <select className="uk-select">
+//                       <option>First National Bank</option>
+//                       <option>Bank Windhoek</option>
+//                       <option>NedBank</option>
+//                       <option>Standard Bank</option>
+//                     </select>
+//                   </input>
+//                 </div>

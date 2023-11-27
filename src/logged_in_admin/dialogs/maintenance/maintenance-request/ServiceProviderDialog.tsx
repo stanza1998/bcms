@@ -38,7 +38,7 @@ export const ServiceProviderDialog = observer(() => {
       } else {
         // maintenanceRequest.authorOrSender = me.uid;
         //servie_provider.dateRequested = currentDate.toLocaleTimeString();
-
+        serviceProviderRequest.dateCreated = currentDate.toUTCString();
         await api.maintenance.service_provider.create(
             serviceProviderRequest,
           me.property
@@ -148,7 +148,7 @@ export const ServiceProviderDialog = observer(() => {
                 />
               </div>
             </div>
-            <div className="uk-margin">
+            {/* <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Date Created 
                 {serviceProviderRequest.dateCreated==="" && <span style={{color:"red", marginLeft:"10px"}}>*</span>}
@@ -168,7 +168,7 @@ export const ServiceProviderDialog = observer(() => {
                   required
                 />
               </div>
-            </div>
+            </div> */}
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Specialisation 
