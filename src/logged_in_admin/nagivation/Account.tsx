@@ -11,6 +11,7 @@ import { db } from "../../shared/database/FirebaseConfig";
 import { FailedAction, SuccessfulAction } from "../../shared/models/Snackbar";
 import { IPropertyBankAccount } from "../../shared/models/property-bank-account/PropertyBankAccount";
 import Modal from "../../shared/components/Modal";
+import SingleSelect from "../../shared/components/single-select/SlingleSelect";
 
 export const ACTIONLIST = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -36,7 +37,17 @@ export const ACTIONLIST = observer(() => {
     showModalFromId(DIALOG_NAMES.BODY.BANK_ACCOUNT);
   };
 
-  const properties = store.bodyCorperate.bodyCop.all;
+  const properties = store.bodyCorperate.bodyCop.all.map((p) => {
+    return {
+      label: p.asJson.BodyCopName,
+      value: p.asJson.id,
+    };
+  });
+
+  const handleSelectPropety = (id: string) => {
+    setPropertyId(id);
+  };
+
   const years = store.bodyCorperate.financialYear.all;
   const months = store.bodyCorperate.financialMonth.all.map((m) => {
     return m.asJson;
@@ -186,7 +197,8 @@ export const ACTIONLIST = observer(() => {
             data-uk-close
           ></button>
           <h5 className="uk-modal-title">Select Property</h5>
-          <select
+          <SingleSelect onChange={handleSelectPropety} options={properties} />
+          {/* <select
             className="uk-input"
             onChange={(e) => setPropertyId(e.target.value)}
           >
@@ -194,7 +206,7 @@ export const ACTIONLIST = observer(() => {
             {properties.map((p) => (
               <option value={p.asJson.id}>{p.asJson.BodyCopName}</option>
             ))}
-          </select>
+          </select> */}
           <br />
           {propertyId !== "" && (
             <button

@@ -15,6 +15,7 @@ import {
   cannotCreateSP,
   cannotCreateMeetingFolder,
   cannotCreateDocumentFolder,
+  canViewPropertyDetails,
 } from "../shared/common";
 import { AnnouncementDistribution } from "./dashboardGraphs.tsx/AnnouncementDistrunbution";
 import { MaintenananceRequestChart } from "./dashboardGraphs.tsx/MaintenaceRequestChart";
@@ -29,16 +30,36 @@ import { MeetingFolderDialog } from "../dialogs/communication-dialogs/meetings/M
 import { DocumentCategoryDialog } from "../dialogs/communication-dialogs/documents/DocumentCategories";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
+import { NoUnit } from "../shared/no-unit-shared/NoUnit";
 
 const Dashboard = observer(() => {
   const { store, api } = useAppContext();
-  const me = store.user.meJson?.role;
+  const me = store.user.meJson;
+
+  console.log(me?.role);
+
+  const units = store.bodyCorperate.unit.all.map((u) => u.asJson);
+
+  useEffect(() => {
+    const getData = async () => {
+      if (me?.property) {
+        await api.unit.getAll(me.property);
+      }
+    };
+    getData();
+  }, [api.unit, me?.property]);
 
   return (
     <div className="uk-section leave-analytics-page">
       <div className="uk-container uk-container-large">
-        {me === "Owner" && <ManagerDashBoard />}
-        {me === "Admin" && <ManagerDashBoard />}
+        {me?.role === "Owner" &&
+        canViewPropertyDetails(me?.uid || "", units) ? (
+          <ManagerDashBoard />
+        ) : me?.role === "Admin" ? (
+          <ManagerDashBoard />
+        ) : (
+          <NoUnit />
+        )}
       </div>
     </div>
   );
@@ -243,9 +264,7 @@ const ManagerDashBoard = () => {
                           <h3 className="number">{totalNewNotices}</h3>
                           <div className="button-section">
                             {cannotCreateNotices(me?.role || "") && (
-                              <button onClick={onCreateNotice}>
-                                Create
-                              </button>
+                              <button onClick={onCreateNotice}>Create</button>
                             )}
                           </div>
                         </div>
@@ -254,14 +273,10 @@ const ManagerDashBoard = () => {
                     <Grid item xs={12} sm={12} md={4} lg={4} xl={4}>
                       <div className="uk-card">
                         <div className="uk-card-body">
-                          <h3 className="uk-card-title">
-                            New Requests
-                          </h3>
+                          <h3 className="uk-card-title">New Requests</h3>
                           <h3 className="number">{totalNewRequests}</h3>
                           <div className="button-section">
-                            <button onClick={onCreateRequest}>
-                              Create
-                            </button>
+                            <button onClick={onCreateRequest}>Create</button>
                           </div>
                         </div>
                       </div>
@@ -273,9 +288,7 @@ const ManagerDashBoard = () => {
                           <h3 className="number">{totalServiceProviders}</h3>
                           <div className="button-section">
                             {cannotCreateSP(me?.role || "") && (
-                              <button onClick={onCreateSP}>
-                                Create
-                              </button>
+                              <button onClick={onCreateSP}>Create</button>
                             )}
                           </div>
                         </div>
@@ -284,9 +297,7 @@ const ManagerDashBoard = () => {
                     <Grid item xs={12} sm={12} md={4} lg={4} xl={4}>
                       <div className="uk-card">
                         <div className="uk-card-body">
-                          <h3 className="uk-card-title">
-                            Meeting Folders
-                          </h3>
+                          <h3 className="uk-card-title">Meeting Folders</h3>
                           <h3 className="number">{totalMeetings}</h3>
                           <div className="button-section">
                             {cannotCreateMeetingFolder(me?.role || "") && (
@@ -301,9 +312,7 @@ const ManagerDashBoard = () => {
                     <Grid item xs={12} sm={12} md={4} lg={4} xl={4}>
                       <div className="uk-card">
                         <div className="uk-card-body">
-                          <h3 className="uk-card-title">
-                            Document Folders
-                          </h3>
+                          <h3 className="uk-card-title">Document Folders</h3>
                           <h3 className="number">{totalDocuments}</h3>
                           <div className="button-section">
                             {cannotCreateDocumentFolder(me?.role || "") && (

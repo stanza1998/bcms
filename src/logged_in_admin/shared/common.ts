@@ -507,6 +507,7 @@ export function findPropertyUsersEmails(owners: IUser[], units: IUnit[]): string
         .filter(owner => _units.some(unit => unit.ownerId === owner.uid))
         .map(owner => owner.email);
     return propertyUsers;
+
 }
 export function findPropertyUsers(owners: any[], units: IUnit[]): { value: string; label: string }[] {
     const _owners = owners.filter((u) => u.role === "Owner").map((u) => u);
@@ -523,7 +524,12 @@ export function findPropertyUsers(owners: any[], units: IUnit[]): { value: strin
 }
 
 
-
-
+export function canViewPropertyDetails(ownerId: string, units: IUnit[]): boolean {
+    // Check if there is at least one unit with the specified ownerId
+    const hasUnit = units.some(unit => unit.ownerId === ownerId);
+   
+    // Return true if at least one unit is found, otherwise return false
+    return hasUnit;
+}
 
 
