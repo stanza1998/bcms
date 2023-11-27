@@ -12,7 +12,7 @@ if (currentHour < 12) {
     greeting = "Good Evening";
 }
 
-
+//notices
 export const MAIL_ANNOUNCEMENTS = (
     title: string | null | undefined,
     message: string | null | undefined
@@ -36,6 +36,44 @@ export const MAIL_ANNOUNCEMENTS = (
 };
 
 
+
+
+
+
+//meetings
+
+export const MAIL_MEETINGS = (
+    title: string | null | undefined,
+    message: string | null | undefined,
+    startDate: string | null | undefined,
+    meeting_location: string | null | undefined,
+    meeting_link: string | null | undefined
+) => {
+    const MY_SUBJECT = `${title}`
+    const MY_BODY = [
+        `${greeting}`,
+        "",
+        `${message}`,
+        "",
+        `The commencement of the meeting was scheduled for ${startDate}.`,
+        // Conditionally include Location if not empty
+        ...(meeting_location ? [`Location: ${meeting_location}`] : []),
+        // Conditionally include Meeting Link if not empty
+        ...(meeting_link ? [`Meeting Link: ${meeting_link}`] : []),
+        "",
+        "Regards,",
+        `${username}`,
+        "",
+        `${link}`
+    ];
+    return {
+        MY_SUBJECT: MY_SUBJECT,
+        MY_BODY: MY_BODY.join("<br/>")
+    };
+}
+
+
+//maintenance SP
 export const MAIL_SERVICE_PROVIDER_LINK = (
     title: string | null | undefined,
     message: string | null | undefined,
@@ -119,36 +157,14 @@ export const MAIL_WORK_ORDER_WINDOW_PERIOD_EXTENDED = (
 }
 
 
+//owners notifications maintenance
+
+//1. CREATE REQUEST
+//2. WHEN MANAGER CREATES A REQUEST FOR THEM
+//3. WHEN OPENED
+//4. COMPLETED
 
 
-export const MAIL_MEETINGS = (
-    title: string | null | undefined,
-    message: string | null | undefined,
-    startDate: string | null | undefined,
-    meeting_location: string | null | undefined,
-    meeting_link: string | null | undefined
-) => {
-    const MY_SUBJECT = `${title}`
-    const MY_BODY = [
-        `${greeting}`,
-        "",
-        `${message}`,
-        "",
-        `The commencement of the meeting was scheduled for ${startDate}.`,
-        // Conditionally include Location if not empty
-        ...(meeting_location ? [`Location: ${meeting_location}`] : []),
-        // Conditionally include Meeting Link if not empty
-        ...(meeting_link ? [`Meeting Link: ${meeting_link}`] : []),
-        "",
-        "Regards,",
-        `${username}`,
-        "",
-        `${link}`
-    ];
-    return {
-        MY_SUBJECT: MY_SUBJECT,
-        MY_BODY: MY_BODY.join("<br/>")
-    };
-}
 
-
+//manager notifications maintenance
+//1. WHEN OWNER CREATES A REQUEST

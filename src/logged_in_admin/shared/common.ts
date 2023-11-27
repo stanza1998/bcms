@@ -20,6 +20,9 @@ import { IAnnouncements } from "../../shared/models/communication/announcements/
 import { IMaintenanceRequest } from "../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
 import { IUnit } from "../../shared/models/bcms/Units";
 import { IServiceProvider } from "../../shared/models/maintenance/service-provider/ServiceProviderModel";
+import { IBodyCop } from "../../shared/models/bcms/BodyCorperate";
+
+
 
 
 export const getFileExtension = (url: string): string => {
@@ -496,6 +499,28 @@ export function cannotCreateDocumentFolder(role: string): boolean {
     }
 }
 
+
+export function findPropertyUsersEmails(owners: IUser[], units: IUnit[]): string[] {
+    const _owners = owners.filter((u) => u.role === "Owner").map((u) => u)
+    const _units = units.map((u) => { return u })
+    const propertyUsers = _owners
+        .filter(owner => _units.some(unit => unit.ownerId === owner.uid))
+        .map(owner => owner.email);
+    return propertyUsers;
+}
+export function findPropertyUsers(owners: any[], units: IUnit[]): { value: string; label: string }[] {
+    const _owners = owners.filter((u) => u.role === "Owner").map((u) => u);
+    const _units = units.map((u) => ({ ...u })); // Shallow copy of units
+
+    const propertyUsers = _owners
+        .filter(owner => _units.some(unit => unit.ownerId === owner.uid))
+        .map(owner => ({
+            value: owner.uid,
+            label: owner.firstName + " " + owner.lastName,
+        }));
+
+    return propertyUsers;
+}
 
 
 
