@@ -3,10 +3,12 @@ import { IBodyCop } from "../../../../shared/models/bcms/BodyCorperate";
 import { observer } from "mobx-react-lite";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { CorporateCard } from "./CorporateCard";
-import { Box } from "@mui/material";
+import { Box, IconButton } from "@mui/material";
 import { useAppContext } from "../../../../shared/functions/Context";
 import FlightIcon from "@mui/icons-material/Flight";
 import AirplanemodeInactiveIcon from "@mui/icons-material/AirplanemodeInactive";
+import ToggleOffIcon from "@mui/icons-material/ToggleOff";
+import ToggleOnIcon from "@mui/icons-material/ToggleOn";
 
 interface IProp {
   data: IBodyCop[];
@@ -24,9 +26,19 @@ const CustomerGrid = observer(({ data }: IProp) => {
       renderCell: (params) => (
         <div>
           {params.row.id === me?.property ? (
-            <FlightIcon style={{ color: "#01aced" }} />
+            <IconButton>
+              <ToggleOnIcon
+                data-uk-tooltip="Active Property"
+                style={{ color: "#01aced" }}
+              />
+            </IconButton>
           ) : (
-            <AirplanemodeInactiveIcon style={{ color: "grey" }} />
+            <IconButton>
+              <ToggleOffIcon
+                data-uk-tooltip="Not active"
+                style={{ color: "grey" }}
+              />
+            </IconButton>
           )}
         </div>
       ),

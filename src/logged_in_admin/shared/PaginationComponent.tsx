@@ -46,9 +46,7 @@ const Pagination: React.FC<PaginationProps> = ({
         buttons.push(
           <button
             key={i}
-            className={`pagination-button ${
-              currentPage === i ? "active" : ""
-            }`}
+            className={`pagination-button ${currentPage === i ? "active" : ""}`}
             onClick={() => handlePageChange(i)}
           >
             {i}
@@ -81,9 +79,7 @@ const Pagination: React.FC<PaginationProps> = ({
         buttons.push(
           <button
             key={i}
-            className={`pagination-button ${
-              currentPage === i ? "active" : ""
-            }`}
+            className={`pagination-button ${currentPage === i ? "active" : ""}`}
             onClick={() => handlePageChange(i)}
           >
             {i}
@@ -110,7 +106,7 @@ const Pagination: React.FC<PaginationProps> = ({
           Back
         </button>
 
-        {renderPageButtons()}
+        {/* {renderPageButtons()} */}
 
         <button
           className="pagination-button"
@@ -119,7 +115,7 @@ const Pagination: React.FC<PaginationProps> = ({
         >
           Next
           <FontAwesomeIcon
-          style={{marginLeft:"6px"}}
+            style={{ marginLeft: "6px" }}
             icon={faArrowAltCircleRight}
             className="pagination-icons"
           />

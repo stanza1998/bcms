@@ -95,11 +95,11 @@ const OwnersTable = observer(({ data }: IProp) => {
             data-uk-icon="pencil"
             onClick={() => onUpdate(params.row)}
           ></button>
-          <button
+          {/* <button
             className="uk-margin-right uk-icon"
             data-uk-icon="trash"
             onClick={() => onDelete(params.row)}
-          ></button>
+          ></button> */}
         </div>
       ),
     },

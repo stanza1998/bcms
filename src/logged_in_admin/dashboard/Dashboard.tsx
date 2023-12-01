@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { useAppContext } from "../../shared/functions/Context";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Grid, IconButton, Paper, styled } from "@mui/material";
 import "./DashboardCard.scss";
 import "./Dashtable.scss";
@@ -73,6 +73,26 @@ const ManagerDashBoard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
+  const closed = store.maintenance.maintenance_request.all.filter(
+    (a) => a.asJson.status === "Closed"
+  ).length;
+  const opened = store.maintenance.maintenance_request.all.filter(
+    (a) => a.asJson.status === "Opened"
+  ).length;
+  const completed = store.maintenance.maintenance_request.all.filter(
+    (a) => a.asJson.status === "Completed"
+  ).length;
+
+  const low = store.communication.announcements.all.filter(
+    (a) => a.asJson.priorityLevel === "LOW"
+  ).length;
+  const medium = store.communication.announcements.all.filter(
+    (a) => a.asJson.priorityLevel === "MEDIUM"
+  ).length;
+  const high = store.communication.announcements.all.filter(
+    (a) => a.asJson.priorityLevel === "HIGH"
+  ).length;
+
   const notices = store.communication.announcements.all
     .map((announcement) => {
       return announcement.asJson;
@@ -108,20 +128,79 @@ const ManagerDashBoard = () => {
   //   )
   // }
 
+  const getAnnouncementAPI = useMemo(() => api.communication.announcement, []);
+  const getMaintenanceRequestAPI = useMemo(
+    () => api.maintenance.maintenance_request,
+    []
+  );
+  const getServiceProviderApi = useMemo(
+    () => api.maintenance.service_provider,
+    []
+  );
+  const getMeetingFoldersApi = useMemo(
+    () => api.communication.meetingFolder,
+    []
+  );
+  const getDocumentCategoryApi = useMemo(
+    () => api.communication.documentCategory,
+    []
+  );
+
+  const getUnitsApi = useMemo(() => api.unit, []);
+
+  const memoizedDependencies = useMemo(
+    () => [
+      getAnnouncementAPI,
+      getMaintenanceRequestAPI,
+      getServiceProviderApi,
+      getDocumentCategoryApi,
+      getMeetingFoldersApi,
+      getUnitsApi,
+      me?.property,
+      me?.year,
+    ],
+    [
+      getAnnouncementAPI,
+      getMaintenanceRequestAPI,
+      getServiceProviderApi,
+      getDocumentCategoryApi,
+      getMeetingFoldersApi,
+      getUnitsApi,
+      me?.property,
+      me?.year,
+    ]
+  );
+
   useEffect(() => {
     const getData = async () => {
       setIsLoading(true);
       if (me?.property && me?.year) {
         try {
-          await api.communication.announcement.getAll(me.property, me.year);
-          await api.maintenance.maintenance_request.getAll(me.property);
-          await api.maintenance.service_provider.getAll(me.property);
-          await api.communication.meetingFolder.getAll(me.property);
-          await api.communication.documentCategory.getAll(me.property);
-          await api.unit.getAll(me.property);
-          // await api.maintenance.maintenance_request.getAll(me.property); //meetings
-          await api.auth.loadAll();
-          await api.body.supplier.getAll(me.property);
+          const announcementPromise = getAnnouncementAPI.getAll(
+            me.property,
+            me.year
+          );
+          const maintenanceRequestPromise = getMaintenanceRequestAPI.getAll(
+            me.property
+          );
+          const serviceProviderPromise = getServiceProviderApi.getAll(
+            me.property
+          );
+          const documentCategoryPromise = getDocumentCategoryApi.getAll(
+            me.property
+          );
+          const meetingFolderPromise = getMeetingFoldersApi.getAll(me.property);
+          const unitPromise = getUnitsApi.getAll(me.property);
+
+          await Promise.all([
+            announcementPromise,
+            maintenanceRequestPromise,
+            serviceProviderPromise,
+            documentCategoryPromise,
+            meetingFolderPromise,
+            unitPromise,
+          ]);
+
           setIsLoading(false);
         } catch (error) {
           console.log(error);
@@ -130,18 +209,7 @@ const ManagerDashBoard = () => {
       setIsLoading(false);
     };
     getData();
-  }, [
-    api.auth,
-    api.body.supplier,
-    api.communication.announcement,
-    api.communication.documentCategory,
-    api.communication.meetingFolder,
-    api.maintenance.maintenance_request,
-    api.maintenance.service_provider,
-    api.unit,
-    me?.property,
-    me?.year,
-  ]);
+  }, [...memoizedDependencies]);
 
   const totalNewRequests = maintenanceRequests.length;
   const totalServiceProviders = serviceProviders.length;
@@ -354,7 +422,7 @@ const ManagerDashBoard = () => {
                         <tbody>
                           {maintenanceRequest.map((r, index) => (
                             <tr key={r.id}>
-                              <td>{index}</td>
+                              <td>{index + 1}</td>
                               <td style={{ textTransform: "uppercase" }}>
                                 {getUserNameRequest(
                                   users,
@@ -410,43 +478,6 @@ const ManagerDashBoard = () => {
                       </table>
                     </div>
                   </div>
-                  {/* <div>
-                    <h4
-                      className="uk-title"
-                      style={{
-                        textTransform: "uppercase",
-                        color: "grey",
-                        fontSize: "12px",
-                        fontWeight: "600",
-                      }}
-                    >
-                      Recently Added SP's
-                    </h4>
-                    <div className="table-container">
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>Tile</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th>Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>John Doe</td>
-                            <td>Developer</td>
-                            <td>Developer</td>
-                          </tr>
-                          <tr>
-                            <td>Jane Smith</td>
-                            <td>Designer</td>
-                            <td>Designer</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div> */}
                 </div>
               </Item>
             </Grid>
@@ -471,7 +502,11 @@ const ManagerDashBoard = () => {
                   </Grid>
                   <Grid item xs={12}>
                     <Paper>
-                      <AnnouncementDistribution />
+                      <AnnouncementDistribution
+                        low={low}
+                        medium={medium}
+                        high={high}
+                      />
                     </Paper>
                   </Grid>
                 </Grid>
@@ -494,7 +529,11 @@ const ManagerDashBoard = () => {
                   </Grid>
                   <Grid item xs={12}>
                     <Paper>
-                      <MaintenananceRequestChart />
+                      <MaintenananceRequestChart
+                        closed={closed}
+                        opened={opened}
+                        completed={completed}
+                      />
                     </Paper>
                   </Grid>
                 </Grid>

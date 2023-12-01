@@ -43,6 +43,11 @@ const OwnerDialog = observer(() => {
     hideModalFromId(DIALOG_NAMES.OWNER.UPDATE_OWNER_DIALOG);
   };
 
+  const reset = () => {
+    store.user.clearSelected();
+    setUser({ ...defaultUser });
+  };
+
   const onDepartmentChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setUser({
       ...user,
@@ -75,6 +80,7 @@ const OwnerDialog = observer(() => {
         className="uk-modal-close-default"
         type="button"
         data-uk-close
+        onClick={reset}
       ></button>
 
       <h3 className="uk-modal-title">User</h3>

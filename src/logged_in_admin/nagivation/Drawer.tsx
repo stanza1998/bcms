@@ -66,6 +66,7 @@ export const Account = observer((props: IImage) => {
             padding: "3px",
             borderRadius: "3px",
             color: "white",
+            fontSize:"9px"
           }}
         >
           {properties
