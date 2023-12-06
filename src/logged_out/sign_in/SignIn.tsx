@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { ErrorAlert } from "../../shared/components/alert/Alert";
 import { useAppContext } from "../../shared/functions/Context";
@@ -67,6 +67,12 @@ const SignIn = observer(() => {
   };
   const [imageLoaded, setImageLoaded] = useState(false);
 
+  // useEffect(() => {
+  //   return () => {
+  //     // Cleanup function: reset the form when the component unmounts
+  //     setSignInForm({ email: "", password: "" });
+  //   };
+  // }, []);
   const handleImageLoad = () => {
     setImageLoaded(true);
   };

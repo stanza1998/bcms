@@ -8,6 +8,7 @@ import { UserModel } from "../../../shared/models/User";
 import { IUser } from "../../../shared/interfaces/IUser";
 import DIALOG_NAMES from "../../dialogs/Dialogs";
 import UserDialog from "../../dialogs/user-dialog/UserDialog";
+import EditUserDialog from "../../dialogs/user-dialog/EditUserDialog";
 
 interface ToolBarProps {
   showUserDialog: (user?: IUser | undefined) => void;
@@ -112,6 +113,11 @@ const Employees = observer(() => {
     else store.user.clearSelected();
     showModalFromId(DIALOG_NAMES.TEAM.USER_DIALOG);
   };
+  const onEditEmployee = (user?: IUser) => {
+    if (user) store.user.select(user);
+    else store.user.clearSelected();
+    showModalFromId(DIALOG_NAMES.TEAM.EDIT_USER_DIALOG);
+  };
 
   const onDeleteEmployee = async (uid: string) => {
     if (!window.confirm("Delete user?")) return;
@@ -152,7 +158,7 @@ const Employees = observer(() => {
               <EmployeesTable
                 employees={store.user.all}
                 isLoading={loading}
-                onEditEmployee={showUserDialog}
+                onEditEmployee={onEditEmployee}
                 onDeleteEmployee={onDeleteEmployee}
               />
             )}
@@ -162,6 +168,9 @@ const Employees = observer(() => {
 
       <Modal modalId={DIALOG_NAMES.TEAM.USER_DIALOG}>
         <UserDialog />
+      </Modal>
+      <Modal modalId={DIALOG_NAMES.TEAM.EDIT_USER_DIALOG}>
+        <EditUserDialog />
       </Modal>
     </>
   );

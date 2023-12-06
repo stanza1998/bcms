@@ -3,7 +3,7 @@ export const defaultUser: IUser = {
   firstName: "",
   lastName: "",
   email: "",
-  cellphone: 0,
+  cellphone: "",
   password: "",
   departmentId: "",
   departmentName: "",
@@ -24,7 +24,7 @@ export interface IUser {
   firstName: string;
   lastName: string;
   email: string;
-  cellphone: number;
+  cellphone: string;
   password?: string;
   departmentId: string;
   departmentName: string;

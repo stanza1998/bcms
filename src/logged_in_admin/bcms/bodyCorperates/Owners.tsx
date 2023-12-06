@@ -7,29 +7,27 @@ import { UserModel } from "../../../shared/models/User";
 import { IUser, defaultUser } from "../../../shared/interfaces/IUser";
 import DIALOG_NAMES from "../../dialogs/Dialogs";
 import OwnersTable from "./OwnersGrid";
-import showModalFromId from "../../../shared/functions/ModalShow";
+import showModalFromId, { hideModalFromId } from "../../../shared/functions/ModalShow";
 import OwnerDialog from "../../dialogs/user-dialog/OwnerDialog";
+import { USER_ROLES } from "../../../shared/constants/USER_ROLES";
 
 interface ToolBarProps {
   showUserDialog: (user?: IUser | undefined) => void;
 }
 
 const ToolBar = (props: ToolBarProps) => {
-  const { showUserDialog } = props;
-
-  const onCreate = () => {
-    showModalFromId(DIALOG_NAMES.OWNER.UPDATE_OWNER_DIALOG);
+  const onAdd = () => {
+    showModalFromId(DIALOG_NAMES.OWNER.ADD_OWNER_DIALOG);
   };
-
   return (
     <div className="section-toolbar uk-margin">
       <h4 className="section-heading uk-heading">OWNERS</h4>
       <div className="controls">
-        <button className="uk-button primary" onClick={onCreate}>
+        <button className="uk-button primary" onClick={onAdd}>
           Add Owner
         </button>
       </div>
-      <Modal modalId={DIALOG_NAMES.OWNER.UPDATE_OWNER_DIALOG}>
+      <Modal modalId={DIALOG_NAMES.OWNER.ADD_OWNER_DIALOG}>
         <OwnerDialog />
       </Modal>
     </div>
@@ -132,9 +130,11 @@ const Owners = observer(() => {
   });
 
   const showUserDialog = (user?: IUser) => {
-    if (user) store.user.select(user);
+    if (user){
+      store.user.select(user);
+      showModalFromId(DIALOG_NAMES.OWNER.UPDATE_OWNER_DIALOG);
+    } 
     else store.user.clearSelected();
-    // showModalFromId(DIALOG_NAMES.TEAM.OWNER_DIALOG);
   };
 
   const onDeleteEmployee = async (uid: string) => {
@@ -171,19 +171,24 @@ const Owners = observer(() => {
     return () => {};
   }, [loadEmployees]);
 
+ 
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     // Update API
     if (store.user.selected) {
-      const emp = await api.auth.updateUser(employees);
+     const emp = await api.auth.updateUser(employees);
+     //await api.auth.createUser(employees); //create for now
+     hideModalFromId(DIALOG_NAMES.OWNER.UPDATE_OWNER_DIALOG);
+
       store.user.getById(employees.uid);
       ui.snackbar.load({
         id: Date.now(),
-        message: "User updated!",
+        message: "Owner Updated!",
         type: "success",
       });
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -227,7 +232,7 @@ const Owners = observer(() => {
           <div className="dialog-content uk-position-relative">
             <div className="reponse-form">
               <form className="uk-form-stacked" onSubmit={onSave}>
-                <div className="uk-margin">
+                {/* <div className="uk-margin">
                   <label className="uk-form-label" htmlFor="form-stacked-text">
                     FirstName
                   </label>
@@ -269,7 +274,7 @@ const Owners = observer(() => {
                       />
                     </div>
                   </div>
-                </div>
+                </div> */}
                 <div className="uk-margin">
                   <label className="uk-form-label" htmlFor="form-stacked-text">
                     Email
@@ -289,6 +294,40 @@ const Owners = observer(() => {
                     />
                   </div>
                 </div>
+                {/* <div className="uk-margin">
+                  <div className="uk-form-label">Role</div>
+                  <div className="uk-form-controls">
+                    <div className="uk-margin">
+                      <select
+                        className="uk-select "
+                        value={employees.role}
+                        onChange={(e) =>
+                          setEmployee({ ...employees, role: e.target.value })
+                        }
+                        required
+                      >
+                        <option>Select...</option>
+                        <option value={USER_ROLES.ADMIN}>Administrator</option>
+                        <option value={USER_ROLES.HUMAN_RESOURCE}>
+                          Human Resources
+                        </option>
+                        <option value={USER_ROLES.DIRECTOR}>Director</option>
+                        <option value={USER_ROLES.MANAGING_DIRECTOR}>
+                          Managing Director
+                        </option>
+                        <option value={USER_ROLES.GENERAL_MANAGER}>
+                          General Manager
+                        </option>
+                        <option value={USER_ROLES.MANAGER}>Manager</option>
+                        <option value={USER_ROLES.SUPERVISOR}>
+                          Supervisor
+                        </option>
+                        <option value={USER_ROLES.EMPLOYEE}>Employee</option>
+                        <option value={USER_ROLES.INTERN}>Intern</option>
+                      </select>
+                    </div>
+                  </div>
+                </div> */}
                 <div className="uk-margin">
                   <label className="uk-form-label" htmlFor="form-stacked-text">
                     Cellphone
@@ -297,12 +336,12 @@ const Owners = observer(() => {
                     <input
                       className="uk-input"
                       placeholder="Cellphone"
-                      type="number"
+                      type="text"
                       value={employees.cellphone}
                       onChange={(e) =>
                         setEmployee({
                           ...employees,
-                          cellphone: parseInt(e.target.value, 10),
+                          cellphone: e.target.value,
                         })
                       }
                       required

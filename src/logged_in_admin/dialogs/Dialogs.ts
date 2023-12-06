@@ -3,6 +3,7 @@ const DIALOG_NAMES = {
     USER_DIALOG: "user-company-dialog",
     DEPARTMENT_DIALOG: "department-company-dialog",
     REGION_DIALOG: "region-company-dialog",
+    EDIT_USER_DIALOG:"edit-user-company-dialog"
   },
 
   BODY: {
@@ -69,6 +70,7 @@ const DIALOG_NAMES = {
   OWNER: {
     UPLOAD_POP: "upload-POP",
     UPDATE_OWNER_DIALOG: "update-owner-dialog",
+    ADD_OWNER_DIALOG:"add-owner-dialog",
     CREATE_REQUEST: "create-request"
   },
 
