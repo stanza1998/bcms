@@ -10,7 +10,7 @@ import {
 } from "../../../shared/models/Snackbar";
 import DIALOG_NAMES from "../Dialogs";
 
-const UserDialog = observer(() => {
+const EditUserDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<IUser>({ ...defaultUser });
@@ -25,10 +25,15 @@ const UserDialog = observer(() => {
     try {
       if (store.user.selected){
         await api.auth.updateUser(user);
+        ui.snackbar.load({
+          id: Date.now(),
+          message: "Employee Updated!",
+          type: "success",
+        });
       } 
       else 
-      user.devUser = false;
       user.password ="123456789";
+      user.devUser = false;
       await api.auth.createUser(user);
       ui.snackbar.load({
         id: Date.now(),
@@ -40,7 +45,7 @@ const UserDialog = observer(() => {
 
     store.user.clearSelected();
     setLoading(false);
-    hideModalFromId(DIALOG_NAMES.TEAM.USER_DIALOG);
+    hideModalFromId(DIALOG_NAMES.TEAM.EDIT_USER_DIALOG);
   };
 
   const onDepartmentChange = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -113,8 +118,8 @@ const UserDialog = observer(() => {
                   </div>
                 </div>
               </div>
-              <div className="uk-width-1-2@m">
-                <div className="uk-margin">
+              {/* <div className="uk-width-1-2@m"> */}
+                {/* <div className="uk-margin">
                   <label className="uk-form-label" htmlFor="first-name">
                     First Name
                   </label>
@@ -131,9 +136,9 @@ const UserDialog = observer(() => {
                       required
                     />
                   </div>
-                </div>
-              </div>
-              <div className="uk-width-1-2@m">
+                </div> */}
+              {/* </div> */}
+              {/* <div className="uk-width-1-2@m">
                 <div className="uk-margin">
                   <label className="uk-form-label" htmlFor="last-name">
                     Last Name
@@ -152,7 +157,7 @@ const UserDialog = observer(() => {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
               <div>
                 <div className="uk-margin">
                   <label className="uk-form-label" htmlFor="user-email">
@@ -168,7 +173,7 @@ const UserDialog = observer(() => {
                       onChange={(e) =>
                         setUser({ ...user, email: e.target.value })
                       }
-                      disabled={selected}
+                     // disabled={selected}
                       required
                     />
                   </div>
@@ -320,4 +325,4 @@ const UserDialog = observer(() => {
   );
 });
 
-export default UserDialog;
+export default EditUserDialog;

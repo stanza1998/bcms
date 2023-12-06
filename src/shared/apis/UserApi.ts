@@ -73,24 +73,52 @@ export default class UserApi {
       uidArray: arrayUnion(value)
     });
   }
-
   // User will be created with authWorker, thus not signed-in
-  async createUser(user: IUser) {
-    const { email, password = `${user.firstName}@${user.lastName}` } = user;
-    const userCredential = await createUserWithEmailAndPassword(authWorker, email, password).catch((error) => {
-      return null;
-    });
+  // async createUser(user: IUser) {
+  //   const { email, password = `${user.firstName}@${user.lastName}` } = user;
+  //   const userCredential = await createUserWithEmailAndPassword(authWorker, email, password).catch((error) => {
+  //     return null;
+  //   });
+    async createUser(user: IUser) {
+      const { email, password = `${user.firstName}@${user.lastName}` } = user;
+    console.log("About to create owner")
+      // Create user in Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(authWorker, email, password).catch((error) => {
+        console.log("Owner Created")
 
-    if (userCredential) {
-      user.uid = userCredential.user.uid;
-      user.password = "";
-      await setDoc(doc(db, "Users", user.uid), user);
-      await this.updateMetadata(user.uid)
-      this.store.user.load([user])
-      await signOut(authWorker);
+        return null;
+      });
+    
+      if (userCredential) {
+        // Update user document in Firestore
+        user.uid = userCredential.user.uid;
+        user.password = "";
+        await setDoc(doc(db, "Users", user.uid), user);
+    
+        // Send welcome email with a link to reset password
+        await sendPasswordResetEmail(authWorker, email, {
+          url: 'http://localhost:3000/change-password', // Set the URL to your password reset page
+          handleCodeInApp: true,
+        });
+    
+        // Update metadata and load user into the store
+        await this.updateMetadata(user.uid);
+        this.store.user.load([user]);    
+      }
+    
+      return user;
     }
-    return user;
-  }
+
+  //   if (userCredential) {
+  //     user.uid = userCredential.user.uid;
+  //     user.password = "";
+  //     await setDoc(doc(db, "Users", user.uid), user);
+  //     await this.updateMetadata(user.uid)
+  //     this.store.user.load([user])
+  //     await signOut(authWorker);
+  //   }
+  //   return user;
+  // }
 
   // Update user info
   async updateUser(user: IUser) {
@@ -248,5 +276,4 @@ export default class UserApi {
     });
     return users;
   }
-
 }

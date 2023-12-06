@@ -13,35 +13,72 @@ import DIALOG_NAMES from "../Dialogs";
 const OwnerDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<IUser>({ ...defaultUser });
+  const [user, setUser] = useState<IUser>({...defaultUser});
 
   const [passwordType, setPasswordType] = useState("password");
 
   const [selected, setSelected] = useState(false);
 
+  // const onSave = async (e: FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+
+  //   const _user: IUser = {
+  //     ...user,
+  //     devUser: false,
+  //   };
+  //   setLoading(true);
+  //   try {
+  //     if (store.user.selected){
+  //       await api.auth.updateUser(_user);
+  //     } 
+  //     else {
+  //       _user.role = "Owner";
+  //       await api.auth.createUser(_user);
+  //     }
+  //     SuccessfulAction(ui);
+  //   } catch (error) {
+  //     FailedAction(ui);
+  //   }
+  //   store.user.clearSelected();
+  //   setLoading(false);
+  //   hideModalFromId(DIALOG_NAMES.OWNER.ADD_OWNER_DIALOG);
+  // };
+
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    const _user: IUser = {
-      ...user,
-      devUser: false,
-    };
     setLoading(true);
+  
     try {
-      if (store.user.selected) await api.auth.updateUser(_user);
-      else {
-        _user.role = "Owner";
-        await api.auth.createUser(_user);
+      if (store.user.selected) {
+        // Update existing user
+        await api.auth.updateUser(user);
+        ui.snackbar.load({
+          id: Date.now(),
+          message: "Owner Updated!",
+          type: "success",
+        });
+      } else {
+        // Create new user
+        user.devUser = false;
+        user.password ="123456789";
+        user.role = "Owner"
+        await api.auth.createUser(user);
+        ui.snackbar.load({
+          id: Date.now(),
+          message: "Owner Created!",
+          type: "success",
+        });
       }
-      SuccessfulAction(ui);
+      store.user.clearSelected();
+      hideModalFromId(DIALOG_NAMES.OWNER.ADD_OWNER_DIALOG);
     } catch (error) {
       FailedAction(ui);
     }
-
-    store.user.clearSelected();
+  
     setLoading(false);
-    hideModalFromId(DIALOG_NAMES.OWNER.UPDATE_OWNER_DIALOG);
   };
+  
+
 
   const reset = () => {
     store.user.clearSelected();
@@ -158,11 +195,11 @@ const OwnerDialog = observer(() => {
                     <input
                       id=""
                       className="uk-input "
-                      type="number"
+                      type="text"
                       placeholder="Cellphone Number"
-                      value={user.cellphone === 0 ? "" : user.cellphone}
+                      value={user.cellphone === "" ? "" : user.cellphone}
                       onChange={(e) =>
-                        setUser({ ...user, cellphone: Number(e.target.value) })
+                        setUser({ ...user, cellphone: e.target.value })
                       }
                       required
                     />
@@ -172,11 +209,11 @@ const OwnerDialog = observer(() => {
 
               <div>
                 <div className="uk-margin uk-inline uk-width-1-1">
-                  <label className="uk-form-label" htmlFor="password">
+                  {/* <label className="uk-form-label" htmlFor="password">
                     Password
-                  </label>
+                  </label> */}
                   <div className="uk-form-controls">
-                    <button
+                    {/* <button
                       type="button"
                       className="icon-button uk-form-icon uk-form-icon-flip"
                       onClick={togglePassword}
@@ -229,8 +266,8 @@ const OwnerDialog = observer(() => {
                       }
                       required
                       disabled={selected}
-                    />
-                    <span>Default: firstname@lastname</span>
+                    /> */}
+                    {/* <span>Default: firstname@lastname</span> */}
                   </div>
                 </div>
               </div>

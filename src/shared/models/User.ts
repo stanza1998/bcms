@@ -14,7 +14,7 @@ export class UserModel implements IUser {
   regionId: string;
   region: string;
   devUser: boolean;
-  cellphone: number;
+  cellphone: string;
   property: string;
   year: string;
   month: string;

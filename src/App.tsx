@@ -232,6 +232,7 @@ const ADMIN_USER_ROUTES = () => {
           <Route path={`admin/appearance`} element={<AppearanceSettings />} />
           <Route path={`admin/others`} element={<Others />} />
           <Route path={`settings`} element={<Settings />} />
+          <Route path="change-password" element={<Settings />} />
           <Route path={`FAQ`} element={<FAQ />} />
           <Route path="*" element={<Navigate to="dashboard" />} />
         </Route>
@@ -308,6 +309,8 @@ const OWNER_ROUTES = () => {
             path={`maintainance/request/:maintenanceRequestId`}
             element={<WorkOrder />}
           />
+           <Route path={`settings`} element={<Settings />} />
+           <Route path={`change-password`} element={<Settings />} />
           {/* maintenance */}
         </Route>
         <Route path="/" element={<SignIn />} />
