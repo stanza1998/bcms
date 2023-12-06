@@ -70,14 +70,14 @@ export const AnnouncementGraph = observer(() => {
     labels,
     datasets: [
       {
-        label: "LOW",
-        data: [low],
+        label: "MEDIUM",
+        data: [medium],
         borderColor: "yellow",
         backgroundColor: "yellow",
       },
       {
-        label: "MEDIUM",
-        data: [medium],
+        label: "LOW",
+        data: [low],
         borderColor: "blue",
         backgroundColor: "blue",
       },

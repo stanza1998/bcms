@@ -569,6 +569,7 @@ export function findPropertyUsersEmails(owners: IUser[], units: IUnit[]): string
     return propertyUsers;
 
 }
+
 export function findPropertyUsers(owners: any[], units: IUnit[]): { value: string; label: string }[] {
     const _owners = owners.filter((u) => u.role === "Owner").map((u) => u);
     const _units = units.map((u) => ({ ...u })); // Shallow copy of units

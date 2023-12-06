@@ -67,7 +67,7 @@ const Dashboard = observer(() => {
 
 export default Dashboard;
 
-const ManagerDashBoard = () => {
+const ManagerDashBoard = observer(() => {
   const { store, api } = useAppContext();
   const me = store.user.meJson;
   const [isLoading, setIsLoading] = useState(true);
@@ -209,7 +209,16 @@ const ManagerDashBoard = () => {
       setIsLoading(false);
     };
     getData();
-  }, [...memoizedDependencies]);
+  }, [
+    getAnnouncementAPI,
+    getDocumentCategoryApi,
+    getMaintenanceRequestAPI,
+    getMeetingFoldersApi,
+    getServiceProviderApi,
+    getUnitsApi,
+    me?.property,
+    me?.year,
+  ]);
 
   const totalNewRequests = maintenanceRequests.length;
   const totalServiceProviders = serviceProviders.length;
@@ -567,4 +576,4 @@ const ManagerDashBoard = () => {
       )}
     </div>
   );
-};
+});

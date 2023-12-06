@@ -10,6 +10,7 @@ import {
 import { MAIL_ANNOUNCEMENTS } from "../../../shared/mailMessages";
 import { findPropertyUsersEmails } from "../../../shared/common";
 import Loading from "../../../../shared/components/Loading";
+import * as admin from "firebase-admin";
 
 export const AnnouncementDialog = observer(() => {
   const { api, store, ui } = useAppContext();
@@ -59,8 +60,7 @@ export const AnnouncementDialog = observer(() => {
           me.property,
           me.year
         );
-        // sendNoticeMessage(announcement.title, announcement.message);
-        // createNoticeSMS()
+
         ui.snackbar.load({
           id: Date.now(),
           message: "Announcement created!",
@@ -81,7 +81,13 @@ export const AnnouncementDialog = observer(() => {
       announcement.message
     );
 
-    await api.mail.sendMail("", emails, MY_SUBJECT, MY_BODY, "");
+    await api.mail.sendMail(
+      "",
+      ["engdesign@lotsinsights.com"],
+      MY_SUBJECT,
+      MY_BODY,
+      ""
+    );
 
     store.communication.announcements.clearSelected();
     setAnnouncement({ ...defaultAnnouncements });
