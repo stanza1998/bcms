@@ -10,7 +10,7 @@ import {
 import { MAIL_ANNOUNCEMENTS } from "../../../shared/mailMessages";
 import { findPropertyUsersEmails } from "../../../shared/common";
 import Loading from "../../../../shared/components/Loading";
-import * as admin from "firebase-admin";
+//import * as admin from "firebase-admin";
 
 export const AnnouncementDialog = observer(() => {
   const { api, store, ui } = useAppContext();

@@ -14,6 +14,7 @@ const OwnerDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<IUser>({...defaultUser});
+  
 
   const [passwordType, setPasswordType] = useState("password");
 
@@ -125,7 +126,8 @@ const OwnerDialog = observer(() => {
         <div className="reponse-form">
           <form className="uk-form-stacked" onSubmit={onSave}>
             <div className="uk-grid-small uk-child-width-1-1@m" data-uk-grid>
-              <div className="uk-width-1-2@m">
+              {/*  <div className="uk-width-1-2@m">
+               
                 <div className="uk-margin">
                   <label className="uk-form-label" htmlFor="first-name">
                     First Name
@@ -143,9 +145,9 @@ const OwnerDialog = observer(() => {
                       required
                     />
                   </div>
-                </div>
-              </div>
-              <div className="uk-width-1-2@m">
+                </div> 
+              </div>*/}
+              {/* <div className="uk-width-1-2@m">
                 <div className="uk-margin">
                   <label className="uk-form-label" htmlFor="last-name">
                     Last Name
@@ -163,8 +165,8 @@ const OwnerDialog = observer(() => {
                       required
                     />
                   </div>
-                </div>
-              </div>
+                </div> 
+              </div>*/}
               <div>
                 <div className="uk-margin">
                   <label className="uk-form-label" htmlFor="user-email">
@@ -186,7 +188,44 @@ const OwnerDialog = observer(() => {
                   </div>
                 </div>
               </div>
-              <div>
+              {/* <div className="uk-width-1-2">
+                <label className="uk-form-label" htmlFor="form-stacked-text">
+                  Properties
+                  {meeting.meetingLink === "" && (
+                    <span style={{ color: "" }}> (optional)</span>
+                  )}
+                </label>
+                <div className="uk-margin uk-form-controls">
+                  <Select
+                    closeMenuOnSelect={false}
+                    components={animatedComponents}
+                    onChange={(value: any) =>
+                      setMeeting({
+                        ...meeting,
+                        ownerParticipants: value.map((t: any) => t.value),
+                      })
+                    }
+                    isMulti
+                    placeholder="Search users"
+                    options={findPropertyUsers(users, units)}
+                    value={meeting.ownerParticipants.map((participantId) => {
+                      const selectedContact = users.find(
+                        (contact) => contact.uid === participantId
+                      );
+                      return selectedContact
+                        ? {
+                            label:
+                              selectedContact.firstName +
+                              " " +
+                              selectedContact.lastName,
+                            value: selectedContact.uid,
+                          }
+                        : null;
+                    })}
+                  />
+                </div>
+              </div> */}
+              {/* <div>
                 <div className="uk-margin">
                   <label className="uk-form-label" htmlFor="user-email">
                     Cellphone
@@ -205,7 +244,7 @@ const OwnerDialog = observer(() => {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               <div>
                 <div className="uk-margin uk-inline uk-width-1-1">
