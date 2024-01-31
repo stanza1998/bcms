@@ -7,9 +7,13 @@ import { UserModel } from "../../../shared/models/User";
 import { IUser, defaultUser } from "../../../shared/interfaces/IUser";
 import DIALOG_NAMES from "../../dialogs/Dialogs";
 import OwnersTable from "./OwnersGrid";
-import showModalFromId, { hideModalFromId } from "../../../shared/functions/ModalShow";
+import showModalFromId, {
+  hideModalFromId,
+} from "../../../shared/functions/ModalShow";
 import OwnerDialog from "../../dialogs/user-dialog/OwnerDialog";
 import { USER_ROLES } from "../../../shared/constants/USER_ROLES";
+import Select from "react-select";
+import makeAnimated from "react-select/animated";
 
 interface ToolBarProps {
   showUserDialog: (user?: IUser | undefined) => void;
@@ -128,14 +132,21 @@ const Owners = observer(() => {
   const [employees, setEmployee] = useState<IUser>({
     ...defaultUser,
   });
+  const me = store.user.meJson;
+  const animatedComponents = makeAnimated();
 
   const showUserDialog = (user?: IUser) => {
-    if (user){
+    if (user) {
       store.user.select(user);
       showModalFromId(DIALOG_NAMES.OWNER.UPDATE_OWNER_DIALOG);
-    } 
-    else store.user.clearSelected();
+    } else store.user.clearSelected();
   };
+
+  const properties = store.bodyCorperate.bodyCop.all.map((property) => {
+    return { label: property.asJson.BodyCopName, value: property.asJson.id };
+  });
+
+  console.log("properties: ", properties);
 
   const onDeleteEmployee = async (uid: string) => {
     if (!window.confirm("Delete user?")) return;
@@ -171,15 +182,14 @@ const Owners = observer(() => {
     return () => {};
   }, [loadEmployees]);
 
- 
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     // Update API
     if (store.user.selected) {
-     const emp = await api.auth.updateUser(employees);
-     //await api.auth.createUser(employees); //create for now
-     hideModalFromId(DIALOG_NAMES.OWNER.UPDATE_OWNER_DIALOG);
+      const emp = await api.auth.updateUser(employees);
+      //await api.auth.createUser(employees); //create for now
+      hideModalFromId(DIALOG_NAMES.OWNER.UPDATE_OWNER_DIALOG);
 
       store.user.getById(employees.uid);
       ui.snackbar.load({
@@ -197,6 +207,16 @@ const Owners = observer(() => {
 
     return () => {};
   }, [store.user.selected]);
+
+  useEffect(() => {
+    const getData = async () => {
+      if (me?.property) {
+        await api.unit.getAll(me?.property);
+      }
+      await api.body.body.getAll();
+    };
+    getData();
+  }, [api.body]);
 
   return (
     <>
@@ -232,49 +252,6 @@ const Owners = observer(() => {
           <div className="dialog-content uk-position-relative">
             <div className="reponse-form">
               <form className="uk-form-stacked" onSubmit={onSave}>
-                {/* <div className="uk-margin">
-                  <label className="uk-form-label" htmlFor="form-stacked-text">
-                    FirstName
-                  </label>
-                  <div className="uk-form-controls">
-                    <input
-                      className="uk-input"
-                      type="text"
-                      placeholder="FirstName"
-                      value={employees.firstName}
-                      onChange={(e) =>
-                        setEmployee({
-                          ...employees,
-                          firstName: e.target.value,
-                        })
-                      }
-                      required
-                    />
-                  </div>
-                  <div className="uk-margin">
-                    <label
-                      className="uk-form-label"
-                      htmlFor="form-stacked-text"
-                    >
-                      LastName
-                    </label>
-                    <div className="uk-form-controls">
-                      <input
-                        className="uk-input"
-                        type="text"
-                        placeholder="LastName"
-                        value={employees.lastName}
-                        onChange={(e) =>
-                          setEmployee({
-                            ...employees,
-                            lastName: e.target.value,
-                          })
-                        }
-                        required
-                      />
-                    </div>
-                  </div>
-                </div> */}
                 <div className="uk-margin">
                   <label className="uk-form-label" htmlFor="form-stacked-text">
                     Email
@@ -282,7 +259,8 @@ const Owners = observer(() => {
                   <div className="uk-form-controls">
                     <input
                       className="uk-input"
-                      placeholder="Email"
+                      placeholder="example@example.com
+                      "
                       value={employees.email}
                       onChange={(e) =>
                         setEmployee({
@@ -294,57 +272,34 @@ const Owners = observer(() => {
                     />
                   </div>
                 </div>
-                {/* <div className="uk-margin">
-                  <div className="uk-form-label">Role</div>
-                  <div className="uk-form-controls">
-                    <div className="uk-margin">
-                      <select
-                        className="uk-select "
-                        value={employees.role}
-                        onChange={(e) =>
-                          setEmployee({ ...employees, role: e.target.value })
-                        }
-                        required
-                      >
-                        <option>Select...</option>
-                        <option value={USER_ROLES.ADMIN}>Administrator</option>
-                        <option value={USER_ROLES.HUMAN_RESOURCE}>
-                          Human Resources
-                        </option>
-                        <option value={USER_ROLES.DIRECTOR}>Director</option>
-                        <option value={USER_ROLES.MANAGING_DIRECTOR}>
-                          Managing Director
-                        </option>
-                        <option value={USER_ROLES.GENERAL_MANAGER}>
-                          General Manager
-                        </option>
-                        <option value={USER_ROLES.MANAGER}>Manager</option>
-                        <option value={USER_ROLES.SUPERVISOR}>
-                          Supervisor
-                        </option>
-                        <option value={USER_ROLES.EMPLOYEE}>Employee</option>
-                        <option value={USER_ROLES.INTERN}>Intern</option>
-                      </select>
-                    </div>
-                  </div>
-                </div> */}
-                <div className="uk-margin">
+                <div className="uk-width-1-1@m">
                   <label className="uk-form-label" htmlFor="form-stacked-text">
-                    Cellphone
+                    Assign Property
                   </label>
-                  <div className="uk-form-controls">
-                    <input
-                      className="uk-input"
-                      placeholder="Cellphone"
-                      type="text"
-                      value={employees.cellphone}
-                      onChange={(e) =>
+                  <div className="uk-margin uk-form-controls">
+                    <Select
+                      closeMenuOnSelect={false}
+                      components={animatedComponents}
+                      onChange={(value: any) =>
                         setEmployee({
                           ...employees,
-                          cellphone: e.target.value,
+                          accessProperties: value.map((t: any) => t.value),
                         })
                       }
-                      required
+                      isMulti
+                      placeholder="Properties"
+                      options={properties}
+                      value={employees.accessProperties?.map((p) => {
+                        const selectedProperty = properties.find(
+                          (property) => property.value === p
+                        );
+                        return selectedProperty
+                          ? {
+                              label: selectedProperty.label,
+                              value: selectedProperty.value,
+                            }
+                          : null;
+                      })}
                     />
                   </div>
                 </div>

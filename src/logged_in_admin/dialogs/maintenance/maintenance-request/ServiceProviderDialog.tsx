@@ -5,6 +5,7 @@ import { hideModalFromId } from "../../../../shared/functions/ModalShow";
 import { IMaintenanceRequest, defaultMaintenanceRequest } from "../../../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
 import DIALOG_NAMES from "../../Dialogs";
 import { IServiceProvider, defaultServiceProvider } from "../../../../shared/models/maintenance/service-provider/ServiceProviderModel";
+import { IUser } from "../../../../shared/interfaces/IUser";
 
 export const ServiceProviderDialog = observer(() => {
   const { api, store, ui } = useAppContext();
@@ -22,13 +23,43 @@ export const ServiceProviderDialog = observer(() => {
     setLoading(true);
     if (!me?.property) return;
     // Update API
-
     try {
       if (store.maintenance.servie_provider.selected) {
         const provider = await api.maintenance.service_provider.update(
             serviceProviderRequest,
           me.property
         );
+        const providers: IServiceProvider = {
+          id:"",
+          serviceProvideName:"",
+          phoneNumber:"",
+          email:"",
+          dateCreated:"",
+          specializationi:"",
+
+        };
+        const userInstance: IUser = {
+          uid: providers.id,
+          firstName: "",
+          lastName: "",
+          email: providers.email,
+          cellphone: providers.phoneNumber,
+          password: "",
+          departmentId: "",
+          departmentName: "",
+          role: providers.specializationi,
+          regionId: "",
+          region: "",
+          devUser: false,
+          supervisor: "",
+          property: "",
+          year: "",
+          month: "",
+          bankAccountInUse:"",
+          serviceProviderName:providers.serviceProvideName || undefined,
+        };
+        console.log("User Instance (Update):", userInstance);
+        await api.auth.updateUser(userInstance);
         await store.maintenance.servie_provider.load();
         ui.snackbar.load({
           id: Date.now(),
@@ -39,6 +70,37 @@ export const ServiceProviderDialog = observer(() => {
         // maintenanceRequest.authorOrSender = me.uid;
         //servie_provider.dateRequested = currentDate.toLocaleTimeString();
         serviceProviderRequest.dateCreated = currentDate.toUTCString();
+        const providers: IServiceProvider = {
+          id:"",
+          serviceProvideName:"",
+          phoneNumber:"",
+          email:"",
+          dateCreated:"",
+          specializationi:"",
+
+        };
+        const userInstance: IUser = {
+          uid: serviceProviderRequest.id,
+          firstName: "",
+          lastName: "",
+          email: serviceProviderRequest.email,
+          cellphone: serviceProviderRequest.phoneNumber,
+          password: "123456789",
+          departmentId: "",
+          departmentName: "",
+          role: "Service Provider",
+          regionId: "",
+          region: "",
+          devUser: false,
+          supervisor: "",
+          property: "",
+          year: "",
+          month: "",
+          bankAccountInUse:"",
+          serviceProviderName:serviceProviderRequest.serviceProvideName || undefined,
+        };
+        console.log("User Instance (Create):", userInstance);
+        await api.auth.createUser(userInstance);
         await api.maintenance.service_provider.create(
             serviceProviderRequest,
           me.property
@@ -148,27 +210,6 @@ export const ServiceProviderDialog = observer(() => {
                 />
               </div>
             </div>
-            {/* <div className="uk-margin">
-              <label className="uk-form-label" htmlFor="form-stacked-text">
-                Date Created 
-                {serviceProviderRequest.dateCreated==="" && <span style={{color:"red", marginLeft:"10px"}}>*</span>}
-              </label>
-              <div className="uk-form-controls">
-                <input
-                  className="uk-input"
-                  placeholder="Date Created"
-                  type="date"
-                  value={serviceProviderRequest.dateCreated}
-                  onChange={(e) =>
-                    setServiceProviderRequest({
-                      ...serviceProviderRequest,
-                      dateCreated: e.target.value,
-                    })
-                  }
-                  required
-                />
-              </div>
-            </div> */}
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Specialisation 

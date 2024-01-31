@@ -310,6 +310,7 @@ export const MeetingDialog = observer(() => {
                         startDateAndTime: e.target.value,
                       })
                     }
+                    min={new Date().toISOString().slice(0, 16)}
                     required
                   />
                 </div>
@@ -332,6 +333,7 @@ export const MeetingDialog = observer(() => {
                         endDateAndTime: e.target.value,
                       })
                     }
+                    min={new Date().toISOString().slice(0, 16)}
                     required
                   />
                 </div>

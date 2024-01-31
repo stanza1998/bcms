@@ -14,11 +14,9 @@ const UserDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<IUser>({ ...defaultUser });
-
   const [passwordType, setPasswordType] = useState("password");
-
   const [selected, setSelected] = useState(false);
-
+    
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);

@@ -8,7 +8,6 @@ import Modal from "../../../../shared/components/Modal";
 import { ServiceProviderDialog } from "../../../dialogs/maintenance/maintenance-request/ServiceProviderDialog";
 import { UpdateServiceProviderDialog } from "../../../dialogs/maintenance/maintenance-request/UpdateServiceProvider";
 
-
 export const ServiceProvider = observer(() => {
   const { api, store } = useAppContext();
   const me = store.user.meJson;

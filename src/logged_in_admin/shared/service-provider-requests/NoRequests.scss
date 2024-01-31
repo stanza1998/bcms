@@ -1,0 +1,33 @@
+.no-units{
+    /* NoUnit.css */
+
+.no-unit-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f2f2f2; /* Add your preferred background color */
+  }
+  
+  .no-unit-message {
+    font-family: 'Arial', sans-serif; /* Add your preferred font family */
+    color: #333; /* Add your preferred text color */
+    text-align: center;
+    padding: 20px;
+    border: 2px solid #ccc; /* Add your preferred border style */
+    border-radius: 10px; /* Add your preferred border radius */
+    background-color: #fff; /* Add your preferred container background color */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add your preferred box shadow */
+    animation: fadeIn 1s ease-in-out; /* Add your preferred animation */
+  
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+  }
+  
+}

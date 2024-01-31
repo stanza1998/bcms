@@ -3,7 +3,7 @@ import { useAppContext } from "../../../shared/functions/Context";
 import { useEffect, useState } from "react";
 import folder from "./assets/folder_3139112.png";
 import "./folderStyles.scss";
-import showModalFromId from "../../../shared/functions/ModalShow";
+import showModalFromId from "../../../shared/functions/ModalShow"
 import DIALOG_NAMES from "../../dialogs/Dialogs";
 import Modal from "../../../shared/components/Modal";
 import { MeetingFolderDialog } from "../../dialogs/communication-dialogs/meetings/MeetingFolderDialog";

@@ -81,6 +81,7 @@ export default class UserApi {
   async createUser(user: IUser) {
     const { email, password = `${user.firstName}@${user.lastName}` } = user;
     console.log("About to create owner");
+    console.log("Entered email and password: "+email+" "+password);
     // Create user in Firebase Authentication
     const userCredential = await createUserWithEmailAndPassword(
       authWorker,

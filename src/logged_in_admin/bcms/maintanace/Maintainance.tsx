@@ -19,6 +19,7 @@ import LockIcon from "@mui/icons-material/Lock";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import ElectricalServicesIcon from "@mui/icons-material/ElectricalServices";
 import { cannotViewMaintenanceGrid } from "../../shared/common";
+import { IMaintenanceRequest } from "../../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
 
 export const Maintainance = () => {
   const { store, api } = useAppContext();
@@ -63,7 +64,7 @@ export const Maintainance = () => {
     (request) => request.status === "Opened"
   ).length;
   const totalDone = maintenanceRequests.filter(
-    (request) => request.status === "Completed"
+    (request:IMaintenanceRequest) => request.status === "Completed"
   ).length;
   // const totalDoneRequests = maintenanceRequests.filter((request)=>request.status ==="Done").length;
   const totalServiceProviders = serviceProviders.length;

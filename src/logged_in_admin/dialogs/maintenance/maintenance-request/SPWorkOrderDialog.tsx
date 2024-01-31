@@ -16,8 +16,9 @@ import {
   getServiceProviderEmails,
 } from "../../../shared/common";
 import { MAIL_SERVICE_PROVIDER_LINK } from "../../../shared/mailMessages";
+import WorkOrderGrid from "../../../bcms/maintanace/work-order/WorkOrderGrid/WorkOrderGrid";
 
-export const WorkOrderFlowDialog = observer(() => {
+export const SPWorkOrderFlowDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
   const me = store.user.meJson;
@@ -32,7 +33,7 @@ export const WorkOrderFlowDialog = observer(() => {
   const prefix = store.maintenance.maintenance_request.getById(
     maintenanceRequestId || ""
   );
-
+  const workFlow = store.maintenance.work_flow_order.all.map((workFlow)=>workFlow.asJson);
   const identity = prefix?.asJson.description.slice(0, 2);
 
   const serviceProvider = store.user.all.filter((provider)=>provider.role === "Service Provider")
@@ -149,6 +150,7 @@ export const WorkOrderFlowDialog = observer(() => {
       <h3 className="uk-modal-title">Work Order</h3>
       <div className="dialog-content uk-position-relative">
         <div className="reponse-form">
+          <WorkOrderGrid data={workFlow}/>
           <form className="uk-form-stacked" onSubmit={onSave}>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
@@ -191,7 +193,7 @@ export const WorkOrderFlowDialog = observer(() => {
               </div>
             </div>
             <div className="uk-margin">
-              {/*serviceproviders*/}
+              {/*service providers*/}
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Service Providers
               </label>

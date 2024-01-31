@@ -92,6 +92,7 @@ export const CalendarView = observer(() => {
       meetingNote: event.meetingNote,
       priority: event.priority,
       meetingLink: event.meetingLink,
+      isVerified: event.isVerified,
     };
     onViewDetails(selectedMeeting);
   };

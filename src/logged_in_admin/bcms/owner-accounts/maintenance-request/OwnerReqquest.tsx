@@ -109,7 +109,7 @@ export const OwnerRequest = observer(() => {
         </div> */}
         <div className="notices-cards card active-card">
           <Grid container spacing={2}>
-            {currentRequest.map((card, index) => (
+            {currentRequest.map((card, index:number) => (
               <RequestCard key={index} card={card} units={myUnits} />
             ))}
           </Grid>

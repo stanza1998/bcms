@@ -35,6 +35,7 @@ import { IMaintenanceRequest } from "../../shared/models/maintenance/request/mai
 import { IUnit } from "../../shared/models/bcms/Units";
 import { IServiceProvider } from "../../shared/models/maintenance/service-provider/ServiceProviderModel";
 import { IBodyCop } from "../../shared/models/bcms/BodyCorperate";
+import { useAppContext } from "../../shared/functions/Context";
 
 export const getFileExtension = (url: string): string => {
   const extensionMatch = url.match(/\.([a-z0-9]+)(?:[?#]|$)/i);
@@ -544,8 +545,6 @@ export function cannotCreateDocumentFolder(role: string): boolean {
   }
 }
 
-
-
 export function getOwnersEmail(
   users: IUser[],
   uid: string
@@ -559,38 +558,60 @@ export function getOwnersEmail(
   }
 }
 
-
-export function findPropertyUsersEmails(owners: IUser[], units: IUnit[]): string[] {
-    const _owners = owners.filter((u) => u.role === "Owner").map((u) => u)
-    const _units = units.map((u) => { return u })
-    const propertyUsers = _owners
-        .filter(owner => _units.some(unit => unit.ownerId === owner.uid))
-        .map(owner => owner.email);
-    return propertyUsers;
-
+export function findPropertyUsersEmails(
+  owners: IUser[],
+  units: IUnit[]
+): string[] {
+  const _owners = owners.filter((u) => u.role === "Owner").map((u) => u);
+  const _units = units.map((u) => {
+    return u;
+  });
+  const propertyUsers = _owners
+    .filter((owner) => _units.some((unit) => unit.ownerId === owner.uid))
+    .map((owner) => owner.email);
+  return propertyUsers;
 }
 
-export function findPropertyUsers(owners: any[], units: IUnit[]): { value: string; label: string }[] {
-    const _owners = owners.filter((u) => u.role === "Owner").map((u) => u);
-    const _units = units.map((u) => ({ ...u })); // Shallow copy of units
+export function findPropertyUsers(
+  owners: any[],
+  units: IUnit[]
+): { value: string; label: string }[] {
+  const _owners = owners.filter((u) => u.role === "Owner").map((u) => u);
+  const _units = units.map((u) => ({ ...u })); // Shallow copy of units
 
-    const propertyUsers = _owners
-        .filter(owner => _units.some(unit => unit.ownerId === owner.uid))
-        .map(owner => ({
-            value: owner.uid,
-            label: owner.firstName + " " + owner.lastName,
-        }));
+  const propertyUsers = _owners
+    .filter((owner) => _units.some((unit) => unit.ownerId === owner.uid))
+    .map((owner) => ({
+      value: owner.uid,
+      label: owner.firstName + " " + owner.lastName,
+    }));
 
-    return propertyUsers;
+  return propertyUsers;
 }
 
+export function canViewPropertyDetails(
+  ownerId: string,
+  units: IUnit[]
+): boolean {
+  // Check if there is at least one unit with the specified ownerId
+  const hasUnit = units.some((unit) => unit.ownerId === ownerId);
 
-export function canViewPropertyDetails(ownerId: string, units: IUnit[]): boolean {
-    // Check if there is at least one unit with the specified ownerId
-    const hasUnit = units.some(unit => unit.ownerId === ownerId);
-   
-    // Return true if at least one unit is found, otherwise return false
-    return hasUnit;
+  // Return true if at least one unit is found, otherwise return false
+  return hasUnit;
 }
+
+export function canViewMaintenanceRequestDetails(
+  serviceProviderId: string,
+  maintenanceRequest: IMaintenanceRequest[]
+): boolean {
+  // Check if there is at least one unit with the specified ownerId
+  const hasMaintenanceRequest = maintenanceRequest.some(
+    (request) => request.serviceProviderId === serviceProviderId
+  );
+
+  // Return true if at least one unit is found, otherwise return false
+  return hasMaintenanceRequest;
+}
+
 
 

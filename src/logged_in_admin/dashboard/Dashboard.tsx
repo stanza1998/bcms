@@ -31,6 +31,7 @@ import { DocumentCategoryDialog } from "../dialogs/communication-dialogs/documen
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
 import { NoUnit } from "../shared/no-unit-shared/NoUnit";
+import { ServiceProviderView } from "../bcms/maintanace/service-providers/ServiceProviderPage";
 
 const Dashboard = observer(() => {
   const { store, api } = useAppContext();
@@ -57,6 +58,8 @@ const Dashboard = observer(() => {
           <ManagerDashBoard />
         ) : me?.role === "Admin" ? (
           <ManagerDashBoard />
+        ) : me?.role === "Service Provider" ? (
+          <ServiceProviderView />
         ) : (
           <NoUnit />
         )}

@@ -1,6 +1,5 @@
 // MyComponent.jsx
 import React, { useEffect, useState } from "react";
-import "./OwnerCard.scss";
 import { observer } from "mobx-react-lite";
 import { useAppContext } from "../../../../shared/functions/Context";
 import showModalFromId from "../../../../shared/functions/ModalShow";

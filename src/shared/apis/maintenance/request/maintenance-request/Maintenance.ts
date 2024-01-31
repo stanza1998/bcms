@@ -45,6 +45,33 @@ export default class MaintenanceRequestApi {
     });
   }
 
+  async getAllRequests(pid: string[]) {
+    const myPath = `BodyCoperate/${pid}/MaintenanceRequest`;
+
+    const $query = query(collection(db, myPath));
+    // new promise
+    return await new Promise<Unsubscribe>((resolve, reject) => {
+      // on snapshot
+      const unsubscribe = onSnapshot(
+        $query,
+        // onNext
+        (querySnapshot) => {
+          const items: IMaintenanceRequest[] = [];
+          querySnapshot.forEach((doc) => {
+            items.push({ id: doc.id, ...doc.data() } as IMaintenanceRequest);
+          });
+
+          this.store.maintenance.maintenance_request.load(items);
+          resolve(unsubscribe);
+        },
+        // onError
+        (error) => {
+          reject();
+        }
+      );
+    });
+  }
+
   async getById(id: string, pid: string) {
     const myPath = `BodyCoperate/${pid}/MaintenanceRequest`;
 
