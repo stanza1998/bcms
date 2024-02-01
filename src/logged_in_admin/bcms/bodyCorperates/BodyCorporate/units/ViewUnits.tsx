@@ -12,36 +12,25 @@ import DIALOG_NAMES from "../../../../dialogs/Dialogs";
 import showModalFromId, {
   hideModalFromId,
 } from "../../../../../shared/functions/ModalShow";
-import { UnitCard } from "./unit-details/UnitCard";
 import Loading from "../../../../../shared/components/Loading";
-import {
-  collection,
-  doc,
-  setDoc,
-  updateDoc,
-  runTransaction,
-} from "firebase/firestore";
-import { db } from "../../../../../shared/database/FirebaseConfig";
 import {
   FailedAction,
   FailedActionAllFields,
 } from "../../../../../shared/models/Snackbar";
 import { IInvoice } from "../../../../../shared/models/invoices/Invoices";
-import { IReceiptsPayments } from "../../../../../shared/models/receipts-payments/ReceiptsPayments";
-import { ICustomerTransactions } from "../../../../../shared/models/transactions/customer-transactions/CustomerTransactionModel";
 import UnitsGrid from "./grid/UnitsGrid";
 import SingleSelect from "../../../../../shared/components/single-select/SlingleSelect";
-import { IAccountTransactions } from "../../../../../shared/models/accounts-transaction/AccountsTransactionModel";
+import { duplicateInvoice } from "./DuplicateFunction";
 
 export const ViewUnit = observer(() => {
   const { store, api, ui } = useAppContext();
+  const [loadingF, setLoadingF] = useState(false);
   const { propertyId } = useParams();
   const navigate = useNavigate();
   const [newDate, setNewDate] = useState("");
   const [newDateIssued, setNewDateIssued] = useState("");
   const [ref, setRef] = useState("");
   const me = store.user.meJson;
-  const [selection, setSelection] = useState<string>("");
   const [ownerId, setOwnerId] = useState<string>("");
 
   const units = store.bodyCorperate.unit.all.map((inv) => {
@@ -136,16 +125,9 @@ export const ViewUnit = observer(() => {
           type: "success",
         });
       } else {
-        // Add the default category ID to the tradingType object
         if (viewBody?.id) unit.bodyCopId = viewBody?.id;
         unit.ownerId = ownerId;
         await api.unit.create(unit, me.property);
-        // if (supp) await store.inventory.tradingCategories.load([supp]);
-        // ui.snackbar.load({
-        //   id: Date.now(),
-        //   message: "unit created!",
-        //   type: "success",
-        // });
       }
       resetMaterial();
     } catch (error) {
@@ -189,311 +171,31 @@ export const ViewUnit = observer(() => {
       return unit.asJson;
     });
 
-  const [loadingF, setLoadingF] = useState(false);
-
-  const generateInvoiceNumber = () => {
-    const randomNumber = Math.floor(Math.random() * 10000); // Generate a random number between 0 and 9999
-    const formattedNumber = randomNumber.toString().padStart(4, "0"); // Pad the number with leading zeros if necessary
-    const generatedInvoiceNumber = `INV000${formattedNumber}`; // Add the prefix "INV" to the number
-    return generatedInvoiceNumber;
-  };
-  const generateRCPNumber = () => {
-    const randomNumber = Math.floor(Math.random() * 10000); // Generate a random number between 0 and 9999
-    const formattedNumber = randomNumber.toString().padStart(4, "0"); // Pad the number with leading zeros if necessary
-    const generatedInvoiceNumber = `RCP000${formattedNumber}`; // Add the prefix "INV" to the number
-    return generatedInvoiceNumber;
-  };
-
   //duplicate function
   const onDupicate = () => {
     showModalFromId(DIALOG_NAMES.BODY.VIEW_INVOICE);
   };
 
-  //very important feature, needs focus and proper maintenance.
-  //sending email notification is still missing in the duplicate function (important)
-  const duplicated = async () => {
-    if (
-      ref !== "" &&
-      newDate !== "" &&
-      newDateIssued !== "" &&
-      selection !== ""
-    ) {
-      setLoadingF(true);
-      try {
-        if (!me?.property || !me?.year) {
-          throw new Error(
-            "Invalid 'property' or 'year' value for duplication."
-          );
-        }
-        const copiedInvoicePath = `/BodyCoperate/${me.property}/FinancialYear/${me.year}`;
-        const unitPath = `/BodyCoperate/${me.property}/Units`;
-        //check if matser inivoices are 0
-        if (masterInvoices.length === 0) {
-          throw new Error("No master invoices to duplicate.");
-        }
-
-        //copied invoices operation
-        const copiedInvoicesCollection = collection(
-          db,
-          copiedInvoicePath,
-          "CopiedInvoices"
-        );
-
-        const updateUnitBalancesTransaction = async (transaction: any) => {
-          const unitCollectionRef = collection(db, unitPath);
-          const updates = [];
-          const unitBalances: { [unitId: string]: number } = {};
-
-          for (const masterInvoice of masterInvoices) {
-            const { unitId, totalDue } = masterInvoice;
-            const unitDocRef = doc(unitCollectionRef, unitId);
-            const unitDoc = await transaction.get(unitDocRef);
-            if (unitDoc.exists()) {
-              const currentBalance = unitDoc.data().balance || 0;
-              const copiedInvoice = { ...masterInvoice };
-              copiedInvoice.invoiceNumber = generateInvoiceNumber();
-              copiedInvoice.dueDate = newDate;
-              copiedInvoice.references = ref;
-              copiedInvoice.dateIssued = newDateIssued;
-              const newInvoiceRef = doc(copiedInvoicesCollection);
-              const generatedDocId = newInvoiceRef.id;
-              copiedInvoice.invoiceId = generatedDocId;
-              const absoluteCurrentBalance = Math.abs(currentBalance);
-
-              if (currentBalance < 0) {
-                copiedInvoice.totalPaid =
-                  absoluteCurrentBalance > masterInvoice.totalDue
-                    ? masterInvoice.totalDue
-                    : absoluteCurrentBalance;
-              } else {
-                copiedInvoice.totalPaid = 0;
-              }
-              // Check if balance is less than zero
-              if (currentBalance < 0) {
-                // create customer receipt
-
-                const customerReceipt: IReceiptsPayments = {
-                  unitId,
-                  id: "",
-                  date: newDateIssued,
-                  reference: ref,
-                  transactionType: "Customer Receipt",
-                  description: "Credit Payment",
-                  debit:
-                    Math.abs(currentBalance) > totalDue
-                      ? masterInvoice.totalDue.toFixed(2)
-                      : Math.abs(currentBalance).toFixed(2),
-                  credit: "",
-                  balance: "",
-                  propertyId: me.property || "",
-                  invoiceNumber: generatedDocId,
-                  rcp: generateRCPNumber(),
-                  supplierId: "",
-                };
-                try {
-                  if (me.property && me.year) {
-                    await api.body.receiptPayments.create(
-                      customerReceipt,
-                      me.property,
-                      me.year
-                    );
-                  }
-                } catch (error) {
-                  console.log(error);
-                }
-
-                //IF CREDIT THAN CREATE ACCOUNTS TRANSACTION HERE FOR CUSTOMER RECIEPT
-                const accountTransactionReceipt: IAccountTransactions = {
-                  id: "",
-                  date: newDateIssued,
-                  BankCustomerSupplier:
-                    "unit " +
-                    (units.find((u) => u.id === unitId)?.unitName || 0).toFixed(
-                      0
-                    ),
-                  reference: customerReceipt.rcp,
-                  transactionType: "Customer Receipt",
-                  description: selection,
-                  debit:
-                    Math.abs(currentBalance) > totalDue
-                      ? masterInvoice.totalDue
-                      : Math.abs(currentBalance),
-                  credit: 0,
-                  balance: 0,
-                  accounntType: selection,
-                };
-                try {
-                  if (me?.property && me?.year) {
-                    await api.body.accountsTransactions.create(
-                      accountTransactionReceipt,
-                      me.property,
-                      me.year
-                    );
-                  }
-                } catch (error) {}
-              } else {
-                console.error(`Unit document ${unitId} does not exist.`);
-              }
-
-              //get unit current balance
-              if (unitDoc.exists()) {
-                // Check if the unit's balance is already tracked
-                if (unitBalances[unitId] === undefined) {
-                  unitBalances[unitId] = unitDoc.data().balance || 0;
-                }
-
-                const currentBalance = unitBalances[unitId]; // Get the current balance from the tracker
-                if (currentBalance >= 0) {
-                  //invoice as transaction
-                  const customerTransaction: ICustomerTransactions = {
-                    id: "",
-                    unitId: copiedInvoice.unitId,
-                    date: newDateIssued,
-                    reference: copiedInvoice.invoiceNumber,
-                    transactionType: "Tax Invoice",
-                    description: ref,
-                    debit: masterInvoice.totalDue.toFixed(2),
-                    credit: "",
-                    balance: (totalDue + currentBalance).toFixed(2),
-                    balanceAtPointOfTime: currentBalance.toFixed(2),
-                    invId: copiedInvoice.invoiceId,
-                  };
-                  try {
-                    if (me?.property && me?.year)
-                      await api.body.customer_transactions.create(
-                        customerTransaction,
-                        me.property,
-                        me.year
-                      );
-                  } catch (error) {
-                    console.log(error);
-                  }
-
-                  // Accounts transaction for Tax invoice if current balance is equals to or more than 0
-                  const accountTransactionTaxInvoice: IAccountTransactions = {
-                    id: "",
-                    date: newDateIssued,
-                    BankCustomerSupplier:
-                      "unit " +
-                      (
-                        units.find((u) => u.id === unitId)?.unitName || 0
-                      ).toFixed(0),
-                    reference: copiedInvoice.invoiceNumber,
-                    transactionType: "Tax Invoice",
-                    description: selection,
-                    debit: 0,
-                    credit: masterInvoice.totalDue,
-                    balance: 0,
-                    accounntType: selection,
-                  };
-                  try {
-                    if (me?.property && me?.year) {
-                      await api.body.accountsTransactions.create(
-                        accountTransactionTaxInvoice,
-                        me.property,
-                        me.year
-                      );
-                    }
-                  } catch (error) {}
-                } else if (currentBalance < 0) {
-                  //create invoice as transaction
-                  //tax invoice invoice
-                  const customerTransactionTaxInvoice: ICustomerTransactions = {
-                    id: "",
-                    unitId: copiedInvoice.unitId,
-                    date: newDateIssued,
-                    reference: copiedInvoice.invoiceNumber,
-                    transactionType: "Tax Invoice",
-                    description: ref,
-                    debit: masterInvoice.totalDue.toFixed(2),
-                    credit: "",
-                    balance: (totalDue + currentBalance).toFixed(2),
-                    balanceAtPointOfTime: currentBalance.toFixed(2),
-                    invId: copiedInvoice.invoiceId,
-                  };
-                  try {
-                    if (me.property && me.year) {
-                      await api.body.customer_transactions.create(
-                        customerTransactionTaxInvoice,
-                        me.property,
-                        me.year
-                      );
-                    }
-                  } catch (error) {
-                    console.log(error);
-                  }
-                  // acccounts transaction for tax invoice if current balance is less than zero
-                  const accountTransactionTaxInvoice: IAccountTransactions = {
-                    id: "",
-                    date: newDateIssued,
-                    BankCustomerSupplier:
-                      "unit " +
-                      (
-                        units.find((u) => u.id === unitId)?.unitName || 0
-                      ).toFixed(0),
-                    reference: copiedInvoice.invoiceNumber,
-                    transactionType: "Tax Invoice",
-                    description: selection,
-                    debit: 0,
-                    credit: masterInvoice.totalDue,
-                    balance: 0,
-                    accounntType: selection,
-                  };
-                  try {
-                    if (me?.property && me?.year) {
-                      await api.body.accountsTransactions.create(
-                        accountTransactionTaxInvoice,
-                        me.property,
-                        me.year
-                      );
-                    }
-                  } catch (error) {}
-                }
-              }
-
-              await setDoc(newInvoiceRef, copiedInvoice);
-              await updateDoc(newInvoiceRef, { invoiceId: generatedDocId });
-            }
-          }
-
-          //updating unit new balances
-          for (const masterInvoice of masterInvoices) {
-            const { unitId, totalDue } = masterInvoice;
-            const unitDocRef = doc(unitCollectionRef, unitId);
-            const unitDoc = await transaction.get(unitDocRef);
-
-            if (unitDoc.exists()) {
-              // Check if the unit's balance is already tracked
-              if (unitBalances[unitId] === undefined) {
-                unitBalances[unitId] = unitDoc.data().balance || 0;
-              }
-
-              const currentBalance = unitBalances[unitId]; // Get the current balance from the tracker
-              const newBalance = currentBalance + totalDue;
-              unitBalances[unitId] = newBalance;
-
-              updates.push({ ref: unitDocRef, data: { balance: newBalance } });
-            }
-          }
-          // updates every operation add once
-          for (const update of updates) {
-            transaction.update(update.ref, update.data);
-          }
-        };
-
-        await runTransaction(db, updateUnitBalancesTransaction);
-
-        hideModalFromId(DIALOG_NAMES.BODY.VIEW_INVOICE);
-        navigate("/c/body/body-corperate");
-        window.location.reload();
-      } catch (error) {
-        console.error("Error duplicating invoice:", error);
-        FailedAction(ui);
-      } finally {
-        setLoadingF(false);
-      }
+  const handleDuplicateInvoice = async () => {
+    setLoadingF(true);
+    if (ref === "" && newDate === "" && newDateIssued === "") {
+      // FailedActionAllFields(ui);
     } else {
-      FailedActionAllFields(ui);
+      await duplicateInvoice({
+        ref: ref,
+        newDate: newDate,
+        newDateIssued: newDateIssued,
+        selection: "",
+        property: me?.property,
+        masterInvoices: masterInvoices,
+        api: api,
+        units: units,
+        navigate: navigate,
+        FailedAction: FailedAction(ui),
+        FailedActionAllFields: FailedActionAllFields(ui),
+      });
+      hideModalFromId(DIALOG_NAMES.BODY.VIEW_INVOICE);
+      setLoadingF(false);
     }
   };
 
@@ -501,16 +203,6 @@ export const ViewUnit = observer(() => {
     setLoadingS(false);
   }, 1000);
 
-  const accounts = store.bodyCorperate.account.all.map((u) => {
-    return {
-      value: u.asJson.id,
-      label: u.asJson.name,
-    };
-  });
-
-  const handleSelectChange = (selectedValue: string) => {
-    setSelection(selectedValue);
-  };
   return (
     <div className="uk-section leave-analytics-page sales-ViewUnit sales-order">
       {loadingS ? (
@@ -527,14 +219,14 @@ export const ViewUnit = observer(() => {
             </p>
             <div className="controls">
               <div className="uk-inline">
-                {/* <span
+                <span
                   // onClick={duplicated}
                   onClick={onDupicate}
                   data-uk-tooltip="Generate unit-specific invoices from the master invoice for the current month"
                   style={{ cursor: "pointer" }}
                   data-uk-icon="copy"
                   className="uk-margin-right"
-                ></span> */}
+                ></span>
 
                 <button
                   className="uk-button primary uk-margin-right"
@@ -743,14 +435,14 @@ export const ViewUnit = observer(() => {
               />
               <br />
               <br />
-              <label htmlFor="">
+              {/* <label htmlFor="">
                 Select Account <span style={{ color: "red" }}>*</span>
               </label>
               <br />
               <br />
-              <SingleSelect options={accounts} onChange={handleSelectChange} />
+              <SingleSelect options={accounts} onChange={handleSelectChange} /> */}
               <button
-                onClick={duplicated}
+                onClick={handleDuplicateInvoice}
                 disabled={loadingF}
                 style={{ backgroundColor: loadingF ? "grey" : "" }}
                 className="uk-button primary uk-margin"
@@ -914,5 +606,293 @@ export const ViewUnit = observer(() => {
 //     FailedAction(ui);
 //   } finally {
 //     setLoadingF(false);
+//   }
+// };
+
+// //very important feature, needs focus and proper maintenance.
+// //sending email notification is still missing in the duplicate function (important)
+// const duplicated = async () => {
+//   if (
+//     ref !== "" &&
+//     newDate !== "" &&
+//     newDateIssued !== "" &&
+//     selection !== ""
+//   ) {
+//     setLoadingF(true);
+//     try {
+//       if (!me?.property) {
+//         throw new Error(
+//           "Invalid 'property' or 'year' value for duplication."
+//         );
+//       }
+//       const copiedInvoicePath = `/BodyCoperate/${me.property}`;
+//       const unitPath = `/BodyCoperate/${me.property}/Units`;
+//       //check if matser inivoices are 0
+//       if (masterInvoices.length === 0) {
+//         throw new Error("No master invoices to duplicate.");
+//       }
+
+//       //copied invoices operation
+//       const copiedInvoicesCollection = collection(
+//         db,
+//         copiedInvoicePath,
+//         "CopiedInvoices"
+//       );
+
+//       const updateUnitBalancesTransaction = async (transaction: any) => {
+//         const unitCollectionRef = collection(db, unitPath);
+//         const updates = [];
+//         const unitBalances: { [unitId: string]: number } = {};
+
+//         for (const masterInvoice of masterInvoices) {
+//           const { unitId, totalDue } = masterInvoice;
+//           const unitDocRef = doc(unitCollectionRef, unitId);
+//           const unitDoc = await transaction.get(unitDocRef);
+//           if (unitDoc.exists()) {
+//             const currentBalance = unitDoc.data().balance || 0;
+//             const copiedInvoice = { ...masterInvoice };
+//             copiedInvoice.invoiceNumber = generateInvoiceNumber();
+//             copiedInvoice.dueDate = newDate;
+//             copiedInvoice.references = ref;
+//             copiedInvoice.dateIssued = newDateIssued;
+//             const newInvoiceRef = doc(copiedInvoicesCollection);
+//             const generatedDocId = newInvoiceRef.id;
+//             copiedInvoice.invoiceId = generatedDocId;
+//             const absoluteCurrentBalance = Math.abs(currentBalance);
+
+//             if (currentBalance < 0) {
+//               copiedInvoice.totalPaid =
+//                 absoluteCurrentBalance > masterInvoice.totalDue
+//                   ? masterInvoice.totalDue
+//                   : absoluteCurrentBalance;
+//             } else {
+//               copiedInvoice.totalPaid = 0;
+//             }
+//             // Check if balance is less than zero
+//             if (currentBalance < 0) {
+//               // create customer receipt
+
+//               const customerReceipt: IReceiptsPayments = {
+//                 unitId,
+//                 id: "",
+//                 date: newDateIssued,
+//                 reference: ref,
+//                 transactionType: "Customer Receipt",
+//                 description: "Credit Payment",
+//                 debit:
+//                   Math.abs(currentBalance) > totalDue
+//                     ? masterInvoice.totalDue.toFixed(2)
+//                     : Math.abs(currentBalance).toFixed(2),
+//                 credit: "",
+//                 balance: "",
+//                 propertyId: me.property || "",
+//                 invoiceNumber: generatedDocId,
+//                 rcp: generateRCPNumber(),
+//                 supplierId: "",
+//               };
+//               try {
+//                 if (me.property && me.year) {
+//                   await api.body.receiptPayments.create(
+//                     customerReceipt,
+//                     me.property,
+//                     me.year
+//                   );
+//                 }
+//               } catch (error) {
+//                 console.log(error);
+//               }
+
+//               //IF CREDIT THAN CREATE ACCOUNTS TRANSACTION HERE FOR CUSTOMER RECIEPT
+//               const accountTransactionReceipt: IAccountTransactions = {
+//                 id: "",
+//                 date: newDateIssued,
+//                 BankCustomerSupplier:
+//                   "unit " +
+//                   (units.find((u) => u.id === unitId)?.unitName || 0).toFixed(
+//                     0
+//                   ),
+//                 reference: customerReceipt.rcp,
+//                 transactionType: "Customer Receipt",
+//                 description: selection,
+//                 debit:
+//                   Math.abs(currentBalance) > totalDue
+//                     ? masterInvoice.totalDue
+//                     : Math.abs(currentBalance),
+//                 credit: 0,
+//                 balance: 0,
+//                 accounntType: selection,
+//               };
+//               try {
+//                 if (me?.property && me?.year) {
+//                   await api.body.accountsTransactions.create(
+//                     accountTransactionReceipt,
+//                     me.property,
+//                     me.year
+//                   );
+//                 }
+//               } catch (error) {}
+//             } else {
+//               console.error(`Unit document ${unitId} does not exist.`);
+//             }
+
+//             //get unit current balance
+//             if (unitDoc.exists()) {
+//               // Check if the unit's balance is already tracked
+//               if (unitBalances[unitId] === undefined) {
+//                 unitBalances[unitId] = unitDoc.data().balance || 0;
+//               }
+
+//               const currentBalance = unitBalances[unitId]; // Get the current balance from the tracker
+//               if (currentBalance >= 0) {
+//                 //invoice as transaction
+//                 const customerTransaction: ICustomerTransactions = {
+//                   id: "",
+//                   unitId: copiedInvoice.unitId,
+//                   date: newDateIssued,
+//                   reference: copiedInvoice.invoiceNumber,
+//                   transactionType: "Tax Invoice",
+//                   description: ref,
+//                   debit: masterInvoice.totalDue.toFixed(2),
+//                   credit: "",
+//                   balance: (totalDue + currentBalance).toFixed(2),
+//                   balanceAtPointOfTime: currentBalance.toFixed(2),
+//                   invId: copiedInvoice.invoiceId,
+//                 };
+//                 try {
+//                   if (me?.property && me?.year)
+//                     await api.body.customer_transactions.create(
+//                       customerTransaction,
+//                       me.property,
+//                       me.year
+//                     );
+//                 } catch (error) {
+//                   console.log(error);
+//                 }
+
+//                 // Accounts transaction for Tax invoice if current balance is equals to or more than 0
+//                 const accountTransactionTaxInvoice: IAccountTransactions = {
+//                   id: "",
+//                   date: newDateIssued,
+//                   BankCustomerSupplier:
+//                     "unit " +
+//                     (
+//                       units.find((u) => u.id === unitId)?.unitName || 0
+//                     ).toFixed(0),
+//                   reference: copiedInvoice.invoiceNumber,
+//                   transactionType: "Tax Invoice",
+//                   description: selection,
+//                   debit: 0,
+//                   credit: masterInvoice.totalDue,
+//                   balance: 0,
+//                   accounntType: selection,
+//                 };
+//                 try {
+//                   if (me?.property && me?.year) {
+//                     await api.body.accountsTransactions.create(
+//                       accountTransactionTaxInvoice,
+//                       me.property,
+//                       me.year
+//                     );
+//                   }
+//                 } catch (error) {}
+//               } else if (currentBalance < 0) {
+//                 //create invoice as transaction
+//                 //tax invoice invoice
+//                 const customerTransactionTaxInvoice: ICustomerTransactions = {
+//                   id: "",
+//                   unitId: copiedInvoice.unitId,
+//                   date: newDateIssued,
+//                   reference: copiedInvoice.invoiceNumber,
+//                   transactionType: "Tax Invoice",
+//                   description: ref,
+//                   debit: masterInvoice.totalDue.toFixed(2),
+//                   credit: "",
+//                   balance: (totalDue + currentBalance).toFixed(2),
+//                   balanceAtPointOfTime: currentBalance.toFixed(2),
+//                   invId: copiedInvoice.invoiceId,
+//                 };
+//                 try {
+//                   if (me.property && me.year) {
+//                     await api.body.customer_transactions.create(
+//                       customerTransactionTaxInvoice,
+//                       me.property,
+//                       me.year
+//                     );
+//                   }
+//                 } catch (error) {
+//                   console.log(error);
+//                 }
+//                 // acccounts transaction for tax invoice if current balance is less than zero
+//                 const accountTransactionTaxInvoice: IAccountTransactions = {
+//                   id: "",
+//                   date: newDateIssued,
+//                   BankCustomerSupplier:
+//                     "unit " +
+//                     (
+//                       units.find((u) => u.id === unitId)?.unitName || 0
+//                     ).toFixed(0),
+//                   reference: copiedInvoice.invoiceNumber,
+//                   transactionType: "Tax Invoice",
+//                   description: selection,
+//                   debit: 0,
+//                   credit: masterInvoice.totalDue,
+//                   balance: 0,
+//                   accounntType: selection,
+//                 };
+//                 try {
+//                   if (me?.property && me?.year) {
+//                     await api.body.accountsTransactions.create(
+//                       accountTransactionTaxInvoice,
+//                       me.property,
+//                       me.year
+//                     );
+//                   }
+//                 } catch (error) {}
+//               }
+//             }
+
+//             await setDoc(newInvoiceRef, copiedInvoice);
+//             await updateDoc(newInvoiceRef, { invoiceId: generatedDocId });
+//           }
+//         }
+
+//         //updating unit new balances
+//         for (const masterInvoice of masterInvoices) {
+//           const { unitId, totalDue } = masterInvoice;
+//           const unitDocRef = doc(unitCollectionRef, unitId);
+//           const unitDoc = await transaction.get(unitDocRef);
+
+//           if (unitDoc.exists()) {
+//             // Check if the unit's balance is already tracked
+//             if (unitBalances[unitId] === undefined) {
+//               unitBalances[unitId] = unitDoc.data().balance || 0;
+//             }
+
+//             const currentBalance = unitBalances[unitId]; // Get the current balance from the tracker
+//             const newBalance = currentBalance + totalDue;
+//             unitBalances[unitId] = newBalance;
+
+//             updates.push({ ref: unitDocRef, data: { balance: newBalance } });
+//           }
+//         }
+//         // updates every operation add once
+//         for (const update of updates) {
+//           transaction.update(update.ref, update.data);
+//         }
+//       };
+
+//       await runTransaction(db, updateUnitBalancesTransaction);
+
+//       hideModalFromId(DIALOG_NAMES.BODY.VIEW_INVOICE);
+//       navigate("/c/body/body-corperate");
+//       window.location.reload();
+//     } catch (error) {
+//       console.error("Error duplicating invoice:", error);
+//       FailedAction(ui);
+//     } finally {
+//       setLoadingF(false);
+//     }
+//   } else {
+//     FailedActionAllFields(ui);
 //   }
 // };

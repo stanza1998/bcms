@@ -92,52 +92,52 @@ const UnitsGrid = observer(({ data }: IProp) => {
         </>
       ),
     },
-    // {
-    //   field: "balance",
-    //   headerName: "Balance",
-    //   flex: 1,
-    //   // width: 214,
-    //   renderCell: (params) => {
-    //     if (parseFloat(params.row.balance) < 0) {
-    //       return (
-    //         <span
-    //           style={{
-    //             background: "red",
-    //             color: "white",
-    //             padding: "10px",
-    //             flex: 1,
-    //           }}
-    //         >
-    //           {nadFormatter.format(params.row.balance)}
-    //         </span>
-    //       );
-    //     } else {
-    //       return (
-    //         <span
-    //           style={{
-    //             background: "green",
-    //             color: "white",
-    //             padding: "10px",
-    //             flex: 1,
-    //           }}
-    //         >
-    //           {nadFormatter.format(params.row.balance)}
-    //         </span>
-    //       );
-    //     }
-    //   },
-    // },
+    {
+      field: "balance",
+      headerName: "Balance",
+      flex: 1,
+      // width: 214,
+      renderCell: (params) => {
+        if (parseFloat(params.row.balance) < 0) {
+          return (
+            <span
+              style={{
+                background: "red",
+                color: "white",
+                padding: "10px",
+                flex: 1,
+              }}
+            >
+              {nadFormatter.format(params.row.balance)}
+            </span>
+          );
+        } else {
+          return (
+            <span
+              style={{
+                background: "green",
+                color: "white",
+                padding: "10px",
+                flex: 1,
+              }}
+            >
+              {nadFormatter.format(params.row.balance)}
+            </span>
+          );
+        }
+      },
+    },
     {
       field: "Action",
       headerName: "Action",
       renderCell: (params) => (
         <div>
           <UnitCard key={params.row.id} unit={params.row} />
-          {/* <button
+     `     <button
             className="uk-margin-right uk-icon"
             data-uk-icon="thumbnails"
             onClick={() => unitInfo(params.row.id)}
-          ></button> */}
+          ></button>`
         </div>
       ),
     },

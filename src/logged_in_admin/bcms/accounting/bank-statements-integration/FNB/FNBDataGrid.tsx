@@ -31,6 +31,7 @@ import {
 } from "../../../../../shared/models/receipts-payments/ReceiptsPayments";
 import { IBankingTransactions } from "../../../../../shared/models/banks/banking/BankTransactions";
 import SingleSelect from "../../../../../shared/components/single-select/SlingleSelect";
+import { useFetchers } from "react-router-dom";
 
 interface IProp {
   data: IFNB[];
@@ -48,6 +49,9 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
   const [supplierId, setSupplierId] = useState<string>("");
   const [invoiceCopied, setInvoiceCopied] = useState<ICopiedInvoice[]>([]);
   const me = store.user.meJson;
+
+
+
 
   // Generate the rcp number
   const generateInvoiceNumber = () => {
@@ -229,7 +233,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       setSupplierId("");
       return;
     } else {
-      const myPath1 = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
+      const myPath1 = `BodyCoperate/${me?.property}`;
       const transactionsCollectionRef = doc(
         collection(db, myPath1, "FNBTransactions"),
         id
@@ -298,7 +302,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
         setSupplierId("");
         return;
       } else {
-        const myPath1 = `BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
+        const myPath1 = `BodyCoperate/${me?.property}`;
         const transactionsCollectionRef = doc(
           collection(db, myPath1, "FNBTransactions"),
           transactionId
@@ -344,7 +348,7 @@ const FNBDataGrid = observer(({ data, rerender }: IProp) => {
       if (!me?.property && !me?.year && !me?.month)
         return FailedAction("NOT FOUND");
       try {
-        await api.body.receiptPayments.create(rs, me.property, me.year);
+        await api.body.receiptPayments.create(rs, me.property, "");
       } catch (error) {
         console.log(error);
       } finally {

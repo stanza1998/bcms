@@ -17,7 +17,7 @@ export default class SupplierTransactionApi {
   constructor(private api: AppApi, private store: AppStore) {}
 
   async getAll(pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierTransactions`;
+    const myPath = `BodyCoperate/${pid}/SupplierTransactions`;
 
     const $query = query(collection(db, myPath));
     // new promise
@@ -44,7 +44,7 @@ export default class SupplierTransactionApi {
   }
 
   async getById(id: string, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierTransactions`;
+    const myPath = `BodyCoperate/${pid}/SupplierTransactions`;
 
     const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
       if (!doc.exists) return;
@@ -57,7 +57,7 @@ export default class SupplierTransactionApi {
   }
 
   // async create(item: ISupplierTransactions, pid: string, yid: string) {
-  //   const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierTransactions`;
+  //   const myPath = `BodyCoperate/${pid}/SupplierTransactions`;
 
   //   const itemRef = doc(collection(db, myPath));
   //   // item.id = itemRef.id;
@@ -79,7 +79,7 @@ export default class SupplierTransactionApi {
   //   yid: string,
   //   customId: string
   // ) {
-  //   const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierTransactions`;
+  //   const myPath = `BodyCoperate/${pid}/SupplierTransactions`;
 
   //   const itemRef = doc(db, myPath, customId); // Use customId as the document ID
 
@@ -101,7 +101,7 @@ export default class SupplierTransactionApi {
     yid: string,
     customId?: string
   ) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierTransactions`;
+    const myPath = `BodyCoperate/${pid}/SupplierTransactions`;
 
     let itemRef;
 
@@ -125,7 +125,7 @@ export default class SupplierTransactionApi {
   }
 
   async update(product: ISupplierTransactions, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierTransactions`;
+    const myPath = `BodyCoperate/${pid}/SupplierTransactions`;
     try {
       await updateDoc(doc(db, myPath, product.id), {
         ...product,
@@ -136,7 +136,7 @@ export default class SupplierTransactionApi {
   }
 
   async delete(id: string, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierTransactions`;
+    const myPath = `BodyCoperate/${pid}/SupplierTransactions`;
     try {
       await deleteDoc(doc(db, myPath, id));
       this.store.bodyCorperate.supplierTransactions.remove(id);

@@ -20,7 +20,7 @@ export default class ReceiptPaymentsApi {
   constructor(private api: AppApi, private store: AppStore) {}
 
   async getAll(pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/ReceiptsPayments`;
+    const myPath = `BodyCoperate/${pid}/ReceiptsPayments`;
     const $query = query(collection(db, myPath));
     // new promise
     return await new Promise<Unsubscribe>((resolve, reject) => {
@@ -46,7 +46,7 @@ export default class ReceiptPaymentsApi {
   }
 
   async getById(id: string, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/ReceiptsPayments`;
+    const myPath = `BodyCoperate/${pid}/ReceiptsPayments`;
 
     const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
       if (!doc.exists) return;
@@ -57,7 +57,7 @@ export default class ReceiptPaymentsApi {
   }
 
   async create(item: IReceiptsPayments, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/ReceiptsPayments`;
+    const myPath = `BodyCoperate/${pid}/ReceiptsPayments`;
     const itemRef = doc(collection(db, myPath));
     item.id = itemRef.id;
 
@@ -79,7 +79,7 @@ export default class ReceiptPaymentsApi {
     yid: string,
     mid: string
   ) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/ReceiptsPayments`;
+    const myPath = `BodyCoperate/${pid}/ReceiptsPayments`;
     try {
       await updateDoc(doc(db, myPath, product.id), {
         ...product,
@@ -90,7 +90,7 @@ export default class ReceiptPaymentsApi {
   }
 
   async delete(id: string, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/ReceiptsPayments`;
+    const myPath = `BodyCoperate/${pid}/ReceiptsPayments`;
     try {
       await deleteDoc(doc(db, myPath, id));
       this.store.bodyCorperate.receiptsPayments.remove(id);
