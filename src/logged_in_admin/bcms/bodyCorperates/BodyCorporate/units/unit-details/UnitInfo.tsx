@@ -15,8 +15,6 @@ import { Maintenance } from "../unit-info-components/maintenance/Maintenance";
 import { Communication } from "../unit-info-components/communication/Communication";
 import { Documents } from "../unit-info-components/documents/Documents";
 
-
-
 export const UnitInfor = observer(() => {
   const { propertyId, id } = useParams();
   const { store, api } = useAppContext();
@@ -212,11 +210,7 @@ export const UnitInfor = observer(() => {
                 />
               </div>
               <div className="tab-content">
-                {activeTab === "overview" && (
-                  <div className="dashboard">
-                    <Dashboard />
-                  </div>
-                )}
+                {activeTab === "overview" && <div className="dashboard"></div>}
                 {activeTab === "finance" && (
                   <div className="finance">
                     <FinacialRecords />

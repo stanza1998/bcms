@@ -74,14 +74,6 @@ const InvoicesGrid = observer(({ data }: IProp) => {
     ...defaultUnit,
   });
 
-  const [year, setYear] = useState<IFinancialYear | undefined>({
-    ...defaultFinancialYear,
-  });
-
-  const [month, setMonth] = useState<IFinancialMonth | undefined>({
-    ...defaultFinancialMonth,
-  });
-
   const viewInvoiceDetails = async (
     invoiceId: string,
     pid: string,
@@ -98,22 +90,14 @@ const InvoicesGrid = observer(({ data }: IProp) => {
     setBody(property?.asJson);
     const unit = store.bodyCorperate.unit.getById(uid);
     setUnit(unit?.asJson);
-    const month = store.bodyCorperate.financialMonth.getById(mid);
-    setMonth(month?.asJson);
-    const year = store.bodyCorperate.financialYear.getById(yid);
-    setYear(year?.asJson);
+
     if (me?.property) await api.unit.getAll(me?.property);
   };
 
   //unit data
-  const verifyInvoice = (
-    invoiceId: string,
-    propertyId: string,
-    id: string,
-    yearId: string
-  ) => {
+  const verifyInvoice = (invoiceId: string, propertyId: string, id: string) => {
     navigate(
-      `/c/accounting/invoices/copiedAcc/${propertyId}/${id}/${yearId}/${invoiceId}/`
+      `/c/accounting/invoices/copiedAcc/${propertyId}/${id}/${invoiceId}/`
     );
   };
 
@@ -122,34 +106,34 @@ const InvoicesGrid = observer(({ data }: IProp) => {
     {
       field: "unitId",
       headerName: "Unit",
-      flex:1,
-      renderCell: (params) => (
-        <span>
-          {units
-            .filter((u) => u.id === params.row.unitId)
-            .map((u) => {
-              return "Unit " + u.unitName;
-            })}
-        </span>
-      ),
+      flex: 1,
+      renderCell: (params) => {
+        const matchingUnits = units.filter((u) => u.id === params.row.unitId);
+
+        if (matchingUnits.length > 0) {
+          return <span>Unit {matchingUnits[0].unitName}</span>;
+        } else {
+          return <span>No Unit Found</span>; // Adjust the message as needed
+        }
+      },
     },
-    { field: "invoiceNumber", headerName: "Invoice Number",  flex:1 },
+    { field: "invoiceNumber", headerName: "Invoice Number", flex: 1 },
     {
       field: "totalPaid",
       headerName: "Total Paid",
-      flex:1,
-      renderCell: (params) => <> {nadFormatter.format(params.row.totalPaid)}</>,
+      flex: 1,
+      valueGetter: (params) => `${nadFormatter.format(params.row.totalPaid)}`,
     },
     {
       field: "totalDue",
       headerName: "Total Amount",
-      flex:1,
+      flex: 1,
       renderCell: (params) => <> {nadFormatter.format(params.row.totalDue)}</>,
     },
     {
       field: "TotalDue",
       headerName: "Total Due",
-      flex:1,
+      flex: 1,
       renderCell: (params) => (
         <> {nadFormatter.format(params.row.totalDue - params.row.totalPaid)}</>
       ),
@@ -157,7 +141,7 @@ const InvoicesGrid = observer(({ data }: IProp) => {
     {
       field: "Status",
       headerName: "Status",
-      flex:1,
+      flex: 1,
       renderCell: (params) => (
         <div>
           {params.row.totalPaid >= params.row.totalDue && (
@@ -172,7 +156,7 @@ const InvoicesGrid = observer(({ data }: IProp) => {
     {
       field: "Action",
       headerName: "Action",
-      flex:1,
+      flex: 1,
       renderCell: (params) => (
         <div>
           <IconButton
@@ -194,8 +178,7 @@ const InvoicesGrid = observer(({ data }: IProp) => {
               verifyInvoice(
                 params.row.invoiceId,
                 params.row.propertyId,
-                params.row.unitId,
-                params.row.yearId
+                params.row.unitId
               )
             }
           >

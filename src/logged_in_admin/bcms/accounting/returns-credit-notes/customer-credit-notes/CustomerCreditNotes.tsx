@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { useAppContext } from "../../../../../shared/functions/Context";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { ICreditNote } from "../../../../../shared/models/credit-notes-returns/CreditNotesReturns";
 import showModalFromId, {
   hideModalFromId,
@@ -20,11 +20,8 @@ import ArticleIcon from "@mui/icons-material/Article";
 import ArrowCircleUpSharpIcon from "@mui/icons-material/ArrowCircleUpSharp";
 import { nadFormatter } from "../../../../shared/NADFormatter";
 import NumberInput from "../../../../../shared/functions/number-input/NumberInput";
-import { Toast } from "primereact/toast";
-import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { ICustomerTransactions } from "../../../../../shared/models/transactions/customer-transactions/CustomerTransactionModel";
-import { ICopiedInvoice } from "../../../../../shared/models/invoices/CopyInvoices";
 import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../../shared/database/FirebaseConfig";
 import SingleSelect from "../../../../../shared/components/single-select/SlingleSelect";
@@ -50,23 +47,6 @@ const CustomerCreditNotes = observer(() => {
     return generatedInvoiceNumber;
   };
 
-  useEffect(() => {
-    const getInvoiceNumber = () => {
-      const foundInvoice = store.bodyCorperate.copiedInvoices.all.find(
-        (invoice) => invoice.asJson.invoiceId === invoiceId
-      );
-
-      if (foundInvoice) {
-        const invoiceNumber = foundInvoice.asJson.invoiceNumber;
-        setInvoiceNumber(invoiceNumber);
-      } else {
-        // Handle case where invoice with the specified ID was not found
-      }
-    };
-
-    getInvoiceNumber();
-  }, [invoiceId, store.bodyCorperate.copiedInvoices.all]);
-
   const createCreditNote = async (e: any) => {
     e.preventDefault();
     if (
@@ -78,7 +58,7 @@ const CustomerCreditNotes = observer(() => {
       try {
         setLoading(true);
 
-        if (!me?.property || !me?.year || !me?.month) {
+        if (!me?.property) {
           throw new Error("Property, year, or month is missing.");
         }
         const creditNote: ICreditNote = {
@@ -94,8 +74,8 @@ const CustomerCreditNotes = observer(() => {
           await api.body.creditNote.create(
             creditNote,
             me.property,
-            me.year,
-            me.month,
+            "",
+            "",
             unitId
           );
         } catch (error) {
@@ -120,12 +100,12 @@ const CustomerCreditNotes = observer(() => {
           await api.body.customer_transactions.create(
             customerTransactionTaxInvoice,
             me.property,
-            me.year
+            ""
           );
         }
 
         try {
-          const copiedInvoicesPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
+          const copiedInvoicesPath = `/BodyCoperate/${me?.property}`;
           const invoiceRef = doc(
             collection(db, copiedInvoicesPath, "CopiedInvoices"),
             invoiceId
@@ -135,23 +115,21 @@ const CustomerCreditNotes = observer(() => {
             const invoiceData = invoiceSnapshot.data();
             const existingTotalPaid = invoiceData.totalPaid || 0; // Default to 0 if totalPaid doesn't exist
             const updatedTotalPaid = existingTotalPaid + balance;
-            console.log(updatedTotalPaid);
 
-            await updateDoc(invoiceRef, {
-              totalPaid: updatedTotalPaid,
-            });
+            try {
+              await updateDoc(invoiceRef, {
+                totalPaid: updatedTotalPaid,
+              });
+            } catch (error) {
+              console.log(error);
+            }
           } else {
-            console.log("Invoice not found.");
             return; // Return early if the invoice doesn't exist
           }
-        } catch (error) {
-          console.error("Error:", error);
-        }
+        } catch (error) {}
 
         SuccessfulAction(ui);
       } catch (error) {
-        console.error(error);
-        // Handle the error as needed (e.g., display a user-friendly message)
       } finally {
         setLoading(false);
         hideModalFromId(DIALOG_NAMES.BODY.CREDIT_NOTE);
@@ -164,18 +142,6 @@ const CustomerCreditNotes = observer(() => {
   const onCreate = () => {
     showModalFromId(DIALOG_NAMES.BODY.CREDIT_NOTE);
   };
-
-  useEffect(() => {
-    const getData = async () => {
-      if (me?.property) await api.unit.getAll(me?.property);
-      if (me?.property && me?.year)
-        await api.body.copiedInvoice.getAll(me.property, me.year);
-      if (me?.property && me?.year)
-        await api.body.creditNote.getAll(me.property, me.year, me.month);
-      if (me?.property) await api.body.account.getAll(me?.property);
-    };
-    getData();
-  }, []);
 
   const units = store.bodyCorperate.unit.all.map((u) => {
     return u.asJson;
@@ -240,6 +206,35 @@ const CustomerCreditNotes = observer(() => {
   const handleSelectInvoice = (selectedInvoice: string) => {
     setInvoiceId(selectedInvoice);
   };
+
+  useEffect(() => {
+    const getInvoiceNumber = () => {
+      const foundInvoice = store.bodyCorperate.copiedInvoices.all.find(
+        (invoice) => invoice.asJson.invoiceId === invoiceId
+      );
+
+      if (foundInvoice) {
+        const invoiceNumber = foundInvoice.asJson.invoiceNumber;
+        setInvoiceNumber(invoiceNumber);
+      } else {
+        // Handle case where invoice with the specified ID was not found
+      }
+    };
+
+    getInvoiceNumber();
+  }, [invoiceId, store.bodyCorperate.copiedInvoices.all]);
+
+  useEffect(() => {
+    const getData = async () => {
+      if (me?.property) await api.unit.getAll(me?.property);
+      if (me?.property && me?.year)
+        await api.body.copiedInvoice.getAll(me.property, me.year);
+      if (me?.property && me?.year)
+        await api.body.creditNote.getAll(me.property, me.year, me.month);
+      if (me?.property) await api.body.account.getAll(me?.property);
+    };
+    getData();
+  }, []);
 
   return (
     <div>

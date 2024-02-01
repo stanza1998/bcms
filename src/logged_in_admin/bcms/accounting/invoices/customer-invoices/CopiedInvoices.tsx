@@ -28,6 +28,7 @@ import { ICopiedInvoice } from "../../../../../shared/models/invoices/CopyInvoic
 import SingleSelect from "../../../../../shared/components/single-select/SlingleSelect";
 import NumberFormat from "react-number-format";
 import NumberInput from "../../../../../shared/functions/number-input/NumberInput";
+import { generateInvoiceNumber } from "../../../../shared/referenceGeneration";
 
 interface ServiceDetails {
   description: string;
@@ -43,28 +44,6 @@ export const CopiedInvoices = observer(() => {
   const [unitId, setUnitId] = useState<string>("");
   const [dueDate, setDueDate] = useState<string>("");
   const [reference, setReference] = useState<string>("");
-
-  useEffect(() => {
-    const getData = async () => {
-      await api.body.body.getAll();
-      if (me?.property && me.year)
-        await api.body.copiedInvoice.getAll(me.property, me.year);
-      if (me?.property) await api.body.financialYear.getAll(me.property);
-      if (me?.property && me?.year)
-        await api.body.financialMonth.getAll(me.property, me.year);
-      await api.auth.loadAll();
-    };
-    getData();
-  }, [
-    api.auth,
-    api.body.body,
-    api.body.copiedInvoice,
-    api.body.financialMonth,
-    api.body.financialYear,
-    api.unit,
-    me?.property,
-    me?.year,
-  ]);
 
   const invoicesC = store.bodyCorperate.copiedInvoices.all.map((statements) => {
     return statements.asJson;
@@ -111,20 +90,6 @@ export const CopiedInvoices = observer(() => {
   };
 
   // generate invoice number
-  const [invoiceNumber, setInvoiceNumber] = useState("");
-  useEffect(() => {
-    // Generate the invoice number
-    const generateInvoiceNumber = () => {
-      const randomNumber = Math.floor(Math.random() * 10000);
-      const formattedNumber = randomNumber.toString().padStart(4, "0");
-      const generatedInvoiceNumber = `INV000${formattedNumber}`;
-      setInvoiceNumber(generatedInvoiceNumber);
-    };
-    generateInvoiceNumber();
-    return () => {
-      // Any cleanup code if necessary
-    };
-  }, []);
 
   const [details, setDetails] = useState<ServiceDetails[]>([]);
   const totalPrice = details.reduce((sum, detail) => sum + detail.price, 0);
@@ -165,7 +130,7 @@ export const CopiedInvoices = observer(() => {
       propertyId: me?.property || "",
       unitId: unitId,
       yearId: me?.year || "",
-      invoiceNumber: invoiceNumber,
+      invoiceNumber: generateInvoiceNumber(),
       dateIssued: currentDate,
       dueDate: dueDate,
       references: "",
@@ -183,8 +148,8 @@ export const CopiedInvoices = observer(() => {
       vatPrice: !VAT ? 0 : VATINclusivePrice,
     };
     try {
-      if (!me?.property && !me?.year) return;
-      await api.body.copiedInvoice.create(InvoiceData, me?.property, me?.year);
+      if (!me?.property) return;
+      await api.body.copiedInvoice.create(InvoiceData, me?.property, "");
 
       setLoadingInvoice(false);
     } catch (error) {
@@ -232,8 +197,6 @@ export const CopiedInvoices = observer(() => {
         console.error("Error:", error);
       }
     }
-
-    setInvoiceNumber("");
     setDueDate("");
     setVAT(false);
     setCurrentDate("");
@@ -244,6 +207,28 @@ export const CopiedInvoices = observer(() => {
     );
     SuccessfulAction(ui);
   };
+
+  useEffect(() => {
+    const getData = async () => {
+      await api.body.body.getAll();
+      if (me?.property && me.year)
+        await api.body.copiedInvoice.getAll(me.property, me.year);
+      if (me?.property) await api.body.financialYear.getAll(me.property);
+      if (me?.property && me?.year)
+        await api.body.financialMonth.getAll(me.property, me.year);
+      await api.auth.loadAll();
+    };
+    getData();
+  }, [
+    api.auth,
+    api.body.body,
+    api.body.copiedInvoice,
+    api.body.financialMonth,
+    api.body.financialYear,
+    api.unit,
+    me?.property,
+    me?.year,
+  ]);
 
   return (
     <div>
@@ -354,20 +339,6 @@ export const CopiedInvoices = observer(() => {
                     </div>
                   </div>
                 </div>
-                <div className="uk-width-1-2@m">
-                  <div className="uk-margin">
-                    <label className="uk-form-label">Invoice Number</label>
-                    <div className="uk-form-controls">
-                      <input
-                        className="uk-input"
-                        type="text"
-                        value={invoiceNumber}
-                        disabled
-                      />
-                    </div>
-                  </div>
-                </div>
-
                 <div className="uk-width-1-2@m">
                   <div className="uk-margin">
                     <label className="uk-form-label">

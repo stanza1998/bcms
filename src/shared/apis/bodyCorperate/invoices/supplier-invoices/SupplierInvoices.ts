@@ -18,7 +18,7 @@ export default class SupplierInvoiceApi {
   constructor(private api: AppApi, private store: AppStore) {}
 
   async getAll(pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierInvoices`;
+    const myPath = `BodyCoperate/${pid}/SupplierInvoices`;
 
     const $query = query(collection(db, myPath));
     // new promise
@@ -48,7 +48,7 @@ export default class SupplierInvoiceApi {
   }
 
   async getById(id: string, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierInvoices`;
+    const myPath = `BodyCoperate/${pid}/SupplierInvoices`;
 
     const unsubscribe = onSnapshot(doc(db, myPath, id), (doc) => {
       if (!doc.exists) return;
@@ -60,7 +60,7 @@ export default class SupplierInvoiceApi {
     return unsubscribe;
   }
   async getByInvoiceNumber(invoiceNumber: string, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierInvoices`;
+    const myPath = `BodyCoperate/${pid}/SupplierInvoices`;
 
     try {
       const querySnapshot = await getDocs(collection(db, myPath));
@@ -79,7 +79,7 @@ export default class SupplierInvoiceApi {
   }
 
   async create(item: ISupplierInvoices, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierInvoices`;
+    const myPath = `BodyCoperate/${pid}/SupplierInvoices`;
 
     const itemRef = doc(collection(db, myPath));
     item.invoiceId = itemRef.id;
@@ -97,7 +97,7 @@ export default class SupplierInvoiceApi {
   }
 
   async update(product: ISupplierInvoices, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierInvoices`;
+    const myPath = `BodyCoperate/${pid}/SupplierInvoices`;
     try {
       await updateDoc(doc(db, myPath, product.invoiceId), {
         ...product,
@@ -108,7 +108,7 @@ export default class SupplierInvoiceApi {
   }
 
   async delete(id: string, pid: string, yid: string) {
-    const myPath = `BodyCoperate/${pid}/FinancialYear/${yid}/SupplierInvoices`;
+    const myPath = `BodyCoperate/${pid}/SupplierInvoices`;
     try {
       await deleteDoc(doc(db, myPath, id));
       this.store.bodyCorperate.supplierInvoice.remove(id);

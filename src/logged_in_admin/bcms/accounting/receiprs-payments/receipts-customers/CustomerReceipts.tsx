@@ -79,7 +79,7 @@ const CustomerReceipts = observer(() => {
           rcp: generateInvoiceNumber(),
           supplierId: "",
         };
-        if ((me?.property, me?.year, me?.month))
+        if ((me?.property))
           try {
             await api.body.receiptPayments.create(
               receipt,
@@ -90,7 +90,7 @@ const CustomerReceipts = observer(() => {
             console.log(error);
           }
         try {
-          const copiedInvoicesPath = `/BodyCoperate/${me?.property}/FinancialYear/${me?.year}`;
+          const copiedInvoicesPath = `/BodyCoperate/${me?.property}`;
           const invoiceRef = doc(
             collection(db, copiedInvoicesPath, "CopiedInvoices"),
             invoiceNumber
