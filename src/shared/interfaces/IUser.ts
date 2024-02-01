@@ -16,12 +16,13 @@ export const defaultUser: IUser = {
   year: "",
   month: "",
   bankAccountInUse: "",
+  accessProperties: []
 };
 
 export interface IUser {
   devUser: boolean;
   uid: string;
-  accessProperties?: string[];
+  accessProperties: string[];
   firstName: string;
   lastName: string;
   email: string;
@@ -36,6 +37,6 @@ export interface IUser {
   property: string;
   year: string;
   month: string;
-  bankAccountInUse:string;
-  serviceProviderName?:string;
+  bankAccountInUse: string;
+  serviceProviderName?: string;
 }

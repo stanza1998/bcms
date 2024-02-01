@@ -55,8 +55,9 @@ export const ServiceProviderDialog = observer(() => {
           property: "",
           year: "",
           month: "",
-          bankAccountInUse:"",
-          serviceProviderName:providers.serviceProvideName || undefined,
+          bankAccountInUse: "",
+          serviceProviderName: providers.serviceProvideName || undefined,
+          accessProperties: []
         };
         console.log("User Instance (Update):", userInstance);
         await api.auth.updateUser(userInstance);
@@ -98,6 +99,7 @@ export const ServiceProviderDialog = observer(() => {
           month: "",
           bankAccountInUse:"",
           serviceProviderName:serviceProviderRequest.serviceProvideName || undefined,
+          accessProperties: []
         };
         console.log("User Instance (Create):", userInstance);
         await api.auth.createUser(userInstance);

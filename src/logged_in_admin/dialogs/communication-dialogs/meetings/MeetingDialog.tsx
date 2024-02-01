@@ -250,34 +250,42 @@ export const MeetingDialog = observer(() => {
       ></button>
 
       <h3 className="uk-modal-title">Meeting</h3>
-      <div className="dialog-content uk-position-relative">
-        <div className="reponse-form">
-          <form className="uk-form-stacked " onSubmit={onSave}>
-            <div className="uk-grid-small" data-uk-grid>
-              <div className="uk-width-1-1">
-                <label className="uk-form-label" htmlFor="form-stacked-text">
-                  Meeting Title
-                  {meeting.title === "" && (
-                    <span style={{ color: "red" }}>*</span>
-                  )}
-                </label>
-                <div className="uk-form-controls">
-                  <input
-                    className="uk-input"
-                    type="text"
-                    placeholder="Title"
-                    value={meeting.title}
-                    onChange={(e) =>
-                      setMeeting({
-                        ...meeting,
-                        title: e.target.value,
-                      })
-                    }
-                    required
-                  />
+      {me?.role === "Owner" ? (
+        <>
+        <p>Meeting: {meeting.title}</p>
+        <p>Meeting: {meeting.title}</p>
+        <p>Meeting: {meeting.title}</p>
+        <p>Meeting: {meeting.title}</p>
+        </>
+      ) : (
+        <div className="dialog-content uk-position-relative">
+          <div className="reponse-form">
+            <form className="uk-form-stacked " onSubmit={onSave}>
+              <div className="uk-grid-small" data-uk-grid>
+                <div className="uk-width-1-1">
+                  <label className="uk-form-label" htmlFor="form-stacked-text">
+                    Meeting Title
+                    {meeting.title === "" && (
+                      <span style={{ color: "red" }}>*</span>
+                    )}
+                  </label>
+                  <div className="uk-form-controls">
+                    <input
+                      className="uk-input"
+                      type="text"
+                      placeholder="Title"
+                      value={meeting.title}
+                      onChange={(e) =>
+                        setMeeting({
+                          ...meeting,
+                          title: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
-              {/* <div className="uk-width-1-2">
+                {/* <div className="uk-width-1-2">
                 <label className="uk-form-label" htmlFor="form-stacked-text">
                   Select Folder
                   {meeting.folderId === "" && (
@@ -292,258 +300,261 @@ export const MeetingDialog = observer(() => {
                   />
                 </div>
               </div> */}
-              <div className="uk-width-1-2">
-                <label className="uk-form-label" htmlFor="form-stacked-text">
-                  Start Date And Time
-                  {meeting.startDateAndTime === "" && (
-                    <span style={{ color: "red" }}>*</span>
-                  )}
-                </label>
-                <div className="uk-form-controls">
-                  <input
-                    className="uk-input"
-                    type="datetime-local"
-                    value={meeting.startDateAndTime}
-                    onChange={(e) =>
-                      setMeeting({
-                        ...meeting,
-                        startDateAndTime: e.target.value,
-                      })
-                    }
-                    min={new Date().toISOString().slice(0, 16)}
-                    required
-                  />
+                <div className="uk-width-1-2">
+                  <label className="uk-form-label" htmlFor="form-stacked-text">
+                    Start Date And Time
+                    {meeting.startDateAndTime === "" && (
+                      <span style={{ color: "red" }}>*</span>
+                    )}
+                  </label>
+                  <div className="uk-form-controls">
+                    <input
+                      className="uk-input"
+                      type="datetime-local"
+                      value={meeting.startDateAndTime}
+                      onChange={(e) =>
+                        setMeeting({
+                          ...meeting,
+                          startDateAndTime: e.target.value,
+                        })
+                      }
+                      min={new Date().toISOString().slice(0, 16)}
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="uk-width-1-2">
-                <label className="uk-form-label" htmlFor="form-stacked-text">
-                  End Date And Time
-                  {meeting.endDateAndTime === "" && (
-                    <span style={{ color: "red" }}>*</span>
-                  )}
-                </label>
-                <div className="uk-form-controls">
-                  <input
-                    className="uk-input"
-                    type="datetime-local"
-                    value={meeting.endDateAndTime}
-                    onChange={(e) =>
-                      setMeeting({
-                        ...meeting,
-                        endDateAndTime: e.target.value,
-                      })
-                    }
-                    min={new Date().toISOString().slice(0, 16)}
-                    required
-                  />
+                <div className="uk-width-1-2">
+                  <label className="uk-form-label" htmlFor="form-stacked-text">
+                    End Date And Time
+                    {meeting.endDateAndTime === "" && (
+                      <span style={{ color: "red" }}>*</span>
+                    )}
+                  </label>
+                  <div className="uk-form-controls">
+                    <input
+                      className="uk-input"
+                      type="datetime-local"
+                      value={meeting.endDateAndTime}
+                      onChange={(e) =>
+                        setMeeting({
+                          ...meeting,
+                          endDateAndTime: e.target.value,
+                        })
+                      }
+                      min={new Date().toISOString().slice(0, 16)}
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="uk-width-1-1">
-                <label className="uk-form-label" htmlFor="form-stacked-text">
-                  Description
-                  {meeting.description === "" && (
-                    <span style={{ color: "red" }}>*</span>
-                  )}
-                </label>
-                <div className="uk-form-controls">
-                  <textarea
-                    className="uk-input"
-                    style={{ height: "6rem" }}
-                    value={meeting.description}
-                    onChange={(e) =>
-                      setMeeting({
-                        ...meeting,
-                        description: e.target.value,
-                      })
-                    }
-                    required
-                  />
+                <div className="uk-width-1-1">
+                  <label className="uk-form-label" htmlFor="form-stacked-text">
+                    Description
+                    {meeting.description === "" && (
+                      <span style={{ color: "red" }}>*</span>
+                    )}
+                  </label>
+                  <div className="uk-form-controls">
+                    <textarea
+                      className="uk-input"
+                      style={{ height: "6rem" }}
+                      value={meeting.description}
+                      onChange={(e) =>
+                        setMeeting({
+                          ...meeting,
+                          description: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="uk-width-1-2">
-                <label className="uk-form-label" htmlFor="form-stacked-text">
-                  Location
-                  {meeting.location === "" && (
-                    <span style={{ color: "" }}> (optional)</span>
-                  )}
-                </label>
-                <div className="uk-form-controls">
-                  <input
-                    className="uk-input"
-                    type="text"
-                    placeholder="Meeting Location"
-                    value={meeting.location}
-                    onChange={(e) =>
-                      setMeeting({
-                        ...meeting,
-                        location: e.target.value,
-                      })
-                    }
-                  />
+                <div className="uk-width-1-2">
+                  <label className="uk-form-label" htmlFor="form-stacked-text">
+                    Location
+                    {meeting.location === "" && (
+                      <span style={{ color: "" }}> (optional)</span>
+                    )}
+                  </label>
+                  <div className="uk-form-controls">
+                    <input
+                      className="uk-input"
+                      type="text"
+                      placeholder="Meeting Location"
+                      value={meeting.location}
+                      onChange={(e) =>
+                        setMeeting({
+                          ...meeting,
+                          location: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="uk-width-1-2">
-                <label className="uk-form-label" htmlFor="form-stacked-text">
-                  Online Link
-                  {meeting.meetingLink === "" && (
-                    <span style={{ color: "" }}> (optional)</span>
-                  )}
-                </label>
-                <div className="uk-form-controls">
-                  <input
-                    className="uk-input"
-                    type="text"
-                    placeholder="Meeting Link"
-                    value={meeting.meetingLink}
-                    onChange={(e) =>
-                      setMeeting({
-                        ...meeting,
-                        meetingLink: e.target.value,
-                      })
-                    }
-                  />
+                <div className="uk-width-1-2">
+                  <label className="uk-form-label" htmlFor="form-stacked-text">
+                    Online Link
+                    {meeting.meetingLink === "" && (
+                      <span style={{ color: "" }}> (optional)</span>
+                    )}
+                  </label>
+                  <div className="uk-form-controls">
+                    <input
+                      className="uk-input"
+                      type="text"
+                      placeholder="Meeting Link"
+                      value={meeting.meetingLink}
+                      onChange={(e) =>
+                        setMeeting({
+                          ...meeting,
+                          meetingLink: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="uk-width-1-1">
-                <label className="uk-form-label" htmlFor="form-stacked-text">
-                  Attendees
-                  {meeting.meetingLink === "" && (
-                    <span style={{ color: "" }}> (optional)</span>
-                  )}
-                </label>
-                <div className="uk-margin uk-form-controls">
-                  <Select
-                    closeMenuOnSelect={false}
-                    components={animatedComponents}
-                    onChange={(value: any) =>
-                      setMeeting({
-                        ...meeting,
-                        ownerParticipants: value.map((t: any) => t.value),
-                      })
-                    }
-                    isMulti
-                    placeholder="Search users"
-                    options={findPropertyUsers(users, units)}
-                    value={meeting.ownerParticipants.map((participantId) => {
-                      const selectedContact = users.find(
-                        (contact) => contact.uid === participantId
-                      );
-                      return selectedContact
-                        ? {
-                            label:
-                              selectedContact.firstName +
-                              " " +
-                              selectedContact.lastName,
-                            value: selectedContact.uid,
-                          }
-                        : null;
-                    })}
-                  />
+                <div className="uk-width-1-1">
+                  <label className="uk-form-label" htmlFor="form-stacked-text">
+                    Attendees
+                    {meeting.meetingLink === "" && (
+                      <span style={{ color: "" }}> (optional)</span>
+                    )}
+                  </label>
+                  <div className="uk-margin uk-form-controls">
+                    <Select
+                      closeMenuOnSelect={false}
+                      components={animatedComponents}
+                      onChange={(value: any) =>
+                        setMeeting({
+                          ...meeting,
+                          ownerParticipants: value.map((t: any) => t.value),
+                        })
+                      }
+                      isMulti
+                      placeholder="Search users"
+                      options={findPropertyUsers(users, units)}
+                      value={meeting.ownerParticipants.map((participantId) => {
+                        const selectedContact = users.find(
+                          (contact) => contact.uid === participantId
+                        );
+                        return selectedContact
+                          ? {
+                              label:
+                                selectedContact.firstName +
+                                " " +
+                                selectedContact.lastName,
+                              value: selectedContact.uid,
+                            }
+                          : null;
+                      })}
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="uk-margin uk-width-1-1">
-                <label className="uk-form-label" htmlFor="form-stacked-text">
-                  Guest
-                  {meeting.meetingLink === "" && (
-                    <span style={{ color: "" }}> (optional)</span>
-                  )}
-                </label>
-                <div className="uk-form-controls">
-                  <Select
-                    closeMenuOnSelect={false}
-                    components={animatedComponents}
-                    onChange={(value: any) =>
-                      setMeeting({
-                        ...meeting,
-                        externalParticipants: value.map((t: any) => t.value),
-                      })
-                    }
-                    isMulti
-                    placeholder="Search users"
-                    options={customContact}
-                    value={meeting.externalParticipants.map((participantId) => {
-                      const selectedContact = customContact.find(
-                        (contact) => contact.value === participantId
-                      );
-                      return selectedContact
-                        ? {
-                            label: selectedContact.label,
-                            value: selectedContact.value,
-                          }
-                        : null;
-                    })}
-                  />
+                <div className="uk-margin uk-width-1-1">
+                  <label className="uk-form-label" htmlFor="form-stacked-text">
+                    Guest
+                    {meeting.meetingLink === "" && (
+                      <span style={{ color: "" }}> (optional)</span>
+                    )}
+                  </label>
+                  <div className="uk-form-controls">
+                    <Select
+                      closeMenuOnSelect={false}
+                      components={animatedComponents}
+                      onChange={(value: any) =>
+                        setMeeting({
+                          ...meeting,
+                          externalParticipants: value.map((t: any) => t.value),
+                        })
+                      }
+                      isMulti
+                      placeholder="Search users"
+                      options={customContact}
+                      value={meeting.externalParticipants.map(
+                        (participantId) => {
+                          const selectedContact = customContact.find(
+                            (contact) => contact.value === participantId
+                          );
+                          return selectedContact
+                            ? {
+                                label: selectedContact.label,
+                                value: selectedContact.value,
+                              }
+                            : null;
+                        }
+                      )}
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="uk-width-1-1">
-                <label className="uk-form-label" htmlFor="attachments">
-                  Meeting Attachments
-                </label>
-                <div className="uk-form-controls">
-                  <input
-                    type="file"
-                    id="attachments"
-                    onChange={handleAttachmentChange}
-                    multiple
-                  />
-                  {/* Display the list of selected attachments */}
+                <div className="uk-width-1-1">
+                  <label className="uk-form-label" htmlFor="attachments">
+                    Meeting Attachments
+                  </label>
+                  <div className="uk-form-controls">
+                    <input
+                      type="file"
+                      id="attachments"
+                      onChange={handleAttachmentChange}
+                      multiple
+                    />
+                    {/* Display the list of selected attachments */}
 
-                  <table className="uk-table uk-table-small uk-table-striped">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Extension</th>
-                        <th>file</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {attachments.map((a, index) => (
-                        <tr key={index}>
-                          <td>{a.name}</td>
-                          <td>{a.extension}</td>
-                          <td>
-                            <img
-                              src={getIconForExtension(a.extension)}
-                              alt={`${a.name} icon`}
-                              width="24"
-                              height="24"
-                              style={{
-                                cursor: "pointer",
-                              }}
-                            />
-                          </td>
+                    <table className="uk-table uk-table-small uk-table-striped">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Extension</th>
+                          <th>file</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {attachments.map((a, index) => (
+                          <tr key={index}>
+                            <td>{a.name}</td>
+                            <td>{a.extension}</td>
+                            <td>
+                              <img
+                                src={getIconForExtension(a.extension)}
+                                alt={`${a.name} icon`}
+                                width="24"
+                                height="24"
+                                style={{
+                                  cursor: "pointer",
+                                }}
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="uk-margin">
-              {attachmentUploading > 0 && (
-                <>
-                  <span className="uk-margin">Uploading files</span>
-                  <progress
-                    className="uk-progress"
-                    value={attachmentUploading}
-                    max={100}
-                  ></progress>
-                </>
-              )}
-            </div>
+              <div className="uk-margin">
+                {attachmentUploading > 0 && (
+                  <>
+                    <span className="uk-margin">Uploading files</span>
+                    <progress
+                      className="uk-progress"
+                      value={attachmentUploading}
+                      max={100}
+                    ></progress>
+                  </>
+                )}
+              </div>
 
-            <div className="footer uk-margin">
-              <button className="uk-button secondary uk-modal-close">
-                Cancel
-              </button>
-              <button className="uk-button primary" type="submit">
-                Save
-                {loading && <div data-uk-spinner="ratio: .5"></div>}
-              </button>
-            </div>
-          </form>
+              <div className="footer uk-margin">
+                <button className="uk-button secondary uk-modal-close">
+                  Cancel
+                </button>
+                <button className="uk-button primary" type="submit">
+                  Save
+                  {loading && <div data-uk-spinner="ratio: .5"></div>}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 });

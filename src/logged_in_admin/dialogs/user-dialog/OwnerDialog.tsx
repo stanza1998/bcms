@@ -1,21 +1,10 @@
 import { observer } from "mobx-react-lite";
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
-import { USER_ROLES } from "../../../shared/constants/USER_ROLES";
+import { FormEvent, useEffect, useState } from "react";
 import { useAppContext } from "../../../shared/functions/Context";
 import { hideModalFromId } from "../../../shared/functions/ModalShow";
 import { defaultUser, IUser } from "../../../shared/interfaces/IUser";
-import {
-  FailedAction,
-  SuccessfulAction,
-} from "../../../shared/models/Snackbar";
+import { FailedAction } from "../../../shared/models/Snackbar";
 import DIALOG_NAMES from "../Dialogs";
-import { IUnit, defaultUnit } from "../../../shared/models/bcms/Units";
-import SingleSelect from "../../../shared/components/single-select/SlingleSelect";
-import { useParams } from "react-router-dom";
-import {
-  IBodyCop,
-  defaultBodyCop,
-} from "../../../shared/models/bcms/BodyCorperate";
 import makeAnimated from "react-select/animated";
 import Select from "react-select";
 
@@ -23,61 +12,16 @@ const OwnerDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<IUser>({ ...defaultUser });
-  const [propertyId, setPropertyId] = useState<string>("");
-  const [ownerId, setOwnerId] = useState<string>("");
   const animatedComponents = makeAnimated();
-  const units = store.bodyCorperate.unit.all.map((inv) => {
-    return inv.asJson;
-  });
+
   const properties = store.bodyCorperate.bodyCop.all.map((property) => {
     return { label: property.asJson.BodyCopName, value: property.asJson.id };
   });
-  const owners = store.user.all
-    .filter((u) => u.asJson.role === "Owner")
-    .map((u) => {
-      return {
-        label: u.asJson.firstName + " " + u.asJson.lastName,
-        value: u.asJson.uid,
-      };
-    });
+
   const me = store.user.meJson;
-  const [passwordType, setPasswordType] = useState("password");
-  const [unit, _setUnit] = useState<IUnit>({
-    ...defaultUnit,
-  });
-  const [property, _setProperty] = useState<IBodyCop>({
-    ...defaultBodyCop,
-  });
+
   const [selected, setSelected] = useState(false);
 
-  const handlePropertySelect = (id: string) => {
-    setPropertyId(id);
-  };
-
-  // const onSave = async (e: FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-
-  //   const _user: IUser = {
-  //     ...user,
-  //     devUser: false,
-  //   };
-  //   setLoading(true);
-  //   try {
-  //     if (store.user.selected){
-  //       await api.auth.updateUser(_user);
-  //     }
-  //     else {
-  //       _user.role = "Owner";
-  //       await api.auth.createUser(_user);
-  //     }
-  //     SuccessfulAction(ui);
-  //   } catch (error) {
-  //     FailedAction(ui);
-  //   }
-  //   store.user.clearSelected();
-  //   setLoading(false);
-  //   hideModalFromId(DIALOG_NAMES.OWNER.ADD_OWNER_DIALOG);
-  // };
   const createDefaultCreds = () => {
     setUser({
       ...user,
@@ -89,9 +33,6 @@ const OwnerDialog = observer(() => {
     console.log("My Default Cred: " + user);
   };
 
-  const setUnitOwnerId = (_ownerId: string) => {
-    console.log("Lets see the owner Id: " + _ownerId);
-  };
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -119,6 +60,7 @@ const OwnerDialog = observer(() => {
       }
       store.user.clearSelected();
       hideModalFromId(DIALOG_NAMES.OWNER.ADD_OWNER_DIALOG);
+      hideModalFromId(DIALOG_NAMES.OWNER.UPDATE_OWNER_DIALOG);
     } catch (error) {
       FailedAction(ui);
     }
@@ -129,22 +71,6 @@ const OwnerDialog = observer(() => {
   const reset = () => {
     store.user.clearSelected();
     setUser({ ...defaultUser });
-  };
-
-  const onDepartmentChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setUser({
-      ...user,
-      departmentId: e.target.value,
-      departmentName: e.target.options[e.target.selectedIndex].text,
-    });
-  };
-
-  const togglePassword = () => {
-    if (passwordType === "password") {
-      setPasswordType("text");
-      return;
-    }
-    setPasswordType("password");
   };
 
   useEffect(() => {

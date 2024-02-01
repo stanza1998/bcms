@@ -17,8 +17,6 @@ export const ACTIONLIST = observer(() => {
   const { store, api, ui } = useAppContext();
   const me = store.user.meJson;
   const [propertyId, setPropertyId] = useState<string>("");
-  const [yearId, setYearId] = useState<string>("");
-  const [monthId, setMonthId] = useState<string>("");
   const [accountId, setAccount] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -26,16 +24,13 @@ export const ACTIONLIST = observer(() => {
   const onUpdateProperty = () => {
     showModalFromId(DIALOG_NAMES.BODY.PROPERTY_ACCOUNT);
   };
-  const onUpdateYear = () => {
-    showModalFromId(DIALOG_NAMES.BODY.FINANCIAL_YEAR);
-  };
-  const onUpdateAccoount = () => {
-    showModalFromId(DIALOG_NAMES.BODY.BANK_ACCOUNT_UPDATE);
-  };
+  // const onUpdateAccoount = () => {
+  //   showModalFromId(DIALOG_NAMES.BODY.BANK_ACCOUNT_UPDATE);
+  // };
 
-  const onCreateAccount = () => {
-    showModalFromId(DIALOG_NAMES.BODY.BANK_ACCOUNT);
-  };
+  // const onCreateAccount = () => {
+  //   showModalFromId(DIALOG_NAMES.BODY.BANK_ACCOUNT);
+  // };
 
   const properties = store.bodyCorperate.bodyCop.all.map((p) => {
     return {
@@ -43,15 +38,16 @@ export const ACTIONLIST = observer(() => {
       value: p.asJson.id,
     };
   });
-  const myProperties = me?.accessProperties
+  const owner_properties = store.bodyCorperate.bodyCop.all
+    .filter((p) => me?.accessProperties.includes(p.asJson.id))
+    .map((p) => ({
+      label: p.asJson.BodyCopName,
+      value: p.asJson.id,
+    }));
+
   const handleSelectPropety = (id: string) => {
     setPropertyId(id);
   };
-
-  const years = store.bodyCorperate.financialYear.all;
-  const months = store.bodyCorperate.financialMonth.all.map((m) => {
-    return m.asJson;
-  });
 
   const updateDocument = async (fieldName: string, fieldValue: string) => {
     setLoading(true);
@@ -150,45 +146,7 @@ export const ACTIONLIST = observer(() => {
           </button>
         </div>
       </div>
-      {me?.role === "Owner" ? (
-        <></>
-      ) : (
-        <>
-          {/* <div className="uk-margin">
-            <div className="uk-margin-left">
-              <button
-                onClick={onUpdateYear}
-                className="uk-button primary"
-                style={{ width: "85%" }}
-              >
-                Switch FY
-              </button>
-            </div>
-          </div>
-          <div className="uk-margin">
-            <div className="uk-margin-left">
-              <button
-                onClick={onUpdateAccoount}
-                className="uk-button primary"
-                style={{ width: "85%" }}
-              >
-                Switch Bank
-              </button>
-            </div>
-          </div>
-          <div className="uk-margin">
-            <div className="uk-margin-left">
-              <button
-                onClick={onCreateAccount}
-                className="uk-button primary"
-                style={{ width: "85%" }}
-              >
-                Create Bank
-              </button>
-            </div>
-          </div> */}
-        </>
-      )}
+
       <Modal modalId={DIALOG_NAMES.BODY.PROPERTY_ACCOUNT}>
         <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical staff-dialog">
           <button
@@ -197,16 +155,14 @@ export const ACTIONLIST = observer(() => {
             data-uk-close
           ></button>
           <h5 className="uk-modal-title">Select Property</h5>
-          <SingleSelect onChange={handleSelectPropety} options={properties} />
-          {/* <select
-            className="uk-input"
-            onChange={(e) => setPropertyId(e.target.value)}
-          >
-            <option value="">Select property</option>
-            {properties.map((p) => (
-              <option value={p.asJson.id}>{p.asJson.BodyCopName}</option>
-            ))}
-          </select> */}
+          {me?.role === "Owner" ? (
+            <SingleSelect
+              onChange={handleSelectPropety}
+              options={owner_properties}
+            />
+          ) : (
+            <SingleSelect onChange={handleSelectPropety} options={properties} />
+          )}
           <br />
           {propertyId !== "" && (
             <button
@@ -219,64 +175,7 @@ export const ACTIONLIST = observer(() => {
           )}
         </div>
       </Modal>
-      <Modal modalId={DIALOG_NAMES.BODY.FINANCIAL_YEAR}>
-        <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical staff-dialog">
-          <button
-            className="uk-modal-close-default"
-            type="button"
-            data-uk-close
-          ></button>
-          <h5 className="uk-modal-title">Select Year</h5>
-          <select
-            className="uk-input"
-            onChange={(e) => setYearId(e.target.value)}
-          >
-            <option value="">Select year</option>
-            {years.map((p) => (
-              <option value={p.asJson.id}>{p.asJson.year}</option>
-            ))}
-          </select>
-          <br />
-          {yearId !== "" && (
-            <button
-              onClick={() => updateDocument("year", yearId)}
-              className="uk-button primary uk-margin"
-            >
-              Save
-              {loading && <div data-uk-spinner="ratio: .5"></div>}
-            </button>
-          )}
-        </div>
-      </Modal>
-      <Modal modalId={DIALOG_NAMES.BODY.FINANCIAL_MONTH}>
-        <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical staff-dialog">
-          <button
-            className="uk-modal-close-default"
-            type="button"
-            data-uk-close
-          ></button>
-          <h5 className="uk-modal-title">Select Month</h5>
-          <select
-            className="uk-input"
-            onChange={(e) => setMonthId(e.target.value)}
-          >
-            <option value="">Select Month</option>
-            {months.map((p) => (
-              <option value={p.month}>{p.month.slice(-2)}</option>
-            ))}
-          </select>
-          <br />
-          {monthId !== "" && (
-            <button
-              onClick={() => updateDocument("month", monthId)}
-              className="uk-button primary uk-margin"
-            >
-              Save
-              {loading && <div data-uk-spinner="ratio: .5"></div>}
-            </button>
-          )}
-        </div>
-      </Modal>
+
       <Modal modalId={DIALOG_NAMES.BODY.BANK_ACCOUNT_UPDATE}>
         <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical staff-dialog">
           <button

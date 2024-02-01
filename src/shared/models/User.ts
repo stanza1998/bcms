@@ -19,6 +19,10 @@ export class UserModel implements IUser {
   year: string;
   month: string;
   bankAccountInUse: string;
+  accessProperties: string[];
+  serviceProviderName?: string | undefined;
+  supervisor: string;
+
 
   constructor(private store: AppStore, user: IUser) {
     makeAutoObservable(this);
@@ -38,8 +42,8 @@ export class UserModel implements IUser {
     this.year = user.year;
     this.month = user.month;
     this.bankAccountInUse = user.bankAccountInUse;
+    this.accessProperties = user.accessProperties;
   }
-  supervisor: string;
 
   get asJson(): IUser {
     return {
@@ -59,6 +63,7 @@ export class UserModel implements IUser {
       year: this.year,
       month: this.month,
       bankAccountInUse: this.bankAccountInUse,
+      accessProperties: this.accessProperties
     };
   }
 }

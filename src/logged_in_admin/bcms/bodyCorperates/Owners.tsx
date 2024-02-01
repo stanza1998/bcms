@@ -74,45 +74,6 @@ const EmployeesTable = (props: EmployeesTableProps) => {
                 return emp;
               })}
             />
-            {/* <table className="company-users-table uk-table uk-table-small uk-table-divider uk-table-middle uk-table-responsive uk-flex-1">
-              <thead className="table-header">
-                <tr>
-                  <th>#</th>
-                  <th>User</th>
-                  <th>Email</th>
-                  <th>Cellphone</th>
-                  <th className="actions uk-text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="table-body">
-                {employees
-                  .filter((emp) => emp.role === "Owner")
-                  .map((employee, index) => (
-                    <tr className="row" key={employee.uid}>
-                      <td className="id">{index + 1}</td>
-                      <td className="customerName">{`${employee.firstName} ${employee.lastName}`}</td>
-                      <td className="role">{employee.email}</td>
-                      <td className="role">{employee.cellphone}</td>
-                      <td className="actions uk-text-right">
-                        <button
-                          className="uk-margin-right uk-icon"
-                          data-uk-icon="pencil"
-                          onClick={() => onEditEmployee(employee.uid)}
-                        >
-                          {/* Edit */}
-            {/* </button>
-                        <button
-                          className="uk-margin-right uk-icon"
-                          data-uk-icon="trash"
-                          onClick={() => onDeleteEmployee(employee.uid)}
-                        >
-                          {/* Remove */}
-            {/* </button>
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-                  </table>  */}
           </div>
         ) : (
           <div className="no-orders">
@@ -241,7 +202,8 @@ const Owners = observer(() => {
         </div>
       </div>
       <Modal modalId={DIALOG_NAMES.OWNER.UPDATE_OWNER_DIALOG}>
-        <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
+        <OwnerDialog />
+        {/* <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
           <button
             className="uk-modal-close-default"
             type="button"
@@ -315,7 +277,7 @@ const Owners = observer(() => {
               </form>
             </div>
           </div>
-        </div>
+        </div> */}
       </Modal>
     </>
   );
