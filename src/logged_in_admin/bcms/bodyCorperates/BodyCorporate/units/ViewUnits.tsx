@@ -241,7 +241,7 @@ export const ViewUnit = observer(() => {
                   type="button"
                   onClick={back}
                 >
-                  back
+                  Back
                 </button>
               </div>
             </div>

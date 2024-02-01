@@ -340,6 +340,17 @@ const ADMIN_DRAWER = () => {
               </NavLink>
             </li>
             {/* <li>
+              <NavLink
+                to={`service-provider/requests`}
+                className="navlink"
+              >
+                <span className="uk-margin-small-right">
+                  <DoubleArrowIcon style={{ fontSize: "15px" }} />
+                </span>
+                Service Provider Requests
+              </NavLink>
+            </li> */}
+            {/* <li>
               <NavLink to={`maintainance/reports`} className="navlink">
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
@@ -651,6 +662,50 @@ const OWNER_DRAWER = observer(() => {
   );
 });
 
+const SERVICE_PROVIDER_DRAWER = observer(() => {
+  const { store, api } = useAppContext();
+  const me = store.user.meJson;
+  const units = store.bodyCorperate.unit.all.map((u) => u.asJson);
+
+  useEffect(() => {
+    const getData = async () => {
+      if (me?.property) {
+        await api.unit.getAll(me.property);
+      }
+    };
+    getData();
+  }, [api.unit, me?.property]);
+
+  return (
+    <div className="drawer-list">
+      <ul className="main-list uk-nav-default" data-uk-nav>
+        <li className="list-item">
+          <NavLink to={`dashboard`} className="navlink">
+            <span className="uk-margin-small-right">
+              <AccountCircleIcon style={{ fontSize: "16px" }} />
+            </span>
+            My Overview
+          </NavLink>
+        </li>
+        
+        <li className="list-item uk-parent">
+          <NavLink to={`service-provider/work-orders/:maintenanceRequestId`} className="navlink">
+            <span className="uk-margin-small-right">
+              <MoneyIcon style={{ fontSize: "16px" }} />
+            </span>
+            Work Orders
+            <span
+              style={{ fontSize: "5px" }}
+              className="down-arrow"
+              data-uk-icon="triangle-down"
+            />
+          </NavLink>
+        </li>
+      </ul>
+    </div>
+  );
+});
+
 const EMPLOYEE_USER_DRAWER = () => {
   return (
     <div className="drawer-list">
@@ -846,6 +901,7 @@ const DrawerList = observer(() => {
     USER_ROLES.DIRECTOR,
     USER_ROLES.HUMAN_RESOURCE,
     USER_ROLES.SUPERVISOR,
+    USER_ROLES.SERVICE_PROVIDER,
   ];
 
   if (adminRoles.includes(role)) {
@@ -854,6 +910,8 @@ const DrawerList = observer(() => {
     return <EMPLOYEE_USER_DRAWER />;
   } else if (role === USER_ROLES.OWNER) {
     return <OWNER_DRAWER />;
+  }else if (role === USER_ROLES.SERVICE_PROVIDER){
+    return <SERVICE_PROVIDER_DRAWER/>
   }
   return <EMPLOYEE_USER_DRAWER />;
 });

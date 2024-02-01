@@ -32,7 +32,6 @@ import AppStore from "../stores/AppStore";
 import AppApi from "./AppApi";
 
 export default class UserApi {
-  [x: string]: any;
   constructor(private api: AppApi, private store: AppStore) {
     this.onAuthChanged();
   }
@@ -70,7 +69,7 @@ export default class UserApi {
     const docRef = doc(db, "Metadata", "uids");
 
     await setDoc(docRef, {
-      uidArray: arrayUnion(value)
+      uidArray: arrayUnion(value),
     });
   }
   // User will be created with authWorker, thus not signed-in
@@ -79,35 +78,44 @@ export default class UserApi {
   //   const userCredential = await createUserWithEmailAndPassword(authWorker, email, password).catch((error) => {
   //     return null;
   //   });
-    async createUser(user: IUser) {
-      const { email, password = `${user.firstName}@${user.lastName}` } = user;
-    console.log("About to create owner")
-      // Create user in Firebase Authentication
-      const userCredential = await createUserWithEmailAndPassword(authWorker, email, password).catch((error) => {
-        console.log("Owner Created")
+  async createUser(user: IUser) {
+    const { email, password = `${user.firstName}@${user.lastName}` } = user;
+    console.log("About to create owner");
+    console.log("Entered email and password: "+email+" "+password);
+    // Create user in Firebase Authentication
+    const userCredential = await createUserWithEmailAndPassword(
+      authWorker,
+      email,
+      password
+    ).catch((error) => {
+      console.log("Owner Created");
 
-        return null;
+      return null;
+    });
+
+    if (userCredential) {
+      // Update user document in Firestore
+      user.uid = userCredential.user.uid;
+      user.password = "";
+      await setDoc(doc(db, "Users", user.uid), user);
+
+      // Send welcome email with a link to reset password
+      await sendPasswordResetEmail(authWorker, email, {
+        url: "http://localhost:3000/change-password", // Set the URl to app url https://vanwylbcms.web.app/
+        handleCodeInApp: true,
       });
-    
-      if (userCredential) {
-        // Update user document in Firestore
-        user.uid = userCredential.user.uid;
-        user.password = "";
-        await setDoc(doc(db, "Users", user.uid), user);
-    
-        // Send welcome email with a link to reset password
-        await sendPasswordResetEmail(authWorker, email, {
-          url: 'http://localhost:3000/change-password', // Set the URL to your password reset page
-          handleCodeInApp: true,
-        });
-    
-        // Update metadata and load user into the store
-        await this.updateMetadata(user.uid);
-        this.store.user.load([user]);    
-      }
-    
-      return user;
+      //owner details
+      //CATHERINE
+      // JANUARIE
+      // +264 0812230035
+      // catherinejanuarie7@gmail.com
+      // Update metadata and load user into the store
+      await this.updateMetadata(user.uid);
+      this.store.user.load([user]);
     }
+
+    return user;
+  }
 
   //   if (userCredential) {
   //     user.uid = userCredential.user.uid;
@@ -123,7 +131,7 @@ export default class UserApi {
   // Update user info
   async updateUser(user: IUser) {
     await setDoc(doc(db, "Users", user.uid), user);
-    this.store.user.load([user])
+    this.store.user.load([user]);
     return user;
   }
 
@@ -146,14 +154,21 @@ export default class UserApi {
   // }
 
   async signIn(email: string, password: string) {
-    setPersistence(auth, browserLocalPersistence).then(() => {
-      return signInWithEmailAndPassword(auth, email, password);
-    }).catch((error) => { return null });
-
-    const userCredential = await signInWithEmailAndPassword(
-      auth, email, password).catch((error) => {
+    setPersistence(auth, browserLocalPersistence)
+      .then(() => {
+        return signInWithEmailAndPassword(auth, email, password);
+      })
+      .catch((error) => {
         return null;
       });
+
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    ).catch((error) => {
+      return null;
+    });
 
     if (userCredential) return userCredential.user;
     return userCredential;
@@ -170,9 +185,10 @@ export default class UserApi {
   }
 
   async passwordResetWithEmail(email: string) {
-    await sendPasswordResetEmail(auth, email).then(function () {
-      alert("Password reset email sent.");
-    })
+    await sendPasswordResetEmail(auth, email)
+      .then(function () {
+        alert("Password reset email sent.");
+      })
       .catch(function (error) {
         alert("Could not send email.");
       });
@@ -233,7 +249,9 @@ export default class UserApi {
   }
 
   async doesDepartmentHasUsers(id: string) {
-    const $query = query(collection(db, "Users"), where("departmentId", "==", id)
+    const $query = query(
+      collection(db, "Users"),
+      where("departmentId", "==", id)
     );
     const querySnapshot = await getDocs($query);
     const users = querySnapshot.docs.map((doc) => {
@@ -252,13 +270,20 @@ export default class UserApi {
   }
 
   async loadHRAdmin() {
-
     // const adminRoles = [USER_ROLES.ADMIN, USER_ROLES.MANAGER, USER_ROLES.GENERAL_MANAGER,
     // USER_ROLES.MANAGING_DIRECTOR, USER_ROLES.HUMAN_RESOURCE, USER_ROLES.SUPERVISOR];
 
-    const adminRoles = [USER_ROLES.ADMIN, USER_ROLES.HUMAN_RESOURCE, USER_ROLES.SUPERVISOR];
+    const adminRoles = [
+      USER_ROLES.ADMIN,
+      USER_ROLES.HUMAN_RESOURCE,
+      USER_ROLES.SUPERVISOR,
+    ];
 
-    const $query = query(collection(db, "Users"), where('role', 'in', adminRoles), where("devUser", "==", false));
+    const $query = query(
+      collection(db, "Users"),
+      where("role", "in", adminRoles),
+      where("devUser", "==", false)
+    );
     const querySnapshot = await getDocs($query);
     const users = querySnapshot.docs.map((doc) => {
       return { uid: doc.id, ...doc.data() } as IUser;
@@ -269,7 +294,10 @@ export default class UserApi {
   async loadSupervisor() {
     const supervisor = this.store.user.meJson?.supervisor;
 
-    const $query = query(collection(db, "Users"), where('uid', '==', supervisor));
+    const $query = query(
+      collection(db, "Users"),
+      where("uid", "==", supervisor)
+    );
     const querySnapshot = await getDocs($query);
     const users = querySnapshot.docs.map((doc) => {
       return { uid: doc.id, ...doc.data() } as IUser;

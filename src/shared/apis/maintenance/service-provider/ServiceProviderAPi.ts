@@ -18,7 +18,7 @@ import { IServiceProvider } from "../../../models/maintenance/service-provider/S
   
     async getAll(pid: string) {
       const myPath = `BodyCoperate/${pid}/ServiceProvider`;
-  
+
       const $query = query(collection(db, myPath));
       // new promise
       return await new Promise<Unsubscribe>((resolve, reject) => {
@@ -42,7 +42,40 @@ import { IServiceProvider } from "../../../models/maintenance/service-provider/S
         );
       });
     }
-  
+
+    async getAllProviders(propertyIds: string[]) {
+      const promises: Promise<Unsubscribe>[] = [];
+    
+      propertyIds.forEach(async (pid) => {
+        const myPath = `BodyCoperate/${pid}/ServiceProvider`;
+      
+        const $query = query(collection(db, myPath));
+      
+        const promise = new Promise<Unsubscribe>((resolve, reject) => {
+          const unsubscribe = onSnapshot(
+            $query,
+            (querySnapshot) => {
+              const items: IServiceProvider[] = [];
+              querySnapshot.forEach((doc) => {
+                items.push({ id: doc.id, ...doc.data() } as IServiceProvider);
+              });
+      
+              this.store.maintenance.servie_provider.load(items);
+              resolve(unsubscribe);
+            },
+            (error) => {
+              reject();
+            }
+          );
+        });
+    
+        promises.push(promise);
+      });
+    
+      // Wait for all promises to resolve
+      return await Promise.all(promises);
+    }
+    
     async getById(id: string, pid: string) {
       const myPath = `BodyCoperate/${pid}/ServiceProvider`;
   

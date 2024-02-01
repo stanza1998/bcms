@@ -17,7 +17,8 @@ export const defaultMeeting: IMeeting = {
     priority: "",
     attachments: [],
     ownerParticipants: [],
-    externalParticipants: []
+    externalParticipants: [],
+    isVerified: false,
 };
 
 export interface IMeeting {
@@ -37,6 +38,7 @@ export interface IMeeting {
     meetingNote: string;
     priority: string;
     meetingLink: string;
+    isVerified:boolean;
 }
 
 export interface IOwnerParticipants {

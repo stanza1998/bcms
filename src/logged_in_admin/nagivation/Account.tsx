@@ -43,7 +43,7 @@ export const ACTIONLIST = observer(() => {
       value: p.asJson.id,
     };
   });
-
+  const myProperties = me?.accessProperties
   const handleSelectPropety = (id: string) => {
     setPropertyId(id);
   };

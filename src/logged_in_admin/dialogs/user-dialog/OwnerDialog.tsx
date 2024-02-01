@@ -9,15 +9,50 @@ import {
   SuccessfulAction,
 } from "../../../shared/models/Snackbar";
 import DIALOG_NAMES from "../Dialogs";
+import { IUnit, defaultUnit } from "../../../shared/models/bcms/Units";
+import SingleSelect from "../../../shared/components/single-select/SlingleSelect";
+import { useParams } from "react-router-dom";
+import {
+  IBodyCop,
+  defaultBodyCop,
+} from "../../../shared/models/bcms/BodyCorperate";
+import makeAnimated from "react-select/animated";
+import Select from "react-select";
 
 const OwnerDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<IUser>({...defaultUser});
-
+  const [user, setUser] = useState<IUser>({ ...defaultUser });
+  const [propertyId, setPropertyId] = useState<string>("");
+  const [ownerId, setOwnerId] = useState<string>("");
+  const animatedComponents = makeAnimated();
+  const units = store.bodyCorperate.unit.all.map((inv) => {
+    return inv.asJson;
+  });
+  const properties = store.bodyCorperate.bodyCop.all.map((property) => {
+    return { label: property.asJson.BodyCopName, value: property.asJson.id };
+  });
+  const owners = store.user.all
+    .filter((u) => u.asJson.role === "Owner")
+    .map((u) => {
+      return {
+        label: u.asJson.firstName + " " + u.asJson.lastName,
+        value: u.asJson.uid,
+      };
+    });
+  const me = store.user.meJson;
   const [passwordType, setPasswordType] = useState("password");
-
+  const [unit, _setUnit] = useState<IUnit>({
+    ...defaultUnit,
+  });
+  const [property, _setProperty] = useState<IBodyCop>({
+    ...defaultBodyCop,
+  });
   const [selected, setSelected] = useState(false);
+
+  const handlePropertySelect = (id: string) => {
+    setPropertyId(id);
+  };
 
   // const onSave = async (e: FormEvent<HTMLFormElement>) => {
   //   e.preventDefault();
@@ -30,7 +65,7 @@ const OwnerDialog = observer(() => {
   //   try {
   //     if (store.user.selected){
   //       await api.auth.updateUser(_user);
-  //     } 
+  //     }
   //     else {
   //       _user.role = "Owner";
   //       await api.auth.createUser(_user);
@@ -43,11 +78,24 @@ const OwnerDialog = observer(() => {
   //   setLoading(false);
   //   hideModalFromId(DIALOG_NAMES.OWNER.ADD_OWNER_DIALOG);
   // };
+  const createDefaultCreds = () => {
+    setUser({
+      ...user,
+      devUser: false,
+      password: "123456789", // Set a temporary password if needed
+      role: "Owner",
+    });
 
+    console.log("My Default Cred: " + user);
+  };
+
+  const setUnitOwnerId = (_ownerId: string) => {
+    console.log("Lets see the owner Id: " + _ownerId);
+  };
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-  
+
     try {
       if (store.user.selected) {
         // Update existing user
@@ -60,8 +108,8 @@ const OwnerDialog = observer(() => {
       } else {
         // Create new user
         user.devUser = false;
-        user.password ="123456789";
-        user.role = "Owner"
+        user.password = "123456789";
+        user.role = "Owner";
         await api.auth.createUser(user);
         ui.snackbar.load({
           id: Date.now(),
@@ -74,11 +122,9 @@ const OwnerDialog = observer(() => {
     } catch (error) {
       FailedAction(ui);
     }
-  
+
     setLoading(false);
   };
-  
-
 
   const reset = () => {
     store.user.clearSelected();
@@ -100,6 +146,18 @@ const OwnerDialog = observer(() => {
     }
     setPasswordType("password");
   };
+
+  useEffect(() => {
+    const getData = async () => {
+      await api.body.body.getAll();
+      if (me?.property) {
+        await api.unit.getAll(me?.property);
+      }
+      await api.body.body.getAll();
+      await api.auth.loadAll();
+    };
+    getData();
+  }, [api.auth, api.body.body, api.unit, me?.property]);
 
   useEffect(() => {
     if (store.user.selected) {
@@ -125,46 +183,6 @@ const OwnerDialog = observer(() => {
         <div className="reponse-form">
           <form className="uk-form-stacked" onSubmit={onSave}>
             <div className="uk-grid-small uk-child-width-1-1@m" data-uk-grid>
-              <div className="uk-width-1-2@m">
-                <div className="uk-margin">
-                  <label className="uk-form-label" htmlFor="first-name">
-                    First Name
-                  </label>
-                  <div className="uk-form-controls">
-                    <input
-                      id="first-name"
-                      className="uk-input "
-                      type="text"
-                      placeholder="First name"
-                      value={user.firstName}
-                      onChange={(e) =>
-                        setUser({ ...user, firstName: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="uk-width-1-2@m">
-                <div className="uk-margin">
-                  <label className="uk-form-label" htmlFor="last-name">
-                    Last Name
-                  </label>
-                  <div className="uk-form-controls">
-                    <input
-                      id="last-name"
-                      className="uk-input "
-                      type="text"
-                      placeholder="Last name"
-                      value={user.lastName}
-                      onChange={(e) =>
-                        setUser({ ...user, lastName: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
               <div>
                 <div className="uk-margin">
                   <label className="uk-form-label" htmlFor="user-email">
@@ -175,7 +193,7 @@ const OwnerDialog = observer(() => {
                       id="user-email"
                       className="uk-input "
                       type="email"
-                      placeholder="Email"
+                      placeholder="example@example.com"
                       value={user.email}
                       onChange={(e) =>
                         setUser({ ...user, email: e.target.value })
@@ -184,99 +202,45 @@ const OwnerDialog = observer(() => {
                       required
                     />
                   </div>
-                </div>
-              </div>
-              <div>
-                <div className="uk-margin">
-                  <label className="uk-form-label" htmlFor="user-email">
-                    Cellphone
-                  </label>
-                  <div className="uk-form-controls">
-                    <input
-                      id=""
-                      className="uk-input "
-                      type="text"
-                      placeholder="Cellphone Number"
-                      value={user.cellphone === "" ? "" : user.cellphone}
-                      onChange={(e) =>
-                        setUser({ ...user, cellphone: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <div className="uk-margin uk-inline uk-width-1-1">
-                  {/* <label className="uk-form-label" htmlFor="password">
-                    Password
-                  </label> */}
-                  <div className="uk-form-controls">
-                    {/* <button
-                      type="button"
-                      className="icon-button uk-form-icon uk-form-icon-flip"
-                      onClick={togglePassword}
+                  <div className="uk-width-1-1@m">
+                    <label
+                      className="uk-form-label"
+                      htmlFor="form-stacked-text"
                     >
-                      {passwordType === "password" ? (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="w-6 h-6"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
-                          />
-                        </svg>
-                      ) : (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="w-6 h-6"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                        </svg>
-                      )}
-                    </button>
-                    <input
-                      id="password"
-                      className="uk-input "
-                      type={passwordType}
-                      placeholder="Password"
-                      value={user.password}
-                      onChange={(e) =>
-                        setUser({ ...user, password: e.target.value })
-                      }
-                      required
-                      disabled={selected}
-                    /> */}
-                    {/* <span>Default: firstname@lastname</span> */}
+                      Assign Property
+                    </label>
+                    <div className="uk-margin uk-form-controls">
+                      <Select
+                        closeMenuOnSelect={false}
+                        components={animatedComponents}
+                        onChange={(value: any) =>
+                          setUser({
+                            ...user,
+                            accessProperties: value.map((t: any) => t.value),
+                          })
+                        }
+                        isMulti
+                        placeholder="Search users"
+                        options={properties}
+                        value={properties.filter((property) =>
+                          user.accessProperties?.includes(property.value)
+                        )}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
+              <div></div>
             </div>
             <div className="footer uk-margin">
               <button className="uk-button secondary uk-modal-close">
                 Cancel
               </button>
-              <button className="uk-button primary" type="submit">
+              <button
+                className="uk-button primary"
+                type="submit"
+                onClick={createDefaultCreds}
+              >
                 Save
                 {loading && <div data-uk-spinner="ratio: .5"></div>}
               </button>

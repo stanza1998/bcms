@@ -6,7 +6,10 @@ import showModalFromId from "../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../dialogs/Dialogs";
 import Modal from "../../../shared/components/Modal";
 import { MeetingDialog } from "../../dialogs/communication-dialogs/meetings/MeetingDialog";
-import { IMeeting } from "../../../shared/models/communication/meetings/Meeting";
+import {
+  IMeeting,
+  defaultMeeting,
+} from "../../../shared/models/communication/meetings/Meeting";
 import { EditMeetingDialog } from "../../dialogs/communication-dialogs/meetings/EditMeetingDialog";
 import "./meeting-card.scss";
 import {
@@ -168,31 +171,33 @@ export const ViewFolder = observer(() => {
               </div>
               <div className="tab-content">
                 {activeTab === "card" && (
-                  <>
-                    <div className="meeting-card">
-                      <div
-                        className="uk-child-width-1-3@m uk-grid-small uk-grid-match uk-margin"
-                        data-uk-grid
-                      >
-                        {currentMeetings.map((meeting) => {
-                          const now = new Date();
-                          const isScheduled =
-                            now.getTime() <
-                            new Date(meeting.startDateAndTime).getTime();
-                          const isInProgress =
-                            now.getTime() >=
-                              new Date(meeting.startDateAndTime).getTime() &&
-                            now.getTime() <=
-                              new Date(meeting.endDateAndTime).getTime();
-                          const statusText = isScheduled
-                            ? "Scheduled"
-                            : isInProgress
-                            ? "In Progress"
-                            : "Done";
-                          const statusClass = statusText
-                            .toLowerCase()
-                            .replace(/\s+/g, "-"); // Convert status text to CSS class
+                  <div className="meeting-card">
+                    <div
+                      className="uk-child-width-1-3@m uk-grid-small uk-grid-match uk-margin"
+                      data-uk-grid
+                    >
+                      {currentMeetings.map((meeting) => {
+                        const now = new Date();
+                        const isScheduled =
+                          now.getTime() <
+                          new Date(meeting.startDateAndTime).getTime();
+                        const isInProgress =
+                          now.getTime() >=
+                            new Date(meeting.startDateAndTime).getTime() &&
+                          now.getTime() <=
+                            new Date(meeting.endDateAndTime).getTime();
+                        const statusText = isScheduled
+                          ? "Scheduled"
+                          : isInProgress
+                          ? "In Progress"
+                          : "Done";
+                        const statusClass = statusText
+                          .toLowerCase()
+                          .replace(/\s+/g, "-"); // Convert status text to CSS class
 
+                        // Render the meeting card if the user is not an owner or if the meeting is verified
+                        // If the user is an owner, only render the card if the meeting is verified
+                        if (me?.role !== "Owner" || meeting.isVerified) {
                           return (
                             <div
                               key={meeting.id}
@@ -253,18 +258,21 @@ export const ViewFolder = observer(() => {
                               </div>
                             </div>
                           );
-                        })}
-                      </div>
-                      <Pagination
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={handlePageChange}
-                      />
+                        } else {
+                          return null; // Don't render the meeting card
+                        }
+                      })}
                     </div>
-                  </>
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                    />
+                  </div>
                 )}
                 {activeTab === "calendar" && <CalendarView />}
               </div>
+              ; ; ;
             </div>
           </div>
           <Modal modalId={DIALOG_NAMES.COMMUNICATION.CREATE_MEETING_DIALOG}>

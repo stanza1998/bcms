@@ -175,6 +175,13 @@ export const EditMeetingDialog = observer(() => {
     setMeeting({ ...defaultMeeting });
   };
 
+  const verifyMeeting = () => {
+    setMeeting({
+      ...meeting,
+      isVerified: true,
+    });
+  };
+
   useEffect(() => {
     if (store.communication.meeting.selected)
       setMeeting(store.communication.meeting.selected);
@@ -218,6 +225,12 @@ export const EditMeetingDialog = observer(() => {
       ></button>
 
       <h3 className="uk-modal-title">Meeting</h3>
+      {!meeting.isVerified && me?.role != "Owner" && (
+        <button className="uk-button primary" onClick={verifyMeeting}>
+          Verify Meeting
+        </button>
+      )}
+
       <div className="dialog-content uk-position-relative">
         <div className="reponse-form">
           <form className="uk-form-stacked" onSubmit={onSave}>
@@ -293,28 +306,32 @@ export const EditMeetingDialog = observer(() => {
                   />
                 </div>
               </div>
-              <div className="uk-width-1-1">
-                <label className="uk-form-label" htmlFor="form-stacked-text">
-                  Description
-                  {meeting.description === "" && (
-                    <span style={{ color: "red" }}>*</span>
-                  )}
-                </label>
-                <div className="uk-form-controls">
-                  <textarea
-                    className="uk-textarea"
-                    value={meeting.description}
-                    onChange={(e) =>
-                      setMeeting({
-                        ...meeting,
-                        description: e.target.value,
-                      })
-                    }
-                    required
-                    disabled={isDateAfterCurrentDate(meeting.startDateAndTime)}
-                  />
+              {cannotEditMeeting(me?.role || "") && (
+                <div className="uk-width-1-1">
+                  <label className="uk-form-label" htmlFor="form-stacked-text">
+                    Description
+                    {meeting.description === "" && (
+                      <span style={{ color: "red" }}>*</span>
+                    )}
+                  </label>
+                  <div className="uk-form-controls">
+                    <textarea
+                      className="uk-textarea"
+                      value={meeting.description}
+                      onChange={(e) =>
+                        setMeeting({
+                          ...meeting,
+                          description: e.target.value,
+                        })
+                      }
+                      required
+                      disabled={isDateAfterCurrentDate(
+                        meeting.startDateAndTime
+                      )}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
               <div className="uk-width-1-2@s">
                 <label className="uk-form-label" htmlFor="form-stacked-text">
                   Location
@@ -484,75 +501,81 @@ export const EditMeetingDialog = observer(() => {
                 </div>
               )}
               <div className="uk-width-1-1">
-                <label className="uk-form-label" htmlFor="attachments">
-                  Meeting Attachments
-                </label>
-                <div className="uk-form-controls">
-                  <input
-                    type="file"
-                    id="attachments"
-                    onChange={handleAttachmentChange}
-                    multiple
-                  />
-                  {/* Display the list of selected attachments */}
-                  <table className="uk-table uk-table-small uk-table-striped">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Extension</th>
-                        <th>File</th>
+                {cannotEditMeeting(me?.role || "") && (
+                  <>
+                    <label className="uk-form-label" htmlFor="attachments">
+                      Meeting Attachments
+                    </label>
+                    <div className="uk-form-controls">
+                      <input
+                        type="file"
+                        id="attachments"
+                        onChange={handleAttachmentChange}
+                        multiple
+                      />
+                    </div>
+                  </>
+                )}
+
+                {/* Display the list of selected attachments */}
+                <table className="uk-table uk-table-small uk-table-striped">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Extension</th>
+                      <th>File</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {attachments.map((a, index) => (
+                      <tr key={index}>
+                        <td>{a.name}</td>
+                        <td>{a.extension}</td>
+                        <td>
+                          <img
+                            src={getIconForExtension(a.extension)}
+                            alt={`${a.name} icon`}
+                            width="24"
+                            height="24"
+                            style={{
+                              cursor: "pointer",
+                            }}
+                          />
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {attachments.map((a, index) => (
-                        <tr key={index}>
-                          <td>{a.name}</td>
-                          <td>{a.extension}</td>
-                          <td>
-                            <img
-                              src={getIconForExtension(a.extension)}
-                              alt={`${a.name} icon`}
-                              width="24"
-                              height="24"
-                              style={{
-                                cursor: "pointer",
-                              }}
-                            />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
-            <div className="uk-margin">
-              {attachmentUploading > 0 && (
-                <>
-                  <span className="uk-margin">Uploading files</span>
-                  <progress
-                    className="uk-progress"
-                    value={attachmentUploading}
-                    max={100}
-                  ></progress>
-                </>
-              )}
-            </div>
-
+            {cannotEditMeeting(me?.role || "") && (
+              <div className="uk-margin">
+                {attachmentUploading > 0 && (
+                  <>
+                    <span className="uk-margin">Uploading files</span>
+                    <progress
+                      className="uk-progress"
+                      value={attachmentUploading}
+                      max={100}
+                    ></progress>
+                  </>
+                )}
+              </div>
+            )}
             <div className="footer uk-margin">
               <button className="uk-button secondary uk-modal-close">
                 Close
               </button>
               {cannotEditMeeting(me?.role || "") && (
-                <button className="uk-button secondary uk-modal-close">
-                  Cancel
-                </button>
-              )}
-              {cannotEditMeeting(me?.role || "") && (
-                <button className="uk-button primary" type="submit">
-                  Save
-                  {loading && <div data-uk-spinner="ratio: .5"></div>}
-                </button>
+                <>
+                  <button className="uk-button secondary uk-modal-close">
+                    Cancel
+                  </button>
+                  <button className="uk-button primary" type="submit">
+                    Save
+                    {loading && <div data-uk-spinner="ratio: .5"></div>}
+                  </button>
+                </>
               )}
             </div>
           </form>

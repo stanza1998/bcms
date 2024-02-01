@@ -10,4 +10,5 @@ export const USER_ROLES = {
   EMPLOYEE: "Employee",
   INTERN: "Intern",
   OWNER: "Owner",
+  SERVICE_PROVIDER:"Service Provider",
 };

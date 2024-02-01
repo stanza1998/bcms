@@ -66,6 +66,8 @@ import { UploadQuote } from "./logged_in_admin/bcms/maintanace/service-providers
 import { ViewQuoteInfo } from "./logged_in_admin/bcms/maintanace/work-order/view-quotes/ViewQuoteInfo";
 import { Notices } from "./logged_in_admin/bcms/owner-accounts/owner-communication/announcements/Notices";
 import { OwnerRequest } from "./logged_in_admin/bcms/owner-accounts/maintenance-request/OwnerReqquest";
+import { ServiceProviderView } from "./logged_in_admin/bcms/maintanace/service-providers/ServiceProviderPage";
+import { ServiceProviderWorkOrder } from "./logged_in_admin/bcms/maintanace/service-providers/ServiceProviderWorkOrders";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -82,6 +84,10 @@ const ADMIN_USER_ROUTES = () => {
       <Routes>
         <Route path="c" element={<PrivateLoggedIn />}>
           <Route path={`dashboard`} element={<Dashboard />} />
+          <Route
+          path={`service-provider/requests`}
+          element={<ServiceProviderView />}
+        />
           {/* communication */}
           <Route
             path={`communication/com-overview`}
@@ -122,6 +128,10 @@ const ADMIN_USER_ROUTES = () => {
           <Route
             path={`maintainance/service-providers`}
             element={<ServiceProvider />}
+          />
+          <Route
+            path={`service-provider/requests`}
+            element={<ServiceProviderView />}
           />
           <Route
             path={`maintainance/reports`}
@@ -178,7 +188,7 @@ const ADMIN_USER_ROUTES = () => {
             path={`accounting/statements/supplier`}
             element={<SupplierReportsNEDBANK />}
           />
-          a
+
           <Route
             path={`accounting/banking`}
             element={<BankingTransactions />}
@@ -206,6 +216,10 @@ const ADMIN_USER_ROUTES = () => {
             element={<ViewUnit />}
           />
           <Route
+            path={`service-provider/word-orders/:maintenanceRequestId`}
+            element={<ServiceProviderWorkOrder />}
+          />
+          <Route
             path={`/c/body/body-corperate/:propertyId/:id`}
             element={<UnitInfor />}
           />
@@ -225,6 +239,7 @@ const ADMIN_USER_ROUTES = () => {
             path={`/c/body/body-corperate/:propertyId/:id/:yearId/:invoiceId/accounting-view`}
             element={<ViewInvoice />}
           />
+
           {/* Properties and units */}
           <Route path={`body/owners`} element={<Owners />} />
           <Route path={`admin/employees`} element={<Employees />} />
@@ -243,11 +258,44 @@ const ADMIN_USER_ROUTES = () => {
           path={`service-provider-quotes/:maintenanceRequestId/:workOrderId`}
           element={<UploadQuote />}
         ></Route>
+        
       </Routes>
     </BrowserRouter>
   );
 };
-
+const SERVICE_PROVIDER_USER_ROUTES = () => {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="c" element={<PrivateLoggedIn />}>
+          <Route path={`dashboard`} element={<Dashboard />} />
+          <Route
+          path={`service-provider/requests`}
+          element={<ServiceProviderView />}
+        />
+          <Route
+            path={`service-provider/word-orders/:maintenanceRequestId`}
+            element={<ServiceProviderWorkOrder />}
+          />
+          <Route path={`settings`} element={<Settings />} />
+          <Route path="change-password" element={<Settings />} />
+          <Route path={`FAQ`} element={<FAQ />} />
+          <Route path="*" element={<Navigate to="dashboard" />} />
+        </Route>
+        <Route path="/" element={<SignIn />} />
+        <Route path="/*" element={<Navigate to="/" />} />
+        <Route
+          path={`service-provider-quotes/:maintenanceRequestId/:workOrderId`}
+          element={<UploadQuote />}
+        ></Route>
+        <Route
+          path={`service-provider/requests`}
+          element={<ServiceProviderView />}
+        />
+      </Routes>
+    </BrowserRouter>
+  );
+};
 const OWNER_ROUTES = () => {
   return (
     <BrowserRouter>
@@ -293,10 +341,7 @@ const OWNER_ROUTES = () => {
             path={`maintainance/main-overview`}
             element={<Maintainance />}
           />
-          <Route
-            path={`maintainance/request`}
-            element={<OwnerRequest />}
-          />
+          <Route path={`maintainance/request`} element={<OwnerRequest />} />
           <Route
             path={`maintainance/service-providers`}
             element={<ServiceProvider />}
@@ -309,8 +354,8 @@ const OWNER_ROUTES = () => {
             path={`maintainance/request/:maintenanceRequestId`}
             element={<WorkOrder />}
           />
-           <Route path={`settings`} element={<Settings />} />
-           <Route path={`change-password`} element={<Settings />} />
+          <Route path={`settings`} element={<Settings />} />
+          <Route path={`change-password`} element={<Settings />} />
           {/* maintenance */}
         </Route>
         <Route path="/" element={<SignIn />} />
@@ -390,6 +435,7 @@ const MainRoutes = observer(() => {
     USER_ROLES.DIRECTOR,
     USER_ROLES.HUMAN_RESOURCE,
     USER_ROLES.SUPERVISOR,
+    USER_ROLES.SERVICE_PROVIDER,
   ];
 
   if (adminRoles.includes(role)) {
@@ -398,6 +444,8 @@ const MainRoutes = observer(() => {
     return <EMPLOYEE_USER_ROUTES />;
   } else if (role === USER_ROLES.OWNER) {
     return <OWNER_ROUTES />;
+  } else if (role === USER_ROLES.SERVICE_PROVIDER) {
+    return <SERVICE_PROVIDER_USER_ROUTES />;
   }
 
   return <EMPLOYEE_USER_ROUTES />;
