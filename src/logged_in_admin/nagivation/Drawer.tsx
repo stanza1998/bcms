@@ -902,7 +902,6 @@ const DrawerList = observer(() => {
     USER_ROLES.DIRECTOR,
     USER_ROLES.HUMAN_RESOURCE,
     USER_ROLES.SUPERVISOR,
-    USER_ROLES.SERVICE_PROVIDER,
   ];
 
   if (adminRoles.includes(role)) {
