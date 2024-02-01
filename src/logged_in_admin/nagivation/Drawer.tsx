@@ -126,7 +126,7 @@ const ADMIN_DRAWER = () => {
                 Properties list
               </NavLink>
             </li>
-            <li>
+            {/* <li>
               <NavLink to={`body/suppliers`} className="navlink">
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
@@ -149,7 +149,7 @@ const ADMIN_DRAWER = () => {
                 </span>
                 Account Categories
               </NavLink>
-            </li>
+            </li> */}
             {/* <li>
               <NavLink to={`body/transfer`} className="navlink">
                 <span className="uk-margin-small-right">
@@ -161,7 +161,7 @@ const ADMIN_DRAWER = () => {
           </ul>
         </li>
 
-        <li className="list-item uk-parent">
+        {/* <li className="list-item uk-parent">
           <NavLink to={`accounting`} className="navlink">
             <span className="uk-margin-small-right">
               <MoneyIcon style={{ fontSize: "16px" }} />
@@ -234,7 +234,7 @@ const ADMIN_DRAWER = () => {
               </NavLink>
             </li>
           </ul>
-        </li>
+        </li> */}
         <li className="list-item uk-parent">
           <NavLink to={`communication`} className="navlink">
             <span className="uk-margin-small-right">
