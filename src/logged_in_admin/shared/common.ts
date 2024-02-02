@@ -36,6 +36,7 @@ import { IUnit } from "../../shared/models/bcms/Units";
 import { IServiceProvider } from "../../shared/models/maintenance/service-provider/ServiceProviderModel";
 import { IBodyCop } from "../../shared/models/bcms/BodyCorperate";
 import { useAppContext } from "../../shared/functions/Context";
+import { ICustomContact } from "../../shared/models/communication/contact-management/CustomContacts";
 
 export const getFileExtension = (url: string): string => {
   const extensionMatch = url.match(/\.([a-z0-9]+)(?:[?#]|$)/i);
@@ -613,5 +614,20 @@ export function canViewMaintenanceRequestDetails(
   return hasMaintenanceRequest;
 }
 
+export function getCustomContactById(
+  customContactIds: string[],
+  customContacts: ICustomContact[]
+): string[] {
+  const customContactNames: string[] = [];
+
+  for (const id of customContactIds) {
+    const foundContact = customContacts.find(contact => contact.id === id);
+    if (foundContact) {
+      customContactNames.push(foundContact.name);
+    }
+  }
+
+  return customContactNames;
+}
 
 

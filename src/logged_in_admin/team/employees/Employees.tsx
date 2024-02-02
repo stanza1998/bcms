@@ -156,7 +156,7 @@ const Employees = observer(() => {
           <div className="uk-card uk-card-default uk-card-small uk-card-body">
             {!loading && (
               <EmployeesTable
-                employees={store.user.all}
+                employees={store.user.all.filter((user)=>user.role !="Service Provider")}
                 isLoading={loading}
                 onEditEmployee={onEditEmployee}
                 onDeleteEmployee={onDeleteEmployee}
@@ -165,7 +165,6 @@ const Employees = observer(() => {
           </div>
         </div>
       </div>
-
       <Modal modalId={DIALOG_NAMES.TEAM.USER_DIALOG}>
         <UserDialog />
       </Modal>

@@ -200,7 +200,7 @@ export const AnnouncementDialog = observer(() => {
                         expiryDate: e.target.value,
                       })
                     }
-                    required
+                    min={new Date().toISOString().split('T')[0]}                    required
                   />
                 </div>
               </div>

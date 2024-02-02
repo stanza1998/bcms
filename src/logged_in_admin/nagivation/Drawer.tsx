@@ -288,7 +288,7 @@ const ADMIN_DRAWER = () => {
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
-                Meetings
+                Meetings and Minutes
               </NavLink>
               <NavLink to={`communication/documents`} className="navlink">
                 <span className="uk-margin-small-right">
@@ -587,7 +587,7 @@ const OWNER_DRAWER = observer(() => {
                     <span className="uk-margin-small-right">
                       <DoubleArrowIcon style={{ fontSize: "15px" }} />
                     </span>
-                    Meetings
+                    Meetings and Minutes
                   </NavLink>
                 </li>
                 <li>

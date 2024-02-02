@@ -20,6 +20,7 @@ import {
   isDateAfterCurrentDate,
   cannotEditMeeting,
   findPropertyUsers,
+  getCustomContactById,
 } from "../../../shared/common";
 import {
   getStorage,
@@ -32,6 +33,10 @@ import {
 import { storage } from "../../../../shared/database/FirebaseConfig";
 import { DeleteOutline as FileIcon } from "@mui/icons-material"; // Import Material-UI icons
 import { IconButton } from "@mui/material"; // Import IconButton component from Material-UI
+import {
+  ICustomContact,
+  defaultCustomContacts,
+} from "../../../../shared/models/communication/contact-management/CustomContacts";
 
 interface Attachment {
   file: File;
@@ -46,12 +51,12 @@ export const EditMeetingDialog = observer(() => {
   const [folder, setFolder] = useState<string>("");
   const animatedComponents = makeAnimated();
   const [attachmentUploading, setAttachmentUploading] = useState<number>(0);
+  const [creator, setCreator] = useState(false);
 
   const [meeting, setMeeting] = useState<IMeeting>({
     ...defaultMeeting,
     attachments: [],
   });
-
   const [attachments, setAttachments] = useState<Attachment[]>([]);
 
   const handleAttachmentChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -106,6 +111,9 @@ export const EditMeetingDialog = observer(() => {
     }))
     .filter((user) => user.value !== me?.uid);
 
+  const contacts = store.communication.customContacts.all.map((contact) => {
+    return contact.asJson;
+  });
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -176,6 +184,8 @@ export const EditMeetingDialog = observer(() => {
   };
 
   const verifyMeeting = () => {
+    setCreator(true);
+
     setMeeting({
       ...meeting,
       isVerified: true,
@@ -225,103 +235,106 @@ export const EditMeetingDialog = observer(() => {
       ></button>
 
       <h3 className="uk-modal-title">Meeting</h3>
-      {!meeting.isVerified && me?.role != "Owner" && (
-        <button className="uk-button primary" onClick={verifyMeeting}>
-          Verify Meeting
-        </button>
-      )}
+      {!meeting.isVerified &&
+        me?.role != "Owner" &&
+        meeting?.organizer != me?.uid && (
+          <button className="uk-button primary" onClick={verifyMeeting}>
+            Verify Meeting
+          </button>
+        )}
 
       <div className="dialog-content uk-position-relative">
         <div className="reponse-form">
-          <form className="uk-form-stacked" onSubmit={onSave}>
-            <div className="uk-grid-small" data-uk-grid>
-              <div className="uk-width-1-1">
-                <label className="uk-form-label" htmlFor="form-stacked-text">
-                  Meeting Title
-                  {meeting.title === "" && (
-                    <span style={{ color: "red" }}>*</span>
-                  )}
-                </label>
-                <div className="uk-form-controls">
-                  <input
-                    className="uk-input"
-                    type="text"
-                    placeholder="Title"
-                    value={meeting.title}
-                    onChange={(e) =>
-                      setMeeting({
-                        ...meeting,
-                        title: e.target.value,
-                      })
-                    }
-                    required
-                    disabled={isDateAfterCurrentDate(meeting.startDateAndTime)}
-                  />
+          {me?.role === "Owner" ? (
+            <>
+              <p>Meeting Title: {meeting.title}</p>
+              <p>Time: {meeting.startDateAndTime}</p>
+              {meeting.location != "" && <p>Location: {meeting.location}</p>}
+              {meeting.meetingLink != "" && <p>Link: {meeting.meetingLink}</p>}
+              <p>Attendees: All Owners
+                {meeting.externalParticipants.length !== 0 && (
+                <div>
+                  Guests:
+                  {meeting.externalParticipants.map((participantId) => {
+                    const customContactNames = getCustomContactById(
+                      [participantId],
+                      contacts
+                    );
+                    const customContactNamesString =
+                      customContactNames.join(", "); // Join names with commas
+                    return (
+                      <p key={participantId}>{customContactNamesString}</p>
+                    );
+                  
+                  })}
                 </div>
-              </div>
+              )}
+               </p>
+              {meeting.attachments.length === 0 ? (
+                  <span style={{ color: "red" }}>No Attachments</span>
+                ) : (
+                  <div className="uk-width-1-1">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Extension</th>
+                          <th>File</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {meeting.attachments.map((attachment, index) => {
+                          const fileName = getFileName(attachment);
+                          const extension = getFileExtension(attachment);
+                          const icon = getIconForExtensionExtra(extension);
 
-              <div className="uk-width-1-2@s">
-                <label className="uk-form-label" htmlFor="form-stacked-text">
-                  Start Date And Time
-                  {meeting.startDateAndTime === "" && (
-                    <span style={{ color: "red" }}>*</span>
-                  )}
-                </label>
-                <div className="uk-form-controls">
-                  <input
-                    className="uk-input"
-                    type="datetime-local"
-                    value={meeting.startDateAndTime}
-                    onChange={(e) =>
-                      setMeeting({
-                        ...meeting,
-                        startDateAndTime: e.target.value,
-                      })
-                    }
-                    required
-                    disabled={isDateAfterCurrentDate(meeting.startDateAndTime)}
-                  />
-                </div>
-              </div>
-              <div className="uk-width-1-2@s">
-                <label className="uk-form-label" htmlFor="form-stacked-text">
-                  End Date And Time
-                  {meeting.endDateAndTime === "" && (
-                    <span style={{ color: "red" }}>*</span>
-                  )}
-                </label>
-                <div className="uk-form-controls">
-                  <input
-                    className="uk-input"
-                    type="datetime-local"
-                    value={meeting.endDateAndTime}
-                    onChange={(e) =>
-                      setMeeting({
-                        ...meeting,
-                        endDateAndTime: e.target.value,
-                      })
-                    }
-                    required
-                    // disabled={isDateAfterCurrentDate(meeting.startDateAndTime)}
-                  />
-                </div>
-              </div>
-              {cannotEditMeeting(me?.role || "") && (
+                          return (
+                            <tr key={index}>
+                              <td>{fileName}</td>
+                              <td>{extension}</td>
+                              <td>
+                                <a
+                                  href={attachment}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <img
+                                    src={icon}
+                                    alt="File icon"
+                                    width="24"
+                                    height="24"
+                                    style={{ cursor: "pointer" }}
+                                  />
+                                </a>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+            </>
+          ) : (
+            <form className="uk-form-stacked" onSubmit={onSave}>
+              <div className="uk-grid-small" data-uk-grid>
                 <div className="uk-width-1-1">
                   <label className="uk-form-label" htmlFor="form-stacked-text">
-                    Description
-                    {meeting.description === "" && (
+                    Meeting Title
+                    {meeting.title === "" && (
                       <span style={{ color: "red" }}>*</span>
                     )}
                   </label>
                   <div className="uk-form-controls">
-                    <textarea
-                      className="uk-textarea"
-                      value={meeting.description}
+                    <input
+                      className="uk-input"
+                      type="text"
+                      placeholder="Title"
+                      value={meeting.title}
                       onChange={(e) =>
                         setMeeting({
                           ...meeting,
-                          description: e.target.value,
+                          title: e.target.value,
                         })
                       }
                       required
@@ -331,135 +344,278 @@ export const EditMeetingDialog = observer(() => {
                     />
                   </div>
                 </div>
-              )}
-              <div className="uk-width-1-2@s">
-                <label className="uk-form-label" htmlFor="form-stacked-text">
-                  Location
-                  {meeting.location === "" && (
-                    <span style={{ color: "" }}> (optional)</span>
-                  )}
-                </label>
-                <div className="uk-form-controls">
-                  <input
-                    className="uk-input"
-                    type="text"
-                    placeholder="Meeting Location"
-                    value={meeting.location}
-                    onChange={(e) =>
-                      setMeeting({
-                        ...meeting,
-                        location: e.target.value,
-                      })
-                    }
-                    disabled={isDateAfterCurrentDate(meeting.startDateAndTime)}
-                  />
-                </div>
-              </div>
-              <div className="uk-width-1-2@s">
-                <label className="uk-form-label" htmlFor="form-stacked-text">
-                  Online Link
-                  {meeting.meetingLink === "" && (
-                    <span style={{ color: "" }}> (optional)</span>
-                  )}
-                </label>
-                <div className="uk-form-controls">
-                  <input
-                    className="uk-input"
-                    type="text"
-                    placeholder="Meeting Link"
-                    value={meeting.meetingLink}
-                    onChange={(e) =>
-                      setMeeting({
-                        ...meeting,
-                        meetingLink: e.target.value,
-                      })
-                    }
-                    disabled={isDateAfterCurrentDate(meeting.startDateAndTime)}
-                  />
-                </div>
-              </div>
-              <div className="uk-width-1-1">
-                <label className="uk-form-label" htmlFor="form-stacked-text">
-                  System Attendees
-                  {meeting.meetingLink === "" && (
-                    <span style={{ color: "" }}> (optional)</span>
-                  )}
-                </label>
-                <div className="uk-form-controls">
-                  <Select
-                    closeMenuOnSelect={false}
-                    components={animatedComponents}
-                    onChange={(value: any) =>
-                      setMeeting({
-                        ...meeting,
-                        ownerParticipants: value.map((t: any) => t.value),
-                      })
-                    }
-                    isMulti
-                    placeholder="Search users"
-                    options={findPropertyUsers(users, units)}
-                    value={meeting.ownerParticipants.map((participantId) => {
-                      const selectedContact = users.find(
-                        (contact) => contact.uid === participantId
-                      );
-                      return selectedContact
-                        ? {
-                            label:
-                              selectedContact.firstName +
-                              " " +
-                              selectedContact.lastName,
-                            value: selectedContact.uid,
-                          }
-                        : null;
-                    })}
-                    isDisabled={isDateAfterCurrentDate(
-                      meeting.startDateAndTime
+
+                <div className="uk-width-1-2@s">
+                  <label className="uk-form-label" htmlFor="form-stacked-text">
+                    Start Date And Time
+                    {meeting.startDateAndTime === "" && (
+                      <span style={{ color: "red" }}>*</span>
                     )}
-                  />
+                  </label>
+                  <div className="uk-form-controls">
+                    <input
+                      className="uk-input"
+                      type="datetime-local"
+                      value={meeting.startDateAndTime}
+                      onChange={(e) =>
+                        setMeeting({
+                          ...meeting,
+                          startDateAndTime: e.target.value,
+                        })
+                      }
+                      min={new Date().toISOString().slice(0, 16)}
+                      required
+                      disabled={isDateAfterCurrentDate(
+                        meeting.startDateAndTime
+                      )}
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="uk-width-1-1">
-                <label className="uk-form-label" htmlFor="form-stacked-text">
-                  Custom Created Attendees
-                  {meeting.meetingLink === "" && (
-                    <span style={{ color: "" }}> (optional)</span>
-                  )}
-                </label>
-                <div className="uk-form-controls">
-                  <Select
-                    closeMenuOnSelect={false}
-                    components={animatedComponents}
-                    onChange={(value: any) =>
-                      setMeeting({
-                        ...meeting,
-                        externalParticipants: value.map((t: any) => t.value),
-                      })
-                    }
-                    isMulti
-                    placeholder="Search users"
-                    options={customContact}
-                    value={meeting.externalParticipants.map((participantId) => {
-                      const selectedContact = customContact.find(
-                        (contact) => contact.value === participantId
-                      );
-                      return selectedContact
-                        ? {
-                            label: selectedContact.label,
-                            value: selectedContact.value,
-                          }
-                        : null;
-                    })}
-                    isDisabled={isDateAfterCurrentDate(
-                      meeting.startDateAndTime
+                <div className="uk-width-1-2@s">
+                  <label className="uk-form-label" htmlFor="form-stacked-text">
+                    End Date And Time
+                    {meeting.endDateAndTime === "" && (
+                      <span style={{ color: "red" }}>*</span>
                     )}
-                  />
+                  </label>
+                  <div className="uk-form-controls">
+                    <input
+                      className="uk-input"
+                      type="datetime-local"
+                      value={meeting.endDateAndTime}
+                      onChange={(e) =>
+                        setMeeting({
+                          ...meeting,
+                          endDateAndTime: e.target.value,
+                        })
+                      }
+                      min={new Date().toISOString().slice(0, 16)}
+                      required
+                      // disabled={isDateAfterCurrentDate(meeting.startDateAndTime)}
+                    />
+                  </div>
                 </div>
-              </div>
-              {/* display attachments */}
-              {meeting.attachments.length === 0 ? (
-                <span style={{ color: "red" }}>No Attachments</span>
-              ) : (
+                {cannotEditMeeting(me?.role || "") && (
+                  <div className="uk-width-1-1">
+                    <label
+                      className="uk-form-label"
+                      htmlFor="form-stacked-text"
+                    >
+                      Description
+                      {meeting.description === "" && (
+                        <span style={{ color: "red" }}>*</span>
+                      )}
+                    </label>
+                    <div className="uk-form-controls">
+                      <textarea
+                        className="uk-textarea"
+                        value={meeting.description}
+                        onChange={(e) =>
+                          setMeeting({
+                            ...meeting,
+                            description: e.target.value,
+                          })
+                        }
+                        required
+                        disabled={isDateAfterCurrentDate(
+                          meeting.startDateAndTime
+                        )}
+                      />
+                    </div>
+                  </div>
+                )}
+                <div className="uk-width-1-2@s">
+                  <label className="uk-form-label" htmlFor="form-stacked-text">
+                    Location
+                    {meeting.location === "" && (
+                      <span style={{ color: "" }}> (optional)</span>
+                    )}
+                  </label>
+                  <div className="uk-form-controls">
+                    <input
+                      className="uk-input"
+                      type="text"
+                      placeholder="Meeting Location"
+                      value={meeting.location}
+                      onChange={(e) =>
+                        setMeeting({
+                          ...meeting,
+                          location: e.target.value,
+                        })
+                      }
+                      disabled={isDateAfterCurrentDate(
+                        meeting.startDateAndTime
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="uk-width-1-2@s">
+                  <label className="uk-form-label" htmlFor="form-stacked-text">
+                    Online Link
+                    {meeting.meetingLink === "" && (
+                      <span style={{ color: "" }}> (optional)</span>
+                    )}
+                  </label>
+                  <div className="uk-form-controls">
+                    <input
+                      className="uk-input"
+                      type="text"
+                      placeholder="Meeting Link"
+                      value={meeting.meetingLink}
+                      onChange={(e) =>
+                        setMeeting({
+                          ...meeting,
+                          meetingLink: e.target.value,
+                        })
+                      }
+                      disabled={isDateAfterCurrentDate(
+                        meeting.startDateAndTime
+                      )}
+                    />
+                  </div>
+                </div>
                 <div className="uk-width-1-1">
+                  <label className="uk-form-label" htmlFor="form-stacked-text">
+                    System Attendees
+                    {meeting.meetingLink === "" && (
+                      <span style={{ color: "" }}> (optional)</span>
+                    )}
+                  </label>
+                  <div className="uk-form-controls">
+                    <Select
+                      closeMenuOnSelect={false}
+                      components={animatedComponents}
+                      onChange={(value: any) =>
+                        setMeeting({
+                          ...meeting,
+                          ownerParticipants: value.map((t: any) => t.value),
+                        })
+                      }
+                      isMulti
+                      placeholder="Search users"
+                      options={findPropertyUsers(users, units)}
+                      value={meeting.ownerParticipants.map((participantId) => {
+                        const selectedContact = users.find(
+                          (contact) => contact.uid === participantId
+                        );
+                        return selectedContact
+                          ? {
+                              label:
+                                selectedContact.firstName +
+                                " " +
+                                selectedContact.lastName,
+                              value: selectedContact.uid,
+                            }
+                          : null;
+                      })}
+                      isDisabled={isDateAfterCurrentDate(
+                        meeting.startDateAndTime
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="uk-width-1-1">
+                  <label className="uk-form-label" htmlFor="form-stacked-text">
+                    Custom Created Attendees
+                    {meeting.meetingLink === "" && (
+                      <span style={{ color: "" }}> (optional)</span>
+                    )}
+                  </label>
+                  <div className="uk-form-controls">
+                    <Select
+                      closeMenuOnSelect={false}
+                      components={animatedComponents}
+                      onChange={(value: any) =>
+                        setMeeting({
+                          ...meeting,
+                          externalParticipants: value.map((t: any) => t.value),
+                        })
+                      }
+                      isMulti
+                      placeholder="Search users"
+                      options={customContact}
+                      value={meeting.externalParticipants.map(
+                        (participantId) => {
+                          const selectedContact = customContact.find(
+                            (contact) => contact.value === participantId
+                          );
+                          return selectedContact
+                            ? {
+                                label: selectedContact.label,
+                                value: selectedContact.value,
+                              }
+                            : null;
+                        }
+                      )}
+                      isDisabled={isDateAfterCurrentDate(
+                        meeting.startDateAndTime
+                      )}
+                    />
+                  </div>
+                </div>
+                {/* display attachments */}
+                {meeting.attachments.length === 0 ? (
+                  <span style={{ color: "red" }}>No Attachments</span>
+                ) : (
+                  <div className="uk-width-1-1">
+                    <table className="uk-table uk-table-small uk-table-striped">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Extension</th>
+                          <th>File</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {meeting.attachments.map((attachment, index) => {
+                          const fileName = getFileName(attachment);
+                          const extension = getFileExtension(attachment);
+                          const icon = getIconForExtensionExtra(extension);
+
+                          return (
+                            <tr key={index}>
+                              <td>{fileName}</td>
+                              <td>{extension}</td>
+                              <td>
+                                <a
+                                  href={attachment}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <img
+                                    src={icon}
+                                    alt="File icon"
+                                    width="24"
+                                    height="24"
+                                    style={{ cursor: "pointer" }}
+                                  />
+                                </a>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+                <div className="uk-width-1-1">
+                  {cannotEditMeeting(me?.role || "") && (
+                    <>
+                      <label className="uk-form-label" htmlFor="attachments">
+                        Meeting Attachments
+                      </label>
+                      <div className="uk-form-controls">
+                        <input
+                          type="file"
+                          id="attachments"
+                          onChange={handleAttachmentChange}
+                          multiple
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Display the list of selected attachments */}
                   <table className="uk-table uk-table-small uk-table-striped">
                     <thead>
                       <tr>
@@ -469,116 +625,59 @@ export const EditMeetingDialog = observer(() => {
                       </tr>
                     </thead>
                     <tbody>
-                      {meeting.attachments.map((attachment, index) => {
-                        const fileName = getFileName(attachment);
-                        const extension = getFileExtension(attachment);
-                        const icon = getIconForExtensionExtra(extension);
-
-                        return (
-                          <tr key={index}>
-                            <td>{fileName}</td>
-                            <td>{extension}</td>
-                            <td>
-                              <a
-                                href={attachment}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                <img
-                                  src={icon}
-                                  alt="File icon"
-                                  width="24"
-                                  height="24"
-                                  style={{ cursor: "pointer" }}
-                                />
-                              </a>
-                            </td>
-                          </tr>
-                        );
-                      })}
+                      {attachments.map((a, index) => (
+                        <tr key={index}>
+                          <td>{a.name}</td>
+                          <td>{a.extension}</td>
+                          <td>
+                            <img
+                              src={getIconForExtension(a.extension)}
+                              alt={`${a.name} icon`}
+                              width="24"
+                              height="24"
+                              style={{
+                                cursor: "pointer",
+                              }}
+                            />
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
+              </div>
+              {cannotEditMeeting(me?.role || "") && (
+                <div className="uk-margin">
+                  {attachmentUploading > 0 && (
+                    <>
+                      <span className="uk-margin">Uploading files</span>
+                      <progress
+                        className="uk-progress"
+                        value={attachmentUploading}
+                        max={100}
+                      ></progress>
+                    </>
+                  )}
+                </div>
               )}
-              <div className="uk-width-1-1">
+              <div className="footer uk-margin">
+                <button className="uk-button secondary uk-modal-close">
+                  Close
+                </button>
                 {cannotEditMeeting(me?.role || "") && (
                   <>
-                    <label className="uk-form-label" htmlFor="attachments">
-                      Meeting Attachments
-                    </label>
-                    <div className="uk-form-controls">
-                      <input
-                        type="file"
-                        id="attachments"
-                        onChange={handleAttachmentChange}
-                        multiple
-                      />
-                    </div>
-                  </>
-                )}
-
-                {/* Display the list of selected attachments */}
-                <table className="uk-table uk-table-small uk-table-striped">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Extension</th>
-                      <th>File</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {attachments.map((a, index) => (
-                      <tr key={index}>
-                        <td>{a.name}</td>
-                        <td>{a.extension}</td>
-                        <td>
-                          <img
-                            src={getIconForExtension(a.extension)}
-                            alt={`${a.name} icon`}
-                            width="24"
-                            height="24"
-                            style={{
-                              cursor: "pointer",
-                            }}
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            {cannotEditMeeting(me?.role || "") && (
-              <div className="uk-margin">
-                {attachmentUploading > 0 && (
-                  <>
-                    <span className="uk-margin">Uploading files</span>
-                    <progress
-                      className="uk-progress"
-                      value={attachmentUploading}
-                      max={100}
-                    ></progress>
+                    <button className="uk-button secondary uk-modal-close">
+                      Cancel
+                    </button>
+                    <button className="uk-button primary" type="submit">
+                      Save
+                      {loading && <div data-uk-spinner="ratio: .5"></div>}
+                    </button>
                   </>
                 )}
               </div>
-            )}
-            <div className="footer uk-margin">
-              <button className="uk-button secondary uk-modal-close">
-                Close
-              </button>
-              {cannotEditMeeting(me?.role || "") && (
-                <>
-                  <button className="uk-button secondary uk-modal-close">
-                    Cancel
-                  </button>
-                  <button className="uk-button primary" type="submit">
-                    Save
-                    {loading && <div data-uk-spinner="ratio: .5"></div>}
-                  </button>
-                </>
-              )}
-            </div>
-          </form>
+            </form>
+          )}
         </div>
       </div>
     </div>

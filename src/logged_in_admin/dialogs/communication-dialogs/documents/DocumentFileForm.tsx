@@ -74,7 +74,7 @@ export const DocumentFileForm = observer((props: IFormProps) => {
         <input
           className="uk-input uk-form-width-large "
           type="text"
-          placeholder="Black Friday e.g"
+          placeholder="Insurance Policy e.g"
           value={documentFile.documentFileName}
           onChange={(e) =>
             setDocumentFile({
@@ -84,7 +84,11 @@ export const DocumentFileForm = observer((props: IFormProps) => {
           }
         />
       </div>
-      Current Progress is: {progress.toFixed(2)} %
+      <div>
+        <label htmlFor="progress-bar">Current Progress is:</label>
+        <progress value={progress} max="100" style={{marginLeft:"16px"}}></progress>
+      </div>
+
       <div className="footer uk-margin">
         <button className="uk-button secondary uk-modal-close">Cancel</button>
         <button className="uk-button primary" type="submit">

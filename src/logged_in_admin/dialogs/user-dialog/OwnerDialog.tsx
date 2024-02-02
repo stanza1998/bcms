@@ -132,10 +132,11 @@ const OwnerDialog = observer(() => {
                     <label
                       className="uk-form-label"
                       htmlFor="form-stacked-text"
+                      style={{marginTop:"16px"}}
                     >
                       Assign Property
                     </label>
-                    <div className="uk-margin uk-form-controls">
+                    <div className="uk-form-controls">
                       <Select
                         closeMenuOnSelect={false}
                         components={animatedComponents}
@@ -146,7 +147,7 @@ const OwnerDialog = observer(() => {
                           })
                         }
                         isMulti
-                        placeholder="Search users"
+                        placeholder="Search properties"
                         options={properties}
                         value={properties.filter((property) =>
                           user.accessProperties?.includes(property.value)
