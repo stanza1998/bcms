@@ -32,7 +32,7 @@ export const ServiceProvider = observer(() => {
         }
       };
       getData();
-    }, []);
+    }, [api.maintenance.service_provider, me?.property]);
   return (
     <>
     <div className="uk-section leave-analytics-page">

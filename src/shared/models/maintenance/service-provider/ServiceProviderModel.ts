@@ -7,7 +7,8 @@ export const defaultServiceProvider: IServiceProvider = {
     phoneNumber: "",
     email: "",
     dateCreated: "",
-    specializationi: ""
+    specializationi: "",
+    code: "",
 };
 
 export interface IServiceProvider {
@@ -17,6 +18,7 @@ export interface IServiceProvider {
     email: string;
     dateCreated: string;
     specializationi: string;
+    code: string;
 }
 
 export default class ServiceProviderModel {

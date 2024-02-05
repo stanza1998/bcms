@@ -73,6 +73,11 @@ export const MAIL_MEETINGS = (
 }
 
 
+
+
+
+
+
 //maintenance SP
 export const MAIL_SERVICE_PROVIDER_LINK = (
     title: string | null | undefined,
@@ -128,6 +133,8 @@ export const MAIL_SUCCESSFULL_SERVICE_PROVIDER = (
     }
 }
 
+
+
 export const MAIL_WORK_ORDER_WINDOW_PERIOD_EXTENDED = (
     workOrderId: string | null | undefined,
     windowDate: string | null | undefined,
@@ -155,6 +162,8 @@ export const MAIL_WORK_ORDER_WINDOW_PERIOD_EXTENDED = (
         MY_BODY: MY_BODY.join("<br/>")
     }
 }
+
+
 //1. WHEN OWNER CREATES A REQUEST
 export const MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_OWNER = (
 ) => {

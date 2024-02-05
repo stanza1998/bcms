@@ -11,8 +11,6 @@ import showModalFromId, {
   hideModalFromId,
 } from "../../../shared/functions/ModalShow";
 import OwnerDialog from "../../dialogs/user-dialog/OwnerDialog";
-import { USER_ROLES } from "../../../shared/constants/USER_ROLES";
-import Select from "react-select";
 import makeAnimated from "react-select/animated";
 
 interface ToolBarProps {
@@ -203,81 +201,6 @@ const Owners = observer(() => {
       </div>
       <Modal modalId={DIALOG_NAMES.OWNER.UPDATE_OWNER_DIALOG}>
         <OwnerDialog />
-        {/* <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
-          <button
-            className="uk-modal-close-default"
-            type="button"
-            data-uk-close
-          ></button>
-
-          <h3 className="uk-modal-title">Owner</h3>
-          <div className="dialog-content uk-position-relative">
-            <div className="reponse-form">
-              <form className="uk-form-stacked" onSubmit={onSave}>
-                <div className="uk-margin">
-                  <label className="uk-form-label" htmlFor="form-stacked-text">
-                    Email
-                  </label>
-                  <div className="uk-form-controls">
-                    <input
-                      className="uk-input"
-                      placeholder="example@example.com
-                      "
-                      value={employees.email}
-                      onChange={(e) =>
-                        setEmployee({
-                          ...employees,
-                          email: e.target.value,
-                        })
-                      }
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="uk-width-1-1@m">
-                  <label className="uk-form-label" htmlFor="form-stacked-text">
-                    Assign Property
-                  </label>
-                  <div className="uk-margin uk-form-controls">
-                    <Select
-                      closeMenuOnSelect={false}
-                      components={animatedComponents}
-                      onChange={(value: any) =>
-                        setEmployee({
-                          ...employees,
-                          accessProperties: value.map((t: any) => t.value),
-                        })
-                      }
-                      isMulti
-                      placeholder="Properties"
-                      options={properties}
-                      value={employees.accessProperties?.map((p) => {
-                        const selectedProperty = properties.find(
-                          (property) => property.value === p
-                        );
-                        return selectedProperty
-                          ? {
-                              label: selectedProperty.label,
-                              value: selectedProperty.value,
-                            }
-                          : null;
-                      })}
-                    />
-                  </div>
-                </div>
-                <div className="footer uk-margin">
-                  <button className="uk-button secondary uk-modal-close">
-                    Cancel
-                  </button>
-                  <button className="uk-button primary" type="submit">
-                    Save
-                    {loading && <div data-uk-spinner="ratio: .5"></div>}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div> */}
       </Modal>
     </>
   );

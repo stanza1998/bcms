@@ -272,7 +272,6 @@ export const ViewFolder = observer(() => {
                 )}
                 {activeTab === "calendar" && <CalendarView />}
               </div>
-              ; ; ;
             </div>
           </div>
           <Modal modalId={DIALOG_NAMES.COMMUNICATION.CREATE_MEETING_DIALOG}>

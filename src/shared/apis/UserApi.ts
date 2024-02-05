@@ -100,6 +100,7 @@ export default class UserApi {
       await setDoc(doc(db, "Users", user.uid), user);
 
       // Send welcome email with a link to reset password
+      
       await sendPasswordResetEmail(authWorker, email, {
         url: "http://localhost:3000/change-password", // Set the URl to app url https://vanwylbcms.web.app/
         handleCodeInApp: true,

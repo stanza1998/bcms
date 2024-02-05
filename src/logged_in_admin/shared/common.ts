@@ -234,14 +234,12 @@ export function formatMeetingTime(
     // Meeting is in the future
     const minutesLeft = Math.floor(timeDifferenceStart / (1000 * 60));
     if (minutesLeft < 60) {
-      return `Meeting Starts in ${minutesLeft} minute${
-        minutesLeft !== 1 ? "s" : ""
-      } `;
+      return `Meeting Starts in ${minutesLeft} minute${minutesLeft !== 1 ? "s" : ""
+        } `;
     } else if (minutesLeft < 1440) {
       const hoursLeft = Math.floor(minutesLeft / 60);
-      return `Meeting Starts in ${hoursLeft} hour${
-        hoursLeft !== 1 ? "s" : ""
-      } `;
+      return `Meeting Starts in ${hoursLeft} hour${hoursLeft !== 1 ? "s" : ""
+        } `;
     } else if (minutesLeft < 43200) {
       // 43200 minutes in a month (assuming 30 days in a month)
       const daysLeft = Math.floor(minutesLeft / 1440);
@@ -249,22 +247,19 @@ export function formatMeetingTime(
     } else if (minutesLeft < 525600) {
       // 525600 minutes in a year (assuming 365 days in a year)
       const monthsLeft = Math.floor(minutesLeft / 43200);
-      return `Meeting Starts in ${monthsLeft} month${
-        monthsLeft !== 1 ? "s" : ""
-      } `;
+      return `Meeting Starts in ${monthsLeft} month${monthsLeft !== 1 ? "s" : ""
+        } `;
     } else {
       const yearsLeft = Math.floor(minutesLeft / 525600);
-      return `Meeting Starts in ${yearsLeft} year${
-        yearsLeft !== 1 ? "s" : ""
-      } left`;
+      return `Meeting Starts in ${yearsLeft} year${yearsLeft !== 1 ? "s" : ""
+        } left`;
     }
   } else if (timeDifferenceEnd > 0) {
     // Meeting has ended
     const minutesAgo = Math.floor(timeDifferenceEnd / (1000 * 60));
     if (minutesAgo < 60) {
-      return `Meeting Ended ${minutesAgo} minute${
-        minutesAgo !== 1 ? "s" : ""
-      } ago`;
+      return `Meeting Ended ${minutesAgo} minute${minutesAgo !== 1 ? "s" : ""
+        } ago`;
     } else if (minutesAgo < 1440) {
       const hoursAgo = Math.floor(minutesAgo / 60);
       return `Meeting Ended ${hoursAgo} hour${hoursAgo !== 1 ? "s" : ""} ago`;
@@ -275,9 +270,8 @@ export function formatMeetingTime(
     } else if (minutesAgo < 525600) {
       // 525600 minutes in a year (assuming 365 days in a year)
       const monthsAgo = Math.floor(minutesAgo / 43200);
-      return `Meeting Ended ${monthsAgo} month${
-        monthsAgo !== 1 ? "s" : ""
-      } ago`;
+      return `Meeting Ended ${monthsAgo} month${monthsAgo !== 1 ? "s" : ""
+        } ago`;
     } else {
       const yearsAgo = Math.floor(minutesAgo / 525600);
       return `Meeting Ended ${yearsAgo} year${yearsAgo !== 1 ? "s" : ""} ago`;
@@ -613,5 +607,14 @@ export function canViewMaintenanceRequestDetails(
   return hasMaintenanceRequest;
 }
 
+export function generateUniqueCode(): string {
+  const codeLength: number = 13;
+  let uniqueCode: string = '';
 
+  for (let i = 0; i < codeLength; i++) {
+    const randomDigit: number = Math.floor(Math.random() * 10);
+    uniqueCode += randomDigit.toString();
+  }
 
+  return uniqueCode;
+}

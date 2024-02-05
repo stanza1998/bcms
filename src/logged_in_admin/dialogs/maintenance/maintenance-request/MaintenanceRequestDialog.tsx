@@ -8,12 +8,8 @@ import {
   defaultMaintenanceRequest,
 } from "../../../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
 import SingleSelect from "../../../../shared/components/single-select/SlingleSelect";
-import { useParams } from "react-router-dom";
-import {
-  MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_LOGGED,
-  MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_OWNER,
-} from "../../../shared/mailMessages";
 import { getOwnersEmail } from "../../../shared/common";
+import { OwnerAnnounceLogged } from "../../../shared/maiMessagesOwner";
 
 export const MaintenanceRequestDialog = observer(() => {
   const { api, store, ui } = useAppContext();
@@ -21,22 +17,21 @@ export const MaintenanceRequestDialog = observer(() => {
   const [ownerId, setOwnerId] = useState<string>("");
   const [unitId, setUnitId] = useState<string>("");
   const me = store.user.meJson;
-  const { maintenanceRequestId } = useParams();
   const currentDate = new Date();
   const dateIssued = currentDate.toUTCString();
-
-  const _users = store.user.all.map((u) => {
-    return u.asJson;
-  });
-
-  const sendTo = getOwnersEmail(_users, ownerId);
-
   const [maintenanceRequest, setMaintenanceRequest] =
     useState<IMaintenanceRequest>({
       ...defaultMaintenanceRequest,
       ownerId: ownerId,
       unitId: unitId,
     });
+
+  const _users = store.user.all.map((u) => {
+    return u.asJson;
+  });
+
+  //emails
+  const sendTo = getOwnersEmail(_users, ownerId);
 
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -46,7 +41,7 @@ export const MaintenanceRequestDialog = observer(() => {
 
     try {
       if (store.maintenance.maintenance_request.selected) {
-        const deptment = await api.maintenance.maintenance_request.update(
+        await api.maintenance.maintenance_request.update(
           maintenanceRequest,
           me.property
         );
@@ -67,19 +62,13 @@ export const MaintenanceRequestDialog = observer(() => {
           me.property
         );
 
-        const name = me.firstName + " " + me.lastName;
-        const { MY_SUBJECT, MY_BODY } =
-          MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_LOGGED(
-            maintenanceRequest.description,
-            name
-          );
-        await api.mail.sendMail(
-          "",
-          //owner email
+        console.log(maintenanceRequest.description);
+
+        OwnerAnnounceLogged(
           [sendTo || ""],
-          MY_SUBJECT,
-          MY_BODY,
-          ""
+          me.firstName || "",
+          me.lastName || "",
+          maintenanceRequest.description
         );
 
         ui.snackbar.load({

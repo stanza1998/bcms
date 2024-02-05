@@ -2,16 +2,18 @@ import { observer } from "mobx-react-lite";
 import { useState, FormEvent, useEffect } from "react";
 import { useAppContext } from "../../../../shared/functions/Context";
 import { hideModalFromId } from "../../../../shared/functions/ModalShow";
-import { IMaintenanceRequest, defaultMaintenanceRequest } from "../../../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
 import DIALOG_NAMES from "../../Dialogs";
-import { IServiceProvider, defaultServiceProvider } from "../../../../shared/models/maintenance/service-provider/ServiceProviderModel";
+import {
+  IServiceProvider,
+  defaultServiceProvider,
+} from "../../../../shared/models/maintenance/service-provider/ServiceProviderModel";
 import { IUser } from "../../../../shared/interfaces/IUser";
+import { generateUniqueCode } from "../../../shared/common";
 
 export const ServiceProviderDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
   const me = store.user.meJson;
-  const currentDate = new Date();
 
   const [serviceProviderRequest, setServiceProviderRequest] =
     useState<IServiceProvider>({
@@ -21,92 +23,28 @@ export const ServiceProviderDialog = observer(() => {
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    if (!me?.property) return;
-    // Update API
+
     try {
       if (store.maintenance.servie_provider.selected) {
-        const provider = await api.maintenance.service_provider.update(
-            serviceProviderRequest,
-          me.property
+        await api.maintenance.service_provider.update(
+          serviceProviderRequest,
+          me?.property || ""
         );
-        const providers: IServiceProvider = {
-          id:"",
-          serviceProvideName:"",
-          phoneNumber:"",
-          email:"",
-          dateCreated:"",
-          specializationi:"",
-
-        };
-        const userInstance: IUser = {
-          uid: providers.id,
-          firstName: "",
-          lastName: "",
-          email: providers.email,
-          cellphone: providers.phoneNumber,
-          password: "",
-          departmentId: "",
-          departmentName: "",
-          role: providers.specializationi,
-          regionId: "",
-          region: "",
-          devUser: false,
-          supervisor: "",
-          property: "",
-          year: "",
-          month: "",
-          bankAccountInUse: "",
-          serviceProviderName: providers.serviceProvideName || undefined,
-          accessProperties: []
-        };
-        console.log("User Instance (Update):", userInstance);
-        await api.auth.updateUser(userInstance);
-        await store.maintenance.servie_provider.load();
         ui.snackbar.load({
           id: Date.now(),
           message: "Service Provider Updated!",
           type: "success",
         });
       } else {
-        // maintenanceRequest.authorOrSender = me.uid;
-        //servie_provider.dateRequested = currentDate.toLocaleTimeString();
-        serviceProviderRequest.dateCreated = currentDate.toUTCString();
-        const providers: IServiceProvider = {
-          id:"",
-          serviceProvideName:"",
-          phoneNumber:"",
-          email:"",
-          dateCreated:"",
-          specializationi:"",
+        serviceProviderRequest.code = generateUniqueCode();
+        // serviceProviderRequest.dateCreated = ;
 
-        };
-        const userInstance: IUser = {
-          uid: serviceProviderRequest.id,
-          firstName: "",
-          lastName: "",
-          email: serviceProviderRequest.email,
-          cellphone: serviceProviderRequest.phoneNumber,
-          password: "123456789",
-          departmentId: "",
-          departmentName: "",
-          role: "Service Provider",
-          regionId: "",
-          region: "",
-          devUser: false,
-          supervisor: "",
-          property: "",
-          year: "",
-          month: "",
-          bankAccountInUse:"",
-          serviceProviderName:serviceProviderRequest.serviceProvideName || undefined,
-          accessProperties: []
-        };
-        console.log("User Instance (Create):", userInstance);
-        await api.auth.createUser(userInstance);
         await api.maintenance.service_provider.create(
-            serviceProviderRequest,
-          me.property
+          serviceProviderRequest,
+          me?.property || ""
         );
+
+        
         ui.snackbar.load({
           id: Date.now(),
           message: "Service Provider Created!",
@@ -114,28 +52,22 @@ export const ServiceProviderDialog = observer(() => {
         });
       }
     } catch (error) {
-      ui.snackbar.load({
-        id: Date.now(),
-        message: "Error! Failed to Update Service Provider.",
-        type: "danger",
-      });
+      alert(error);
     }
 
     store.maintenance.servie_provider.clearSelected();
-    setServiceProviderRequest({...defaultServiceProvider,
-    });
+    setServiceProviderRequest({ ...defaultServiceProvider });
     setLoading(false);
     hideModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_SERVICE_PROVIDER);
   };
 
-//   useEffect(() => {
-//     if (store.maintenance.service_provider.selected)
-//     setServiceProviderRequest(store.maintenance.service_provider.selected);
-//     else setServiceProviderRequest({...defaultServiceProvider,
-//     });
+  useEffect(() => {
+    if (store.maintenance.servie_provider.selected)
+      setServiceProviderRequest(store.maintenance.servie_provider.selected);
+    else setServiceProviderRequest({ ...defaultServiceProvider });
 
-//     return () => {};
-//   }, [store.maintenance.service_provider.selected]);
+    return () => {};
+  }, [store.maintenance.servie_provider.selected]);
 
   return (
     <div className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
@@ -152,7 +84,9 @@ export const ServiceProviderDialog = observer(() => {
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Service Provider
-                {serviceProviderRequest.serviceProvideName==="" && <span style={{color:"red", marginLeft:"10px"}}>*</span>}
+                {serviceProviderRequest.serviceProvideName === "" && (
+                  <span style={{ color: "red", marginLeft: "10px" }}>*</span>
+                )}
               </label>
               <div className="uk-form-controls">
                 <input
@@ -173,7 +107,9 @@ export const ServiceProviderDialog = observer(() => {
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Email
-                {serviceProviderRequest.email==="" && <span style={{color:"red", marginLeft:"10px"}}>*</span>}
+                {serviceProviderRequest.email === "" && (
+                  <span style={{ color: "red", marginLeft: "10px" }}>*</span>
+                )}
               </label>
               <div className="uk-form-controls">
                 <input
@@ -194,7 +130,9 @@ export const ServiceProviderDialog = observer(() => {
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
                 Phone Number
-                {serviceProviderRequest.phoneNumber==="" && <span style={{color:"red", marginLeft:"10px"}}>*</span>}
+                {serviceProviderRequest.phoneNumber === "" && (
+                  <span style={{ color: "red", marginLeft: "10px" }}>*</span>
+                )}
               </label>
               <div className="uk-form-controls">
                 <input
@@ -214,8 +152,10 @@ export const ServiceProviderDialog = observer(() => {
             </div>
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-                Specialisation 
-                {serviceProviderRequest.specializationi === "" && <span style={{color:"red", marginLeft:"10px"}}>*</span>}
+                Specialisation
+                {serviceProviderRequest.specializationi === "" && (
+                  <span style={{ color: "red", marginLeft: "10px" }}>*</span>
+                )}
               </label>
               <div className="uk-form-controls">
                 <input
