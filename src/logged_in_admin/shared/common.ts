@@ -36,6 +36,7 @@ import { IUnit } from "../../shared/models/bcms/Units";
 import { IServiceProvider } from "../../shared/models/maintenance/service-provider/ServiceProviderModel";
 import { IBodyCop } from "../../shared/models/bcms/BodyCorperate";
 import { useAppContext } from "../../shared/functions/Context";
+import { ICustomContact } from "../../shared/models/communication/contact-management/CustomContacts";
 
 export const getFileExtension = (url: string): string => {
   const extensionMatch = url.match(/\.([a-z0-9]+)(?:[?#]|$)/i);
@@ -607,14 +608,4 @@ export function canViewMaintenanceRequestDetails(
   return hasMaintenanceRequest;
 }
 
-export function generateUniqueCode(): string {
-  const codeLength: number = 13;
-  let uniqueCode: string = '';
 
-  for (let i = 0; i < codeLength; i++) {
-    const randomDigit: number = Math.floor(Math.random() * 10);
-    uniqueCode += randomDigit.toString();
-  }
-
-  return uniqueCode;
-}

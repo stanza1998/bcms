@@ -107,7 +107,7 @@ const SignIn = observer(() => {
                 )}
               </p>
               <form onSubmit={onSignIn}>
-                <label htmlFor="username">Username:</label>
+                <label htmlFor="username">Email:</label>
                 <input
                   type="text"
                   id="username"

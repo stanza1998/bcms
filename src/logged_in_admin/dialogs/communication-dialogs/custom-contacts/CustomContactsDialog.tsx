@@ -198,7 +198,6 @@ export const CustomContactDialog = observer(() => {
                       location: e.target.value,
                     })
                   }
-                  required
                 />
               </div>
             </div>

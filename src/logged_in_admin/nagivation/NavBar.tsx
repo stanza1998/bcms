@@ -93,22 +93,6 @@ const NavBar = observer(() => {
                     {letter2}
                   </span>
                 </div>
-                <div className="profile-info">
-                  <p className="welcome-message">
-                    <span className="user-name">
-                      <IconButton
-                        onClick={onShowNotices}
-                        aria-label="Notifications"
-                      >
-                        {me?.role === "Owner" && (
-                          <Badge badgeContent={active} color="secondary">
-                            <NotificationsIcon style={{ color: "white" }} />
-                          </Badge>
-                        )}
-                      </IconButton>
-                    </span>
-                  </p>
-                </div>
               </div>
               {/* Dropdown content */}
               <div

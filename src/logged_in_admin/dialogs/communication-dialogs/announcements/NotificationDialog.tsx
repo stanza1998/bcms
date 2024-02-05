@@ -12,7 +12,7 @@ import { findPropertyUsersEmails } from "../../../shared/common";
 import Loading from "../../../../shared/components/Loading";
 //import * as admin from "firebase-admin";
 
-export const AnnouncementDialog = observer(() => {
+export const NotificationDialog = observer(() => {
   const { api, store, ui } = useAppContext();
   const [loading, setLoading] = useState(false);
   const [_loading, _setLoading] = useState(false);
@@ -27,7 +27,9 @@ export const AnnouncementDialog = observer(() => {
   });
 
   const emails = findPropertyUsersEmails(users, units);
-
+  const onViewNotices = () =>{
+    
+  }
   const [announcement, setAnnouncement] = useState<IAnnouncements>({
     ...defaultAnnouncements,
   });
@@ -137,27 +139,6 @@ export const AnnouncementDialog = observer(() => {
           <div className="reponse-form">
             <form className="uk-form-stacked" onSubmit={onSave}>
               <div className="uk-margin">
-                <label className="uk-form-label" htmlFor="form-stacked-text">
-                  Title
-                  {announcement.title === "" && (
-                    <span style={{ color: "red" }}>*</span>
-                  )}
-                </label>
-                <div className="uk-form-controls">
-                  <input
-                    className="uk-input"
-                    type="text"
-                    placeholder="Title"
-                    value={announcement.title}
-                    onChange={(e) =>
-                      setAnnouncement({
-                        ...announcement,
-                        title: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
               </div>
               <div className="uk-margin">
                 <label className="uk-form-label" htmlFor="form-stacked-text">
@@ -177,7 +158,7 @@ export const AnnouncementDialog = observer(() => {
                         message: e.target.value,
                       })
                     }
-                    required
+                    disabled
                   />
                 </div>
               </div>
@@ -200,6 +181,7 @@ export const AnnouncementDialog = observer(() => {
                         expiryDate: e.target.value,
                       })
                     }
+                    disabled
                     min={new Date().toISOString().split('T')[0]}                    required
                   />
                 </div>
@@ -215,6 +197,7 @@ export const AnnouncementDialog = observer(() => {
                 <div className="uk-form-controls">
                   <select
                     className="uk-input"
+                    disabled
                     onChange={(e) =>
                       setAnnouncement({
                         ...announcement,

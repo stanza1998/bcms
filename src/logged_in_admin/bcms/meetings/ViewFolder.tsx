@@ -15,6 +15,7 @@ import "./meeting-card.scss";
 import {
   cannotCreateFolder,
   cannotCreateMeeting,
+  cannotEditMeeting,
   displayUserStatus,
   formatMeetingTime,
 } from "../../shared/common";
@@ -211,7 +212,7 @@ export const ViewFolder = observer(() => {
                                 className="uk-card uk-card-default uk-card-body"
                                 style={{ background: "white" }}
                               >
-                                <span
+                                {cannotEditMeeting(me?.role || "") && <span
                                   style={{
                                     background: "#01aced",
                                     padding: "5px",
@@ -226,7 +227,8 @@ export const ViewFolder = observer(() => {
                                     me?.uid || "",
                                     users
                                   )}
-                                </span>
+                                </span>}
+                                
                                 <span
                                   className={`status-indicator ${statusClass}`}
                                 >

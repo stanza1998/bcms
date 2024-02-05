@@ -32,10 +32,12 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
 import { NoUnit } from "../shared/no-unit-shared/NoUnit";
 import { ServiceProviderView } from "../bcms/maintanace/service-providers/ServiceProviderPage";
+import { PromptUserDialog } from "../dialogs/user-dialog/PromptUserDialog";
 
 const Dashboard = observer(() => {
   const { store, api } = useAppContext();
   const me = store.user.meJson;
+
 
   console.log(me?.role);
 
@@ -76,6 +78,10 @@ const ManagerDashBoard = observer(() => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
+  
+  if(me?.firstName ==="" && me?.lastName ===""){
+    console.log("Show dialog to prompt");
+  }
   const closed = store.maintenance.maintenance_request.all.filter(
     (a) => a.asJson.status === "Closed"
   ).length;
@@ -226,9 +232,12 @@ const ManagerDashBoard = observer(() => {
   const totalNewRequests = maintenanceRequests.length;
   const totalServiceProviders = serviceProviders.length;
   const totalNewNotices = notices.length;
-  const totalUnits = store.bodyCorperate.unit.all.length;
+  const totalUnits = store.bodyCorperate.unit.all.filter(
+    (units) => units.asJson.ownerId === me?.uid
+  ).length;
   const totalMeetings = store.communication.meetingFolder.all.length;
   const totalDocuments = store.communication.documentCategory.all.length;
+  const totalEstateUnits = store.bodyCorperate.unit.all.length;
 
   const latestNotices = notices.slice(0, 3);
   const latestProviders = serviceProviders.slice(0, 3);
@@ -283,13 +292,37 @@ const ManagerDashBoard = observer(() => {
   const onCreateSP = () => {
     showModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_SERVICE_PROVIDER);
   };
+  const onViewBalances = () => {
+    alert("function to direct to units and balances overview");
+  };
   const onCreateMeetingFolder = () => {
     showModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_MEETING_FOLDER);
   };
   const onCreateDocumentFolder = () => {
     showModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_DOCUMENT_CATEGORY);
   };
+  const onNavigateToNotices = () => {
+    navigate("/c/communication/notices");
+  };
+  const onNavigateToUnits = () => {
+    navigate("/c/unit/owner-units");
+  };
+  const onNavigateToProperty = () => {
+    navigate("/c/body/body-corperate");
+  };
+  const onNavigateToRequests = () => {
+    navigate("/c/maintainance/request");
+  };
 
+  const onNavigateToMeetingFolders = () => {
+    navigate("/c/communication/meetings");
+  };
+  const onNavigateToDocumentFolders = () => {
+    navigate("/c/communication/documents");
+  };
+  const onNavigateToServiceProviders = () => {
+    navigate("/c/maintainance/service-providers");
+  };
   //navigation
 
   const toCom = () => {
@@ -329,78 +362,120 @@ const ManagerDashBoard = observer(() => {
                 <div className="dashboard-card">
                   <Grid container spacing={1}>
                     <Grid item xs={12} sm={12} md={4} lg={4} xl={4}>
-                      <div className="uk-card">
+                      <div
+                        className="uk-card"
+                        onClick={
+                          me?.role === "Owner"
+                            ? onNavigateToUnits
+                            : onNavigateToProperty
+                        }
+                      >
                         <div className="uk-card-body">
                           <h3 className="uk-card-title">Total Units</h3>
-                          <h3 className="number">{totalUnits}</h3>
-                          <div className="button-section"></div>
+                          <h3 className="number">
+                            {me?.role === "Owner"
+                              ? totalUnits
+                              : totalEstateUnits}
+                          </h3>
                         </div>
                       </div>
                     </Grid>
                     <Grid item xs={12} sm={12} md={4} lg={4} xl={4}>
-                      <div className="uk-card">
-                        <div className="uk-card-body">
-                          <h3 className="uk-card-title">New Notices</h3>
-                          <h3 className="number">{totalNewNotices}</h3>
-                          <div className="button-section">
+                      <div className="uk-card" >
+                      <div className="button-section">
                             {cannotCreateNotices(me?.role || "") && (
                               <button onClick={onCreateNotice}>Create</button>
                             )}
                           </div>
+                        <div className="uk-card-body" onClick={onNavigateToNotices}>
+                          <h3 className="uk-card-title">New Notices</h3>
+                          <h3 className="number">{totalNewNotices}</h3>
+                        
                         </div>
                       </div>
                     </Grid>
                     <Grid item xs={12} sm={12} md={4} lg={4} xl={4}>
                       <div className="uk-card">
-                        <div className="uk-card-body">
+                        <div className="button-section">
+                          <button onClick={onCreateRequest}>Create</button>
+                        </div>
+                        <div
+                          className="uk-card-body"
+                          onClick={onNavigateToRequests}
+                        >
                           <h3 className="uk-card-title">New Requests</h3>
                           <h3 className="number">{totalNewRequests}</h3>
-                          <div className="button-section">
-                            <button onClick={onCreateRequest}>Create</button>
-                          </div>
                         </div>
                       </div>
                     </Grid>
                     <Grid item xs={12} sm={12} md={4} lg={4} xl={4}>
-                      <div className="uk-card">
-                        <div className="uk-card-body">
-                          <h3 className="uk-card-title">Service Providers</h3>
-                          <h3 className="number">{totalServiceProviders}</h3>
-                          <div className="button-section">
-                            {cannotCreateSP(me?.role || "") && (
-                              <button onClick={onCreateSP}>Create</button>
-                            )}
+                      {
+                        me?.role === "Owner" ? (
+                          <div className="uk-card">
+                             <div className="button-section">
+                                <button onClick={onViewBalances}>View</button>
+                              </div>
+                            <div className="uk-card-body">
+                              <h3 className="uk-card-title">Balances Due</h3>
+                              <h3 className="number">N${0}</h3>
+                             
+                            </div>
                           </div>
-                        </div>
-                      </div>
+                        ) : (
+                          <div className="uk-card">
+                            <div className="button-section">
+                              {cannotCreateSP(me?.role || "") && (
+                                <button onClick={onCreateSP}>Create</button>
+                              )}
+                            </div>
+                            <div
+                              className="uk-card-body"
+                              onClick={onNavigateToServiceProviders}
+                            >
+                              <h3 className="uk-card-title">
+                                Service Providers
+                              </h3>
+                              <h3 className="number">
+                                {totalServiceProviders}
+                              </h3>
+                            </div>
+                          </div>
+                        ) // or <></> for an empty fragment
+                      }
                     </Grid>
                     <Grid item xs={12} sm={12} md={4} lg={4} xl={4}>
                       <div className="uk-card">
-                        <div className="uk-card-body">
+                        <div className="button-section">
+                          {cannotCreateMeetingFolder(me?.role || "") && (
+                            <button onClick={onCreateMeetingFolder}>
+                              Create
+                            </button>
+                          )}
+                        </div>
+                        <div
+                          className="uk-card-body"
+                          onClick={onNavigateToMeetingFolders}
+                        >
                           <h3 className="uk-card-title">Meeting Folders</h3>
                           <h3 className="number">{totalMeetings}</h3>
-                          <div className="button-section">
-                            {cannotCreateMeetingFolder(me?.role || "") && (
-                              <button onClick={onCreateMeetingFolder}>
-                                Create
-                              </button>
-                            )}
-                          </div>
                         </div>
                       </div>
                     </Grid>
                     <Grid item xs={12} sm={12} md={4} lg={4} xl={4}>
                       <div className="uk-card">
-                        <div className="uk-card-body">
-                          <h3 className="uk-card-title">Document Folders</h3>
+                        <div className="button-section">
+                          {cannotCreateDocumentFolder(me?.role || "") && (
+                            <button onClick={onCreateDocumentFolder}>
+                              Create
+                            </button>
+                          )}
+                        </div>
+                        <div
+                          className="uk-card-body"
+                          onClick={onNavigateToDocumentFolders}
+                        >
+                          <h3 className="uk-card-title">Documents</h3>
                           <h3 className="number">{totalDocuments}</h3>
-                          <div className="button-section">
-                            {cannotCreateDocumentFolder(me?.role || "") && (
-                              <button onClick={onCreateDocumentFolder}>
-                                Create
-                              </button>
-                            )}
-                          </div>
                         </div>
                       </div>
                     </Grid>
@@ -575,6 +650,7 @@ const ManagerDashBoard = observer(() => {
           <Modal modalId={DIALOG_NAMES.COMMUNICATION.CREATE_DOCUMENT_CATEGORY}>
             <DocumentCategoryDialog />
           </Modal>
+          
         </div>
       )}
     </div>

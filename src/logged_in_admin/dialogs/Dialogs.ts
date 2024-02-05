@@ -76,7 +76,8 @@ const DIALOG_NAMES = {
   },
 
   SETTINGG: {
-    USER_DETAILS: "user-details"
+    USER_DETAILS: "user-details",
+    USER_DETAILS_PROMPT:"user-details-prompt"
   }
 };
 
