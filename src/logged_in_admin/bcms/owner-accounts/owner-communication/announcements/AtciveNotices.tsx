@@ -8,9 +8,13 @@ import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { useAppContext } from "../../../../../shared/functions/Context";
-import { IAnnouncements } from "../../../../../shared/models/communication/announcements/AnnouncementModel";
+import { IAnnouncements, defaultAnnouncements } from "../../../../../shared/models/communication/announcements/AnnouncementModel";
 import "./NoticesCards.scss";
 import Pagination from "../../../../shared/PaginationComponent";
+import showModalFromId from "../../../../../shared/functions/ModalShow";
+import Modal from "../../../../../shared/components/Modal";
+import DIALOG_NAMES from "../../../../dialogs/Dialogs";
+import { NotificationDialog } from "../../../../dialogs/communication-dialogs/announcements/NotificationDialog";
 
 const bull = (
   <Box
@@ -109,16 +113,50 @@ interface AnnouncementCardProps {
 }
 
 const AnnouncementCard: React.FC<AnnouncementCardProps> = ({ card }) => {
+  const {store, api} = useAppContext();
+  const me = store.user.meJson;
+  const [announcement, setAnnouncement] = useState<IAnnouncements>({
+    ...defaultAnnouncements,
+  });  
+  
+  const onViewNotices = async (notice: IAnnouncements) => {
+    store.communication.announcements.select(notice);
+    showModalFromId(DIALOG_NAMES.COMMUNICATION.VIEW_ANNOUNCEMENTS_DIALOG);
+    if (store.communication.announcements.selected && me && me.property !== null) {
+      if(notice.seen.includes(me?.uid)){
+        console.log("Viewed Already")
+      }else{
+        try {
+          await api.communication.announcement.update(
+            {
+              ...notice,
+              seen: [...(notice.seen || []), me?.uid || '']
+            },
+            me.property,
+            me.year
+          );
+          console.log("Notice updated successfully");
+        } catch (error) {
+          console.error("Error updating notice:", error);
+        }
+      }
+      }
+  };
+  
+  
+
   return (
     <Grid item xs={12} sm={6} md={4} className="cardContainer">
       <Card className={`card ${card.priorityLevel}`}>
+      <button className="uk-button primary" onClick={() => onViewNotices(card)}>View More</button>
         <CardContent className="cardContent">
           <Typography variant="h6" gutterBottom className="title">
             {card.title}
           </Typography>
-          <Typography variant="h5" component="div" className="message">
+          {/* <Typography variant="h5" component="div" className="message">
             {card.message}
-          </Typography>
+          </Typography> */}
+          
           <Typography className={`priority ${card.priorityLevel}`}>
             {card.priorityLevel}
           </Typography>
@@ -127,6 +165,9 @@ const AnnouncementCard: React.FC<AnnouncementCardProps> = ({ card }) => {
           </Typography>
         </CardContent>
       </Card>
+      <Modal modalId={DIALOG_NAMES.COMMUNICATION.VIEW_ANNOUNCEMENTS_DIALOG}>
+        <NotificationDialog />
+      </Modal>
     </Grid>
   );
 };

@@ -9,6 +9,8 @@ export const defaultAnnouncements: IAnnouncements = {
   message: "",
   expiryDate: "",
   priorityLevel: "",
+  seen:[],
+
 };
 
 export interface IAnnouncements {
@@ -19,6 +21,7 @@ export interface IAnnouncements {
   message: string;
   expiryDate: string;
   priorityLevel: string;
+  seen:string[];
 }
 
 export default class AnnouncementModel {

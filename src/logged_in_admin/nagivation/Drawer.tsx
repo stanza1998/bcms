@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { USER_ROLES } from "../../shared/constants/USER_ROLES";
 import { useAppContext } from "../../shared/functions/Context";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -17,6 +17,14 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ApartmentIcon from "@mui/icons-material/Apartment";
 import { ACTIONLIST } from "./Account";
 import { canViewPropertyDetails } from "../shared/common";
+import Modal from "../../shared/components/Modal";
+import showModalFromId, {
+  hideModalFromId,
+} from "../../shared/functions/ModalShow";
+import DIALOG_NAMES from "../dialogs/Dialogs";
+import { PromptUserDialog } from "../dialogs/user-dialog/PromptUserDialog";
+import Badge from "@mui/material/Badge";
+import NotificationsIcon from "@mui/icons-material/Notifications";
 
 declare const UIkit: any;
 
@@ -27,17 +35,16 @@ interface IImage {
 export const Account = observer((props: IImage) => {
   const { store, api } = useAppContext();
   const me = store.user.meJson;
-
+  const navigate = useNavigate();
   const properties = store.bodyCorperate.bodyCop.all;
 
   useEffect(() => {
     const getData = async () => {
-      if ((me?.property, me?.year)) {
+      if (me?.property) {
         await api.body.body.getAll();
         await api.body.propertyBankAccount.getAll(me.property);
-        await api.body.financialYear.getAll(me?.property);
-        await api.communication.announcement.getAll(me.property, me.year);
-        await api.body.financialMonth.getAll(me.property, me.year);
+        await api.body.financialYear.getAll(me.property);
+        await api.communication.announcement.getAll(me.property, "");
       } else if (me?.property === "") {
         // FailedAction("User property not set");
       }
@@ -52,6 +59,16 @@ export const Account = observer((props: IImage) => {
     me?.property,
     me?.year,
   ]);
+
+  useEffect(() => {
+    const openUpdateUserDialog = () => {
+      if (me?.firstName.length === 0 && me.lastName.length === 0) {
+        navigate("/c/settings");
+      } else {
+      }
+    };
+    openUpdateUserDialog();
+  }, []);
 
   return (
     <div className="brand uk-margin">
@@ -455,6 +472,9 @@ const ADMIN_DRAWER = () => {
           </ul>
         </li>
       </ul>
+      <Modal modalId={DIALOG_NAMES.SETTINGG.USER_DETAILS_PROMPT}>
+        <PromptUserDialog />
+      </Modal>
     </div>
   );
 };
@@ -462,8 +482,22 @@ const ADMIN_DRAWER = () => {
 const OWNER_DRAWER = observer(() => {
   const { store, api } = useAppContext();
   const me = store.user.meJson;
-
+  const currentDate = new Date();
   const units = store.bodyCorperate.unit.all.map((u) => u.asJson);
+  const announcements = store.communication.announcements.all.map((a) => {
+    return a.asJson;
+  });
+  const latestAnnouncement = announcements.filter((an) => {
+    const expiryDate = new Date(an.expiryDate);
+    const timestamp = expiryDate.getTime();
+    const currentTimestamp = Date.now();
+    const userId = me?.uid || ''; 
+    return timestamp > currentTimestamp && !an.seen.includes(userId);
+  });
+
+  const active = latestAnnouncement.filter(
+    (a) => new Date(a.expiryDate) >= new Date(currentDate)
+  ).length;
 
   useEffect(() => {
     const getData = async () => {
@@ -561,6 +595,9 @@ const OWNER_DRAWER = observer(() => {
                   className="down-arrow"
                   data-uk-icon="triangle-down"
                 />
+                <Badge badgeContent={active} color="secondary">
+                  <NotificationsIcon style={{ color: "white" }} />
+                </Badge>
               </NavLink>
               <ul className="uk-nav-sub">
                 <li>
@@ -580,6 +617,14 @@ const OWNER_DRAWER = observer(() => {
                       <DoubleArrowIcon style={{ fontSize: "15px" }} />
                     </span>
                     Notices
+                    {latestAnnouncement.length != 0 &&
+                    latestAnnouncement.some((item) =>
+                      !item.seen.includes(me?.uid)
+                    ) ? (
+                      <Badge badgeContent={active} color="secondary">
+                        <NotificationsIcon style={{ color: "white" }} />
+                      </Badge>
+                    ) : null}
                   </NavLink>
                 </li>
                 <li>
@@ -588,6 +633,9 @@ const OWNER_DRAWER = observer(() => {
                       <DoubleArrowIcon style={{ fontSize: "15px" }} />
                     </span>
                     Meetings and Minutes
+                    <Badge badgeContent={active} color="secondary">
+                      <NotificationsIcon style={{ color: "white" }} />
+                    </Badge>
                   </NavLink>
                 </li>
                 <li>
@@ -596,6 +644,9 @@ const OWNER_DRAWER = observer(() => {
                       <DoubleArrowIcon style={{ fontSize: "15px" }} />
                     </span>
                     Documents
+                    <Badge badgeContent={active} color="secondary">
+                      <NotificationsIcon style={{ color: "white" }} />
+                    </Badge>
                   </NavLink>
                 </li>
               </ul>
@@ -658,9 +709,13 @@ const OWNER_DRAWER = observer(() => {
           <span style={{ color: "red" }}>No units</span>
         )}
       </ul>
+      <Modal modalId={DIALOG_NAMES.SETTINGG.USER_DETAILS_PROMPT}>
+        <PromptUserDialog />
+      </Modal>
     </div>
   );
 });
+
 
 const SERVICE_PROVIDER_DRAWER = observer(() => {
   const { store, api } = useAppContext();
@@ -687,9 +742,12 @@ const SERVICE_PROVIDER_DRAWER = observer(() => {
             My Overview
           </NavLink>
         </li>
-        
+
         <li className="list-item uk-parent">
-          <NavLink to={`service-provider/work-orders/:maintenanceRequestId`} className="navlink">
+          <NavLink
+            to={`service-provider/work-orders/:maintenanceRequestId`}
+            className="navlink"
+          >
             <span className="uk-margin-small-right">
               <MoneyIcon style={{ fontSize: "16px" }} />
             </span>
@@ -900,7 +958,6 @@ const DrawerList = observer(() => {
     USER_ROLES.BOARD_MEMBER,
     USER_ROLES.DIRECTOR,
     USER_ROLES.HUMAN_RESOURCE,
-    
   ];
 
   if (adminRoles.includes(role)) {
@@ -909,8 +966,8 @@ const DrawerList = observer(() => {
     return <EMPLOYEE_USER_DRAWER />;
   } else if (role === USER_ROLES.OWNER) {
     return <OWNER_DRAWER />;
-  }else if (role === USER_ROLES.SERVICE_PROVIDER){
-    return <SERVICE_PROVIDER_DRAWER/>
+  } else if (role === USER_ROLES.SERVICE_PROVIDER) {
+    return <SERVICE_PROVIDER_DRAWER />;
   }
   return <EMPLOYEE_USER_DRAWER />;
 });

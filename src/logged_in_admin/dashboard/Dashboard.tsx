@@ -32,10 +32,12 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
 import { NoUnit } from "../shared/no-unit-shared/NoUnit";
 import { ServiceProviderView } from "../bcms/maintanace/service-providers/ServiceProviderPage";
+import { PromptUserDialog } from "../dialogs/user-dialog/PromptUserDialog";
 
 const Dashboard = observer(() => {
   const { store, api } = useAppContext();
   const me = store.user.meJson;
+
 
   console.log(me?.role);
 
@@ -76,6 +78,10 @@ const ManagerDashBoard = observer(() => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
+  
+  if(me?.firstName ==="" && me?.lastName ===""){
+    console.log("Show dialog to prompt");
+  }
   const closed = store.maintenance.maintenance_request.all.filter(
     (a) => a.asJson.status === "Closed"
   ).length;
@@ -644,6 +650,7 @@ const ManagerDashBoard = observer(() => {
           <Modal modalId={DIALOG_NAMES.COMMUNICATION.CREATE_DOCUMENT_CATEGORY}>
             <DocumentCategoryDialog />
           </Modal>
+          
         </div>
       )}
     </div>
