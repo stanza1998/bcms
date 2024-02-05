@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
-import { Grid, Paper, styled } from "@mui/material";
+import { Badge, Grid, Paper, styled } from "@mui/material";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
@@ -8,13 +8,18 @@ import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { useAppContext } from "../../../../../shared/functions/Context";
-import { IAnnouncements, defaultAnnouncements } from "../../../../../shared/models/communication/announcements/AnnouncementModel";
+import {
+  IAnnouncements,
+  defaultAnnouncements,
+} from "../../../../../shared/models/communication/announcements/AnnouncementModel";
 import "./NoticesCards.scss";
 import Pagination from "../../../../shared/PaginationComponent";
 import showModalFromId from "../../../../../shared/functions/ModalShow";
 import Modal from "../../../../../shared/components/Modal";
 import DIALOG_NAMES from "../../../../dialogs/Dialogs";
 import { NotificationDialog } from "../../../../dialogs/communication-dialogs/announcements/NotificationDialog";
+import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
+import pink from "@mui/material/colors/pink";
 
 const bull = (
   <Box
@@ -113,24 +118,28 @@ interface AnnouncementCardProps {
 }
 
 const AnnouncementCard: React.FC<AnnouncementCardProps> = ({ card }) => {
-  const {store, api} = useAppContext();
+  const { store, api } = useAppContext();
   const me = store.user.meJson;
   const [announcement, setAnnouncement] = useState<IAnnouncements>({
     ...defaultAnnouncements,
-  });  
-  
+  });
+
   const onViewNotices = async (notice: IAnnouncements) => {
     store.communication.announcements.select(notice);
     showModalFromId(DIALOG_NAMES.COMMUNICATION.VIEW_ANNOUNCEMENTS_DIALOG);
-    if (store.communication.announcements.selected && me && me.property !== null) {
-      if(notice.seen.includes(me?.uid)){
-        console.log("Viewed Already")
-      }else{
+    if (
+      store.communication.announcements.selected &&
+      me &&
+      me.property !== null
+    ) {
+      if (notice.seen.includes(me?.uid)) {
+        console.log("Viewed Already");
+      } else {
         try {
           await api.communication.announcement.update(
             {
               ...notice,
-              seen: [...(notice.seen || []), me?.uid || '']
+              seen: [...(notice.seen || []), me?.uid || ""],
             },
             me.property,
             me.year
@@ -140,23 +149,31 @@ const AnnouncementCard: React.FC<AnnouncementCardProps> = ({ card }) => {
           console.error("Error updating notice:", error);
         }
       }
-      }
+    }
   };
-  
-  
 
   return (
     <Grid item xs={12} sm={6} md={4} className="cardContainer">
       <Card className={`card ${card.priorityLevel}`}>
-      <button className="uk-button primary" onClick={() => onViewNotices(card)}>View More</button>
+        <button
+          className="uk-button primary"
+          onClick={() => onViewNotices(card)}
+        >
+          View More
+        </button>
         <CardContent className="cardContent">
+          {card.seen.includes(me?.uid || '') ? null : ( // No badge when user has seen the card
+            <Badge sx={{ color: pink[500]}}>
+              <PriorityHighIcon />
+            </Badge>
+          )}
           <Typography variant="h6" gutterBottom className="title">
             {card.title}
           </Typography>
           {/* <Typography variant="h5" component="div" className="message">
             {card.message}
           </Typography> */}
-          
+
           <Typography className={`priority ${card.priorityLevel}`}>
             {card.priorityLevel}
           </Typography>

@@ -135,7 +135,6 @@ const NavBar = observer(() => {
       <Modal modalId={DIALOG_NAMES.COMMUNICATION.VIEW_ANNOUNCEMENTS_DIALOG}>
         <div
           className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical staff-dialog announcements-container"
-      
         >
           <button
             className="uk-modal-close-default"
