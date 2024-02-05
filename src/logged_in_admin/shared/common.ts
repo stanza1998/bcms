@@ -609,3 +609,14 @@ export function canViewMaintenanceRequestDetails(
 }
 
 
+export function generateUniqueCode(): string {
+  const codeLength: number = 13;
+  let uniqueCode: string = '';
+
+  for (let i = 0; i < codeLength; i++) {
+    const randomDigit: number = Math.floor(Math.random() * 10);
+    uniqueCode += randomDigit.toString();
+  }
+
+  return uniqueCode;
+}

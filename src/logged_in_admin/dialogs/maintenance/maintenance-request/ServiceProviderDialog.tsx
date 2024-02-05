@@ -7,8 +7,7 @@ import {
   IServiceProvider,
   defaultServiceProvider,
 } from "../../../../shared/models/maintenance/service-provider/ServiceProviderModel";
-import { IUser } from "../../../../shared/interfaces/IUser";
-// import { generateUniqueCode } from "../../../shared/common";
+import { generateUniqueCode } from "../../../shared/common";
 
 export const ServiceProviderDialog = observer(() => {
   const { api, store, ui } = useAppContext();
@@ -36,14 +35,13 @@ export const ServiceProviderDialog = observer(() => {
           type: "success",
         });
       } else {
-        // serviceProviderRequest.code = generateUniqueCode();
+        serviceProviderRequest.code = generateUniqueCode();
         // serviceProviderRequest.dateCreated = ;
 
         await api.maintenance.service_provider.create(
           serviceProviderRequest,
           me?.property || ""
         );
-
 
         ui.snackbar.load({
           id: Date.now(),
