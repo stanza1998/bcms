@@ -28,7 +28,7 @@ export async function mailServiceProvider(to: string[], workOrder: string, messa
                 text: `
                     ${greeting},
                     Description: ${message}
-                    Utilize the provided unique code for copying and pasting in the designated field labeled "Paste Share Code.".
+                    Utilize the provided unique code for copying and pasting in the designated field labeled "Paste Shared Code.".
                     Your unique code: ${code}
                     Please click the link below to upload your quotation.
                     ${spLink}
@@ -46,11 +46,7 @@ export async function mailServiceProvider(to: string[], workOrder: string, messa
             });
 
             if (response.ok) {
-                console.log(`Email sent successfully to ${email}`);
-                alert("send")
             } else {
-                console.error(`Error sending email to ${email}:`, response.statusText);
-                alert("not send")
             }
         }
     } catch (error) {
@@ -75,7 +71,7 @@ export async function mailSuccessfulServiceProvider(to: string[], workOrderId: s
 
     Work Order ID: ${workOrderId}
     Description: ${description}
-    Due Date: ${dueDate}
+    Due Date: ${new Date(dueDate).toDateString()}
       
     Kind regards,
     ${username}`,
@@ -101,24 +97,73 @@ export async function mailSuccessfulServiceProvider(to: string[], workOrderId: s
 
 
 //work order extended 
-//not send
-export async function mailWorkOrderWindowPeriodExtended(to: string[], workOrderId: string, spLink: string, dueDate: string) {
-    try {
-        const emailInfo = {
-            to: to,
-            from: "narib09jerry@gmail.com",
-            subject: "Work Order Window Period Extended",
-            text: ` ${greeting},
+//send
+export async function mailWorkOrderWindowPeriodExtended(to: string[], workOrderId: string, spLink: string, dueDate: string, SP: IServiceProvider[]) {
+    for (const emails of to) {
+        const code = getCodeUsingEmail(emails, SP)
+
+
+        try {
+            const emailInfo = {
+                to: [emails],
+                from: "narib09jerry@gmail.com",
+                subject: "Work Order Window Period Extended",
+                text: ` ${greeting},
 
     Congratulations! You have been awarded a new work order. Here are the details:
 
     Work Order ID: ${workOrderId}
-    The Work Order Window Period has been extended. The new deadline is ${new Date(dueDate || "").toDateString()} ${new Date(dueDate || "").toTimeString()}. Please ensure timely submission.
+    The Work Order Window Period has been extended. The new deadline is ${new Date(dueDate).toDateString()} at ${new Date(dueDate || "").toTimeString()}. 
+    Please ensure timely submission.
+
+    Utilize the provided unique code for copying and pasting in the designated field labeled "Paste Shared Code.".
+    Your unique code: ${code}
     
     Please use the following link below to upload your documents
     ${spLink}
 
     Kind regards,
+    ${username}`,
+            };
+            const response = await fetch('https://us-central1-vanwylbcms.cloudfunctions.net/sendEmails', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(emailInfo),
+            });
+
+            if (response.ok) {
+                console.log('Email sent successfully');
+            } else {
+                console.error('Error sending email:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error sending email:', error);
+        }
+    }
+};
+
+
+//not successful service providers
+export async function unsuccessfulServiceProviders(to: string[], workOrderId: string) {
+
+
+    try {
+        const emailInfo = {
+            to: to,
+            from: "narib09jerry@gmail.com",
+            subject: ` The work order ${workOrderId} was unsuccessful.`,
+            text: ` ${greeting},
+
+        We regret to inform you that work order ${workOrderId} was unsuccessful. 
+        Despite our best efforts, unforeseen challenges have impeded its successful completion. 
+        We apologize for any inconvenience and are actively working to identify the issues and find alternative solutions. 
+        Your understanding is greatly appreciated, and we assure you that we are committed to resolving this matter promptly.
+        If you have any concerns, feel free to reach out to our customer support team. 
+        Thank you for your patience.
+   
+        Kind regards,
     ${username}`,
         };
         const response = await fetch('https://us-central1-vanwylbcms.cloudfunctions.net/sendEmails', {
@@ -137,5 +182,6 @@ export async function mailWorkOrderWindowPeriodExtended(to: string[], workOrderI
     } catch (error) {
         console.error('Error sending email:', error);
     }
+
 };
 

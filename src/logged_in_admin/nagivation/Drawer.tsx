@@ -41,23 +41,31 @@ export const Account = observer((props: IImage) => {
   useEffect(() => {
     const getData = async () => {
       if (me?.property) {
-        await api.body.body.getAll();
-        await api.body.propertyBankAccount.getAll(me.property);
-        await api.body.financialYear.getAll(me.property);
-        await api.communication.announcement.getAll(me.property, "");
-      } else if (me?.property === "") {
-        // FailedAction("User property not set");
+        // setLoading(true);
+        await Promise.all([
+          api.unit.getAll(me.property),
+          api.body.body.getAll(),
+          api.body.propertyBankAccount.getAll(me.property),
+          api.communication.announcement.getAll(me.property, ""),
+          api.maintenance.maintenance_request.getAll(me.property),
+          api.maintenance.service_provider.getAll(me.property),
+          api.communication.documentCategory.getAll(me.property),
+          api.communication.meetingFolder.getAll(me.property),
+        ]);
+        // setLoading(false);
       }
     };
     getData();
   }, [
     api.body.body,
-    api.body.financialMonth,
-    api.body.financialYear,
-    api.communication.announcement,
     api.body.propertyBankAccount,
+    api.communication.announcement,
+    api.communication.documentCategory,
+    api.communication.meetingFolder,
+    api.maintenance.maintenance_request,
+    api.maintenance.service_provider,
+    api.unit,
     me?.property,
-    me?.year,
   ]);
 
   useEffect(() => {
@@ -68,7 +76,7 @@ export const Account = observer((props: IImage) => {
       }
     };
     openUpdateUserDialog();
-  }, []);
+  }, [me?.firstName.length, me?.lastName.length, navigate]);
 
   return (
     <div className="brand uk-margin">
@@ -491,7 +499,7 @@ const OWNER_DRAWER = observer(() => {
     const expiryDate = new Date(an.expiryDate);
     const timestamp = expiryDate.getTime();
     const currentTimestamp = Date.now();
-    const userId = me?.uid || ''; 
+    const userId = me?.uid || "";
     return timestamp > currentTimestamp && !an.seen.includes(userId);
   });
 
@@ -618,8 +626,8 @@ const OWNER_DRAWER = observer(() => {
                     </span>
                     Notices
                     {latestAnnouncement.length != 0 &&
-                    latestAnnouncement.some((item) =>
-                      !item.seen.includes(me?.uid)
+                    latestAnnouncement.some(
+                      (item) => !item.seen.includes(me?.uid)
                     ) ? (
                       <Badge badgeContent={active} color="secondary">
                         <NotificationsIcon style={{ color: "white" }} />
@@ -715,7 +723,6 @@ const OWNER_DRAWER = observer(() => {
     </div>
   );
 });
-
 
 const SERVICE_PROVIDER_DRAWER = observer(() => {
   const { store, api } = useAppContext();

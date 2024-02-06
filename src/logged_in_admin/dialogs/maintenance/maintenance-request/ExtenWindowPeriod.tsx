@@ -19,6 +19,7 @@ import {
   MAIL_SERVICE_PROVIDER_LINK,
   MAIL_WORK_ORDER_WINDOW_PERIOD_EXTENDED,
 } from "../../../shared/mailMessages";
+import { mailWorkOrderWindowPeriodExtended } from "../../../shared/mailMessagesSP";
 
 export const ExtendWindowPeriod = observer(() => {
   const { api, store, ui } = useAppContext();
@@ -38,12 +39,9 @@ export const ExtendWindowPeriod = observer(() => {
 
   const identity = prefix?.asJson.description.slice(0, 2);
 
-  const serviceProvider = store.maintenance.servie_provider.all
-    .map((u) => u.asJson)
-    .map((user) => ({
-      value: user.id,
-      label: user.serviceProvideName,
-    }));
+  const serviceProviders = store.maintenance.servie_provider.all.map((sp) => {
+    return sp.asJson;
+  });
 
   const serviceProvidersEmails = getServiceProviderEmails(
     workOrder.serviceProviderId,
@@ -59,27 +57,23 @@ export const ExtendWindowPeriod = observer(() => {
     if (maintenanceRequestId) {
       try {
         if (store.maintenance.work_flow_order.selected) {
-          const deptment = await api.maintenance.work_flow_order.update(
+          await api.maintenance.work_flow_order.update(
             workOrder,
             me.property,
             maintenanceRequestId
           );
 
-          const { MY_SUBJECT, MY_BODY } =
-            MAIL_WORK_ORDER_WINDOW_PERIOD_EXTENDED(
+          //new email
+          try {
+            await mailWorkOrderWindowPeriodExtended(
+              serviceProvidersEmails,
               workOrder.workOrderNumber,
+              `http://localhost:3000/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`,
+              // `https://vanwylbcms.web.app/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`
               workOrder.windowPeriod,
-              // `http://localhost:3000/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`
-              `https://vanwylbcms.web.app/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`
+              serviceProviders
             );
-          //ALL added service providers
-          await api.mail.sendMail(
-            "",
-            serviceProvidersEmails,
-            MY_SUBJECT,
-            MY_BODY,
-            ""
-          );
+          } catch (error) {}
 
           await store.maintenance.work_flow_order.load();
           ui.snackbar.load({

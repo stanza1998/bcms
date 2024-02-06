@@ -11,12 +11,12 @@ import {
   getServiceProviderId,
   updateWorkOrderWithFiles,
 } from "../../../shared/common";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../../../../shared/components/Loading";
-// import {
-//   FailedAction,
-//   SuccessfullQuotAction,
-// } from "../../../../shared/models/Snackbar";
+import {
+  FailedAction,
+  SuccessfullQuotAction,
+} from "../../../../shared/models/Snackbar";
 
 export const UploadQuote = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -29,6 +29,11 @@ export const UploadQuote = observer(() => {
   const orderWindowPeriod = store.maintenance.work_flow_order.getById(
     workOrderId || ""
   );
+  const navigate = useNavigate();
+
+  const toSuccess = () => {
+    navigate("/quotationUploadSuccessful");
+  };
 
   console.log("code: ", serviceProviderCode);
 
@@ -58,25 +63,31 @@ export const UploadQuote = observer(() => {
   };
 
   const handleUpload = async () => {
-    try {
-      setLoading(true);
-      if (workOrder && selectedQuote && propertyId && maintenanceRequestId) {
-        await updateWorkOrderWithFiles(
-          workOrder,
-          selectedQuote,
-          selectedImages,
-          serviceProviderId,
-          serviceProviderCode,
-          api,
-          propertyId,
-          maintenanceRequestId
-        );
-        setLoading(false);
-      } else {
-        // Handle the case where workOrder is undefined
-        console.error("workOrder is undefined");
-      }
-    } catch (error) {}
+    if (serviceProviderCode !== "") {
+      try {
+        setLoading(true);
+        if (workOrder && selectedQuote && propertyId && maintenanceRequestId) {
+          await updateWorkOrderWithFiles(
+            workOrder,
+            selectedQuote,
+            selectedImages,
+            serviceProviderId,
+            serviceProviderCode,
+            api,
+            propertyId,
+            maintenanceRequestId
+          );
+          setLoading(false);
+          SuccessfullQuotAction(ui);
+          //Navigate to success page
+          toSuccess();
+        } else {
+          FailedAction(ui);
+        }
+      } catch (error) {}
+    } else {
+      FailedAction(ui);
+    }
   };
 
   useEffect(() => {

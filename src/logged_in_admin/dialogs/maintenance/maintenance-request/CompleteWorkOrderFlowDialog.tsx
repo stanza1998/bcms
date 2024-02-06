@@ -2,7 +2,6 @@ import { observer } from "mobx-react-lite";
 import { useState, FormEvent, useEffect } from "react";
 import { useAppContext } from "../../../../shared/functions/Context";
 import { hideModalFromId } from "../../../../shared/functions/ModalShow";
-//import { IRequestType, defaultRequestType } from "../../../../shared/models/maintenance/request/maintenance-request/types/RequestTypes";
 import DIALOG_NAMES from "../../Dialogs";
 import {
   IWorkOrderFlow,
@@ -11,12 +10,7 @@ import {
 import { useParams } from "react-router-dom";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
-import {
-  generateMaintenanceRequestReference,
-  getServiceProviderEmails,
-  workerOrdersAndRequestRelationshipStatusUpdate,
-} from "../../../shared/common";
-import { MAIL_SERVICE_PROVIDER_LINK } from "../../../shared/mailMessages";
+import { workerOrdersAndRequestRelationshipStatusUpdate } from "../../../shared/common";
 import { FailedAction } from "../../../../shared/models/Snackbar";
 
 export const CompleteWorkOrderDialog = observer(() => {
@@ -25,17 +19,9 @@ export const CompleteWorkOrderDialog = observer(() => {
   const me = store.user.meJson;
   const { maintenanceRequestId } = useParams();
   const animatedComponents = makeAnimated();
-  const currentDate = new Date();
-  const dateCreated = currentDate.toUTCString();
-
   const [workOrder, setWorkOrder] = useState<IWorkOrderFlow>({
     ...defaultMaintenanceworkOrder,
   });
-  const prefix = store.maintenance.maintenance_request.getById(
-    maintenanceRequestId || ""
-  );
-
-  const identity = prefix?.asJson.description.slice(0, 2);
 
   const serviceProvider = store.maintenance.servie_provider.all
     .map((u) => u.asJson)
@@ -44,29 +30,21 @@ export const CompleteWorkOrderDialog = observer(() => {
       label: user.serviceProvideName,
     }));
 
-  const serviceProvidersEmails = getServiceProviderEmails(
-    workOrder.serviceProviderId,
-    store
-  );
-
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     if (!me?.property) return;
     // Update API
-
     if (maintenanceRequestId) {
       try {
         if (store.maintenance.work_flow_order.selected) {
           workOrder.status = "Done";
 
-          const deptment = await api.maintenance.work_flow_order.update(
+          await api.maintenance.work_flow_order.update(
             workOrder,
             me.property,
             maintenanceRequestId
           );
-
-
 
           await store.maintenance.work_flow_order.load();
           ui.snackbar.load({
@@ -75,10 +53,14 @@ export const CompleteWorkOrderDialog = observer(() => {
             type: "success",
           });
 
-          try{
-           await workerOrdersAndRequestRelationshipStatusUpdate(maintenanceRequestId, me.property, "Completed")
-          }catch(error){
-            FailedAction(ui)
+          try {
+            await workerOrdersAndRequestRelationshipStatusUpdate(
+              maintenanceRequestId,
+              me.property,
+              "Completed"
+            );
+          } catch (error) {
+            FailedAction(ui);
           }
         }
       } catch (error) {
@@ -92,7 +74,7 @@ export const CompleteWorkOrderDialog = observer(() => {
       store.maintenance.work_flow_order.clearSelected();
       setWorkOrder({ ...defaultMaintenanceworkOrder });
       setLoading(false);
-      hideModalFromId(DIALOG_NAMES.MAINTENANCE.CREATE_WORK_ORDER);
+      hideModalFromId(DIALOG_NAMES.MAINTENANCE.COMPLETE_WORK_ORDER_DIALOG);
     }
   };
 
@@ -126,7 +108,7 @@ export const CompleteWorkOrderDialog = observer(() => {
         onClick={reset}
         data-uk-close
       ></button>
-      <h3 className="uk-modal-title">Work Order</h3>
+      <h3 className="uk-modal-title">Work Order (Complete)</h3>
       <div className="dialog-content uk-position-relative">
         <div className="reponse-form">
           <form className="uk-form-stacked" onSubmit={onSave}>

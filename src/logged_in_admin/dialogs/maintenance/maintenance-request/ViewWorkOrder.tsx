@@ -14,6 +14,7 @@ import {
   generateMaintenanceRequestReference,
   getAwardedEmail,
   getIconForExtensionExtra,
+  getServiceProviderEmails,
 } from "../../../shared/common";
 import {
   MAIL_SERVICE_PROVIDER_LINK,
@@ -21,7 +22,10 @@ import {
 } from "../../../shared/mailMessages";
 import SingleSelect from "../../../../shared/components/single-select/SlingleSelect";
 import folderIcon from "./assets/folder_3139112.png";
-import { mailSuccessfulServiceProvider } from "../../../shared/mailMessagesSP";
+import {
+  mailSuccessfulServiceProvider,
+  unsuccessfulServiceProviders,
+} from "../../../shared/mailMessagesSP";
 
 export const ViewWorkOrderDialog = observer(() => {
   const { api, store, ui } = useAppContext();
@@ -49,6 +53,15 @@ export const ViewWorkOrderDialog = observer(() => {
     workOrder.successfullSP
   );
 
+  const _unsuccessfulEmails = workOrder.serviceProviderId.filter(
+    (sid) => sid !== workOrder.successfullSP
+  );
+
+  const unsuccessfulEmail = getServiceProviderEmails(
+    _unsuccessfulEmails,
+    store
+  );
+
   const identity = prefix?.asJson.description.slice(0, 2);
 
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
@@ -61,8 +74,7 @@ export const ViewWorkOrderDialog = observer(() => {
       try {
         if (store.maintenance.work_flow_order.selected) {
           workOrder.status = "In-Progress";
-
-          const deptment = await api.maintenance.work_flow_order.update(
+          await api.maintenance.work_flow_order.update(
             workOrder,
             me.property,
             maintenanceRequestId
@@ -79,21 +91,15 @@ export const ViewWorkOrderDialog = observer(() => {
             console.log(error);
           }
 
-          // const { MY_SUBJECT, MY_BODY } = MAIL_SUCCESSFULL_SERVICE_PROVIDER(
-          //   workOrder.workOrderNumber,
-          //   workOrder.description,
-          //   `${new Date(workOrder.dueDate).toDateString()} ${new Date(
-          //     workOrder.dueDate
-          //   ).toTimeString()}`
-          // );
-          // //only to choosen service provider.
-          // await api.mail.sendMail(
-          //   "",
-          //   [awardedEmail || ""],
-          //   MY_SUBJECT,
-          //   MY_BODY,
-          //   ""
-          // );
+          //notify SP's that were not successful.
+          try {
+            await unsuccessfulServiceProviders(
+              unsuccessfulEmail,
+              workOrder.workOrderNumber
+            );
+          } catch (error) {
+            console.log(error);
+          }
 
           await store.maintenance.work_flow_order.load();
           ui.snackbar.load({
