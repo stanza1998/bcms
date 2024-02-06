@@ -15,7 +15,6 @@ import {
   generateMaintenanceRequestReference,
   getServiceProviderEmails,
 } from "../../../shared/common";
-import { MAIL_SERVICE_PROVIDER_LINK } from "../../../shared/mailMessages";
 import { mailServiceProvider } from "../../../shared/mailMessagesSP";
 
 export const WorkOrderFlowDialog = observer(() => {
@@ -30,6 +29,7 @@ export const WorkOrderFlowDialog = observer(() => {
   const [workOrder, setWorkOrder] = useState<IWorkOrderFlow>({
     ...defaultMaintenanceworkOrder,
   });
+
   const prefix = store.maintenance.maintenance_request.getById(
     maintenanceRequestId || ""
   );
@@ -42,6 +42,10 @@ export const WorkOrderFlowDialog = observer(() => {
       value: user.id,
       label: user.serviceProvideName,
     }));
+
+  const SP = store.maintenance.servie_provider.all.map((sp) => {
+    return sp.asJson;
+  });
 
   const serviceProvidersEmails = getServiceProviderEmails(
     workOrder.serviceProviderId,
@@ -84,31 +88,22 @@ export const WorkOrderFlowDialog = observer(() => {
           );
 
           // new email
-          const link =
-            "http://localhost:3000/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}";
+          const link = `http://localhost:3000/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`;
           //   `http://localhost:3000/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`
           //   // `https://vanwylbcms.web.app/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`
-          mailServiceProvider(
-            serviceProvidersEmails,
-            workOrder.title,
-            workOrder.description,
-            link
-          );
 
-          // const { MY_SUBJECT, MY_BODY } = MAIL_SERVICE_PROVIDER_LINK(
-          //   workOrder.title,
-          //   workOrder.description,
-          //   `http://localhost:3000/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`
-          //   // `https://vanwylbcms.web.app/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`
-          // );
+          try {
+            await mailServiceProvider(
+              serviceProvidersEmails,
+              workOrder.title,
+              workOrder.description,
+              link,
+              SP
+            );
+          } catch (error) {
+            console.log(error);
+          }
 
-          // await api.mail.sendMail(
-          //   "",
-          //   serviceProvidersEmails,
-          //   MY_SUBJECT,
-          //   MY_BODY,
-          //   ""
-          // );
           ui.snackbar.load({
             id: Date.now(),
             message: "Work Order created!",

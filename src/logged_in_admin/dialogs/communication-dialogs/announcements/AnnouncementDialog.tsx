@@ -10,6 +10,7 @@ import {
 import { MAIL_ANNOUNCEMENTS } from "../../../shared/mailMessages";
 import { findPropertyUsersEmails } from "../../../shared/common";
 import Loading from "../../../../shared/components/Loading";
+import { mailAnnouncements } from "../../../shared/maiMessagesOwner";
 //import * as admin from "firebase-admin";
 
 export const AnnouncementDialog = observer(() => {
@@ -74,20 +75,25 @@ export const AnnouncementDialog = observer(() => {
         type: "danger",
       });
     }
-    //send emails to owners wuth units in that specific property.
+    //send emails to owners with units in that specific property.
+    try {
+      await mailAnnouncements(emails, announcement.title, announcement.message);
+    } catch (error) {
+      console.log(error);
+    }
 
-    const { MY_SUBJECT, MY_BODY } = MAIL_ANNOUNCEMENTS(
-      announcement.title,
-      announcement.message
-    );
+    // const { MY_SUBJECT, MY_BODY } = MAIL_ANNOUNCEMENTS(
+    //   announcement.title,
+    //   announcement.message
+    // );
 
-    await api.mail.sendMail(
-      "",
-      ["engdesign@lotsinsights.com"],
-      MY_SUBJECT,
-      MY_BODY,
-      ""
-    );
+    // await api.mail.sendMail(
+    //   "",
+    //   ["engdesign@lotsinsights.com"],
+    //   MY_SUBJECT,
+    //   MY_BODY,
+    //   ""
+    // );
 
     store.communication.announcements.clearSelected();
     setAnnouncement({ ...defaultAnnouncements });
@@ -200,7 +206,8 @@ export const AnnouncementDialog = observer(() => {
                         expiryDate: e.target.value,
                       })
                     }
-                    min={new Date().toISOString().split('T')[0]}                    required
+                    min={new Date().toISOString().split("T")[0]}
+                    required
                   />
                 </div>
               </div>

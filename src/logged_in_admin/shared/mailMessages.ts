@@ -36,12 +36,7 @@ export const MAIL_ANNOUNCEMENTS = (
 };
 
 
-
-
-
-
 //meetings
-
 export const MAIL_MEETINGS = (
     title: string | null | undefined,
     message: string | null | undefined,
@@ -72,12 +67,6 @@ export const MAIL_MEETINGS = (
     };
 }
 
-
-
-
-
-
-
 //maintenance SP
 export const MAIL_SERVICE_PROVIDER_LINK = (
     title: string | null | undefined,
@@ -105,7 +94,6 @@ export const MAIL_SERVICE_PROVIDER_LINK = (
     }
 }
 
-
 export const MAIL_SUCCESSFULL_SERVICE_PROVIDER = (
     workOrderId: string | null | undefined,
     description: string | null | undefined,
@@ -132,8 +120,6 @@ export const MAIL_SUCCESSFULL_SERVICE_PROVIDER = (
         MY_BODY: MY_BODY.join("<br/>")
     }
 }
-
-
 
 export const MAIL_WORK_ORDER_WINDOW_PERIOD_EXTENDED = (
     workOrderId: string | null | undefined,
@@ -163,7 +149,6 @@ export const MAIL_WORK_ORDER_WINDOW_PERIOD_EXTENDED = (
     }
 }
 
-
 //1. WHEN OWNER CREATES A REQUEST
 export const MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_OWNER = (
 ) => {
@@ -184,6 +169,7 @@ export const MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_OWNER = (
         MY_BODY: MY_BODY.join("<br/>")
     }
 }
+
 export const MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_MANAGER = (
     message:string,
     ownerName:string,
@@ -207,7 +193,6 @@ export const MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_MANAGER = (
         MY_BODY: MY_BODY.join("<br/>")
     }
 }
-
 
 //owners notifications maintenance
 //2. WHEN MANAGER CREATES A REQUEST FOR THEM

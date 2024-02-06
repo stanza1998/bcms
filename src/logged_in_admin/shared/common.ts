@@ -37,6 +37,7 @@ import { IServiceProvider } from "../../shared/models/maintenance/service-provid
 import { IBodyCop } from "../../shared/models/bcms/BodyCorperate";
 import { useAppContext } from "../../shared/functions/Context";
 import { ICustomContact } from "../../shared/models/communication/contact-management/CustomContacts";
+import AppApi from "../../shared/apis/AppApi";
 
 export const getFileExtension = (url: string): string => {
   const extensionMatch = url.match(/\.([a-z0-9]+)(?:[?#]|$)/i);
@@ -369,72 +370,67 @@ export async function updateById(
   }
 }
 
-export async function updateWorkOrderById(
-  workOrderId: string,
-  pid: string,
-  mid: string,
-  newQuoteFile: { id: string; quoteFileurl: string; imageUrls: string[] },
-  newImages: File[]
-) {
-  const myPath = `BodyCoperate/${pid}/MaintenanceRequest/${mid}/WorkFlowOrder`;
+export const updateWorkOrderWithFiles = async (
+  existingWorkOrder: IWorkOrderFlow,
+  file: File,
+  images: File[],
+  sid: string,
+  code: string,
+  api: AppApi,
+  propertyId: string,
+  maintenanceId: string,
+): Promise<IWorkOrderFlow> => {
+  // Upload the main file (quote file)
+  const quoteFilePath = `workfloworders/work-order-number:_${existingWorkOrder.workOrderNumber}/${code}/file.pdf`;
+  const quoteFileRef = ref(storage, quoteFilePath);
+  await uploadBytes(quoteFileRef, file);
+  const quoteFileUrl = await getDownloadURL(quoteFileRef);
+
+  // Upload images
+  const imageUrls: string[] = [];
+  for (const [index, image] of images.entries()) {
+    const imagePath = `workfloworders/work-order-number:_${existingWorkOrder.workOrderNumber}/${code}/images/image${index + 1}.jpg`;
+    const imageRef = ref(storage, imagePath);
+    await uploadBytes(imageRef, image);
+    const imageUrl = await getDownloadURL(imageRef);
+    imageUrls.push(imageUrl);
+  }
+
+  // Check if there is an existing entry with the same id (sid) in the quoteFiles array
+  const existingQuoteFileIndex = existingWorkOrder.quoteFiles.findIndex((quoteFile) => quoteFile.id === sid);
+
+  // Update the existing work order object
+  const updatedWorkOrder: IWorkOrderFlow = {
+    ...existingWorkOrder,
+    quoteFiles: existingQuoteFileIndex !== -1
+      ? existingWorkOrder.quoteFiles.map((quoteFile, index) => (
+        index === existingQuoteFileIndex
+          ? {
+            ...quoteFile,
+            quoteFileurl: quoteFileUrl,
+            imageUrls: imageUrls,
+          }
+          : quoteFile
+      ))
+      : [
+        ...existingWorkOrder.quoteFiles,
+        {
+          id: sid, // You might generate a unique ID here
+          quoteFileurl: quoteFileUrl,
+          imageUrls: imageUrls,
+        },
+      ],
+    // You can also update other properties if needed
+  };
 
   try {
-    // Create a reference for the document
-    const workOrderRef = doc(db, myPath, workOrderId);
-
-    // Get the current document data before the update
-    const docSnapshot = await getDoc(workOrderRef);
-    const currentData = docSnapshot.data();
-
-    // Convert quoteFileurl content to a Blob
-    const quoteFileBlob = new Blob([newQuoteFile.quoteFileurl]);
-
-    // Upload new quote file to Firebase Storage and get its download URL
-    //   const quoteFilePath = `workOrderFiles/${workOrderId}/${newQuoteFile.id}`;
-    //   const quoteFileRef = ref(storage, quoteFilePath);
-    const fileExtension = newQuoteFile.id.split(".").pop(); // Get the file extension
-    const quoteFilePath = `workOrderFiles/${workOrderId}/${newQuoteFile.id}.${fileExtension}`;
-    const quoteFileRef = ref(storage, quoteFilePath);
-
-    // Upload quote file to storage
-    await uploadBytes(quoteFileRef, quoteFileBlob);
-
-    // Get download URL for the quote file
-    const quoteFileDownloadURL = await getDownloadURL(quoteFileRef);
-
-    // Upload new images to Firebase Storage and get their download URLs
-    const uploadPromises = newImages.map(async (image) => {
-      const imagePath = `workOrderFiles/${workOrderId}/${image.name}`;
-      const imageRef = ref(storage, imagePath);
-
-      // Upload image to storage
-      await uploadBytes(imageRef, image);
-
-      // Get download URL for the image
-      const downloadURL = await getDownloadURL(imageRef);
-
-      return downloadURL;
-    });
-
-    const newImageURLs = await Promise.all(uploadPromises);
-
-    // Update the document in Firestore to add new quote file and images to the existing array
-    await updateDoc(workOrderRef, {
-      quoteFiles: arrayUnion({
-        id: newQuoteFile.id,
-        quoteFileurl: quoteFileDownloadURL,
-        imageUrls: newImageURLs,
-      }),
-    });
-
-    // Get the updated document data
-    const updatedDocSnapshot = await getDoc(workOrderRef);
-    const updatedData = updatedDocSnapshot.data();
-    console.log("Updated Data:", updatedData);
+    await api.maintenance.work_flow_order.update(updatedWorkOrder, propertyId, maintenanceId);
   } catch (error) {
-    console.error("Error updating document:", error);
   }
-}
+
+  return updatedWorkOrder;
+};
+
 
 export async function workerOrdersAndRequestRelationshipStatusUpdate(
   requestId: string,
@@ -619,4 +615,27 @@ export function generateUniqueCode(): string {
   }
 
   return uniqueCode;
+}
+
+
+
+export function getCodeUsingEmail(email: string, SP: IServiceProvider[]): string {
+  const code = SP.find((sp) => sp.email === email)?.code;
+
+  if (code) {
+    return code;
+  }
+
+  return ""
+}
+
+
+export function getServiceProviderId(store: AppStore, code: string): string {
+  const serviceProviderId = store.maintenance.servie_provider.all.find((sp) => sp.asJson.code === code)?.asJson.id;
+
+  if (serviceProviderId) {
+    return serviceProviderId
+  }
+
+  return "No Id Found"
 }

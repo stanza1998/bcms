@@ -62,14 +62,16 @@ export const MaintenanceRequestDialog = observer(() => {
           me.property
         );
 
-        console.log(maintenanceRequest.description);
-
-        OwnerAnnounceLogged(
-          [sendTo || ""],
-          me.firstName || "",
-          me.lastName || "",
-          maintenanceRequest.description
-        );
+        try {
+          OwnerAnnounceLogged(
+            [sendTo || ""],
+            me.firstName || "",
+            me.lastName || "",
+            maintenanceRequest.description
+          );
+        } catch (error) {
+          console.log(error);
+        }
 
         ui.snackbar.load({
           id: Date.now(),

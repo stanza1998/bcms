@@ -21,6 +21,7 @@ import {
 } from "../../../shared/mailMessages";
 import SingleSelect from "../../../../shared/components/single-select/SlingleSelect";
 import folderIcon from "./assets/folder_3139112.png";
+import { mailSuccessfulServiceProvider } from "../../../shared/mailMessagesSP";
 
 export const ViewWorkOrderDialog = observer(() => {
   const { api, store, ui } = useAppContext();
@@ -67,21 +68,32 @@ export const ViewWorkOrderDialog = observer(() => {
             maintenanceRequestId
           );
 
-          const { MY_SUBJECT, MY_BODY } = MAIL_SUCCESSFULL_SERVICE_PROVIDER(
-            workOrder.workOrderNumber,
-            workOrder.description,
-            `${new Date(workOrder.dueDate).toDateString()} ${new Date(
+          try {
+            await mailSuccessfulServiceProvider(
+              [awardedEmail || ""],
+              workOrder.workOrderNumber,
+              workOrder.description,
               workOrder.dueDate
-            ).toTimeString()}`
-          );
-          //only to choosen service provider.
-          await api.mail.sendMail(
-            "",
-            [awardedEmail || ""],
-            MY_SUBJECT,
-            MY_BODY,
-            ""
-          );
+            );
+          } catch (error) {
+            console.log(error);
+          }
+
+          // const { MY_SUBJECT, MY_BODY } = MAIL_SUCCESSFULL_SERVICE_PROVIDER(
+          //   workOrder.workOrderNumber,
+          //   workOrder.description,
+          //   `${new Date(workOrder.dueDate).toDateString()} ${new Date(
+          //     workOrder.dueDate
+          //   ).toTimeString()}`
+          // );
+          // //only to choosen service provider.
+          // await api.mail.sendMail(
+          //   "",
+          //   [awardedEmail || ""],
+          //   MY_SUBJECT,
+          //   MY_BODY,
+          //   ""
+          // );
 
           await store.maintenance.work_flow_order.load();
           ui.snackbar.load({
