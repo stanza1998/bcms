@@ -155,12 +155,12 @@ export const ViewDocuments = observer(() => {
                       // data-uk-tooltip="double click"
                       >
                       <div className="uk-card uk-card-body" onClick={() => onDocumentView(meeting)}>
-                          {!meeting.seen?.includes(me?.uid || "") ? (
+                          {/* {!meeting.seen?.includes(me?.uid || "") ? (
                             // Check if at least one meeting hasn't been seen
                             <Badge sx={{ color: pink[500] }}>
                               <PriorityHighIcon />
                             </Badge>
-                          ) : null}{" "}
+                          ) : null}{" "} */}
                           <div
                             className="image-container"
                             style={{ textAlign: "center" }}
