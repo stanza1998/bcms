@@ -20,13 +20,13 @@ export async function OwnerAnnounceLogged(to: string[], firstName: string, lastN
             subject: "Your Maintenance Request Logged Successfully",
             text: `${greeting}
             
-      Description: ${description},
+    Description: ${description},
       
-      Your Maintenance Request was Logged Successfully by ${firstName + " " + lastName
+    Your Maintenance Request was Logged Successfully by ${firstName + " " + lastName
                 }.
       
-      Kind regards,
-      Body Corporate Management System`,
+    Kind regards,
+    Body Corporate Management System`,
         };
         const response = await fetch('https://us-central1-vanwylbcms.cloudfunctions.net/sendEmails', {
             method: 'POST',
@@ -56,8 +56,8 @@ export async function maintenanceRequestCreatedSuccessfullyOwner(to: string[]) {
             subject: "New Request Logged",
             text: `You have successfully logged a new request
       
-      Kind regards,
-      Body Corporate Management System`,
+    Kind regards,
+    Body Corporate Management System`,
         };
         const response = await fetch('https://us-central1-vanwylbcms.cloudfunctions.net/sendEmails', {
             method: 'POST',
@@ -84,11 +84,15 @@ export async function mailAnnouncements(to: string[], title: string, message: st
         const emailInfo = {
             to: to,
             from: "narib09jerry@gmail.com",
-            subject: `${title}`,
-            text: `${message}
+            subject: `New Notice`,
+            text: `${greeting}
+            
+    ${title}
+    
+    ${message}
       
-      Kind regards,
-      Body Corporate Management System`,
+    Kind regards,
+    Body Corporate Management System`,
         };
         const response = await fetch('https://us-central1-vanwylbcms.cloudfunctions.net/sendEmails', {
             method: 'POST',
@@ -118,13 +122,13 @@ export async function mailMeetings(to: string[], title: string, message: string,
             subject: `${title}`,
             text: `${message}
 
-      The commencement of the meeting was scheduled for ${startDate}.    
+    The commencement of the meeting was scheduled for ${startDate}.    
       
-      ${(meeting_location ? [`Location: ${meeting_location}`] : [])}
-      ${(meeting_link ? [`Meeting Link: ${meeting_link}`] : [])}
+    ${(meeting_location ? [`Location: ${meeting_location}`] : [])}
+    ${(meeting_link ? [`Meeting Link: ${meeting_link}`] : [])}
       
-      Kind regards,
-      Body Corporate Management System`,
+    Kind regards,
+    Body Corporate Management System`,
         };
         const response = await fetch('https://us-central1-vanwylbcms.cloudfunctions.net/sendEmails', {
             method: 'POST',

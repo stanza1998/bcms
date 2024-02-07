@@ -1,11 +1,8 @@
 import { observer } from "mobx-react-lite";
 import { useAppContext } from "../../shared/functions/Context";
-import { useEffect, useMemo, useState } from "react";
 import { Grid, IconButton, Paper, styled } from "@mui/material";
 import "./DashboardCard.scss";
 import "./Dashtable.scss";
-
-import Loading from "../../shared/components/Loading";
 import {
   getUserName,
   getUserNameRequest,
