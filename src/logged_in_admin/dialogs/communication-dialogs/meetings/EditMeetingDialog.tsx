@@ -36,6 +36,7 @@ import {
   ICustomContact,
   defaultCustomContacts,
 } from "../../../../shared/models/communication/contact-management/CustomContacts";
+import { mailMeetings } from "../../../shared/maiMessagesOwner";
 
 interface Attachment {
   file: File;
@@ -157,6 +158,19 @@ export const EditMeetingDialog = observer(() => {
         );
         await store.communication.meeting.load();
 
+        try {
+          await mailMeetings(
+            combinedEmails,
+            meeting.title,
+            meeting.description,
+            meeting.startDateAndTime,
+            meeting.location,
+            meeting.meetingLink
+          );
+        } catch (error) {
+          console.log(error);
+        }
+
         ui.snackbar.load({
           id: Date.now(),
           message: "Meeting updated!",
@@ -182,7 +196,11 @@ export const EditMeetingDialog = observer(() => {
     setMeeting({ ...defaultMeeting });
   };
 
-  const verifyMeeting = () => {
+  const combinedEmails = [...customEmails, ...emails];
+
+  console.log("Emails ", combinedEmails);
+
+  const verifyMeeting = async () => {
     setCreator(true);
 
     setMeeting({
@@ -250,11 +268,12 @@ export const EditMeetingDialog = observer(() => {
               <p>Time: {meeting.startDateAndTime}</p>
               {meeting.location != "" && <p>Location: {meeting.location}</p>}
               {meeting.meetingLink != "" && <p>Link: {meeting.meetingLink}</p>}
-              <p>Attendees: All Owners
+              <p>
+                Attendees: All Owners
                 {meeting.externalParticipants.length !== 0 && (
-                <div>
-                  Guests:
-                  {/* {meeting.externalParticipants.map((participantId) => {
+                  <div>
+                    Guests:
+                    {/* {meeting.externalParticipants.map((participantId) => {
                     const customContactNames = getCustomContactById(
                       [participantId],
                       contacts
@@ -266,53 +285,53 @@ export const EditMeetingDialog = observer(() => {
                     );
                   
                   })} */}
-                </div>
-              )}
-               </p>
-              {meeting.attachments.length === 0 ? (
-                  <span style={{ color: "red" }}>No Attachments</span>
-                ) : (
-                  <div className="uk-width-1-1">
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Name</th>
-                          <th>Extension</th>
-                          <th>File</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {meeting.attachments.map((attachment, index) => {
-                          const fileName = getFileName(attachment);
-                          const extension = getFileExtension(attachment);
-                          const icon = getIconForExtensionExtra(extension);
-
-                          return (
-                            <tr key={index}>
-                              <td>{fileName}</td>
-                              <td>{extension}</td>
-                              <td>
-                                <a
-                                  href={attachment}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  <img
-                                    src={icon}
-                                    alt="File icon"
-                                    width="24"
-                                    height="24"
-                                    style={{ cursor: "pointer" }}
-                                  />
-                                </a>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
                   </div>
                 )}
+              </p>
+              {meeting.attachments.length === 0 ? (
+                <span style={{ color: "red" }}>No Attachments</span>
+              ) : (
+                <div className="uk-width-1-1">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Extension</th>
+                        <th>File</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {meeting.attachments.map((attachment, index) => {
+                        const fileName = getFileName(attachment);
+                        const extension = getFileExtension(attachment);
+                        const icon = getIconForExtensionExtra(extension);
+
+                        return (
+                          <tr key={index}>
+                            <td>{fileName}</td>
+                            <td>{extension}</td>
+                            <td>
+                              <a
+                                href={attachment}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <img
+                                  src={icon}
+                                  alt="File icon"
+                                  width="24"
+                                  height="24"
+                                  style={{ cursor: "pointer" }}
+                                />
+                              </a>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </>
           ) : (
             <form className="uk-form-stacked" onSubmit={onSave}>

@@ -45,6 +45,10 @@ export const Account = observer((props: IImage) => {
   const properties = store.bodyCorperate.bodyCop.all;
   const folderIds = store.communication.meetingFolder.all;
   const documentFolderIds = store.communication.documentCategory.all;
+  const _folderIds = store.communication.meetingFolder.all.map((fids) => {
+    return fids.asJson.id;
+  });
+
   useEffect(() => {
     const getData = async () => {
       if (me?.property) {
@@ -59,39 +63,17 @@ export const Account = observer((props: IImage) => {
           api.communication.documentCategory.getAll(me.property),
           api.communication.meetingFolder.getAll(me.property),
         ]);
-      }
-  
-      if (me?.property && folderIds) {
-        // Load data for each folder
-        await Promise.all(folderIds.map(async (folderId) => {
-          await api.communication.meetingFolder.getById(
-            folderId.asJson.id,
-            me.property
-          );
-          await api.communication.meeting.getAll(
-            me.property,
-            folderId.asJson.id
-          );
-        }));
-      }
-  
-      if (me?.property && documentFolderIds) {
-        // Load data for each document folder
-        await Promise.all(documentFolderIds.map(async (documentFolderId) => {
-          await api.communication.documentCategory.getAll(me.property);
-          await api.communication.documentFile.getAll(
-            me.property,
-            documentFolderId.asJson.id
-          );
-        }));
+
+        if (store.communication.meetingFolder.all.length > 0) {
+          await api.communication.meeting.getAll(me.property, "");
+          console.log("Executed");
+        }
       }
     };
-  
+
     getData();
   }, [
     api.body.body,
-    api.body.financialMonth,
-    api.body.financialYear,
     api.communication.documentFile,
     api.body.propertyBankAccount,
     api.communication.announcement,
@@ -103,7 +85,6 @@ export const Account = observer((props: IImage) => {
     api.communication.meeting,
     me?.property,
   ]);
-  
 
   useEffect(() => {
     const openUpdateUserDialog = () => {
@@ -350,7 +331,7 @@ const ADMIN_DRAWER = () => {
                 <span className="uk-margin-small-right">
                   <DoubleArrowIcon style={{ fontSize: "15px" }} />
                 </span>
-                Meetings and Minutes
+                Meetings-Minutes
               </NavLink>
               <NavLink to={`communication/documents`} className="navlink">
                 <span className="uk-margin-small-right">
@@ -532,13 +513,16 @@ const OWNER_DRAWER = observer(() => {
   const announcements = store.communication.announcements.all.map((a) => {
     return a.asJson;
   });
-
-  
   const documents = store.communication.documentFile.all;
 
-  const meetings = store.communication.meeting.all.map((meeting) => {
-    return meeting.asJson;
-  });
+  const meetings = store.communication.meeting.all
+    .filter((meeting) => meeting.asJson.isVerified === true)
+    .map((meeting) => {
+      return meeting.asJson;
+    });
+
+  console.log("mmm: ", meetings);
+
   const folderIdCounts: Record<string, number> = meetings.reduce(
     (counts, meeting) => {
       // Check if the 'seen' property includes 'me?.uid'
@@ -552,6 +536,7 @@ const OWNER_DRAWER = observer(() => {
     },
     {} as Record<string, number> // Initial value with correct type annotation
   );
+
   const documentFolderIdCounts: Record<string, number> = documents.reduce(
     (counts, document) => {
       // Check if the 'seen' property includes 'me?.uid'
@@ -569,8 +554,8 @@ const OWNER_DRAWER = observer(() => {
     (acc, count) => acc + count,
     0
   );
-  console.log("Check Documents", documents);
-  console.log("Check Documents count " + totalDocumentCount);
+  // console.log("Check Documents", documents);
+  // console.log("Check Documents count " + totalDocumentCount);
 
   const latestAnnouncement = announcements.filter((an) => {
     const expiryDate = new Date(an.expiryDate);
@@ -593,6 +578,11 @@ const OWNER_DRAWER = observer(() => {
     (a) => new Date(a.expiryDate) >= new Date(currentDate)
   ).length;
 
+  const totalCommunicationAnnouncements =
+    active +
+    totalDocumentCount +
+    Object.values(folderIdCounts).reduce((acc, count) => acc + count, 0);
+  // console.log("Heres my total "+totalCommunicationAnnouncements);
   // const activeMeetings = latestMeeting.filter(
   //   (meeting) => new Date(meeting.endDateAndTime) >= new Date(currentDate)
   // ).length;
@@ -692,9 +682,10 @@ const OWNER_DRAWER = observer(() => {
                   className="down-arrow"
                   data-uk-icon="triangle-down"
                 />
-                {/* <Badge badgeContent={active} color="secondary">
-                  <NotificationsIcon style={{ color: "white" }} />
-                </Badge> */}
+                <Badge
+                  badgeContent={totalCommunicationAnnouncements}
+                  color="secondary"
+                ></Badge>
               </NavLink>
               <ul className="uk-nav-sub">
                 <li>
@@ -718,9 +709,11 @@ const OWNER_DRAWER = observer(() => {
                     latestAnnouncement.some(
                       (item) => !item.seen.includes(me?.uid)
                     ) ? (
-                      <Badge badgeContent={active} color="secondary">
-                        <NotificationsIcon style={{ color: "white" }} />
-                      </Badge>
+                      <Badge
+                        badgeContent={active}
+                        color="secondary"
+                        style={{ fontSize: "9px" }}
+                      ></Badge>
                     ) : null}
                   </NavLink>
                 </li>
@@ -729,18 +722,20 @@ const OWNER_DRAWER = observer(() => {
                     <span className="uk-margin-small-right">
                       <DoubleArrowIcon style={{ fontSize: "15px" }} />
                     </span>
-                    Meetings and Minutes
+                    Meetings-Minutes
                     {meetings.length != 0 &&
-                    meetings.some((item) => !item.seen.includes(me?.uid)) ? (
+                    meetings.some(
+                      (item) =>
+                        !item.seen.includes(me?.uid) && item.isVerified === true
+                    ) ? (
                       <Badge
                         badgeContent={Object.values(folderIdCounts).reduce(
                           (acc, count) => acc + count,
                           0
                         )}
                         color="secondary"
-                      >
-                        <NotificationsIcon style={{ color: "white" }} />
-                      </Badge>
+                        style={{ fontSize: "9px" }}
+                      ></Badge>
                     ) : null}
                   </NavLink>
                 </li>
@@ -750,12 +745,6 @@ const OWNER_DRAWER = observer(() => {
                       <DoubleArrowIcon style={{ fontSize: "15px" }} />
                     </span>
                     Documents
-                    {documents.length != 0 &&
-                    documents.some((item) => !item.asJson.seen.includes(me?.uid)) ? (
-                      <Badge badgeContent={totalDocumentCount} color="secondary">
-                      <NotificationsIcon style={{ color: "white" }} />
-                    </Badge>
-                    ) : null}
                   </NavLink>
                 </li>
               </ul>

@@ -12,6 +12,9 @@ import {
   getIconForExtensionExtra,
 } from "../../shared/common";
 import Loading from "../../../shared/components/Loading";
+import Badge from "@mui/material/Badge";
+import pink from "@mui/material/colors/pink";
+import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
 
 export const ViewDocuments = observer(() => {
   const { api, store } = useAppContext();
@@ -19,7 +22,7 @@ export const ViewDocuments = observer(() => {
   const { documenrFolderId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [document,setDocument] = useState<IDocumentFile | null>(null)
   const _folder = store.communication.documentCategory.getById(
     documenrFolderId || ""
   );
@@ -54,7 +57,28 @@ export const ViewDocuments = observer(() => {
   const onCreateFile = () => {
     showModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_DOCUMENT_FILE);
   };
-
+  const onDocumentView = async (documentFile:IDocumentFile)=>{
+    
+    if (documentFile!== null) {
+      if (documentFile.seen.includes(me?.uid||'')) {
+        console.log("Viewed Already");
+      } else {
+        try {
+          await api.communication.documentFile.update(
+            {
+              ...documentFile,
+              seen: [...(documentFile.seen || []), me?.uid || ""],
+            },
+            me?.property ||'',
+            documentFile.fid
+          );
+          console.log("Notice updated successfully");
+        } catch (error) {
+          console.error("Error updating notice:", error);
+        }
+      }
+    }
+  }
   useEffect(() => {
     const getDocFolders = async () => {
       setLoading(true);
@@ -130,7 +154,13 @@ export const ViewDocuments = observer(() => {
                       //   onClick={() => toFolder(f.id)}
                       // data-uk-tooltip="double click"
                       >
-                        <div className="uk-card uk-card-body">
+                      <div className="uk-card uk-card-body" onClick={() => onDocumentView(meeting)}>
+                          {!meeting.seen?.includes(me?.uid || "") ? (
+                            // Check if at least one meeting hasn't been seen
+                            <Badge sx={{ color: pink[500] }}>
+                              <PriorityHighIcon />
+                            </Badge>
+                          ) : null}{" "}
                           <div
                             className="image-container"
                             style={{ textAlign: "center" }}
