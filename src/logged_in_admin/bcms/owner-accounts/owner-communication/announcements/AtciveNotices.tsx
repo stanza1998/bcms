@@ -20,6 +20,8 @@ import DIALOG_NAMES from "../../../../dialogs/Dialogs";
 import { NotificationDialog } from "../../../../dialogs/communication-dialogs/announcements/NotificationDialog";
 import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
 import pink from "@mui/material/colors/pink";
+import { useParams } from "react-router-dom";
+import { ViewAnnouncementDialog } from "../../../../dialogs/communication-dialogs/announcements/ViewAnnouncementDialog";
 
 const bull = (
   <Box
@@ -35,7 +37,7 @@ export const AtciveNotices = observer(() => {
   const me = store.user.meJson;
   const currentDate = new Date();
   const [searchTerm, setSearchTerm] = useState<string>("");
-
+  const notices = useParams();
   const announcements = store.communication.announcements.all
     .map((a) => {
       return a.asJson;
@@ -120,12 +122,13 @@ interface AnnouncementCardProps {
 const AnnouncementCard: React.FC<AnnouncementCardProps> = ({ card }) => {
   const { store, api } = useAppContext();
   const me = store.user.meJson;
-  const [announcement, setAnnouncement] = useState<IAnnouncements>({
-    ...defaultAnnouncements,
-  });
+  const [announcement, setAnnouncement] = useState<IAnnouncements | null>(null);
+
 
   const onViewNotices = async (notice: IAnnouncements) => {
     store.communication.announcements.select(notice);
+    setAnnouncement(notice);
+    console.log("My Announcements ",announcement);
     showModalFromId(DIALOG_NAMES.COMMUNICATION.VIEW_ANNOUNCEMENTS_DIALOG);
     if (
       store.communication.announcements.selected &&
@@ -151,7 +154,7 @@ const AnnouncementCard: React.FC<AnnouncementCardProps> = ({ card }) => {
       }
     }
   };
-
+  console.log("Current Announcement after button click function ",announcement )
   return (
     <Grid item xs={12} sm={6} md={4} className="cardContainer">
       <Card className={`card ${card.priorityLevel}`}>
@@ -182,8 +185,9 @@ const AnnouncementCard: React.FC<AnnouncementCardProps> = ({ card }) => {
           </Typography>
         </CardContent>
       </Card>
+    
       <Modal modalId={DIALOG_NAMES.COMMUNICATION.VIEW_ANNOUNCEMENTS_DIALOG}>
-        <NotificationDialog />
+      <ViewAnnouncementDialog/>
       </Modal>
     </Grid>
   );

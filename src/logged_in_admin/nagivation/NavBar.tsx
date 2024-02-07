@@ -132,48 +132,6 @@ const NavBar = observer(() => {
         </div>
       </nav>
 
-      <Modal modalId={DIALOG_NAMES.COMMUNICATION.VIEW_ANNOUNCEMENTS_DIALOG}>
-        <div
-          className="uk-modal-dialog uk-modal-body uk-margin-auto-vertical staff-dialog announcements-container"
-        >
-          <button
-            className="uk-modal-close-default"
-            type="button"
-            data-uk-close
-          ></button>
-          <div className="uk-margin">
-            <div className="announcements-header">
-              You have {latestAnnouncement.length} new announcements
-            </div>
-            <div data-uk-accordion>
-              {latestAnnouncement.map((item) => (
-                <div
-                  key={item.id}
-                  style={{
-                    border: "solid grey 1px",
-                    borderRadius: "4px",
-                    padding: "10px",
-                  }}
-                >
-                  <h3 className="uk-accordion-title">{item.title}</h3>
-                  <div className="uk-accordion-content">
-                    <div style={{ padding: "20px" }}>
-                      <div className="announcement-container">
-                        <div className="announcement-item" key={item.id}>
-                          <p style={{ marginRight: "20px", marginTop: "20px" }}>
-                            {item.message}
-                          </p>
-                          <p style={{ marginTop: "20px" }}>{item.expiryDate}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 });

@@ -6,7 +6,8 @@ export const defaultDocumentFile: IDocumentFile = {
     documentFileName: "",
     fileUrl: "",
     dateCreated: "",
-    fid: ""
+    fid: "",
+    seen:[],
 };
 
 export interface IDocumentFile {
@@ -14,7 +15,8 @@ export interface IDocumentFile {
     documentFileName: string;
     fileUrl: string;
     dateCreated: string;
-    fid: string
+    fid: string;
+    seen:string[];
 }
 
 export default class DocumentFileModel {

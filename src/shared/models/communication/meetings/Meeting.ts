@@ -19,6 +19,7 @@ export const defaultMeeting: IMeeting = {
     ownerParticipants: [],
     externalParticipants: [],
     isVerified: false,
+    seen:[],
 };
 
 export interface IMeeting {
@@ -39,6 +40,7 @@ export interface IMeeting {
     priority: string;
     meetingLink: string;
     isVerified:boolean;
+    seen:string[];
 }
 
 export interface IOwnerParticipants {

@@ -23,6 +23,9 @@ import Loading from "../../../shared/components/Loading";
 import { Tab } from "../../../Tab";
 import { CalendarView } from "./CalendarView";
 import Pagination from "../../shared/PaginationComponent";
+import Badge from "@mui/material/Badge";
+import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
+import pink from "@mui/material/colors/pink";
 
 export const ViewFolder = observer(() => {
   const { store, api } = useAppContext();
@@ -49,9 +52,28 @@ export const ViewFolder = observer(() => {
     showModalFromId(DIALOG_NAMES.COMMUNICATION.CREATE_MEETING_DIALOG);
   };
 
-  const onViewMeeting = (meeting: IMeeting) => {
+  const onViewMeeting = async (meeting: IMeeting) => {
     store.communication.meeting.select(meeting);
     showModalFromId(DIALOG_NAMES.COMMUNICATION.EDIT_MEETING_DIALOG);
+    if (store.communication.meeting.selected && me && me.property !== null) {
+      if (meeting.seen.includes(me?.uid)) {
+        console.log("Viewed Already");
+      } else {
+        try {
+          await api.communication.meeting.update(
+            {
+              ...meeting,
+              seen: [...(meeting.seen || []), me?.uid || ""],
+            },
+            me.property,
+            meeting.folderId
+          );
+          console.log("Notice updated successfully");
+        } catch (error) {
+          console.error("Error updating notice:", error);
+        }
+      }
+    }
   };
 
   useEffect(() => {
@@ -212,23 +234,31 @@ export const ViewFolder = observer(() => {
                                 className="uk-card uk-card-default uk-card-body"
                                 style={{ background: "white" }}
                               >
-                                {cannotEditMeeting(me?.role || "") && <span
-                                  style={{
-                                    background: "#01aced",
-                                    padding: "5px",
-                                    color: "white",
-                                    borderRadius: "3px",
-                                  }}
-                                  className="top-left-span"
-                                >
-                                  Created By{" "}
-                                  {displayUserStatus(
-                                    meeting.organizer,
-                                    me?.uid || "",
-                                    users
-                                  )}
-                                </span>}
-                                
+                                {
+                                  !meeting.seen?.includes(me?.uid || "")
+                                 ? ( // Check if at least one meeting hasn't been seen
+                                  <Badge sx={{ color: pink[500] }}>
+                                    <PriorityHighIcon />
+                                  </Badge>
+                                ) : null}{" "}
+                                {cannotEditMeeting(me?.role || "") && (
+                                  <span
+                                    style={{
+                                      background: "#01aced",
+                                      padding: "5px",
+                                      color: "white",
+                                      borderRadius: "3px",
+                                    }}
+                                    className="top-left-span"
+                                  >
+                                    Created By{" "}
+                                    {displayUserStatus(
+                                      meeting.organizer,
+                                      me?.uid || "",
+                                      users
+                                    )}
+                                  </span>
+                                )}
                                 <span
                                   className={`status-indicator ${statusClass}`}
                                 >

@@ -1,6 +1,12 @@
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
-import { NavLink, Navigate, useLocation, useNavigate } from "react-router-dom";
+import {
+  NavLink,
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import { USER_ROLES } from "../../shared/constants/USER_ROLES";
 import { useAppContext } from "../../shared/functions/Context";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -37,6 +43,8 @@ export const Account = observer((props: IImage) => {
   const me = store.user.meJson;
   const navigate = useNavigate();
   const properties = store.bodyCorperate.bodyCop.all;
+  const folderIds = store.communication.meetingFolder.all;
+  const documentFolderIds = store.communication.documentCategory.all;
 
   useEffect(() => {
     const getData = async () => {
@@ -45,17 +53,42 @@ export const Account = observer((props: IImage) => {
         await api.body.propertyBankAccount.getAll(me.property);
         await api.body.financialYear.getAll(me.property);
         await api.communication.announcement.getAll(me.property, "");
+      } else if (me?.property && folderIds) {
+        for (const folderId of folderIds) {
+          await api.communication.meetingFolder.getById(
+            folderId.asJson.id,
+            me.property
+          );
+          await api.communication.meeting.getAll(
+            me.property,
+            folderId.asJson.id
+          );
+        }
+      } else if (me?.property && documentFolderIds) {
+        for (const documentFolderId of documentFolderIds) {
+          await api.communication.documentCategory.getAll(
+            me.property
+          );
+          await api.communication.documentFile.getAll(
+            me.property,
+            documentFolderId.asJson.id
+          );
+        }
       } else if (me?.property === "") {
-        // FailedAction("User property not set");
       }
     };
+
     getData();
   }, [
     api.body.body,
     api.body.financialMonth,
     api.body.financialYear,
     api.communication.announcement,
+    api.communication.documentCategory,
+    api.communication.documentFile,
     api.body.propertyBankAccount,
+    api.communication.meeting,
+    api.communication.meetingFolder,
     me?.property,
     me?.year,
   ]);
@@ -487,18 +520,70 @@ const OWNER_DRAWER = observer(() => {
   const announcements = store.communication.announcements.all.map((a) => {
     return a.asJson;
   });
+
+  
+  const documents = store.communication.documentFile.all;
+
+  const meetings = store.communication.meeting.all.map((meeting) => {
+    return meeting.asJson;
+  });
+  const folderIdCounts: Record<string, number> = meetings.reduce(
+    (counts, meeting) => {
+      // Check if the 'seen' property includes 'me?.uid'
+      const seenByCurrentUser = !meeting.seen?.includes(me?.uid || "");
+      // If not seen by current user, increment count
+      if (seenByCurrentUser) {
+        const folderId = meeting.folderId;
+        counts[folderId] = (counts[folderId] || 0) + 1;
+      }
+      return counts;
+    },
+    {} as Record<string, number> // Initial value with correct type annotation
+  );
+  const documentFolderIdCounts: Record<string, number> = documents.reduce(
+    (counts, document) => {
+      // Check if the 'seen' property includes 'me?.uid'
+      const seenByCurrentUser = !document.asJson.seen?.includes(me?.uid || "");
+      // If not seen by current user, increment count
+      if (seenByCurrentUser) {
+        const folderId = document.asJson.fid;
+        counts[folderId] = (counts[folderId] || 0) + 1;
+      }
+      return counts;
+    },
+    {} as Record<string, number> // Initial value with correct type annotation
+  );
+  const totalDocumentCount = Object.values(documentFolderIdCounts).reduce(
+    (acc, count) => acc + count,
+    0
+  );
+  console.log("Check Documents", documents);
+  console.log("Check Documents count " + totalDocumentCount);
+
   const latestAnnouncement = announcements.filter((an) => {
     const expiryDate = new Date(an.expiryDate);
     const timestamp = expiryDate.getTime();
     const currentTimestamp = Date.now();
-    const userId = me?.uid || ''; 
+    const userId = me?.uid || "";
     return timestamp > currentTimestamp && !an.seen.includes(userId);
   });
+
+  // const latestMeeting = meetings.filter((an) => {
+  //   const dateCreated = new Date(an.dateCreate);
+  //   const timestamp = dateCreated.getTime();
+  //   const currentTimestamp = Date.now();
+  //   const userId = me?.uid || "";
+  //   return timestamp > currentTimestamp && !an.seen.includes(userId);
+  // });
+  // console.log("Latest Meetings", latestMeeting);
 
   const active = latestAnnouncement.filter(
     (a) => new Date(a.expiryDate) >= new Date(currentDate)
   ).length;
 
+  // const activeMeetings = latestMeeting.filter(
+  //   (meeting) => new Date(meeting.endDateAndTime) >= new Date(currentDate)
+  // ).length;
   useEffect(() => {
     const getData = async () => {
       if (me?.property) {
@@ -595,9 +680,9 @@ const OWNER_DRAWER = observer(() => {
                   className="down-arrow"
                   data-uk-icon="triangle-down"
                 />
-                <Badge badgeContent={active} color="secondary">
+                {/* <Badge badgeContent={active} color="secondary">
                   <NotificationsIcon style={{ color: "white" }} />
-                </Badge>
+                </Badge> */}
               </NavLink>
               <ul className="uk-nav-sub">
                 <li>
@@ -618,8 +703,8 @@ const OWNER_DRAWER = observer(() => {
                     </span>
                     Notices
                     {latestAnnouncement.length != 0 &&
-                    latestAnnouncement.some((item) =>
-                      !item.seen.includes(me?.uid)
+                    latestAnnouncement.some(
+                      (item) => !item.seen.includes(me?.uid)
                     ) ? (
                       <Badge badgeContent={active} color="secondary">
                         <NotificationsIcon style={{ color: "white" }} />
@@ -633,9 +718,18 @@ const OWNER_DRAWER = observer(() => {
                       <DoubleArrowIcon style={{ fontSize: "15px" }} />
                     </span>
                     Meetings and Minutes
-                    <Badge badgeContent={active} color="secondary">
-                      <NotificationsIcon style={{ color: "white" }} />
-                    </Badge>
+                    {meetings.length != 0 &&
+                    meetings.some((item) => !item.seen.includes(me?.uid)) ? (
+                      <Badge
+                        badgeContent={Object.values(folderIdCounts).reduce(
+                          (acc, count) => acc + count,
+                          0
+                        )}
+                        color="secondary"
+                      >
+                        <NotificationsIcon style={{ color: "white" }} />
+                      </Badge>
+                    ) : null}
                   </NavLink>
                 </li>
                 <li>
@@ -644,9 +738,12 @@ const OWNER_DRAWER = observer(() => {
                       <DoubleArrowIcon style={{ fontSize: "15px" }} />
                     </span>
                     Documents
-                    <Badge badgeContent={active} color="secondary">
+                    {documents.length != 0 &&
+                    documents.some((item) => !item.asJson.seen.includes(me?.uid)) ? (
+                      <Badge badgeContent={totalDocumentCount} color="secondary">
                       <NotificationsIcon style={{ color: "white" }} />
                     </Badge>
+                    ) : null}
                   </NavLink>
                 </li>
               </ul>
@@ -715,7 +812,6 @@ const OWNER_DRAWER = observer(() => {
     </div>
   );
 });
-
 
 const SERVICE_PROVIDER_DRAWER = observer(() => {
   const { store, api } = useAppContext();

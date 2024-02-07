@@ -11,7 +11,8 @@ export const defaultMaintenanceRequest: IMaintenanceRequest = {
     startDate: "",
     completedDate: "",
     workerOrderLatestNumber: 0,
-    serviceProviderId:""
+    serviceProviderId:"",
+    seen:[],
 };
 
 export interface IMaintenanceRequest {
@@ -25,6 +26,7 @@ export interface IMaintenanceRequest {
     status: string;
     workerOrderLatestNumber: number;
     serviceProviderId:string;
+    seen:string[];
 }
 
 export default class MaintenanceRequestModel {

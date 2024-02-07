@@ -64,6 +64,7 @@ export const CalendarView = observer(() => {
         meetingNote: m.asJson.meetingNote,
         priority: m.asJson.priority,
         meetingLink: m.asJson.meetingLink,
+        seen:m.asJson.seen,
       };
     });
 
@@ -93,6 +94,7 @@ export const CalendarView = observer(() => {
       priority: event.priority,
       meetingLink: event.meetingLink,
       isVerified: event.isVerified,
+      seen: event.seen,
     };
     onViewDetails(selectedMeeting);
   };
