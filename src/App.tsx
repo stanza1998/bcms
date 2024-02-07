@@ -54,7 +54,7 @@ import { Announcements } from "./logged_in_admin/bcms/communication/announcement
 import { PrivateMessage } from "./logged_in_admin/bcms/communication/private-message/PrivateMessage";
 import { ContactOverview } from "./logged_in_admin/bcms/communication/contacts-management/ContactsOverview";
 import { Pop } from "./logged_in_admin/bcms/owner-accounts/proof-of-payment/pop";
-import { OwnerPrivateMessage } from "./logged_in_admin/bcms/owner-accounts/owner-communication/private-message-booard/OwnerPrivateMessage";
+// import { OwnerPrivateMessage } from "./logged_in_admin/bcms/owner-accounts/owner-communication/private-message-booard/OwnerPrivateMessage";
 import { Maintainance } from "./logged_in_admin/bcms/maintanace/Maintainance";
 import { RequestMaintenance } from "./logged_in_admin/bcms/maintanace/request/Request";
 import { ServiceProvider } from "./logged_in_admin/bcms/maintanace/service-providers/ServiceProvider";
@@ -68,6 +68,7 @@ import { Notices } from "./logged_in_admin/bcms/owner-accounts/owner-communicati
 import { OwnerRequest } from "./logged_in_admin/bcms/owner-accounts/maintenance-request/OwnerReqquest";
 import { ServiceProviderView } from "./logged_in_admin/bcms/maintanace/service-providers/ServiceProviderPage";
 import { ServiceProviderWorkOrder } from "./logged_in_admin/bcms/maintanace/service-providers/ServiceProviderWorkOrders";
+import { QuotationUploadSuccessfull } from "./logged_in_admin/bcms/maintanace/service-providers-upload-quote/QuotationUploadSuccessfull";
 
 const SignIn = lazy(() => import("./logged_out/sign_in/SignIn"));
 const LoggedIn = lazy(() => import("./logged_in_admin/LoggedIn"));
@@ -85,9 +86,9 @@ const ADMIN_USER_ROUTES = () => {
         <Route path="c" element={<PrivateLoggedIn />}>
           <Route path={`dashboard`} element={<Dashboard />} />
           <Route
-          path={`service-provider/requests`}
-          element={<ServiceProviderView />}
-        />
+            path={`service-provider/requests`}
+            element={<ServiceProviderView />}
+          />
           {/* communication */}
           <Route
             path={`communication/com-overview`}
@@ -258,7 +259,10 @@ const ADMIN_USER_ROUTES = () => {
           path={`service-provider-quotes/:maintenanceRequestId/:workOrderId`}
           element={<UploadQuote />}
         ></Route>
-        
+        <Route
+          path={`quotationUploadSuccessfull`}
+          element={<QuotationUploadSuccessfull />}
+        ></Route>
       </Routes>
     </BrowserRouter>
   );
@@ -270,9 +274,9 @@ const SERVICE_PROVIDER_USER_ROUTES = () => {
         <Route path="c" element={<PrivateLoggedIn />}>
           <Route path={`dashboard`} element={<Dashboard />} />
           <Route
-          path={`service-provider/requests`}
-          element={<ServiceProviderView />}
-        />
+            path={`service-provider/requests`}
+            element={<ServiceProviderView />}
+          />
           <Route
             path={`service-provider/word-orders/:maintenanceRequestId`}
             element={<ServiceProviderWorkOrder />}
@@ -289,9 +293,13 @@ const SERVICE_PROVIDER_USER_ROUTES = () => {
           element={<UploadQuote />}
         ></Route>
         <Route
-          path={`service-provider/requests`}
-          element={<ServiceProviderView />}
-        />
+          path={`service-provider-quotes/:maintenanceRequestId/:workOrderId`}
+          element={<UploadQuote />}
+        ></Route>
+        <Route
+          path={`quotationUploadSuccessfull`}
+          element={<QuotationUploadSuccessfull />}
+        ></Route>
       </Routes>
     </BrowserRouter>
   );
@@ -364,6 +372,10 @@ const OWNER_ROUTES = () => {
           path={`service-provider-quotes/:maintenanceRequestId/:workOrderId`}
           element={<UploadQuote />}
         ></Route>
+        <Route
+          path={`quotationUploadSuccessfull`}
+          element={<QuotationUploadSuccessfull />}
+        ></Route>
       </Routes>
     </BrowserRouter>
   );
@@ -414,6 +426,10 @@ const EMPLOYEE_USER_ROUTES = () => {
         <Route
           path={`service-provider-quotes/:propertyId/:maintenanceRequestId/:workOrderId`}
           element={<UploadQuote />}
+        ></Route>
+        <Route
+          path={`quotationUploadSuccessful`}
+          element={<QuotationUploadSuccessfull />}
         ></Route>
       </Routes>
     </BrowserRouter>

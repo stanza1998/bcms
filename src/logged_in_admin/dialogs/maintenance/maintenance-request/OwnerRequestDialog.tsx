@@ -12,6 +12,8 @@ import {
   MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_MANAGER,
   MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_OWNER,
 } from "../../../shared/mailMessages";
+import { mailMaintenanceRequestCreatedSuccessfulManager } from "../../../shared/mailMessagesManager";
+import { maintenanceRequestCreatedSuccessfullyOwner } from "../../../shared/maiMessagesOwner";
 
 export const OwnerRequestDialog = observer(() => {
   const { api, store, ui } = useAppContext();
@@ -61,19 +63,38 @@ export const OwnerRequestDialog = observer(() => {
         );
 
         try {
-          const { MY_SUBJECT, MY_BODY } =
-            MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_MANAGER(
-              maintenanceRequest.description,
-              `${me.firstName} ${me.lastName}`
-            );
+          await mailMaintenanceRequestCreatedSuccessfulManager(
+            sendToManager,
+            maintenanceRequest.description,
+            `${me.firstName + " " + me.lastName}`
+          );
+        } catch (error) {}
 
-          await api.mail.sendMail("", sendToManager, MY_SUBJECT, MY_BODY, "");
-        } catch (error) {}
+        // try {
+        //   const { MY_SUBJECT, MY_BODY } =
+        //     MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_MANAGER(
+        //       maintenanceRequest.description,
+        //       `${me.firstName} ${me.lastName}`
+        //     );
+
+        //   await api.mail.sendMail("", sendToManager, MY_SUBJECT, MY_BODY, "");
+        // } catch (error) {}
+
         try {
-          const { MY_SUBJECT, MY_BODY } =
-            MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_OWNER();
-          await api.mail.sendMail("", [sendToOwner || ""], MY_SUBJECT, MY_BODY, "");
+          await maintenanceRequestCreatedSuccessfullyOwner([sendToOwner || ""]);
         } catch (error) {}
+
+        // try {
+        //   const { MY_SUBJECT, MY_BODY } =
+        //     MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_OWNER();
+        //   await api.mail.sendMail(
+        //     "",
+        //     [sendToOwner || ""],
+        //     MY_SUBJECT,
+        //     MY_BODY,
+        //     ""
+        //   );
+        // } catch (error) {}
 
         ui.snackbar.load({
           id: Date.now(),

@@ -24,7 +24,9 @@ import {
 } from "firebase/storage";
 import { storage } from "../../../../shared/database/FirebaseConfig";
 import { MAIL_MEETINGS } from "../../../shared/mailMessages";
+
 import { useParams } from "react-router-dom";
+import { mailMeetings } from "../../../shared/maiMessagesOwner";
 
 interface Attachment {
   file: File;
@@ -90,6 +92,8 @@ export const MeetingDialog = observer(() => {
   );
 
   const customEmails = getCustomUserEmail(meeting.externalParticipants, store);
+
+  const combinedEmails = [...customEmails, ...emails]
 
   const customContact = store.communication.customContacts.all
     .map((u) => u.asJson)
@@ -167,25 +171,37 @@ export const MeetingDialog = observer(() => {
           });
 
           //send emails
-
-          const { MY_SUBJECT, MY_BODY } = MAIL_MEETINGS(
-            meeting.title,
-            meeting.description,
-            `${new Date(
-              meeting.startDateAndTime
-            ).toLocaleDateString()} ${new Date(
-              meeting.startDateAndTime
-            ).toLocaleTimeString()} `,
-            meeting.location,
-            meeting.meetingLink
-          );
-
           try {
-            await api.mail.sendMail("", emails, MY_SUBJECT, MY_BODY, "");
-            await api.mail.sendMail("", customEmails, MY_SUBJECT, MY_BODY, "");
+            await mailMeetings(
+              combinedEmails,
+              meeting.title,
+              meeting.description,
+              meeting.startDateAndTime,
+              meeting.location,
+              meeting.meetingLink
+            );
           } catch (error) {
             console.log(error);
           }
+
+          // const { MY_SUBJECT, MY_BODY } = MAIL_MEETINGS(
+          //   meeting.title,
+          //   meeting.description,
+          //   `${new Date(
+          //     meeting.startDateAndTime
+          //   ).toLocaleDateString()} ${new Date(
+          //     meeting.startDateAndTime
+          //   ).toLocaleTimeString()} `,
+          //   meeting.location,
+          //   meeting.meetingLink
+          // );
+
+          // try {
+          //   await api.mail.sendMail("", emails, MY_SUBJECT, MY_BODY, "");
+          //   await api.mail.sendMail("", customEmails, MY_SUBJECT, MY_BODY, "");
+          // } catch (error) {
+          //   console.log(error);
+          // }
 
           setMeeting({ ...updatedMeeting, externalParticipants: [] });
           setMeeting({ ...updatedMeeting, ownerParticipants: [] });
@@ -252,10 +268,10 @@ export const MeetingDialog = observer(() => {
       <h3 className="uk-modal-title">Meeting</h3>
       {me?.role === "Owner" ? (
         <>
-        <p>Meeting: {meeting.title}</p>
-        <p>Meeting: {meeting.title}</p>
-        <p>Meeting: {meeting.title}</p>
-        <p>Meeting: {meeting.title}</p>
+          <p>Meeting: {meeting.title}</p>
+          <p>Meeting: {meeting.title}</p>
+          <p>Meeting: {meeting.title}</p>
+          <p>Meeting: {meeting.title}</p>
         </>
       ) : (
         <div className="dialog-content uk-position-relative">

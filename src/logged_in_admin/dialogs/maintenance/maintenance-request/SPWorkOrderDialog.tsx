@@ -151,7 +151,7 @@ export const SPWorkOrderFlowDialog = observer(() => {
         onClick={reset}
         data-uk-close
       ></button>
-      <h3 className="uk-modal-title">Work Order</h3>
+      <h3 className="uk-modal-title">Work</h3>
       <div className="dialog-content uk-position-relative">
         <div className="reponse-form">
           <Box

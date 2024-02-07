@@ -8,16 +8,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import {
   getIconForExtensionExtra,
-  updateWorkOrderById,
+  getServiceProviderId,
+  updateWorkOrderWithFiles,
 } from "../../../shared/common";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../../../../shared/components/Loading";
 import {
   FailedAction,
-  SuccessfulAction,
   SuccessfullQuotAction,
 } from "../../../../shared/models/Snackbar";
-import SingleSelect from "../../../../shared/components/single-select/SlingleSelect";
 
 export const UploadQuote = observer(() => {
   const { store, api, ui } = useAppContext();
@@ -26,10 +25,21 @@ export const UploadQuote = observer(() => {
   const { propertyId, maintenanceRequestId, workOrderId } = useParams();
   const currentDate = Date.now();
   const convertedCurrent = new Date(currentDate).getTime();
-  const [serviceProvider, setServiceProvider] = useState<string>("");
+  const [serviceProviderCode, setServiceProviderCode] = useState<string>("");
   const orderWindowPeriod = store.maintenance.work_flow_order.getById(
     workOrderId || ""
   );
+  const navigate = useNavigate();
+
+  const toSuccess = () => {
+    navigate("/quotationUploadSuccessful");
+  };
+
+  console.log("code: ", serviceProviderCode);
+
+  const serviceProviderId = getServiceProviderId(store, serviceProviderCode);
+
+  const workOrder = orderWindowPeriod?.asJson;
 
   const convertedWindowPeriod = new Date(
     orderWindowPeriod?.asJson.windowPeriod || ""
@@ -52,66 +62,32 @@ export const UploadQuote = observer(() => {
     }
   };
 
-  const readFileAsync = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target) {
-          resolve(event.target.result as string);
-        }
-      };
-      reader.onerror = (error) => reject(error);
-      reader.readAsText(file);
-    });
-  };
-
-  const serviceProviders = store.maintenance.servie_provider.all.map((s) => {
-    return {
-      label: s.asJson.serviceProvideName,
-      value: s.asJson.id,
-    };
-  });
-
-  const handleSelectSP = (id: string) => {
-    setServiceProvider(id);
-  };
-
   const handleUpload = async () => {
-    setLoadingUp(true);
-
-    if (selectedQuote && workOrderId && propertyId && maintenanceRequestId) {
+    if (serviceProviderCode !== "") {
       try {
-        const quoteFileContent = await readFileAsync(selectedQuote);
-
-        // Prepare the quote file data
-
-        const quoteFileData = {
-          id: serviceProvider, // You may generate a unique ID for the quote file
-          quoteFileurl: quoteFileContent, // Assuming quoteFileurl should be the content of the file
-          imageUrls: [], // Initialize as an empty array, as we're handling images separately
-        };
-
-        await updateWorkOrderById(
-          workOrderId,
-          propertyId,
-          maintenanceRequestId,
-          quoteFileData,
-          selectedImages
-        );
-
-        SuccessfullQuotAction(ui);
-      } catch (error) {
-        console.log(error);
-        FailedAction(ui);
-      }
+        setLoading(true);
+        if (workOrder && selectedQuote && propertyId && maintenanceRequestId) {
+          await updateWorkOrderWithFiles(
+            workOrder,
+            selectedQuote,
+            selectedImages,
+            serviceProviderId,
+            serviceProviderCode,
+            api,
+            propertyId,
+            maintenanceRequestId
+          );
+          setLoading(false);
+          SuccessfullQuotAction(ui);
+          //Navigate to success page
+          toSuccess();
+        } else {
+          FailedAction(ui);
+        }
+      } catch (error) {}
     } else {
-      console.log("File or required parameters are not selected");
       FailedAction(ui);
     }
-
-    setLoadingUp(false);
-    setSelectedQuote(null);
-    setSelectedImages([]);
   };
 
   useEffect(() => {
@@ -151,13 +127,22 @@ export const UploadQuote = observer(() => {
           {convertedCurrent < convertedWindowPeriod && (
             <div className="upload-quote-container quote uk-margin">
               <div className="upload-header">
-                <h4 className="section-heading">Upload Quote</h4>
+                <h4 className="section-heading">
+                  Paste Shared Code (Ensure that no additional spaces are
+                  entered before or after the code)
+                </h4>
               </div>
               <div className="upload-content">
                 <div className="uk-margin">
-                  <SingleSelect
-                    onChange={handleSelectSP}
-                    options={serviceProviders}
+                  <input
+                    className="uk-input"
+                    onChange={(e: any) => {
+                      // Remove spaces from the input value
+                      const inputValue = e.target.value.replace(/\s/g, "");
+
+                      // Update the state with the sanitized value
+                      setServiceProviderCode(inputValue);
+                    }}
                   />
                 </div>
 
@@ -178,7 +163,11 @@ export const UploadQuote = observer(() => {
                   <FontAwesomeIcon icon={faUpload} className="upload-icon" />
                   Choose Images
                 </label>
-                <button className="upload-button" onClick={handleUpload}>
+                <button
+                  disabled={loading}
+                  onClick={handleUpload}
+                  className="upload-button"
+                >
                   Upload
                 </button>
               </div>

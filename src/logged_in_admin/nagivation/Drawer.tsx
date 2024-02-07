@@ -45,16 +45,25 @@ export const Account = observer((props: IImage) => {
   const properties = store.bodyCorperate.bodyCop.all;
   const folderIds = store.communication.meetingFolder.all;
   const documentFolderIds = store.communication.documentCategory.all;
-
   useEffect(() => {
     const getData = async () => {
       if (me?.property) {
-        await api.body.body.getAll();
-        await api.body.propertyBankAccount.getAll(me.property);
-        await api.body.financialYear.getAll(me.property);
-        await api.communication.announcement.getAll(me.property, "");
-      } else if (me?.property && folderIds) {
-        for (const folderId of folderIds) {
+        // Load data related to property
+        await Promise.all([
+          api.unit.getAll(me.property),
+          api.body.body.getAll(),
+          api.body.propertyBankAccount.getAll(me.property),
+          api.communication.announcement.getAll(me.property, ""),
+          api.maintenance.maintenance_request.getAll(me.property),
+          api.maintenance.service_provider.getAll(me.property),
+          api.communication.documentCategory.getAll(me.property),
+          api.communication.meetingFolder.getAll(me.property),
+        ]);
+      }
+  
+      if (me?.property && folderIds) {
+        // Load data for each folder
+        await Promise.all(folderIds.map(async (folderId) => {
           await api.communication.meetingFolder.getById(
             folderId.asJson.id,
             me.property
@@ -63,35 +72,38 @@ export const Account = observer((props: IImage) => {
             me.property,
             folderId.asJson.id
           );
-        }
-      } else if (me?.property && documentFolderIds) {
-        for (const documentFolderId of documentFolderIds) {
-          await api.communication.documentCategory.getAll(
-            me.property
-          );
+        }));
+      }
+  
+      if (me?.property && documentFolderIds) {
+        // Load data for each document folder
+        await Promise.all(documentFolderIds.map(async (documentFolderId) => {
+          await api.communication.documentCategory.getAll(me.property);
           await api.communication.documentFile.getAll(
             me.property,
             documentFolderId.asJson.id
           );
-        }
-      } else if (me?.property === "") {
+        }));
       }
     };
-
+  
     getData();
   }, [
     api.body.body,
     api.body.financialMonth,
     api.body.financialYear,
-    api.communication.announcement,
-    api.communication.documentCategory,
     api.communication.documentFile,
     api.body.propertyBankAccount,
-    api.communication.meeting,
+    api.communication.announcement,
+    api.communication.documentCategory,
     api.communication.meetingFolder,
+    api.maintenance.maintenance_request,
+    api.maintenance.service_provider,
+    api.unit,
+    api.communication.meeting,
     me?.property,
-    me?.year,
   ]);
+  
 
   useEffect(() => {
     const openUpdateUserDialog = () => {
@@ -101,7 +113,7 @@ export const Account = observer((props: IImage) => {
       }
     };
     openUpdateUserDialog();
-  }, []);
+  }, [me?.firstName.length, me?.lastName.length, navigate]);
 
   return (
     <div className="brand uk-margin">
