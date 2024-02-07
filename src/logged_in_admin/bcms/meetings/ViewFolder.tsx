@@ -201,7 +201,14 @@ export const ViewFolder = observer(() => {
                     >
                       {currentMeetings.map((meeting) => {
                         const now = new Date();
-                        const isScheduled =
+                        let statusText, statusClass;
+                        if(meeting.isVerified === false && me?.role !=="Owner"){
+                           statusText = "Unverified";
+                           statusClass = statusText
+                          .toLowerCase()
+                          .replace(/\s+/g, "-"); // Convert status text to CSS class
+                        }else{
+                          const isScheduled =
                           now.getTime() <
                           new Date(meeting.startDateAndTime).getTime();
                         const isInProgress =
@@ -209,15 +216,18 @@ export const ViewFolder = observer(() => {
                             new Date(meeting.startDateAndTime).getTime() &&
                           now.getTime() <=
                             new Date(meeting.endDateAndTime).getTime();
-                        const statusText = isScheduled
+                      
+                         statusText = isScheduled
                           ? "Scheduled"
                           : isInProgress
                           ? "In Progress"
                           : "Done";
-                        const statusClass = statusText
+                         statusClass = statusText
                           .toLowerCase()
                           .replace(/\s+/g, "-"); // Convert status text to CSS class
 
+                        }
+                     
                         // Render the meeting card if the user is not an owner or if the meeting is verified
                         // If the user is an owner, only render the card if the meeting is verified
                         if (me?.role !== "Owner" || meeting.isVerified) {
