@@ -3,14 +3,20 @@ import { useAppContext } from "../../../shared/functions/Context";
 import { useEffect, useState } from "react";
 import folder from "./assets/folder_3139112.png";
 import "./folderStyles.scss";
-import showModalFromId from "../../../shared/functions/ModalShow"
+import showModalFromId from "../../../shared/functions/ModalShow";
 import DIALOG_NAMES from "../../dialogs/Dialogs";
 import Modal from "../../../shared/components/Modal";
 import { MeetingFolderDialog } from "../../dialogs/communication-dialogs/meetings/MeetingFolderDialog";
 import { IMeetingFolder } from "../../../shared/models/communication/meetings/MeetingFolder";
 import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../../../shared/components/Loading";
-import { cannotCreateFolder } from "../../shared/common";
+import {
+  cannotCreateFolder,
+  getNumberOfUNSeenMeetings,
+} from "../../shared/common";
+import { IMeeting } from "../../../shared/models/communication/meetings/Meeting";
+import { AnyARecord } from "dns";
+import { Badge } from "@mui/material";
 
 export const Meetings = observer(() => {
   const { api, store } = useAppContext();
@@ -18,6 +24,9 @@ export const Meetings = observer(() => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const meetings = store.communication.meeting.all.map((m) => {
+    return m.asJson;
+  });
 
   const folders = store.communication.meetingFolder.all
     .filter((folder) =>
@@ -43,6 +52,7 @@ export const Meetings = observer(() => {
       setLoading(true);
       if (me?.property) {
         await api.communication.meetingFolder.getAll(me.property);
+        await api.communication.meeting.getAll(me.property, "");
       }
       setLoading(false);
     };
@@ -101,13 +111,49 @@ export const Meetings = observer(() => {
                 // data-uk-tooltip="double click"
                 style={{ textAlign: "center" }}
               >
-                <div className="uk-card uk-card-body">
-                  <div className="image-container">
-                    <img src={folder} />
-                    <div className="icon-container"></div>
+                {/* <Badge
+                  badgeContent={getNumberOfUNSeenMeetings(
+                    meetings,
+                    me?.uid || "",
+                    f.id
+                  )}
+                  color="primary"
+                >
+                  <div className="uk-card uk-card-body">
+                    <div className="image-container">
+                      <img src={folder} />
+                      <div className="icon-container"></div>
+                    </div>
+                    <span style={{ fontSize: "11px" }}>{f.folderName}</span>
                   </div>
-                  <span style={{ fontSize: "11px" }}>{f.folderName}</span>
-                </div>
+                </Badge> */}
+
+                {me?.role === "Owner" ? (
+                  <Badge
+                    badgeContent={getNumberOfUNSeenMeetings(
+                      meetings,
+                      me?.uid || "",
+                      f.id
+                    )}
+                    color="primary"
+                  >
+                    <div className="uk-card uk-card-body">
+                      <div className="image-container">
+                        <img src={folder} />
+                        <div className="icon-container"></div>
+                      </div>
+                      <span style={{ fontSize: "11px" }}>{f.folderName}</span>
+                    </div>
+                  </Badge>
+                ) : (
+                  <div className="uk-card uk-card-body">
+                    <div className="image-container">
+                      <img src={folder} />
+                      <div className="icon-container"></div>
+                    </div>
+                    <span style={{ fontSize: "11px" }}>{f.folderName}</span>
+                  </div>
+                )}
               </div>
             ))}
             {folders.length === 0 && (

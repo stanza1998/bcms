@@ -38,6 +38,8 @@ import { IBodyCop } from "../../shared/models/bcms/BodyCorperate";
 import { useAppContext } from "../../shared/functions/Context";
 import { ICustomContact } from "../../shared/models/communication/contact-management/CustomContacts";
 import AppApi from "../../shared/apis/AppApi";
+import { IMeetingFolder } from "../../shared/models/communication/meetings/MeetingFolder";
+import { IMeeting } from "../../shared/models/communication/meetings/Meeting";
 
 export const getFileExtension = (url: string): string => {
   const extensionMatch = url.match(/\.([a-z0-9]+)(?:[?#]|$)/i);
@@ -236,12 +238,14 @@ export function formatMeetingTime(
     // Meeting is in the future
     const minutesLeft = Math.floor(timeDifferenceStart / (1000 * 60));
     if (minutesLeft < 60) {
-      return `Meeting Starts in ${minutesLeft} minute${minutesLeft !== 1 ? "s" : ""
-        } `;
+      return `Meeting Starts in ${minutesLeft} minute${
+        minutesLeft !== 1 ? "s" : ""
+      } `;
     } else if (minutesLeft < 1440) {
       const hoursLeft = Math.floor(minutesLeft / 60);
-      return `Meeting Starts in ${hoursLeft} hour${hoursLeft !== 1 ? "s" : ""
-        } `;
+      return `Meeting Starts in ${hoursLeft} hour${
+        hoursLeft !== 1 ? "s" : ""
+      } `;
     } else if (minutesLeft < 43200) {
       // 43200 minutes in a month (assuming 30 days in a month)
       const daysLeft = Math.floor(minutesLeft / 1440);
@@ -249,19 +253,22 @@ export function formatMeetingTime(
     } else if (minutesLeft < 525600) {
       // 525600 minutes in a year (assuming 365 days in a year)
       const monthsLeft = Math.floor(minutesLeft / 43200);
-      return `Meeting Starts in ${monthsLeft} month${monthsLeft !== 1 ? "s" : ""
-        } `;
+      return `Meeting Starts in ${monthsLeft} month${
+        monthsLeft !== 1 ? "s" : ""
+      } `;
     } else {
       const yearsLeft = Math.floor(minutesLeft / 525600);
-      return `Meeting Starts in ${yearsLeft} year${yearsLeft !== 1 ? "s" : ""
-        } left`;
+      return `Meeting Starts in ${yearsLeft} year${
+        yearsLeft !== 1 ? "s" : ""
+      } left`;
     }
   } else if (timeDifferenceEnd > 0) {
     // Meeting has ended
     const minutesAgo = Math.floor(timeDifferenceEnd / (1000 * 60));
     if (minutesAgo < 60) {
-      return `Meeting Ended ${minutesAgo} minute${minutesAgo !== 1 ? "s" : ""
-        } ago`;
+      return `Meeting Ended ${minutesAgo} minute${
+        minutesAgo !== 1 ? "s" : ""
+      } ago`;
     } else if (minutesAgo < 1440) {
       const hoursAgo = Math.floor(minutesAgo / 60);
       return `Meeting Ended ${hoursAgo} hour${hoursAgo !== 1 ? "s" : ""} ago`;
@@ -272,8 +279,9 @@ export function formatMeetingTime(
     } else if (minutesAgo < 525600) {
       // 525600 minutes in a year (assuming 365 days in a year)
       const monthsAgo = Math.floor(minutesAgo / 43200);
-      return `Meeting Ended ${monthsAgo} month${monthsAgo !== 1 ? "s" : ""
-        } ago`;
+      return `Meeting Ended ${monthsAgo} month${
+        monthsAgo !== 1 ? "s" : ""
+      } ago`;
     } else {
       const yearsAgo = Math.floor(minutesAgo / 525600);
       return `Meeting Ended ${yearsAgo} year${yearsAgo !== 1 ? "s" : ""} ago`;
@@ -378,7 +386,7 @@ export const updateWorkOrderWithFiles = async (
   code: string,
   api: AppApi,
   propertyId: string,
-  maintenanceId: string,
+  maintenanceId: string
 ): Promise<IWorkOrderFlow> => {
   // Upload the main file (quote file)
   const quoteFilePath = `workfloworders/work-order-number:_${existingWorkOrder.workOrderNumber}/${code}/file.pdf`;
@@ -389,7 +397,9 @@ export const updateWorkOrderWithFiles = async (
   // Upload images
   const imageUrls: string[] = [];
   for (const [index, image] of images.entries()) {
-    const imagePath = `workfloworders/work-order-number:_${existingWorkOrder.workOrderNumber}/${code}/images/image${index + 1}.jpg`;
+    const imagePath = `workfloworders/work-order-number:_${
+      existingWorkOrder.workOrderNumber
+    }/${code}/images/image${index + 1}.jpg`;
     const imageRef = ref(storage, imagePath);
     await uploadBytes(imageRef, image);
     const imageUrl = await getDownloadURL(imageRef);
@@ -397,40 +407,45 @@ export const updateWorkOrderWithFiles = async (
   }
 
   // Check if there is an existing entry with the same id (sid) in the quoteFiles array
-  const existingQuoteFileIndex = existingWorkOrder.quoteFiles.findIndex((quoteFile) => quoteFile.id === sid);
+  const existingQuoteFileIndex = existingWorkOrder.quoteFiles.findIndex(
+    (quoteFile) => quoteFile.id === sid
+  );
 
   // Update the existing work order object
   const updatedWorkOrder: IWorkOrderFlow = {
     ...existingWorkOrder,
-    quoteFiles: existingQuoteFileIndex !== -1
-      ? existingWorkOrder.quoteFiles.map((quoteFile, index) => (
-        index === existingQuoteFileIndex
-          ? {
-            ...quoteFile,
-            quoteFileurl: quoteFileUrl,
-            imageUrls: imageUrls,
-          }
-          : quoteFile
-      ))
-      : [
-        ...existingWorkOrder.quoteFiles,
-        {
-          id: sid, // You might generate a unique ID here
-          quoteFileurl: quoteFileUrl,
-          imageUrls: imageUrls,
-        },
-      ],
+    quoteFiles:
+      existingQuoteFileIndex !== -1
+        ? existingWorkOrder.quoteFiles.map((quoteFile, index) =>
+            index === existingQuoteFileIndex
+              ? {
+                  ...quoteFile,
+                  quoteFileurl: quoteFileUrl,
+                  imageUrls: imageUrls,
+                }
+              : quoteFile
+          )
+        : [
+            ...existingWorkOrder.quoteFiles,
+            {
+              id: sid, // You might generate a unique ID here
+              quoteFileurl: quoteFileUrl,
+              imageUrls: imageUrls,
+            },
+          ],
     // You can also update other properties if needed
   };
 
   try {
-    await api.maintenance.work_flow_order.update(updatedWorkOrder, propertyId, maintenanceId);
-  } catch (error) {
-  }
+    await api.maintenance.work_flow_order.update(
+      updatedWorkOrder,
+      propertyId,
+      maintenanceId
+    );
+  } catch (error) {}
 
   return updatedWorkOrder;
 };
-
 
 export async function workerOrdersAndRequestRelationshipStatusUpdate(
   requestId: string,
@@ -604,10 +619,9 @@ export function canViewMaintenanceRequestDetails(
   return hasMaintenanceRequest;
 }
 
-
 export function generateUniqueCode(): string {
   const codeLength: number = 13;
-  let uniqueCode: string = '';
+  let uniqueCode: string = "";
 
   for (let i = 0; i < codeLength; i++) {
     const randomDigit: number = Math.floor(Math.random() * 10);
@@ -617,25 +631,45 @@ export function generateUniqueCode(): string {
   return uniqueCode;
 }
 
-
-
-export function getCodeUsingEmail(email: string, SP: IServiceProvider[]): string {
+export function getCodeUsingEmail(
+  email: string,
+  SP: IServiceProvider[]
+): string {
   const code = SP.find((sp) => sp.email === email)?.code;
 
   if (code) {
     return code;
   }
 
-  return ""
+  return "";
 }
 
-
 export function getServiceProviderId(store: AppStore, code: string): string {
-  const serviceProviderId = store.maintenance.servie_provider.all.find((sp) => sp.asJson.code === code)?.asJson.id;
+  const serviceProviderId = store.maintenance.servie_provider.all.find(
+    (sp) => sp.asJson.code === code
+  )?.asJson.id;
 
   if (serviceProviderId) {
-    return serviceProviderId
+    return serviceProviderId;
   }
 
-  return "No Id Found"
+  return "No Id Found";
+}
+
+export function getNumberOfUNSeenMeetings(
+  meetings: IMeeting[],
+  uid: string,
+  fid: string
+): number {
+  const unseenMeetings = meetings.filter(
+    (m) => !m.seen.includes(uid) && m.isVerified === true
+  );
+  if (unseenMeetings) {
+    const unseenFolderMeetings = unseenMeetings.filter(
+      (m) => m.folderId === fid
+    ).length;
+    return unseenFolderMeetings;
+  }
+
+  return 0;
 }
