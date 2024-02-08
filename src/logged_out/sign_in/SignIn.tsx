@@ -66,7 +66,9 @@ const SignIn = observer(() => {
     }
   };
   const [imageLoaded, setImageLoaded] = useState(false);
-
+  const sendPasswordResetEmail = (email:string) => {
+    if (email !="") api.auth.passwordResetWithEmail(email);
+  };
   // useEffect(() => {
   //   return () => {
   //     // Cleanup function: reset the form when the component unmounts
@@ -130,7 +132,12 @@ const SignIn = observer(() => {
                   }
                   required
                 />
-
+                <button
+                  className="uk-button uk-button-secondary uk-margin-small-bottom"
+                  type="button"
+                  onClick={() => sendPasswordResetEmail(signInForm.email)}                >
+                  Send password reset email
+                </button>
                 <button type="submit">
                   Login
                   {loading && <div data-uk-spinner="ratio: .5"></div>}
