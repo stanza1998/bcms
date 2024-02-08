@@ -22,7 +22,7 @@ export const OwnerRequestDialog = observer(() => {
       unitId: unitId,
     });
   const sendToOwner = me?.email;
-  const sendToManager = ["narib98jerry@gmail.com", "dinahmasule@gmail.com"];
+  const sendToManager = ["narib98jerry@gmail.com", "dinahmasule@gmail.com"];  //problem here
 
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,7 +57,7 @@ export const OwnerRequestDialog = observer(() => {
             sendToManager,
             maintenanceRequest.description,
             `${me.firstName + " " + me.lastName}`
-          );
+          ); //problem here
         } catch (error) {}
 
         try {
