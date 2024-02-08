@@ -84,6 +84,7 @@ export const Account = observer((props: IImage) => {
     api.unit,
     api.communication.meeting,
     me?.property,
+    store.communication.meetingFolder.all.length,
   ]);
 
   useEffect(() => {

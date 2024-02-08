@@ -81,7 +81,7 @@ export default class UserApi {
   async createUser(user: IUser) {
     const { email, password = `${user.firstName}@${user.lastName}` } = user;
     console.log("About to create owner");
-    console.log("Entered email and password: "+email+" "+password);
+    console.log("Entered email and password: " + email + " " + password);
     // Create user in Firebase Authentication
     const userCredential = await createUserWithEmailAndPassword(
       authWorker,
@@ -100,9 +100,10 @@ export default class UserApi {
       await setDoc(doc(db, "Users", user.uid), user);
 
       // Send welcome email with a link to reset password
-      
+
       await sendPasswordResetEmail(authWorker, email, {
-        url: "http://localhost:3000/change-password", // Set the URl to app url https://vanwylbcms.web.app/
+        // url: "http://localhost:3000/change-password", // Set the URl to app url https://vanwylbcms.web.app/
+        url: "https://vanwylbcms.web.app/change-password", // Set the URl to app url https://vanwylbcms.web.app/
         handleCodeInApp: true,
       });
       //owner details

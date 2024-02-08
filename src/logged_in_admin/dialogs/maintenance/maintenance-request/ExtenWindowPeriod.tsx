@@ -68,8 +68,8 @@ export const ExtendWindowPeriod = observer(() => {
             await mailWorkOrderWindowPeriodExtended(
               serviceProvidersEmails,
               workOrder.workOrderNumber,
-              `http://localhost:3000/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`,
-              // `https://vanwylbcms.web.app/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`
+              // `http://localhost:3000/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`,
+              `https://vanwylbcms.web.app/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`,
               workOrder.windowPeriod,
               serviceProviders
             );

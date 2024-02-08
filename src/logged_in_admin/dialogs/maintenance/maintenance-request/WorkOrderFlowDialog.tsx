@@ -97,7 +97,8 @@ export const WorkOrderFlowDialog = observer(() => {
               serviceProvidersEmails,
               workOrder.title,
               workOrder.description,
-              link,
+              //   `http://localhost:3000/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`
+              `https://vanwylbcms.web.app/service-provider-quotes/${workOrder.propertyId}/${maintenanceRequestId}/${workOrder.id}`,
               SP
             );
           } catch (error) {
