@@ -1,19 +1,12 @@
 import { observer } from "mobx-react-lite";
-import { FormEvent, useEffect, useState } from "react";
+import { useState, FormEvent, useEffect } from "react";
+import SingleSelect from "../../../../shared/components/single-select/SlingleSelect";
 import { useAppContext } from "../../../../shared/functions/Context";
 import { hideModalFromId } from "../../../../shared/functions/ModalShow";
-import DIALOG_NAMES from "../../Dialogs";
-import {
-  IMaintenanceRequest,
-  defaultMaintenanceRequest,
-} from "../../../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
-import SingleSelect from "../../../../shared/components/single-select/SlingleSelect";
-import {
-  MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_MANAGER,
-  MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_OWNER,
-} from "../../../shared/mailMessages";
-import { mailMaintenanceRequestCreatedSuccessfulManager } from "../../../shared/mailMessagesManager";
+import { IMaintenanceRequest, defaultMaintenanceRequest } from "../../../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
 import { maintenanceRequestCreatedSuccessfullyOwner } from "../../../shared/maiMessagesOwner";
+import { mailMaintenanceRequestCreatedSuccessfulManager } from "../../../shared/mailMessagesManager";
+import DIALOG_NAMES from "../../Dialogs";
 
 export const OwnerRequestDialog = observer(() => {
   const { api, store, ui } = useAppContext();
@@ -22,21 +15,19 @@ export const OwnerRequestDialog = observer(() => {
   const me = store.user.meJson;
   const currentDate = new Date();
   const dateIssued = currentDate.toUTCString();
-
   const [maintenanceRequest, setMaintenanceRequest] =
     useState<IMaintenanceRequest>({
       ...defaultMaintenanceRequest,
       ownerId: me?.uid || "",
       unitId: unitId,
     });
-
   const sendToOwner = me?.email;
   const sendToManager = ["narib98jerry@gmail.com", "dinahmasule@gmail.com"];
 
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    if (!me?.property) return;
+    if (!me?.property || unitId === "") return; // Prevent form submission if unitId is empty
     // Update API
 
     try {
@@ -52,7 +43,6 @@ export const OwnerRequestDialog = observer(() => {
           type: "success",
         });
       } else {
-        // maintenanceRequest.authorOrSender = me.uid;
         maintenanceRequest.dateRequested = dateIssued;
         maintenanceRequest.ownerId = me.uid || "";
         maintenanceRequest.unitId = unitId;
@@ -70,31 +60,9 @@ export const OwnerRequestDialog = observer(() => {
           );
         } catch (error) {}
 
-        // try {
-        //   const { MY_SUBJECT, MY_BODY } =
-        //     MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_MANAGER(
-        //       maintenanceRequest.description,
-        //       `${me.firstName} ${me.lastName}`
-        //     );
-
-        //   await api.mail.sendMail("", sendToManager, MY_SUBJECT, MY_BODY, "");
-        // } catch (error) {}
-
         try {
           await maintenanceRequestCreatedSuccessfullyOwner([sendToOwner || ""]);
         } catch (error) {}
-
-        // try {
-        //   const { MY_SUBJECT, MY_BODY } =
-        //     MAIL_MAINTENANCE_REQUEST_CREATED_SUCCESSFULLY_OWNER();
-        //   await api.mail.sendMail(
-        //     "",
-        //     [sendToOwner || ""],
-        //     MY_SUBJECT,
-        //     MY_BODY,
-        //     ""
-        //   );
-        // } catch (error) {}
 
         ui.snackbar.load({
           id: Date.now(),
@@ -190,17 +158,20 @@ export const OwnerRequestDialog = observer(() => {
 
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-                Please select your unit
+                Please select your unit    {!unitId && (
+                  <span style={{ color: "red" }}>*</span>
+                )}
               </label>
               <div className="uk-form-controls">
                 <SingleSelect onChange={handleSelectUnit} options={units} />
+            
               </div>
             </div>
             <div className="footer uk-margin">
               <button className="uk-button secondary uk-modal-close">
                 Cancel
               </button>
-              <button className="uk-button primary" type="submit">
+              <button className="uk-button primary" type="submit" disabled={!unitId}>
                 Save
                 {loading && <div data-uk-spinner="ratio: .5"></div>}
               </button>
