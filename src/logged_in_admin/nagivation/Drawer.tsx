@@ -62,6 +62,7 @@ export const Account = observer((props: IImage) => {
           api.maintenance.service_provider.getAll(me.property),
           api.communication.documentCategory.getAll(me.property),
           api.communication.meetingFolder.getAll(me.property),
+          api.communication.customContact.getAll(me.property),
         ]);
 
         if (store.communication.meetingFolder.all.length > 0) {
@@ -84,7 +85,7 @@ export const Account = observer((props: IImage) => {
     api.unit,
     api.communication.meeting,
     me?.property,
-    store.communication.meetingFolder.all.length,
+    api.communication.customContact,
   ]);
 
   useEffect(() => {
@@ -580,8 +581,8 @@ const OWNER_DRAWER = observer(() => {
   ).length;
 
   const totalCommunicationAnnouncements =
-    active +
-    totalDocumentCount +
+    active
+     +
     Object.values(folderIdCounts).reduce((acc, count) => acc + count, 0);
   // console.log("Heres my total "+totalCommunicationAnnouncements);
   // const activeMeetings = latestMeeting.filter(

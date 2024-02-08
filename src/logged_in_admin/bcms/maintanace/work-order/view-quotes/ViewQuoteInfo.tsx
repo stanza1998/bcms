@@ -98,16 +98,22 @@ export const ViewQuoteInfo = observer(() => {
           data-uk-grid
         >
           {imagesLoading && <Loading />}
-
           {quoteInfo?.imageUrls.map((img, index) => (
             <div key={index}>
               <div>
-                <img
-                  src={img}
-                  alt={`Image ${index + 1}`}
-                  onLoad={handleImagesLoaded}
-                  style={{ display: imagesLoading ? "none" : "block" }}
-                />
+                <a href={img} target="_blank" rel="noopener noreferrer">
+                  <img
+                    src={img}
+                    alt={`Image ${index + 1}`}
+                    onLoad={handleImagesLoaded}
+                    style={{
+                      display: imagesLoading ? "none" : "block",
+                      maxWidth: "100%",
+                      height: "auto",
+                      zoom:"100%",
+                    }} // Ensure the image fits within the viewport
+                  />
+                </a>
               </div>
             </div>
           ))}
