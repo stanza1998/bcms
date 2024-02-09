@@ -3,7 +3,10 @@ import { useState, FormEvent, useEffect } from "react";
 import SingleSelect from "../../../../shared/components/single-select/SlingleSelect";
 import { useAppContext } from "../../../../shared/functions/Context";
 import { hideModalFromId } from "../../../../shared/functions/ModalShow";
-import { IMaintenanceRequest, defaultMaintenanceRequest } from "../../../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
+import {
+  IMaintenanceRequest,
+  defaultMaintenanceRequest,
+} from "../../../../shared/models/maintenance/request/maintenance-request/MaintenanceRequest";
 import { maintenanceRequestCreatedSuccessfullyOwner } from "../../../shared/maiMessagesOwner";
 import { mailMaintenanceRequestCreatedSuccessfulManager } from "../../../shared/mailMessagesManager";
 import DIALOG_NAMES from "../../Dialogs";
@@ -23,11 +26,22 @@ export const OwnerRequestDialog = observer(() => {
     });
   const sendToOwner = me?.email;
   const sendToManager = ["narib98jerry@gmail.com", "dinahmasule@gmail.com"];
-
+  const [attemptedSave, setAttemptedSave] = useState(false); // Track if the user attempted to save the form
+  // const attemptedSaveLog = () => {
+  //   if (!me?.property || unitId === "") {
+  //     setAttemptedSave(true);
+  //   } // Prevent form submission if unitId is empty
+  // };
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
+    setAttemptedSave(true);
     e.preventDefault();
     setLoading(true);
-    if (!me?.property || unitId === "") return; // Prevent form submission if unitId is empty
+
+    if (unitId===""){
+      setAttemptedSave(false);
+    }
+    
+    if (!me?.property || unitId === "") return; 
     // Update API
 
     try {
@@ -155,23 +169,26 @@ export const OwnerRequestDialog = observer(() => {
                 />
               </div>
             </div>
-
             <div className="uk-margin">
               <label className="uk-form-label" htmlFor="form-stacked-text">
-                Please select your unit    {!unitId && (
-                  <span style={{ color: "red" }}>*</span>
-                )}
+                Please select your unit{" "}
+                {!unitId && <span style={{ color: "red" }}>*</span>}
               </label>
               <div className="uk-form-controls">
                 <SingleSelect onChange={handleSelectUnit} options={units} />
-            
+                {(!attemptedSave === true && unitId ==="" ) && <span style={{ color: "red" }}>Enter unit id</span>}
               </div>
             </div>
+
             <div className="footer uk-margin">
               <button className="uk-button secondary uk-modal-close">
                 Cancel
               </button>
-              <button className="uk-button primary" type="submit" disabled={!unitId}>
+              <button
+                className="uk-button primary"
+                type="submit"
+                disabled={!unitId}
+              >
                 Save
                 {loading && <div data-uk-spinner="ratio: .5"></div>}
               </button>
