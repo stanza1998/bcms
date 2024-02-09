@@ -25,7 +25,7 @@ export const OwnerRequestDialog = observer(() => {
       unitId: unitId,
     });
   const sendToOwner = me?.email;
-  const sendToManager = ["narib98jerry@gmail.com", "dinahmasule@gmail.com"];
+  const sendToManager = ["narib98jerry@gmail.com", "dinahmasule@gmail.com"];  //problem here
   const [attemptedSave, setAttemptedSave] = useState(false); // Track if the user attempted to save the form
   // const attemptedSaveLog = () => {
   //   if (!me?.property || unitId === "") {
@@ -176,7 +176,7 @@ export const OwnerRequestDialog = observer(() => {
               </label>
               <div className="uk-form-controls">
                 <SingleSelect onChange={handleSelectUnit} options={units} />
-                {(!attemptedSave === true && unitId ==="" ) && <span style={{ color: "red" }}>Enter unit id</span>}
+                {(attemptedSave === true && unitId ==="" ) && <span style={{ color: "red" }}>Enter unit id</span>}
               </div>
             </div>
 
