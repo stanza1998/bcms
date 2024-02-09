@@ -42,7 +42,7 @@ const SignIn = observer(() => {
   const [resetEmail, setResetEmail] = useState("");
   const [rloading, setRLoading] = useState(false);
 
-  console.log(resetEmail)
+  console.log(resetEmail);
 
   const onReset = () => {
     showModalFromId(PASSWORD.FORGOT_PASSWORD_DIALOG);
@@ -50,13 +50,13 @@ const SignIn = observer(() => {
 
   const sendResetLink = async (e: any) => {
     e.preventDefault();
-  
+
     // Check if resetEmail is empty or undefined
     if (!resetEmail) {
-      console.error('Error: Email address is empty or undefined');
+      console.error("Error: Email address is empty or undefined");
       return;
     }
-  
+
     try {
       setRLoading(true);
       await resetPassword(resetEmail, auth);
@@ -65,7 +65,6 @@ const SignIn = observer(() => {
       console.log("Error: ", error);
     }
   };
-  
 
   const onSignIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -185,8 +184,7 @@ const SignIn = observer(() => {
                 className="uk-button"
                 style={{ color: "#01aced" }}
               >
-                Send
-                {rloading && <span data-uk-spinner={"ration:.5"}></span>}
+                Send {rloading && <span data-uk-spinner={"ratio:.4"}></span>}
               </button>
             </div>
           </form>
