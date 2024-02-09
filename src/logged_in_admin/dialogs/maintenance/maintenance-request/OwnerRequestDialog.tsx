@@ -27,11 +27,6 @@ export const OwnerRequestDialog = observer(() => {
   const sendToOwner = me?.email;
   const sendToManager = ["narib98jerry@gmail.com", "dinahmasule@gmail.com"];  //problem here
   const [attemptedSave, setAttemptedSave] = useState(false); // Track if the user attempted to save the form
-  // const attemptedSaveLog = () => {
-  //   if (!me?.property || unitId === "") {
-  //     setAttemptedSave(true);
-  //   } // Prevent form submission if unitId is empty
-  // };
   const onSave = async (e: FormEvent<HTMLFormElement>) => {
     setAttemptedSave(true);
     e.preventDefault();
@@ -175,8 +170,8 @@ export const OwnerRequestDialog = observer(() => {
                 {!unitId && <span style={{ color: "red" }}>*</span>}
               </label>
               <div className="uk-form-controls">
+              {(!attemptedSave === true && unitId ==="" ) && <span style={{ color: "red" }}>Enter unit id</span>}
                 <SingleSelect onChange={handleSelectUnit} options={units} />
-                {(attemptedSave === true && unitId ==="" ) && <span style={{ color: "red" }}>Enter unit id</span>}
               </div>
             </div>
 
